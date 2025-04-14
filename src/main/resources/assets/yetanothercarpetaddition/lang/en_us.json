@@ -1,0 +1,63 @@
+{
+  "category.MAIN": "YACA",
+  "category.LASCommand": "YACACommand",
+
+  "carpet.rule.enableTickStepCounter.name": "Tick Step Counter",
+  "carpet.rule.enableTickStepCounter.desc": "Counts how many ticks have been step after last freeze.",
+  "TickStepCounter.stepped": "This is the %s tick after /tick freeze.",
+
+  "carpet.rule.enableMountPlayers.name": "Bypass Mount Player Restriction.",
+  "carpet.rule.enableMountPlayers.desc": "Allow entity to mount player entities.",
+
+  "carpet.rule.allowUnsignedMessages.name": "Allow Unsigned Messages",
+  "carpet.rule.allowUnsignedMessages.desc": "Allow unsigned messages from offline players",
+  
+  "carpet.rule.stopTickingWorldBorder.name": "Stop Ticking World Border",
+  "carpet.rule.stopTickingWorldBorder.desc": "Prevents the world border from updating its state each tick",
+  
+  "carpet.rule.stopTickingWeather.name": "Stop Ticking Weather",
+  "carpet.rule.stopTickingWeather.desc": "Disables weather updates, such as rain or thunderstorms",
+  
+  "carpet.rule.stopTickingTime.name": "Stop Ticking Time",
+  "carpet.rule.stopTickingTime.desc": "Halts the progression of the in-game time of day",
+  
+  "carpet.rule.stopTickingBlocks.name": "Stop Ticking Blocks",
+  "carpet.rule.stopTickingBlocks.desc": "Prevents scheduled or random block ticks, such as crop growth or repeaters",
+  
+  "carpet.rule.stopTickingFluids.name": "Stop Ticking Fluids",
+  "carpet.rule.stopTickingFluids.desc": "Stops fluid updates, like water or lava flow",
+  
+  "carpet.rule.stopTickingRaid.name": "Stop Ticking Raids",
+  "carpet.rule.stopTickingRaid.desc": "Disables raid event updates and progression",
+  
+  "carpet.rule.stopTickingChunkManager.name": "Stop Ticking Chunk Manager",
+  "carpet.rule.stopTickingChunkManager.desc": "Prevents the chunk manager from processing chunk loading and unloading",
+  
+  "carpet.rule.stopTickingBlockEvents.name": "Stop Ticking Block Events",
+  "carpet.rule.stopTickingBlockEvents.desc": "Halts processing of queued block events, such as pistons",
+  
+  "carpet.rule.stopTickingDragonFight.name": "Stop Ticking Dragon Fight",
+  "carpet.rule.stopTickingDragonFight.desc": "Freezes the ender dragon fight mechanics in the End dimension",
+  
+  "carpet.rule.stopCheckEntityDespawn.name": "Stop Checking Entity Despawn",
+  "carpet.rule.stopCheckEntityDespawn.desc": "Disables despawn checks for entities, preventing them from despairing",
+ 
+  "carpet.rule.stopTickingEntities.name": "Stop Ticking Entities",
+  "carpet.rule.stopTickingEntities.desc": "Prevents entities, like mobs or players, from ticking",
+  
+  "carpet.rule.stopTickingBlockEntities.name": "Stop Ticking Block Entities",
+  "carpet.rule.stopTickingBlockEntities.desc": "Stops block entities, such as furnaces or chests, from ticking",
+
+  "carpet.rule.stopTickingSpawners.name": "Stop Ticking Spawners",
+  "carpet.rule.stopTickingSpawners.desc": "Stops entity spawners from ticking",
+
+  "carpet.rule.enchantCommandLimitOverwrite.name": "/enchant Command Limit Override",
+  "carpet.rule.enchantCommandLimitOverwrite.desc": "Set level limit of /enchant command to 255",
+
+  "carpet.rule.enchantCommandBypassItemType.name": "/enchant Command Item Type Restriction Bypass",
+  "carpet.rule.enchantCommandBypassItemType.desc": "Bypass item type restriction for /enchant command",
+
+  "carpet.rule.mergeSmartAndRegularCommandSuggestions.name": "Merge Smart And Regular Command Suggestions",
+  "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "Carpet only shows smart suggestions while regular suggestions list is empty. This rule merges them into one list."
+
+}

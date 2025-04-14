@@ -1,0 +1,63 @@
+{
+  "category.MAIN": "YACA",
+  "category.LASCommand": "YACACommand",
+
+  "carpet.rule.enableTickStepCounter.name": "刻步进计数器",
+  "carpet.rule.enableTickStepCounter.desc": "计算/tick freeze 后步进的游戏刻总数",
+  "TickStepCounter.stepped": "这是 /tick freeze 后的第 %s 个tick。",
+
+  "carpet.rule.enableMountPlayers.name": "解除骑乘玩家限制",
+  "carpet.rule.enableMountPlayers.desc": "允许玩家实体被骑乘",
+
+  "carpet.rule.allowUnsignedMessages.name": "更多含水方块",
+  "carpet.rule.allowUnsignedMessages.desc": "允许更多的含水方块",
+
+  "carpet.rule.stopTickingWorldBorder.name": "停止世界边界更新",
+  "carpet.rule.stopTickingWorldBorder.desc": "阻止世界边界在每个游戏刻更新其状态",
+
+  "carpet.rule.stopTickingWeather.name": "停止天气更新",
+  "carpet.rule.stopTickingWeather.desc": "禁用天气更新，例如雨或雷暴",
+
+  "carpet.rule.stopTickingTime.name": "停止时间流逝",
+  "carpet.rule.stopTickingTime.desc": "暂停游戏内时间（白天/黑夜）的推进",
+
+  "carpet.rule.stopTickingBlocks.name": "停止方块更新",
+  "carpet.rule.stopTickingBlocks.desc": "阻止计划刻，随机刻更新，例如作物生长或中继器等",
+
+  "carpet.rule.stopTickingFluids.name": "停止流体更新",
+  "carpet.rule.stopTickingFluids.desc": "停止流体更新，例如水或岩浆的流动",
+
+  "carpet.rule.stopTickingRaid.name": "停止袭击更新",
+  "carpet.rule.stopTickingRaid.desc": "禁用袭击事件的更新和进展",
+
+  "carpet.rule.stopTickingChunkManager.name": "停止区块管理器更新",
+  "carpet.rule.stopTickingChunkManager.desc": "阻止区块管理器处理区块的加载和卸载",
+
+  "carpet.rule.stopTickingBlockEvents.name": "停止方块事件更新",
+  "carpet.rule.stopTickingBlockEvents.desc": "暂停处理排队的方块事件，例如活塞",
+
+  "carpet.rule.stopTickingDragonFight.name": "停止末影龙战斗更新",
+  "carpet.rule.stopTickingDragonFight.desc": "冻结末地维度中末影龙战斗的机制",
+
+  "carpet.rule.stopCheckEntityDespawn.name": "停止实体消失检查",
+  "carpet.rule.stopCheckEntityDespawn.desc": "禁用实体的消失检查，防止它们自然消失",
+
+  "carpet.rule.stopTickingEntities.name": "停止实体更新",
+  "carpet.rule.stopTickingEntities.desc": "阻止实体（例如怪物或玩家）在每个游戏刻更新",
+
+  "carpet.rule.stopTickingBlockEntities.name": "停止方块实体更新",
+  "carpet.rule.stopTickingBlockEntities.desc": "停止方块实体（例如熔炉或箱子）更新其状态",
+
+  "carpet.rule.stopTickingSpawners.name": "阻止怪物生成器更新",
+  "carpet.rule.stopTickingSpawners.desc": "阻止世界中的怪物生成器更新状态",
+
+  "carpet.rule.enchantCommandLimitOverwrite.name": "/enchant指令上限覆写",
+  "carpet.rule.enchantCommandLimitOverwrite.desc": "覆写/enchant指令的上限到255",
+
+  "carpet.rule.enchantCommandBypassItemType.name": "/enchant指令物品类型限制解除",
+  "carpet.rule.enchantCommandBypassItemType.desc": "解除/enchant指令对物品类型的限制",
+
+  "carpet.rule.mergeSmartAndRegularCommandSuggestions.name": "合并智能与普通指令提示",
+  "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "carpet仅在查询到的普通指令提示结果为空时展示智能查询的提示结果，本规则会合并他们。"
+
+}

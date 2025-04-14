@@ -1,0 +1,21 @@
+{
+  "required": true,
+  "package": "mypals.ml.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "carpet.SettingsManagerMixin",
+    "features.EnchantCommandMixin",
+    "features.EnchantmentMixin",
+    "features.ServerWorldMixin",
+    "features.bypassRideRestriction.RideCommandMixin",
+    "features.optionalTicking.EnderDragonFightMixin",
+    "features.optionalTicking.RaidManagerMixin",
+    "features.optionalTicking.ServerChunkManagerMixin",
+    "features.optionalTicking.WorldBorderMixin",
+    "features.optionalTicking.WorldMixin",
+    "features.stepCounter.TickCommandMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}
