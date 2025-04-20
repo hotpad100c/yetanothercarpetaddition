@@ -1,24 +1,19 @@
 package mypals.ml.Screen;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.network.RuleData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.CreativeInventoryScreen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ScrollableWidget;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import static mypals.ml.YetAnotherCarpetAdditionClient.chachedCategories;
 import static mypals.ml.YetAnotherCarpetAdditionClient.chachedRules;
@@ -28,11 +23,10 @@ public class RulesEditScreen extends Screen implements ParentElement {
     private static final Text CONFIGURE_TEXT = Text.translatable("gui.screen.configure");
     private static final Identifier CONFIGURE_TEXTURE = Identifier.of(MOD_ID, "textures/gui/configure.png");
     private String currentCategory = "unknown";
-    private static List<RuleData> rulesInCurrentCategory = new ArrayList<>();
+    private static List<RuleWidget> rulesInCurrentCategory = new ArrayList<>();
     private static List<CategoryEntry> categoriesInScreen = new ArrayList<>();
     public ScrollableWidget rulesScrollableWidget;
     public ScrollableWidget categoriesScrollableWidget;
-    public boolean isHoveringARUle = false;
     public List<Text> currentToolTips = new ArrayList<>();
 
     public RulesEditScreen(Text title) {
@@ -43,7 +37,10 @@ public class RulesEditScreen extends Screen implements ParentElement {
         this.currentCategory = category;
         categoriesInScreen.clear();
         chachedCategories.forEach(c -> categoriesInScreen.add(new CategoryEntry(c)));
-        rulesInCurrentCategory = chachedRules.stream().filter(r -> r.categories.contains(currentCategory)).toList();
+        rulesInCurrentCategory.clear();
+        chachedRules.stream().filter(r -> r.categories.contains(currentCategory)).toList().forEach(r -> {
+            rulesInCurrentCategory.add(new RuleWidget(r));
+        });
     }
 
     @Override
@@ -70,40 +67,19 @@ public class RulesEditScreen extends Screen implements ParentElement {
                 int index = 0;
                 double adjustedMouseY = mouseY + this.getScrollY();
 
-                isHoveringARUle = false;
-                for (RuleData entry : rulesInCurrentCategory) {
+                currentToolTips = new ArrayList<>();
+                for (RuleWidget entry : rulesInCurrentCategory) {
                     int x = 5;
                     int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
-                    int cx = (boxWidth) / 2;
-                    int cy = y + 30;
-
+                    entry.setPosition(x, y);
                     boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight;
 
-                    context.fill(x, y, x + boxWidth, y + boxHeight, 0x19E0E0E0);
+                    List<Text> tooltips = entry.renderContents(context, mouseX, mouseY, delta, isMouseOver,
+                            index, spacing, boxHeight, boxWidth);
 
-                    int borderColor = isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB();
-                    context.drawBorder(x, y, boxWidth, boxHeight, borderColor);
-                    StringBuilder categories = new StringBuilder();
-                    for (String c : entry.categories) {
-                        categories.append(c).append(" | ");
-                    }
-                    context.drawText(MinecraftClient.getInstance().textRenderer, entry.name + " : " + entry.value, x + 5, y + 5, 0xFFFFFF, false);
-                    context.drawText(MinecraftClient.getInstance().textRenderer, entry.defaultValue, x + 5, y + 20, 0xFFFFFF, false);
-                    context.drawText(MinecraftClient.getInstance().textRenderer, categories.toString(), x + 5, y + 35, 0xFFFFFF, false);
-                    if (isMouseOver) {
-                        List<Text> toolTips = new ArrayList<>();
-                        toolTips.add(Text.of(entry.name));
-                        toolTips.add(Text.of(entry.description));
-                        toolTips.add(Text.of(Text.translatable("gui.screen.tooltip.defaultValue").getString() + ": " + entry.defaultValue));
-                        toolTips.add(Text.of(Text.translatable("gui.screen.tooltip.currentValue").getString() + ": " + entry.value));
-                        toolTips.add(Text.of(Text.translatable("gui.screen.tooltip.suggestions").getString() + ":"));
-                        for (String c : entry.suggestions) {
-                            toolTips.add(Text.of("  " + c));
-                        }
-                        isHoveringARUle = true;
-                        currentToolTips = toolTips;
-                        //YetAnotherCarpetAdditionServer.LOGGER.info("y: " + mouseY);
-                    }
+                    currentToolTips = currentToolTips.isEmpty() && !(tooltips == null) ? tooltips
+                            : currentToolTips;
+
                     index++;
                 }
             }
@@ -115,19 +91,37 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
                 double adjustedMouseY = mouseY + this.getScrollY();
 
-                for (RuleData entry : rulesInCurrentCategory) {
-                    /*entry.setSelected(false);
+                for (RuleWidget entry : rulesInCurrentCategory) {
                     int x = 5;
-
                     int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
-                    if (mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight) {
-                        entry.onClicked(getInstance());
-                        return true;
-                    }*/
+                    entry.onClicked(mouseX, mouseY, mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight, button);
                     index++;
                 }
 
                 return super.mouseClicked(mouseX, mouseY, button);
+            }
+
+            @Override
+            public boolean charTyped(char chr, int modifiers) {
+                for (RuleWidget entry : rulesInCurrentCategory) {
+                    if (entry.valueWidget.isFocused()) {
+                        entry.valueWidget.charTyped(chr, modifiers);
+                        return true;
+                    }
+                }
+                return super.charTyped(chr, modifiers);
+            }
+
+            @Override
+            public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+
+                for (RuleWidget entry : rulesInCurrentCategory) {
+                    if (entry.valueWidget.isFocused()) {
+                        entry.valueWidget.keyPressed(keyCode, scanCode, modifiers);
+                        return true;
+                    }
+                }
+                return super.keyPressed(keyCode, scanCode, modifiers);
             }
 
             @Override
@@ -165,8 +159,6 @@ public class RulesEditScreen extends Screen implements ParentElement {
                 for (CategoryEntry categoryEntry : categoriesInScreen) {
                     int x = this.getX() + 5;
                     int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
-                    int cx = (boxWidth) / 2;
-                    int cy = y + 30;
 
                     boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight;
                     context.fill(x, y, x + boxWidth, y + boxHeight, categoryEntry.selected ? 0xAAAAAAAA : 0x19000000);
@@ -220,7 +212,8 @@ public class RulesEditScreen extends Screen implements ParentElement {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        if (isHoveringARUle)
+
+        if (!(currentToolTips == null || currentToolTips.isEmpty()))
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, currentToolTips, mouseX, mouseY);
     }
 

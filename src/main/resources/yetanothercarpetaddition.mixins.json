@@ -3,6 +3,7 @@
   "package": "mypals.ml.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "carpet.SettingsManagerAccessor",
     "carpet.SettingsManagerMixin",
     "features.EnchantCommandMixin",
     "features.EnchantmentMixin",
@@ -17,5 +18,5 @@
   ],
   "injectors": {
     "defaultRequire": 1
-	}
+  }
 }

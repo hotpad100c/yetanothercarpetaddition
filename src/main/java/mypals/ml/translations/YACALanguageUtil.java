@@ -8,6 +8,7 @@ import mypals.ml.YetAnotherCarpetAdditionServer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.JsonHelper;
 import org.apache.commons.io.IOUtils;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -23,17 +24,17 @@ public class YACALanguageUtil {
     private static final Gson GSON = new Gson();
     private static final Map<String, Map<String, String>> TRANSLATION_CACHE = new HashMap<>();
 
-    public static String getTranslation(String lang, String key) {
+    public static String getTranslation(String lang, String key, @Nullable String originalName) {
         Map<String, String> translations = getTranslations(lang);
         String translation = translations.get(key);
         if (translation != null) {
-            return translation;
+            return originalName == null ? translation : translation + "|" + originalName;
         }
         if (!lang.equals("en_us")) {
             translations = getTranslations("en_us");
             translation = translations.get(key);
             if (translation != null) {
-                return translation;
+                return translation + "|";
             }
         }
 

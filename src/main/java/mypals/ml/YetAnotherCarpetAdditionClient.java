@@ -15,6 +15,7 @@ import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -22,6 +23,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static KeyBinding carpetRulesKeyBind;
     public static List<RuleData> chachedRules = new ArrayList<>();
     public static List<String> chachedCategories = new ArrayList<>();
+    public static List<String> defaultRules = new ArrayList<>();
     public boolean requesting = false;
 
     @Override
@@ -48,6 +50,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                         .distinct().toList();
                 context.client().player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！"));
                 requesting = false;
+                defaultRules = Arrays.stream(payload.defaults().split(";")).toList();
                 MinecraftClient.getInstance().setScreen(new RulesEditScreen(Text.of("Carpet Rules")));
             });
         });
