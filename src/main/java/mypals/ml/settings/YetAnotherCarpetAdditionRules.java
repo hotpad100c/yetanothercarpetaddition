@@ -9,7 +9,7 @@ import carpet.utils.Messenger;
 import static carpet.api.settings.RuleCategory.*;
 
 public class YetAnotherCarpetAdditionRules {
-	public static final String YACA = "YetAnotherCarpetAddition";
+	public static final String YACA = "YACA";
 	@Rule(
 			categories = {YACA, FEATURE, CREATIVE}
 	)
