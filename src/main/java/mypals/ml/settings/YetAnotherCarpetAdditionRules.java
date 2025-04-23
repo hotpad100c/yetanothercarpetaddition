@@ -82,4 +82,9 @@ public class YetAnotherCarpetAdditionRules {
 			categories = {YACA, FEATURE, COMMAND}
 	)
 	public static boolean mergeSmartAndRegularCommandSuggestions = false;
+
+	@Rule(
+			categories = {YACA, FEATURE, CREATIVE}
+	)
+	public static boolean silenceTP = false;
 }

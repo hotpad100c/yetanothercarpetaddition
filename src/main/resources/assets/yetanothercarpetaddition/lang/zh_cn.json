@@ -44,5 +44,7 @@
   "carpet.rule.enchantCommandBypassItemType.desc": "解除/enchant指令对物品类型的限制",
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.name": "合并智能与普通指令提示",
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "carpet仅在查询到的普通指令提示结果为空时展示智能查询的提示结果，本规则会合并他们。",
+  "carpet.rule.silenceTP.name": "无声传送",
+  "carpet.rule.silenceTP.desc": "当你传送真人玩家时会你的游戏模式调成旁观者。",
   "category.LASCommand": "YACACommand"
 }
