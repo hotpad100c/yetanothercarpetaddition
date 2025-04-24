@@ -9,5 +9,6 @@ import net.minecraft.server.command.ServerCommandSource;
 public class YetAnotherCarpetAdditionCommands {
     public static void register(CommandDispatcher<ServerCommandSource> serverCommandSourceCommandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         ExtraVaniallaCommandRegister.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
+        ItemCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
     }
 }

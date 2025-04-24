@@ -14,7 +14,7 @@
     "features.optionalTicking.ServerChunkManagerMixin",
     "features.optionalTicking.WorldBorderMixin",
     "features.optionalTicking.WorldMixin",
-    "features.slientTP.TeleportCommandMixin",
+    "features.slienceTP.TeleportCommandMixin",
     "features.stepCounter.TickCommandMixin"
   ],
   "injectors": {

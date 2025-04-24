@@ -45,5 +45,9 @@
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.name": "Merge Smart And Regular Command Suggestions",
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "Carpet only shows smart suggestions while regular suggestions list is empty. This rule merges them into one list.",
   "carpet.rule.silenceTP.name": "SlienceTP",
-  "carpet.rule.silenceTP.desc": "When you teleport real player, your GameMode will be spectator"
+  "carpet.rule.silenceTP.desc": "When you teleport real player, your GameMode will be spectator",
+  "carpet.rule.commandEasyItemShadowing.name": "commandEasyItemShadowing",
+  "carpet.rule.commandEasyItemShadowing.desc": "Use /itemshadowing can shadow the items of MainHand to the OffHand",
+  "carpet.rule.commandRenameItem.name": "commandRename",
+  "carpet.rule.commandRenameItem.desc": "Use /rename <name> name the item in hand. If there is no name parameter, restore the original name."
 }

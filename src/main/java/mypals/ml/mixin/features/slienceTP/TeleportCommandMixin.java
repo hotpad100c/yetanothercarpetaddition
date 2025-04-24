@@ -1,10 +1,8 @@
-package mypals.ml.mixin.features.slientTP;
+package mypals.ml.mixin.features.slienceTP;
 
 import carpet.patches.EntityPlayerMPFake;
-import mypals.ml.features.tickStepCounter.StepManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.TeleportCommand;
 import net.minecraft.server.network.ServerPlayerEntity;

@@ -46,5 +46,9 @@
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "carpet仅在查询到的普通指令提示结果为空时展示智能查询的提示结果，本规则会合并他们。",
   "carpet.rule.silenceTP.name": "无声传送",
   "carpet.rule.silenceTP.desc": "当你传送真人玩家时会你的游戏模式调成旁观者。",
+  "carpet.rule.commandEasyItemShadowing.name": "简单物品分身",
+  "carpet.rule.commandEasyItemShadowing.desc": "使用/itemshadowing可以将主手的物品分身到副手。",
+  "carpet.rule.commandRenameItem.name": "快速重命名",
+  "carpet.rule.commandRenameItem.desc": "/rename <name>将手上的物品命名，没有name参数则恢复原来的名称。",
   "category.LASCommand": "YACACommand"
 }
