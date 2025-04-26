@@ -89,4 +89,12 @@ public class YetAnotherCarpetAdditionRules {
 			categories = {YACA, FEATURE, COMMAND}
 	)
 	public static String commandRenameItem = "false";
+	@Rule(
+			categories = {YACA, FEATURE, EXPERIMENTAL}
+	)
+	public static boolean instantSchedule = false;
+	@Rule(
+			categories = {YACA, FEATURE, EXPERIMENTAL}
+	)
+	public static boolean instantFalling = false;
 }

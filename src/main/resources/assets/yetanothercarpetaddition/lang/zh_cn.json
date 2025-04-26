@@ -50,5 +50,9 @@
   "carpet.rule.commandEasyItemShadowing.desc": "使用/itemshadowing可以将主手的物品分身到副手。",
   "carpet.rule.commandRenameItem.name": "快速重命名",
   "carpet.rule.commandRenameItem.desc": "/rename <name>将手上的物品命名，没有name参数则恢复原来的名称。",
+  "carpet.rule.instantSchedule.name": "瞬时计划刻",
+  "carpet.rule.instantSchedule.desc": "注意！这是一个实验功能，它可能是游戏崩溃。",
+  "carpet.rule.instantFalling.name": "瞬时落沙",
+  "carpet.rule.instantFalling.desc": "注意！这是一个实验功能，它可能是游戏崩溃。",
   "category.LASCommand": "YACACommand"
 }

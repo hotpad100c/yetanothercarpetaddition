@@ -49,5 +49,9 @@
   "carpet.rule.commandEasyItemShadowing.name": "commandEasyItemShadowing",
   "carpet.rule.commandEasyItemShadowing.desc": "Use /itemshadowing can shadow the items of MainHand to the OffHand",
   "carpet.rule.commandRenameItem.name": "commandRename",
-  "carpet.rule.commandRenameItem.desc": "Use /rename <name> name the item in hand. If there is no name parameter, restore the original name."
+  "carpet.rule.commandRenameItem.desc": "Use /rename <name> name the item in hand. If there is no name parameter, restore the original name.",
+  "carpet.rule.instantSchedule.name": "instantSchedule",
+  "carpet.rule.instantSchedule.desc": "Tips:This is an experimental function. It might be that the game crashes",
+  "carpet.rule.instantFalling.name": "instantFalling",
+  "carpet.rule.instantFalling.desc": "Tips:This is an experimental function. It might be that the game crashes"
 }
