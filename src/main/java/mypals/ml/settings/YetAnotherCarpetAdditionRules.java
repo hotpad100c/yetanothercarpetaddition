@@ -6,80 +6,101 @@ import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Validator;
 import carpet.api.settings.Validators;
 import carpet.utils.Messenger;
+import net.minecraft.server.command.ServerCommandSource;
+import org.jetbrains.annotations.Nullable;
+
 import static carpet.api.settings.RuleCategory.*;
+import static mypals.ml.settings.RuleValidators.MOVING_PISTON_SPEED_VALIDATOR;
 
 public class YetAnotherCarpetAdditionRules {
-	public static final String YACA = "YACA";
-	@Rule(
-			categories = {YACA, FEATURE, CREATIVE}
-	)
-	public static boolean enableTickStepCounter = false;
-	@Rule(
-			categories = {YACA, FEATURE, EXPERIMENTAL}
-	)
-	public static boolean enableMountPlayers = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingWorldBorder = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingWeather = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingTime = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingBlocks = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingFluids = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingRaid = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingChunkManager = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingBlockEvents = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingDragonFight = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopCheckEntityDespawn = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingEntities = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingBlockEntities = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean stopTickingSpawners = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean enchantCommandLimitOverwrite = false;
-	@Rule(
-			categories = {YACA, FEATURE}
-	)
-	public static boolean enchantCommandBypassItemType = false;
-	@Rule(
-			categories = {YACA, FEATURE, COMMAND}
-	)
-	public static boolean mergeSmartAndRegularCommandSuggestions = false;
+    public static final String YACA = "YACA";
+    @Rule(
+            categories = {YACA, FEATURE, CREATIVE}
+    )
+    public static boolean enableTickStepCounter = false;
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean enableMountPlayers = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingWorldBorder = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingWeather = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingTime = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingBlocks = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingFluids = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingRaid = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingChunkManager = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingBlockEvents = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingDragonFight = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopCheckEntityDespawn = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingEntities = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingBlockEntities = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stopTickingSpawners = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean enchantCommandLimitOverwrite = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean enchantCommandBypassItemType = false;
+    @Rule(
+            categories = {YACA, FEATURE, COMMAND}
+    )
+    public static boolean mergeSmartAndRegularCommandSuggestions = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean optimizedStructureBlock = false;
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean morphMovingPiston = false;
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL},
+            validators = {MOVING_PISTON_SPEED_VALIDATOR.class}
+    )
+    public static float movingPistonSpeed = 0.5F;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean bedsRecordSleeperFacing = false;
 }

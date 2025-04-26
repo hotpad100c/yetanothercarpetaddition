@@ -4,6 +4,7 @@ import mypals.ml.Screen.RulesEditScreen;
 import mypals.ml.network.RuleData;
 import mypals.ml.network.client.RequestRulesPayload;
 import mypals.ml.network.server.RulesPacketPayload;
+import mypals.ml.settings.YACAConfigManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
@@ -18,16 +19,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static KeyBinding carpetRulesKeyBind;
     public static List<RuleData> chachedRules = new ArrayList<>();
     public static List<String> chachedCategories = new ArrayList<>();
-    public static List<String> defaultRules = new ArrayList<>();
+    public static CopyOnWriteArrayList<String> defaultRules = new CopyOnWriteArrayList<>();
+    public static CopyOnWriteArrayList<String> favoriteRules = new CopyOnWriteArrayList<>();
     public boolean requesting = false;
 
     @Override
     public void onInitializeClient() {
+        YACAConfigManager.initializeConfig();
         carpetRulesKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.carpetRulesKeyBind",
                 InputUtil.Type.KEYSYM,
@@ -45,12 +49,22 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
             context.client().execute(() -> {
                 chachedRules.clear();
                 chachedRules.addAll(payload.rules());
-                chachedCategories = chachedRules.stream()
+
+                chachedCategories.clear();
+                chachedCategories.add("favorite");
+                chachedCategories.add("default");
+                chachedCategories.addAll(chachedRules.stream()
                         .flatMap(r -> r.categories.stream())
-                        .distinct().toList();
+                        .distinct().toList());
+
                 context.client().player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！"));
                 requesting = false;
-                defaultRules = Arrays.stream(payload.defaults().split(";")).toList();
+                defaultRules.clear();
+                defaultRules.addAll(Arrays.stream(payload.defaults().split(";")).toList());
+
+                favoriteRules.clear();
+                favoriteRules.addAll(YACAConfigManager.readFavoriteRules());
+
                 MinecraftClient.getInstance().setScreen(new RulesEditScreen(Text.of("Carpet Rules")));
             });
         });

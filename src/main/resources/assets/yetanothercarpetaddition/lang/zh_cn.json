@@ -44,5 +44,13 @@
   "carpet.rule.enchantCommandBypassItemType.desc": "解除/enchant指令对物品类型的限制",
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.name": "合并智能与普通指令提示",
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "carpet仅在查询到的普通指令提示结果为空时展示智能查询的提示结果，本规则会合并他们。",
+  "carpet.rule.optimizedStructureBlock.name": "优化结构方块",
+  "carpet.rule.optimizedStructureBlock.desc": "优化了结构方块检测角落时的逻辑",
+  "carpet.rule.morphMovingPiston.name": "变形移动活塞",
+  "carpet.rule.morphMovingPiston.desc": "移动活塞的行为将尽力与它所持有的方块保持一致",
+  "carpet.rule.movingPistonSpeed.name": "移动活塞速度",
+  "carpet.rule.movingPistonSpeed.desc": "控制移动活塞的速度",
+  "carpet.rule.bedsRecordSleeperFacing.name": "床记录使用者朝向",
+  "carpet.rule.bedsRecordSleeperFacing.desc": "床将在开始睡觉前记录玩家的朝向",
   "category.LASCommand": "YACACommand"
 }

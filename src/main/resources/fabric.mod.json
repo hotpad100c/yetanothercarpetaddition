@@ -25,7 +25,7 @@
   "mixins": [
     "yetanothercarpetaddition.mixins.json"
   ],
-  "accessWidener": "YACA.accesswidener",
+  "accessWidener": "YACA.accessWidener",
   "depends": {
     "fabricloader": ">=0.15.10",
     "minecraft": "~1.21",

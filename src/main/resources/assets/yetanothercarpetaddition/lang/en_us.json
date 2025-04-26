@@ -43,5 +43,13 @@
   "carpet.rule.enchantCommandBypassItemType.name": "/enchant Command Item Type Restriction Bypass",
   "carpet.rule.enchantCommandBypassItemType.desc": "Bypass item type restriction for /enchant command",
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.name": "Merge Smart And Regular Command Suggestions",
-  "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "Carpet only shows smart suggestions while regular suggestions list is empty. This rule merges them into one list."
+  "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "Carpet only shows smart suggestions while regular suggestions list is empty. This rule merges them into one list.",
+  "carpet.rule.optimizedStructureBlock.name": "Optimized Structure Block",
+  "carpet.rule.optimizedStructureBlock.desc": "Optimized the logic for structure blocks when detect corners",
+  "carpet.rule.morphMovingPiston.name": "Morph Moving Piston",
+  "carpet.rule.morphMovingPiston.desc": "MovingPiston will behave like the block it is holding",
+  "carpet.rule.movingPistonSpeed.name": "Moving Piston Speed",
+  "carpet.rule.movingPistonSpeed.desc": "How fast the moving piston will move",
+  "carpet.rule.bedsRecordSleeperFacing.name": "Beds Record Sleeper Facing",
+  "carpet.rule.bedsRecordSleeperFacing.desc": "Beds will record the direction the player is facing before sleep"
 }

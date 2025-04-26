@@ -18,6 +18,8 @@ import mypals.ml.translations.YetAnotherCarpetAdditionTranslations;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
@@ -50,6 +52,8 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static final String MOD_VERSION = "V1.0.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+    public static ServerWorld serverWorld = null;
+
     @Override
     public String version() {
         return MOD_VERSION;
@@ -67,7 +71,9 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public void onInitialize() {
         loadExtension();
         StepManager.reset();
-
+        ServerWorldEvents.LOAD.register((server, world) -> {
+            serverWorld = world;
+        });
         PayloadTypeRegistry.playC2S().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);
 

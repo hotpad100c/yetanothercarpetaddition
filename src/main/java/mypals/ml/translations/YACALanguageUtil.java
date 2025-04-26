@@ -25,12 +25,19 @@ public class YACALanguageUtil {
     private static final Map<String, Map<String, String>> TRANSLATION_CACHE = new HashMap<>();
 
     public static String getTranslation(String lang, String key, @Nullable String originalName) {
-        Map<String, String> translations = getTranslations(lang);
+        Map<String, String> translations;
+        boolean noTranslations = false;
+        try {
+            translations = getTranslations(lang);
+        } catch (Exception e) {
+            translations = getTranslations("en_us");
+            noTranslations = true;
+        }
         String translation = translations.get(key);
         if (translation != null) {
             return originalName == null ? translation : translation + "|" + originalName;
         }
-        if (!lang.equals("en_us")) {
+        if (!lang.equals("en_us") && !noTranslations) {
             translations = getTranslations("en_us");
             translation = translations.get(key);
             if (translation != null) {
