@@ -61,6 +61,5 @@
   "carpet.rule.movingPistonSpeed.name": "移动活塞速度",
   "carpet.rule.movingPistonSpeed.desc": "控制移动活塞的速度",
   "carpet.rule.bedsRecordSleeperFacing.name": "床记录使用者朝向",
-  "carpet.rule.bedsRecordSleeperFacing.desc": "床将在开始睡觉前记录玩家的朝向",
-  "category.LASCommand": "YACACommand"
+  "carpet.rule.bedsRecordSleeperFacing.desc": "床将在开始睡觉前记录玩家的朝向"
 }

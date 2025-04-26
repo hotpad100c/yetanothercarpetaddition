@@ -43,7 +43,7 @@
   "carpet.rule.enchantCommandBypassItemType.name": "/enchant Command Item Type Restriction Bypass",
   "carpet.rule.enchantCommandBypassItemType.desc": "Bypass item type restriction for /enchant command",
   "carpet.rule.mergeSmartAndRegularCommandSuggestions.name": "Merge Smart And Regular Command Suggestions",
-  "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "Carpet only shows smart suggestions while regular suggestions list is empty. This rule merges them into one list.",
+  "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "Carpet only shows smart suggestions while regular suggestions list is empty.\n This rule merges them into one list.",
   "carpet.rule.silenceTP.name": "SlienceTP",
   "carpet.rule.silenceTP.desc": "When you teleport real player, your GameMode will be spectator",
   "carpet.rule.commandEasyItemShadowing.name": "commandEasyItemShadowing",
@@ -53,8 +53,7 @@
   "carpet.rule.instantSchedule.name": "instantSchedule",
   "carpet.rule.instantSchedule.desc": "Tips:This is an experimental function. It might be that the game crashes",
   "carpet.rule.instantFalling.name": "instantFalling",
-  "carpet.rule.instantFalling.desc": "Tips:This is an experimental function. It might be that the game crashes"
-  "carpet.rule.mergeSmartAndRegularCommandSuggestions.desc": "Carpet only shows smart suggestions while regular suggestions list is empty. This rule merges them into one list.",
+  "carpet.rule.instantFalling.desc": "Tips:This is an experimental function. It might be that the game crashes",
   "carpet.rule.optimizedStructureBlock.name": "Optimized Structure Block",
   "carpet.rule.optimizedStructureBlock.desc": "Optimized the logic for structure blocks when detect corners",
   "carpet.rule.morphMovingPiston.name": "Morph Moving Piston",
