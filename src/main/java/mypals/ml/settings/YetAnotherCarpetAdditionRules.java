@@ -122,4 +122,9 @@ public class YetAnotherCarpetAdditionRules {
 			categories = {YACA, FEATURE, EXPERIMENTAL}
 	)
 	public static boolean instantFalling = false;
+    @Rule(
+            categories = {YACA, FEATURE, COMMAND}
+    )
+    public static boolean bypassModifyPlayerDataRestriction = false;
+
 }

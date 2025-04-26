@@ -61,5 +61,7 @@
   "carpet.rule.movingPistonSpeed.name": "Moving Piston Speed",
   "carpet.rule.movingPistonSpeed.desc": "How fast the moving piston will move",
   "carpet.rule.bedsRecordSleeperFacing.name": "Beds Record Sleeper Facing",
-  "carpet.rule.bedsRecordSleeperFacing.desc": "Beds will record the direction the player is facing before sleep"
+  "carpet.rule.bedsRecordSleeperFacing.desc": "Beds will record the direction the player is facing before sleep",
+  "carpet.rule.bypassModifyPlayerDataRestriction.name": "bypassModifyPlayerDataRestriction",
+  "carpet.rule.bypassModifyPlayerDataRestriction.desc": "bypassModifyPlayerDataRestriction"
 }
