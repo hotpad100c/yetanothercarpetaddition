@@ -18,7 +18,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class RideCommandMixin {
     @Inject(method = "executeMount",cancellable = true, at = @At(value = "FIELD", target = "Lnet/minecraft/server/command/RideCommand;CANT_RIDE_PLAYERS_EXCEPTION:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;"))
     private static void playerMount(ServerCommandSource source, Entity rider, Entity vehicle, CallbackInfoReturnable<Integer> cir){
-        if (!rider.getWorld().isClient && YetAnotherCarpetAdditionRules.enableMountPlayers){      //I kinda doubt there even needs to be a check here, but I'm too lazy to check at the moment
+        if (!rider.getWorld().isClient && YetAnotherCarpetAdditionRules.enableMountPlayers){
             while (rider.getFirstPassenger() != null)
             {
                 rider = rider.getFirstPassenger();

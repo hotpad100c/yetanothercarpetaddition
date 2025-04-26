@@ -15,11 +15,15 @@
     "features.morphMovingPiston.MovingPistionBlockMixin",
     "features.morphMovingPiston.PistonBlockEntityMixin",
     "features.optimizedStructureBlock.StructureBlockMixin",
+    "features.instantFalling.FallingBlockMixin",
+    "features.instantSchedule.ServerWorldMixin",
+    "features.instantSchedule.WorldTickSchedulerMixin",
     "features.optionalTicking.EnderDragonFightMixin",
     "features.optionalTicking.RaidManagerMixin",
     "features.optionalTicking.ServerChunkManagerMixin",
     "features.optionalTicking.WorldBorderMixin",
     "features.optionalTicking.WorldMixin",
+    "features.slienceTP.TeleportCommandMixin",
     "features.stepCounter.TickCommandMixin"
   ],
   "injectors": {

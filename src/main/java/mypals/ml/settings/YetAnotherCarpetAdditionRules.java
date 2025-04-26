@@ -1,6 +1,5 @@
 package mypals.ml.settings;
 
-import carpet.CarpetSettings;
 import carpet.api.settings.Rule;
 import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Validator;
@@ -103,4 +102,24 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean bedsRecordSleeperFacing = false;
+	@Rule(
+			categories = {YACA, FEATURE, CREATIVE}
+	)
+	public static boolean silenceTP = false;
+	@Rule(
+			categories = {YACA, FEATURE, COMMAND}
+	)
+	public static String commandEasyItemShadowing = "false";
+	@Rule(
+			categories = {YACA, FEATURE, COMMAND}
+	)
+	public static String commandRenameItem = "false";
+	@Rule(
+			categories = {YACA, FEATURE, EXPERIMENTAL}
+	)
+	public static boolean instantSchedule = false;
+	@Rule(
+			categories = {YACA, FEATURE, EXPERIMENTAL}
+	)
+	public static boolean instantFalling = false;
 }
