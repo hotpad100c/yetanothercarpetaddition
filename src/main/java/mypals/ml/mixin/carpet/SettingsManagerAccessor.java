@@ -10,7 +10,5 @@ import java.util.Map;
 
 @Mixin(SettingsManager.class)
 public interface SettingsManagerAccessor {
-    // 使用 @Invoker 创建一个调用私有方法的接口方法
-    /*@Invoker("readSettingsFromConf")
-    SettingsManager.ConfigReadResult invokeReadSettingsFromConf(Path path);*/
+
 }

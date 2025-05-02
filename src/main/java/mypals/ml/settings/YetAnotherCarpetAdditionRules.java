@@ -102,29 +102,64 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean bedsRecordSleeperFacing = false;
-	@Rule(
-			categories = {YACA, FEATURE, CREATIVE}
-	)
-	public static boolean silenceTP = false;
-	@Rule(
-			categories = {YACA, FEATURE, COMMAND}
-	)
-	public static String commandEasyItemShadowing = "false";
-	@Rule(
-			categories = {YACA, FEATURE, COMMAND}
-	)
-	public static String commandRenameItem = "false";
-	@Rule(
-			categories = {YACA, FEATURE, EXPERIMENTAL}
-	)
-	public static boolean instantSchedule = false;
-	@Rule(
-			categories = {YACA, FEATURE, EXPERIMENTAL}
-	)
-	public static boolean instantFalling = false;
+    @Rule(
+            categories = {YACA, FEATURE, CREATIVE}
+    )
+    public static boolean silenceTP = false;
+    @Rule(
+            categories = {YACA, FEATURE, COMMAND}
+    )
+    public static String commandEasyItemShadowing = "false";
+    @Rule(
+            categories = {YACA, FEATURE, COMMAND}
+    )
+    public static String commandRenameItem = "false";
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean instantSchedule = false;
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean instantFalling = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean copyablePlayerMessages = false;
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean moreHardCollisions = false;
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean farlandReintroduced = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean fallingSnowLayers = false;
     @Rule(
             categories = {YACA, FEATURE, COMMAND}
     )
     public static boolean bypassModifyPlayerDataRestriction = false;
+    @Rule(
+            categories = {YACA, FEATURE},
+            options = {"off", "500", "1000", "6000"},
+            strict = false
+
+    )
+    public static String hopperCounterDataRecorder = "false";
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean bypassCrashForcibly = false;
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean forceMaxLightLevel = false;
+    @Rule(
+            categories = {YACA, FEATURE, EXPERIMENTAL}
+    )
+    public static boolean disableLightUpdate = false;
 
 }

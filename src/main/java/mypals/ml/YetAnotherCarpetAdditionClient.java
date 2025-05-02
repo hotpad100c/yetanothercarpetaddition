@@ -1,11 +1,15 @@
 package mypals.ml;
 
-import mypals.ml.Screen.RulesEditScreen;
+import mypals.ml.Screen.CountersViewer.CounterViewerScreen;
+import mypals.ml.Screen.RulesEditScreen.RulesEditScreen;
+import mypals.ml.commands.HopperCounterRequestCommand;
 import mypals.ml.network.RuleData;
 import mypals.ml.network.client.RequestRulesPayload;
+import mypals.ml.network.server.CountersPacketPayload;
 import mypals.ml.network.server.RulesPacketPayload;
 import mypals.ml.settings.YACAConfigManager;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -18,8 +22,9 @@ import org.lwjgl.glfw.GLFW;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static mypals.ml.commands.HopperCounterRequestCommand.registerCommand;
 
 public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static KeyBinding carpetRulesKeyBind;
@@ -66,6 +71,14 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 favoriteRules.addAll(YACAConfigManager.readFavoriteRules());
 
                 MinecraftClient.getInstance().setScreen(new RulesEditScreen(Text.of("Carpet Rules")));
+            });
+        });
+        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+            HopperCounterRequestCommand.registerCommand(dispatcher, registryAccess);
+        });
+        ClientPlayNetworking.registerGlobalReceiver(CountersPacketPayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                MinecraftClient.getInstance().setScreen(new CounterViewerScreen(payload.currentRecords()));
             });
         });
     }

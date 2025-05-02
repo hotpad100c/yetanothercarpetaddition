@@ -6,6 +6,7 @@
     "EntityDataObjectMixin",
     "carpet.SettingsManagerAccessor",
     "carpet.SettingsManagerMixin",
+    "carpet.hopperCounterViwer.HopperCounterCommandMixin",
     "features.EnchantCommandMixin",
     "features.EnchantmentMixin",
     "features.ServerWorldMixin",
@@ -13,11 +14,19 @@
     "features.bedRecordHeadRotation.BedBlockMixin",
     "features.bedRecordHeadRotation.PlayerEntityWakeUpMixin",
     "features.bypassRideRestriction.RideCommandMixin",
+    "features.copyableMessages.ServerPlayNetworkHandlerMixinForCopyableChatMessage",
+    "features.FallingSnowLayers.SnowLayerBlockMixin",
+    "features.Farlands.FarlandsPerlinSimplexNoiseMixin",
+    "features.forceMaxLight.disableSkyLightProviderMixin",
+    "features.forceMaxLight.forceMaxLightLevelMixin",
+    "features.forceMaxLight.forceMaxLightStorageMixin",
     "features.instantFalling.FallingBlockMixin",
     "features.instantSchedule.ServerWorldMixin",
     "features.instantSchedule.WorldTickSchedulerMixin",
+    "features.moreCollidableEntities.EntityCollisionMixin",
     "features.morphMovingPiston.MovingPistionBlockMixin",
     "features.morphMovingPiston.PistonBlockEntityMixin",
+    "features.noServerCrash.PreventServerCrashMixin",
     "features.optimizedStructureBlock.StructureBlockMixin",
     "features.optionalTicking.EnderDragonFightMixin",
     "features.optionalTicking.RaidManagerMixin",
@@ -29,5 +38,9 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "client": [
+    "client.optionalTicking.ClientWorldFreezeMixin",
+    "client.optionalTicking.WorldRenderFreeze"
+  ]
 }

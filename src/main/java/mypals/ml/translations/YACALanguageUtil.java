@@ -102,7 +102,6 @@ public class YACALanguageUtil {
 
     private static void loadTranslationsFromPath(String namespace, String path, Map<String, String> translations) {
         try {
-            // 尝试从模组资源加载
             Path resourcePath = FabricLoader.getInstance()
                     .getModContainer(namespace)
                     .orElse(null)

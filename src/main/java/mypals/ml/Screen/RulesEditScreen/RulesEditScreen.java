@@ -1,6 +1,5 @@
-package mypals.ml.Screen;
+package mypals.ml.Screen.RulesEditScreen;
 
-import mypals.ml.YetAnotherCarpetAdditionServer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -14,15 +13,10 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Colors;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.MathHelper;
 
 import java.awt.*;
-import java.text.spi.CollatorProvider;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;

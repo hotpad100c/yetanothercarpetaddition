@@ -1,4 +1,4 @@
-package mypals.ml.Screen;
+package mypals.ml.Screen.RulesEditScreen;
 
 public class CategoryEntry {
     public String name;

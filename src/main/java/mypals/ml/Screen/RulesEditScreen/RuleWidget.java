@@ -1,4 +1,4 @@
-package mypals.ml.Screen;
+package mypals.ml.Screen.RulesEditScreen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.network.RuleData;
@@ -6,8 +6,6 @@ import mypals.ml.settings.YACAConfigManager;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.ButtonTextures;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.gui.widget.ToggleButtonWidget;
 import net.minecraft.client.render.RenderLayer;
@@ -15,7 +13,6 @@ import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.spongepowered.asm.mixin.Overwrite;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -247,7 +244,7 @@ public class RuleWidget {
         }
         return null;
     }
-    
+
     public void onClicked(double mouseX, double mouseY, boolean clicked, int button) {
         if (!lockRule.mouseClicked(mouseX, mouseY, button) && !favoriteRule.mouseClicked(mouseX, mouseY, button)) {
             valueWidget.setFocused(clicked && !isTrueFalseRule);
