@@ -3,6 +3,8 @@
 **Yet Another Carpet Addition (YACA)** is an extension for the Carpet Mod. It provides a variety of debugging tools,
 performance optimizations, and game mechanic adjustments. Below is a full list of rules and their descriptions.
 
+[中文版/ChineseVersion](./README-zn_ch.md)
+
 ---
 
 ## 🧭Main Functional Rules
