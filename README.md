@@ -17,7 +17,7 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 
 ---
 
-## ⛓Mechanic Modification
+## 🌍World Update Freeze Rules
 
 ### `stopCheckEntityDespawn` - Stop Entity Despawn Check
 
@@ -33,11 +33,7 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 
 ### `stopTickingSpawners` - Stop Spawner Ticking
 
-* **Description**: Halts mob spawner activation and spawning behavior.
-
----
-
-## 🌍World Update Freeze Rules
+* **Description**: Halts mob spawning behavior.
 
 ### `stopTickingWorldBorder` - Stop World Border Updates
 
