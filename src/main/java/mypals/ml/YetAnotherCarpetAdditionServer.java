@@ -13,6 +13,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
 import mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager;
 import mypals.ml.features.tickStepCounter.StepManager;
+import mypals.ml.features.visualizingFeatures.BlockEventVisualizing;
+import mypals.ml.features.visualizingFeatures.GameEventVisualizing;
+import mypals.ml.features.visualizingFeatures.RandomTickVisualizing;
 import mypals.ml.network.RuleData;
 import mypals.ml.network.client.RequestCountersPayload;
 import mypals.ml.network.client.RequestRulesPayload;
@@ -23,6 +26,7 @@ import mypals.ml.translations.YetAnotherCarpetAdditionTranslations;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
@@ -109,12 +113,14 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                 e.printStackTrace();
             }
         });
-
         ServerTickEvents.END_WORLD_TICK.register((world) -> {
             if (!Objects.equals(YetAnotherCarpetAdditionRules.hopperCounterDataRecorder, "off")
                     && isInteger(YetAnotherCarpetAdditionRules.hopperCounterDataRecorder)
                     && CarpetSettings.hopperCounters)
                 HopperCounterDataManager.tick();
+            RandomTickVisualizing.updateVisualizer();
+            BlockEventVisualizing.updateVisualizer();
+            GameEventVisualizing.updateVisualizer();
         });
         PayloadTypeRegistry.playC2S().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);

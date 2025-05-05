@@ -81,5 +81,15 @@
   "carpet.rule.forceMaxLightLevel.name": "Force Maximum Light Level",
   "carpet.rule.forceMaxLightLevel.desc": "Forces all block and sky light levels to be 15, making every area fully lit.",
   "carpet.rule.disableLightUpdate.name": "Disable Light Updates",
-  "carpet.rule.disableLightUpdate.desc": "Prevents light level updates and propagation, keeping light levels static."
+  "carpet.rule.disableLightUpdate.desc": "Prevents light level updates and propagation, keeping light levels static.",
+  "carpet.rule.scheduledTickVisualize.name": "Scheduled Tick Visualization",
+  "carpet.rule.scheduledTickVisualize.desc": "Visualizes scheduled ticks of blocks in the world",
+  "carpet.rule.hopperCooldownVisualize.name": "Hopper Cooldown Visualization",
+  "carpet.rule.hopperCooldownVisualize.desc": "Renders hopper cooldown state visually",
+  "carpet.rule.randomTickVisualize.name": "Random Tick Visualization",
+  "carpet.rule.randomTickVisualize.desc": "Visualizes random tick effects on blocks like crops and leaves",
+  "carpet.rule.gameEventVisualize.name": "Game Event Visualization",
+  "carpet.rule.gameEventVisualize.desc": "Visualizes game events such as vibrations for the Sculk system",
+  "carpet.rule.blockEventVisualize.name": "Block Event Visualization",
+  "carpet.rule.blockEventVisualize.desc": "Visualizes block events like piston activations"
 }

@@ -3,6 +3,7 @@
   "package": "mypals.ml.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "CommandManagerCommandExecutionMixin",
     "EntityDataObjectMixin",
     "carpet.SettingsManagerAccessor",
     "carpet.SettingsManagerMixin",
@@ -34,7 +35,11 @@
     "features.optionalTicking.WorldBorderMixin",
     "features.optionalTicking.WorldMixin",
     "features.slienceTP.TeleportCommandMixin",
-    "features.stepCounter.TickCommandMixin"
+    "features.stepCounter.TickCommandMixin",
+    "features.visualizers.HopperDeleteMarkerMixin",
+    "features.visualizers.hopperEntityCooldownMixin",
+    "features.visualizers.ScheduledTickAndEventsServerWorldMixin",
+    "features.visualizers.WorldTickSchedulerRemoveMarkerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

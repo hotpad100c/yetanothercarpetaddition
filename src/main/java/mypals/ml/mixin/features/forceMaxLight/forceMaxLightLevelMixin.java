@@ -34,7 +34,7 @@ public abstract class forceMaxLightLevelMixin {
 
     @WrapMethod(method = "getLightLevel")
     private int getLightLevel(BlockPos pos, Operation<Integer> original) {
-        return YetAnotherCarpetAdditionRules.forceMaxLightLevel ? (int) (15L) : original.call(pos);
+        return YetAnotherCarpetAdditionRules.forceMaxLightLevel ? 15 : original.call(pos);
     }
 
     @Inject(

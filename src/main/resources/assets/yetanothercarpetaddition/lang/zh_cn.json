@@ -1,7 +1,7 @@
 {
-  "category.MAIN": "YACA",
-  "category.YACACommand": "YACACommand",
-  "gui.screen.configure": "地毯mod规则配置界面",
+  "category.MAIN": "YACA-毯上添花",
+  "category.YACACommand": "YACA指令",
+  "gui.screen.configure": "地毯规则配置界面",
   "gui.screen.tooltip.defaultValue": "默认值",
   "gui.screen.tooltip.suggestions": "预设值",
   "gui.screen.tooltip.currentValue": "当前值",
@@ -81,5 +81,15 @@
   "carpet.rule.forceMaxLightLevel.name": "强制最大光照级别",
   "carpet.rule.forceMaxLightLevel.desc": "强制所有方块光照和天空光照级别为15，使所有区域完全明亮。",
   "carpet.rule.disableLightUpdate.name": "禁用光照更新",
-  "carpet.rule.disableLightUpdate.desc": "阻止光照级别的更新和传播，保持光照级别静态不变。"
+  "carpet.rule.disableLightUpdate.desc": "阻止光照级别的更新和传播，保持光照级别静态不变。",
+  "carpet.rule.scheduledTickVisualize.name": "可视化计划刻",
+  "carpet.rule.scheduledTickVisualize.desc": "在世界中可视化所有方块的计划刻（Scheduled Tick）",
+  "carpet.rule.hopperCooldownVisualize.name": "漏斗冷却可视化",
+  "carpet.rule.hopperCooldownVisualize.desc": "通过渲染显示漏斗的冷却状态",
+  "carpet.rule.randomTickVisualize.name": "随机刻可视化",
+  "carpet.rule.randomTickVisualize.desc": "可视化自然随机刻对方块（如作物、生长等）的影响",
+  "carpet.rule.gameEventVisualize.name": "游戏事件可视化",
+  "carpet.rule.gameEventVisualize.desc": "可视化Sculk系统相关的游戏事件（如脚步声、互动等）",
+  "carpet.rule.blockEventVisualize.name": "方块事件可视化",
+  "carpet.rule.blockEventVisualize.desc": "可视化活塞等方块事件的触发和传播"
 }

@@ -161,5 +161,25 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE, EXPERIMENTAL}
     )
     public static boolean disableLightUpdate = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean scheduledTickVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean hopperCooldownVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean randomTickVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean gameEventVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean blockEventVisualize = false;
 
 }
