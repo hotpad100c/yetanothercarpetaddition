@@ -367,7 +367,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
         renderBackgroundTexture(context, MENU_BACKGROUND_TEXTURE, 0, 0, 0.0F, 0.0F, width, height);
         GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
-        if (FabricLoader.getInstance().isModLoaded("blur")) {
+        if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
             gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
