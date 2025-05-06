@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 loom {
-    accessWidenerPath = file("src/main/resources/YACA.accesswidener")
+    accessWidenerPath = file("src/main/resources/YACA.accessWidener")
 }
 version = project.mod_version
 group = project.maven_group
