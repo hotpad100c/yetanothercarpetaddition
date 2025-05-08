@@ -9,12 +9,14 @@ import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,15 +115,21 @@ public class ScheduledTickVisualizing {
         }
     }
 
-    public static void clearVisualizers(ServerCommandSource source) {
+    public static void clearVisualizers(MinecraftServer server) {
         visualizers.clear();
+        clearWorldVisualizers(server.getWorld(World.OVERWORLD));
+        clearWorldVisualizers(server.getWorld(World.NETHER));
+        clearWorldVisualizers(server.getWorld(World.END));
+    }
 
-        List<DisplayEntity.TextDisplayEntity> entities = new ArrayList<>();
-        Predicate<DisplayEntity.TextDisplayEntity> predicate = marker -> marker.getCommandTags().contains("scheduledTickVisualizer");
-
-        source.getWorld().collectEntitiesByType(EntityType.TEXT_DISPLAY,
-                predicate,
-                entities);
-        entities.forEach(Entity::discard);
+    public static void clearWorldVisualizers(ServerWorld world) {
+        if (world!= null) {
+            List<DisplayEntity.TextDisplayEntity> entities = new ArrayList<>();
+            Predicate<DisplayEntity.TextDisplayEntity> predicate = marker -> marker.getCommandTags().contains("scheduledTickVisualizer");
+            world.collectEntitiesByType(EntityType.TEXT_DISPLAY,
+                    predicate,
+                    entities);
+            entities.forEach(Entity::discard);
+        }
     }
 }

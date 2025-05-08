@@ -8,6 +8,7 @@ import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import net.minecraft.entity.mob.SlimeEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.DataCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
@@ -64,14 +65,21 @@ public class HopperCooldownVisualizing {
         }
     }
 
-    public static void clearVisualizers(ServerCommandSource source) {
+    public static void clearVisualizers(MinecraftServer server) {
         visualizers.clear();
-        List<DisplayEntity.TextDisplayEntity> entities = new ArrayList<>();
-        Predicate<DisplayEntity.TextDisplayEntity> predicate = marker -> marker.getCommandTags().contains("hopperCooldownVisualizer");
+        clearWorldVisualizers(server.getWorld(World.OVERWORLD));
+        clearWorldVisualizers(server.getWorld(World.NETHER));
+        clearWorldVisualizers(server.getWorld(World.END));
+    }
 
-        source.getWorld().collectEntitiesByType(EntityType.TEXT_DISPLAY,
-                predicate,
-                entities);
-        entities.forEach(Entity::discard);
+    public static void clearWorldVisualizers(ServerWorld world) {
+        if (world!= null) {
+            List<DisplayEntity.TextDisplayEntity> entities = new ArrayList<>();
+            Predicate<DisplayEntity.TextDisplayEntity> predicate = marker -> marker.getCommandTags().contains("hopperCooldownVisualizer");
+            world.collectEntitiesByType(EntityType.TEXT_DISPLAY,
+                    predicate,
+                    entities);
+            entities.forEach(Entity::discard);
+        }
     }
 }
