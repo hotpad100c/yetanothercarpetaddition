@@ -181,5 +181,9 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean blockEventVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean waterTNT = false;
 
 }

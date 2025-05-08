@@ -91,5 +91,7 @@
   "carpet.rule.gameEventVisualize.name": "Game Event Visualization",
   "carpet.rule.gameEventVisualize.desc": "Visualizes game events such as vibrations for the Sculk system",
   "carpet.rule.blockEventVisualize.name": "Block Event Visualization",
-  "carpet.rule.blockEventVisualize.desc": "Visualizes block events like piston activations"
+  "carpet.rule.blockEventVisualize.desc": "Visualizes block events like piston activations",
+  "carpet.rule.waterTNT.name": "WaterTNT",
+  "carpet.rule.waterTNT.desc": "Make 1.21.2+ WaterTNT work in here"
 }

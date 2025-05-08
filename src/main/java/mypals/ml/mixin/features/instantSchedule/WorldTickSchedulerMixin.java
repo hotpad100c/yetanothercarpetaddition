@@ -16,7 +16,7 @@ import net.minecraft.world.tick.WorldTickScheduler;
 import org.spongepowered.asm.mixin.*;
 
 @Mixin(WorldTickScheduler.class)
-public abstract class WorldTickSchedulerMixin<T> implements WorldTickSchedule {
+public abstract class                                                                                                                                           WorldTickSchedulerMixin<T> implements WorldTickSchedule {
 
     @Unique
     ServerWorld serverWorld;

@@ -91,5 +91,7 @@
   "carpet.rule.gameEventVisualize.name": "游戏事件可视化",
   "carpet.rule.gameEventVisualize.desc": "可视化Sculk系统相关的游戏事件（如脚步声、互动等）",
   "carpet.rule.blockEventVisualize.name": "方块事件可视化",
-  "carpet.rule.blockEventVisualize.desc": "可视化活塞等方块事件的触发和传播"
+  "carpet.rule.blockEventVisualize.desc": "可视化活塞等方块事件的触发和传播",
+  "carpet.rule.waterTNT.name": "k爆",
+  "carpet.rule.waterTNT.desc": "使得1.21.2+的k爆特性在这个版本工作"
 }
