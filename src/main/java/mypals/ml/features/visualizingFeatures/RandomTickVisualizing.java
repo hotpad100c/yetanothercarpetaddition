@@ -53,7 +53,7 @@ public class RandomTickVisualizing {
             entity.setGlowing(true);
             entity.noClip = true;
             entity.setYaw(0);
-            entity.setPos(pos.getX() + 1 - scale, pos.getY() + 1 - scale, pos.getZ() + 1 - scale);
+            entity.setPos(pos.getX() + 0.5 - scale, pos.getY() + 0.5 -scale, pos.getZ() + 0.5 -scale);
             entity.addCommandTag("randomTickVisualizer");
             if (world instanceof ServerWorld serverWorld) {
                 addMarkerToTeam(serverWorld, "randomTickVisualizerTeam", entity);
