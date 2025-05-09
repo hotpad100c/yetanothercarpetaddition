@@ -1,5 +1,7 @@
 package mypals.ml.features.visualizingFeatures;
 
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtFloat;
 import net.minecraft.nbt.NbtList;
@@ -37,7 +39,7 @@ public class EntityHelper {
         nbt.put("transformation", transformation);
         return nbt;
     }
-    public static void clearVisualizersInServer(ServerWorld server, String target){
+    public static void clearVisualizersInServer(MinecraftServer server, String target){
         for (ServerWorld world : server.getWorlds()) {
             clearWorldVisualizers(world, target);
         }
