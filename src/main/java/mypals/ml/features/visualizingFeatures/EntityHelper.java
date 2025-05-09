@@ -1,5 +1,13 @@
 package mypals.ml.features.visualizingFeatures;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.TextDisplayEntity;
+import net.minecraft.entity.decoration.BlockDisplayEntity;
+import net.minecraft.server.world.ServerWorld;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.nbt.NbtCompound;
