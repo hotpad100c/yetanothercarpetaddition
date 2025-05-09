@@ -37,4 +37,26 @@ public class EntityHelper {
         nbt.put("transformation", transformation);
         return nbt;
     }
+    public static void clearVisualizersInServer(ServerWorld server, String target){
+        for (ServerWorld world : server.getWorlds()) {
+            clearWorldVisualizers(world, target);
+        }
+    }
+    public static void clearWorldVisualizers(ServerWorld world, String target) {
+        if (world!= null) {
+            List<DisplayEntity.TextDisplayEntity> entities = new ArrayList<>();
+            Predicate<DisplayEntity.TextDisplayEntity> predicate = marker -> marker.getCommandTags().contains("hopperCooldownVisualizer");
+            world.collectEntitiesByType(EntityType.TEXT_DISPLAY,
+                    predicate,
+                    entities);
+            entities.forEach(Entity::discard);
+            
+            List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
+            Predicate<DisplayEntity.BlockDisplayEntity> predicate = bd -> bd.getCommandTags().contains("randomTickVisualizer");
+            world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
+                    predicate,
+                    entities);
+            entities.forEach(Entity::discard);
+        }
+    }
 }
