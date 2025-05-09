@@ -53,19 +53,19 @@ public class EntityHelper {
     }
     public static void clearWorldVisualizers(ServerWorld world, String target) {
         if (world!= null) {
-            List<DisplayEntity.TextDisplayEntity> entities = new ArrayList<>();
+            List<DisplayEntity.TextDisplayEntity> entitiesText = new ArrayList<>();
             Predicate<DisplayEntity.TextDisplayEntity> predicate = marker -> marker.getCommandTags().contains("hopperCooldownVisualizer");
             world.collectEntitiesByType(EntityType.TEXT_DISPLAY,
                     predicate,
-                    entities);
-            entities.forEach(Entity::discard);
+                    entitiesText);
+            entitiesText.forEach(Entity::discard);
             
-            List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
+            List<DisplayEntity.BlockDisplayEntity> entitiesBlock = new ArrayList<>();
             Predicate<DisplayEntity.BlockDisplayEntity> predicate = bd -> bd.getCommandTags().contains("randomTickVisualizer");
             world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
                     predicate,
-                    entities);
-            entities.forEach(Entity::discard);
+                    entitiesBlock);
+            entitiesBlock.forEach(Entity::discard);
         }
     }
 }
