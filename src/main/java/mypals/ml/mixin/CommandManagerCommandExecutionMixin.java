@@ -15,19 +15,19 @@ public class CommandManagerCommandExecutionMixin {
     @Inject(method = "execute", at = @At("HEAD"))
     private void onCommandExecute(ParseResults<ServerCommandSource> parseResults, String command, CallbackInfo ci) {
         if (command.startsWith("carpet") && command.contains("hopperCooldownVisualize") && command.contains("false")) {
-            HopperCooldownVisualizing.clearVisualizers(parseResults.getContext().getSource());
+            HopperCooldownVisualizing.clearVisualizers(parseResults.getContext().getSource().getServer());
         }
         if (command.startsWith("carpet") && command.contains("scheduledTickVisualize") && command.contains("false")) {
-            ScheduledTickVisualizing.clearVisualizers(parseResults.getContext().getSource());
+            ScheduledTickVisualizing.clearVisualizers(parseResults.getContext().getSource().getServer());
         }
         if (command.startsWith("carpet") && command.contains("randomTickVisualize") && command.contains("false")) {
-            RandomTickVisualizing.clearVisualizers(parseResults.getContext().getSource());
+            RandomTickVisualizing.clearVisualizers(parseResults.getContext().getSource().getServer());
         }
         if (command.startsWith("carpet") && command.contains("blockEventVisualize") && command.contains("false")) {
-            BlockEventVisualizing.clearVisualizers(parseResults.getContext().getSource());
+            BlockEventVisualizing.clearVisualizers(parseResults.getContext().getSource().getServer());
         }
         if (command.startsWith("carpet") && command.contains("gameEventVisualize") && command.contains("false")) {
-            GameEventVisualizing.clearVisualizers(parseResults.getContext().getSource());
+            GameEventVisualizing.clearVisualizers(parseResults.getContext().getSource().getServer());
         }
     }
 }
