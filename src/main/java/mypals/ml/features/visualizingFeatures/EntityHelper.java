@@ -2,8 +2,7 @@ package mypals.ml.features.visualizingFeatures;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.TextDisplayEntity;
-import net.minecraft.entity.decoration.BlockDisplayEntity;
+import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.server.world.ServerWorld;
 import java.util.ArrayList;
 import java.util.List;
