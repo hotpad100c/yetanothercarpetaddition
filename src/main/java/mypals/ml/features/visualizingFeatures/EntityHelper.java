@@ -61,9 +61,9 @@ public class EntityHelper {
             entitiesText.forEach(Entity::discard);
             
             List<DisplayEntity.BlockDisplayEntity> entitiesBlock = new ArrayList<>();
-            Predicate<DisplayEntity.BlockDisplayEntity> predicate = bd -> bd.getCommandTags().contains("randomTickVisualizer");
+            Predicate<DisplayEntity.BlockDisplayEntity> predicate2 = bd -> bd.getCommandTags().contains("randomTickVisualizer");
             world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
-                    predicate,
+                    predicate2,
                     entitiesBlock);
             entitiesBlock.forEach(Entity::discard);
         }
