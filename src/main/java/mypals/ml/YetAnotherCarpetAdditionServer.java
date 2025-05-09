@@ -13,9 +13,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
 import mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager;
 import mypals.ml.features.tickStepCounter.StepManager;
-import mypals.ml.features.visualizingFeatures.BlockEventVisualizing;
-import mypals.ml.features.visualizingFeatures.GameEventVisualizing;
-import mypals.ml.features.visualizingFeatures.RandomTickVisualizing;
+import mypals.ml.features.visualizingFeatures.*;
 import mypals.ml.network.RuleData;
 import mypals.ml.network.client.RequestCountersPayload;
 import mypals.ml.network.client.RequestRulesPayload;
@@ -64,6 +62,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager.initCounterManager;
+import static mypals.ml.features.visualizingFeatures.RandomTickVisualizing.clearVisualizers;
 import static mypals.ml.translations.YACALanguageUtil.getTranslation;
 
 public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExtension {
@@ -211,16 +210,20 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public void onGameStarted() {
         LOGGER.info(MOD_NAME + " loaded.");
         CarpetServer.settingsManager.parseSettingsClass(YetAnotherCarpetAdditionRules.class);
+
     }
 
     @Override
     public void onServerLoaded(MinecraftServer server) {
-
     }
 
     @Override
     public void onServerClosed(MinecraftServer server) {
-
+        RandomTickVisualizing.clearVisualizers(server);
+        BlockEventVisualizing.clearVisualizers(server);
+        GameEventVisualizing.clearVisualizers(server);
+        HopperCooldownVisualizing.clearVisualizers(server);
+        ScheduledTickVisualizing.clearVisualizers(server);
     }
 
     @Override

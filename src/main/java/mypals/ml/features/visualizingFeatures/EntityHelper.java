@@ -1,5 +1,14 @@
 package mypals.ml.features.visualizingFeatures;
 
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.DisplayEntity;
+import net.minecraft.server.world.ServerWorld;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtFloat;
 import net.minecraft.nbt.NbtList;
@@ -36,5 +45,27 @@ public class EntityHelper {
         transformation.put("scale", scaleList);
         nbt.put("transformation", transformation);
         return nbt;
+    }
+    public static void clearVisualizersInServer(MinecraftServer server, String target){
+        for (ServerWorld world : server.getWorlds()) {
+            clearWorldVisualizers(world, target);
+        }
+    }
+    public static void clearWorldVisualizers(ServerWorld world, String target) {
+        if (world!= null) {
+            List<DisplayEntity.TextDisplayEntity> entitiesText = new ArrayList<>();
+            Predicate<DisplayEntity.TextDisplayEntity> predicate = marker -> marker.getCommandTags().contains("hopperCooldownVisualizer");
+            world.collectEntitiesByType(EntityType.TEXT_DISPLAY,
+                    predicate,
+                    entitiesText);
+            entitiesText.forEach(Entity::discard);
+            
+            List<DisplayEntity.BlockDisplayEntity> entitiesBlock = new ArrayList<>();
+            Predicate<DisplayEntity.BlockDisplayEntity> predicate2 = bd -> bd.getCommandTags().contains("randomTickVisualizer");
+            world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
+                    predicate2,
+                    entitiesBlock);
+            entitiesBlock.forEach(Entity::discard);
+        }
     }
 }

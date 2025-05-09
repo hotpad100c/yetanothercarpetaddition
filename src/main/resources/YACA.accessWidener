@@ -1,7 +1,6 @@
 accessWidener v1 named
 accessible method net/minecraft/server/world/ServerWorld tickFluid (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/Fluid;)V
 accessible method net/minecraft/server/world/ServerWorld tickBlock (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V
-
 accessible field net/minecraft/world/World blockEntityTickers Ljava/util/List;
 accessible method net/minecraft/client/gui/widget/ScrollableWidget getScrollY ()D
 accessible method net/minecraft/client/gui/widget/ScrollableWidget setScrollY (D)V
@@ -16,4 +15,5 @@ accessible field net/minecraft/block/entity/HopperBlockEntity transferCooldown I
 accessible field net/minecraft/world/tick/WorldTickScheduler chunkTickSchedulers Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
 accessible field net/minecraft/server/PlayerManager players Ljava/util/List;
 accessible method net/minecraft/entity/decoration/DisplayEntity$BlockDisplayEntity setBlockState (Lnet/minecraft/block/BlockState;)V
+accessible field net/minecraft/block/entity/HopperBlockEntity facing Lnet/minecraft/util/math/Direction;
 

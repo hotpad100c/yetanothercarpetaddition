@@ -5,20 +5,14 @@ import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity.TextDisplayEntity;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtFloat;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -150,19 +144,27 @@ public class GameEventVisualizing {
         });
     }
 
-    public static void clearVisualizers(ServerCommandSource source) {
+    public static void clearVisualizers(MinecraftServer server) {
         visualizers.clear();
-        Predicate<DisplayEntity.BlockDisplayEntity> predicate = slime -> slime.getCommandTags().contains("gameEventVisualizer");
-        List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
-        source.getWorld().collectEntitiesByType(EntityType.BLOCK_DISPLAY,
-                predicate,
-                entities);
-        entities.forEach(Entity::discard);
-        Predicate<DisplayEntity.TextDisplayEntity> predicate2 = arm -> arm.getCommandTags().contains("gameEventVisualizer");
-        List<DisplayEntity.TextDisplayEntity> entities2 = new ArrayList<>();
-        source.getWorld().collectEntitiesByType(EntityType.TEXT_DISPLAY,
-                predicate2,
-                entities2);
-        entities2.forEach(Entity::discard);
+        clearWorldVisualizers(server.getWorld(World.OVERWORLD));
+        clearWorldVisualizers(server.getWorld(World.NETHER));
+        clearWorldVisualizers(server.getWorld(World.END));
+    }
+
+    public static void clearWorldVisualizers(ServerWorld world) {
+        if (world!= null) {
+            Predicate<DisplayEntity.BlockDisplayEntity> predicate = slime -> slime.getCommandTags().contains("gameEventVisualizer");
+            List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
+            world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
+                    predicate,
+                    entities);
+            entities.forEach(Entity::discard);
+            Predicate<DisplayEntity.TextDisplayEntity> predicate2 = arm -> arm.getCommandTags().contains("gameEventVisualizer");
+            List<DisplayEntity.TextDisplayEntity> entities2 = new ArrayList<>();
+            world.collectEntitiesByType(EntityType.TEXT_DISPLAY,
+                    predicate2,
+                    entities2);
+            entities2.forEach(Entity::discard);
+        }
     }
 }

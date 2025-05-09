@@ -8,21 +8,16 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtFloat;
 import net.minecraft.nbt.NbtHelper;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,7 +53,7 @@ public class RandomTickVisualizing {
             entity.setGlowing(true);
             entity.noClip = true;
             entity.setYaw(0);
-            entity.setPos(pos.getX() + 1 - scale, pos.getY() + 1 - scale, pos.getZ() + 1 - scale);
+            entity.setPos(pos.getX() + 0.5 - scale, pos.getY() + 0.5 -scale, pos.getZ() + 0.5 -scale);
             entity.addCommandTag("randomTickVisualizer");
             if (world instanceof ServerWorld serverWorld) {
                 addMarkerToTeam(serverWorld, "randomTickVisualizerTeam", entity);
@@ -96,13 +91,21 @@ public class RandomTickVisualizing {
         });
     }
 
-    public static void clearVisualizers(ServerCommandSource source) {
+    public static void clearVisualizers(MinecraftServer server) {
         visualizers.clear();
-        Predicate<DisplayEntity.BlockDisplayEntity> predicate = bd -> bd.getCommandTags().contains("randomTickVisualizer");
-        List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
-        source.getWorld().collectEntitiesByType(EntityType.BLOCK_DISPLAY,
-                predicate,
-                entities);
-        entities.forEach(Entity::discard);
+        clearWorldVisualizers(server.getWorld(World.OVERWORLD));
+        clearWorldVisualizers(server.getWorld(World.NETHER));
+        clearWorldVisualizers(server.getWorld(World.END));
+    }
+
+    public static void clearWorldVisualizers(ServerWorld world) {
+        if (world!= null) {
+            List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
+            Predicate<DisplayEntity.BlockDisplayEntity> predicate = bd -> bd.getCommandTags().contains("randomTickVisualizer");
+            world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
+                    predicate,
+                    entities);
+            entities.forEach(Entity::discard);
+        }
     }
 }
