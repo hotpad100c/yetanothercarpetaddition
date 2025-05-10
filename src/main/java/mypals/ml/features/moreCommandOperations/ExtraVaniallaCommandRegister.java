@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 
 import static mypals.ml.features.moreCommandOperations.ExtraVaniallaCommandFeatureManager.*;
 import static mypals.ml.features.moreCommandOperations.WorldEventMapper.WORLD_EVENT_MAP;
+import static mypals.ml.features.visualizingFeatures.RandomTickVisualizing.setVisualizer;
 
 public class ExtraVaniallaCommandRegister {
     private static final SuggestionProvider<ServerCommandSource> WORLD_EVENT_SUGGESTIONS =
@@ -74,7 +75,7 @@ public class ExtraVaniallaCommandRegister {
                             ServerCommandSource source = context.getSource();
 
                             BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
-
+                            setVisualizer(source.getWorld(),pos);
                             addRandomTick(source,pos);
 
                             return 1;
