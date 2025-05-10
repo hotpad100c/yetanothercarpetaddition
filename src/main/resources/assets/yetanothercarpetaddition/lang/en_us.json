@@ -92,6 +92,22 @@
   "carpet.rule.gameEventVisualize.desc": "Visualizes game events such as vibrations for the Sculk system",
   "carpet.rule.blockEventVisualize.name": "Block Event Visualization",
   "carpet.rule.blockEventVisualize.desc": "Visualizes block events like piston activations",
+  "carpet.rule.blockUpdateVisualize.name": "NC Update Visualization",
+  "carpet.rule.blockUpdateVisualize.desc": "Visualize the area where NC updates occur",
+  "carpet.rule.stateUpdateVisualize.name": "PP Update Visualization",
+  "carpet.rule.stateUpdateVisualize.desc": "Visualize the area where PP updates occur",
+  "carpet.rule.comparatorUpdateVisualize.name": "Comparator Update Visualization",
+  "carpet.rule.comparatorUpdateVisualize.desc": "Visualize the area where comparator updates occur",
   "carpet.rule.waterTNT.name": "WaterTNT",
-  "carpet.rule.waterTNT.desc": "Make 1.21.2+ WaterTNT work in here"
+  "carpet.rule.waterTNT.desc": "Make 1.21.2+ WaterTNT work in here",
+  "carpet.rule.blocksNoSelfCheck.name": "Block No Self Check",
+  "carpet.rule.blocksNoSelfCheck.desc": "Disable self-checking logic for blocks",
+  "carpet.rule.blocksNoSuffocate.name": "Blocks No Suffocate",
+  "carpet.rule.blocksNoSuffocate.desc": "Prevents blocks from causing suffocation",
+  "carpet.rule.blocksPlaceAtAnywhere.name": "Blocks Place Anywhere",
+  "carpet.rule.blocksPlaceAtAnywhere.desc": "Allows placing blocks in invalid or normally restricted locations",
+  "carpet.rule.blockNoBreakParticles.name": "Block No Break Particles",
+  "carpet.rule.blockNoBreakParticles.desc": "Disables particles when breaking blocks",
+  "carpet.rule.blocksNoHardness.name": "Block No Hardness",
+  "carpet.rule.blocksNoHardness.desc": "Removes block hardness, making all blocks instant to break"
 }

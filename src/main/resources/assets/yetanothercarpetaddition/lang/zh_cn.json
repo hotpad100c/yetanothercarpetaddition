@@ -92,6 +92,22 @@
   "carpet.rule.gameEventVisualize.desc": "可视化Sculk系统相关的游戏事件（如脚步声、互动等）",
   "carpet.rule.blockEventVisualize.name": "方块事件可视化",
   "carpet.rule.blockEventVisualize.desc": "可视化活塞等方块事件的触发和传播",
+  "carpet.rule.blockUpdateVisualize.name": "NC更新可视化",
+  "carpet.rule.blockUpdateVisualize.desc": "可视化NC更新发生的区域",
+  "carpet.rule.stateUpdateVisualize.name": "PP更新可视化",
+  "carpet.rule.stateUpdateVisualize.desc": "可视化PP更新发生的区域",
+  "carpet.rule.comparatorUpdateVisualize.name": "比较器更新可视化",
+  "carpet.rule.comparatorUpdateVisualize.desc": "可视化比较器更新可视化更新发生的区域",
   "carpet.rule.waterTNT.name": "k爆",
-  "carpet.rule.waterTNT.desc": "使得1.21.2+的k爆特性在这个版本工作"
+  "carpet.rule.waterTNT.desc": "使得1.21.2+的k爆特性在这个版本工作",
+  "carpet.rule.blocksNoSelfCheck.name": "方块不自检",
+  "carpet.rule.blocksNoSelfCheck.desc": "方块不再自检",
+  "carpet.rule.blocksNoSuffocate.name": "方块无窒息判定",
+  "carpet.rule.blocksNoSuffocate.desc": "防止方块造成玩家或实体窒息",
+  "carpet.rule.blocksPlaceAtAnywhere.name": "任意位置放置方块",
+  "carpet.rule.blocksPlaceAtAnywhere.desc": "允许在通常无法放置的区域放置方块",
+  "carpet.rule.blockNoBreakParticles.name": "无破坏粒子效果",
+  "carpet.rule.blockNoBreakParticles.desc": "破坏方块时不显示粒子效果",
+  "carpet.rule.blocksNoHardness.name": "方块无硬度",
+  "carpet.rule.blocksNoHardness.desc": "移除方块硬度，使所有方块可瞬间破坏"
 }

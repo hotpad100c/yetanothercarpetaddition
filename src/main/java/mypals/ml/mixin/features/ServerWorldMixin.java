@@ -1,5 +1,6 @@
 package mypals.ml.mixin.features;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -35,20 +36,27 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 @Mixin(ServerWorld.class)
-public abstract class ServerWorldMixin extends World{
-    @Shadow @Final private EntityList entityList;
+public abstract class ServerWorldMixin extends World {
+    @Shadow
+    @Final
+    private EntityList entityList;
 
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
 
-    @Shadow protected abstract boolean shouldCancelSpawn(Entity entity);
+    @Shadow
+    protected abstract boolean shouldCancelSpawn(Entity entity);
 
-    @Shadow public abstract TickManager getTickManager();
+    @Shadow
+    public abstract TickManager getTickManager();
 
-    @Shadow @Final private ServerChunkManager chunkManager;
+    @Shadow
+    @Final
+    private ServerChunkManager chunkManager;
 
-    @Shadow protected abstract void tickPassenger(Entity vehicle, Entity passenger);
+    @Shadow
+    protected abstract void tickPassenger(Entity vehicle, Entity passenger);
 
     @Inject(
             method = "tickWeather",
@@ -56,70 +64,88 @@ public abstract class ServerWorldMixin extends World{
             cancellable = true
     )
     private void tickWeather(CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingWeather) {
+        if (YetAnotherCarpetAdditionRules.stopTickingWeather) {
             ci.cancel();
         }
     }
+
     @Inject(
             method = "tickBlock(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V",
             at = @At("HEAD"),
             cancellable = true
     )
     private void tickBlocks(CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingBlocks) {
+        if (YetAnotherCarpetAdditionRules.stopTickingBlocks) {
             ci.cancel();
         }
     }
+
     @Inject(
             method = "tickFluid",
             at = @At("HEAD"),
             cancellable = true
     )
     private void tickFluid(CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingFluids) {
+        if (YetAnotherCarpetAdditionRules.stopTickingFluids) {
             ci.cancel();
         }
     }
+
     @Inject(
             method = "tickEntity",
             at = @At("HEAD"),
             cancellable = true
     )
     private void tickEntity(Entity entity, CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingEntities && !(entity instanceof PlayerEntity)) {
+        if (YetAnotherCarpetAdditionRules.stopTickingEntities && !(entity instanceof PlayerEntity)) {
+            ci.cancel();
+        }
+        if (entity.getCommandTags().contains("dontTick")) {
             ci.cancel();
         }
     }
+
+    @WrapOperation(method = "tickEntity",
+            at = @At(target = "Lnet/minecraft/entity/Entity;tick()V", value = "INVOKE"))
+    private void tick(Entity instance, Operation<Void> original) {
+        if (!instance.getCommandTags().contains("DoNotTick")) {
+            original.call(instance);
+        }
+    }
+
     @Inject(
             method = "tickTime",
             at = @At("HEAD"),
             cancellable = true
     )
     private void tickTime(CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingTime) {
+        if (YetAnotherCarpetAdditionRules.stopTickingTime) {
             ci.cancel();
         }
     }
+
     @Inject(
             method = "tickSpawners",
             at = @At("HEAD"),
             cancellable = true
     )
     private void tickSpawners(CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingSpawners) {
+        if (YetAnotherCarpetAdditionRules.stopTickingSpawners) {
             ci.cancel();
         }
     }
+
     @Inject(
             method = "processSyncedBlockEvents",
             at = @At("HEAD"),
             cancellable = true
     )
     private void processSyncedBlockEvents(CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingBlockEvents) {
+        if (YetAnotherCarpetAdditionRules.stopTickingBlockEvents) {
             ci.cancel();
         }
     }
+
     @WrapOperation(
             method = "tickChunk",
             at = @At(
@@ -132,6 +158,7 @@ public abstract class ServerWorldMixin extends World{
             original.call(instance, serverWorld, blockPos, random);
         }
     }
+
     @WrapOperation(
             method = "tickChunk",
             at = @At(
@@ -144,6 +171,7 @@ public abstract class ServerWorldMixin extends World{
             original.call(instance, world, pos, random);
         }
     }
+
     @WrapOperation(
             method = "tickChunk",
             at = @At(
@@ -156,6 +184,7 @@ public abstract class ServerWorldMixin extends World{
             original.call(instance, pos);
         }
     }
+
     @WrapOperation(
             method = "tickChunk",
             at = @At(
@@ -170,6 +199,7 @@ public abstract class ServerWorldMixin extends World{
         }
         return false;
     }
+
     @WrapOperation(
             method = "tickChunk",
             at = @At(
@@ -184,6 +214,7 @@ public abstract class ServerWorldMixin extends World{
         }
         return false;
     }
+
     @WrapOperation(
             method = "tick",
             at = @At(
@@ -198,8 +229,8 @@ public abstract class ServerWorldMixin extends World{
                     entity.discard();
                 } else if (!getTickManager().shouldSkipTick(entity)) {
                     profiler.push("checkDespawn");
-                    if(!YetAnotherCarpetAdditionRules.stopCheckEntityDespawn){
-                    entity.checkDespawn();
+                    if (!YetAnotherCarpetAdditionRules.stopCheckEntityDespawn) {
+                        entity.checkDespawn();
                     }
                     profiler.pop();
                     if (this.chunkManager.chunkLoadingManager.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong())) {
@@ -223,13 +254,13 @@ public abstract class ServerWorldMixin extends World{
 
     @Unique
     public void tickEntity(Entity entity) {
-        if(YetAnotherCarpetAdditionRules.stopTickingEntities && !(entity instanceof PlayerEntity)) {
+        if (YetAnotherCarpetAdditionRules.stopTickingEntities && !(entity instanceof PlayerEntity)) {
             return;
         }
         entity.resetPosition();
         Profiler profiler = this.getProfiler();
         entity.age++;
-        this.getProfiler().push((Supplier<String>)(() -> Registries.ENTITY_TYPE.getId(entity.getType()).toString()));
+        this.getProfiler().push((Supplier<String>) (() -> Registries.ENTITY_TYPE.getId(entity.getType()).toString()));
         profiler.visit("tickNonPassenger");
         entity.tick();
         this.getProfiler().pop();

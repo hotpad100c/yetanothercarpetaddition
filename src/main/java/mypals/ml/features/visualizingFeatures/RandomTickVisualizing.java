@@ -15,6 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
@@ -23,12 +24,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
-public class RandomTickVisualizing {
-    public static ConcurrentHashMap<BlockPos, Map.Entry<DisplayEntity.BlockDisplayEntity, Integer>> visualizers = new ConcurrentHashMap<>();
+import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
+
+public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, DisplayEntity.BlockDisplayEntity> {
+    public static ConcurrentHashMap<BlockPos, Map.Entry<DisplayEntity.BlockDisplayEntity, Long>> visualizers = new ConcurrentHashMap<>();
     public static int SURVIVE_TIME = 20;
     public static int RANGE = 20;
 
-    public static void setVisualizer(World world, BlockPos pos) {
+    public void setVisualizer(World world, BlockPos pos) {
         boolean playersNearBy = false;
         for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
             if (player.getPos().distanceTo(pos.toCenterPos()) < RANGE) {
@@ -36,32 +39,9 @@ public class RandomTickVisualizing {
                 break;
             }
         }
-        if (!playersNearBy) return;
-        if (visualizers.containsKey(pos)) {
-            visualizers.put(pos, Map.entry(visualizers.get(pos).getKey(), SURVIVE_TIME));
-        } else {
-            DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
-            entity.setNoGravity(true);
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
-            nbt.put("block_state", NbtHelper.fromBlockState(Blocks.RED_STAINED_GLASS.getDefaultState()));
-            float scale = 0.9f;
-            nbt = EntityHelper.scaleEntity(nbt, scale);
-            nbt.putInt("glow_color_override", 0xFFAAAA);
-            entity.readNbt(nbt);
-            entity.setInvisible(true);
-            entity.setInvulnerable(true);
-            entity.setGlowing(true);
-            entity.noClip = true;
-            entity.setYaw(0);
-            entity.setPos(pos.getX() + 0.5 - scale, pos.getY() + 0.5 -scale, pos.getZ() + 0.5 -scale);
-            entity.addCommandTag("randomTickVisualizer");
-            if (world instanceof ServerWorld serverWorld) {
-                addMarkerToTeam(serverWorld, "randomTickVisualizerTeam", entity);
-            }
-            world.spawnEntity(entity);
 
-            visualizers.put(pos, Map.entry(entity, SURVIVE_TIME));
-        }
+        if (!playersNearBy) return;
+        this.setVisualizer((ServerWorld) world, pos, pos.toCenterPos(), null);
     }
 
     private static void addMarkerToTeam(ServerWorld world, String teamName, DisplayEntity.BlockDisplayEntity marker) {
@@ -76,36 +56,84 @@ public class RandomTickVisualizing {
         scoreboard.addScoreHolderToTeam(entityName, team);
     }
 
-    public static void updateVisualizer() {
-        if (!YetAnotherCarpetAdditionRules.randomTickVisualize || !CarpetServer.minecraft_server.getTickManager().shouldTick())
+
+    @Override
+    public void updateVisualizer() {
+        if (!CarpetServer.minecraft_server.getTickManager().shouldTick()) {
             return;
+        }
         visualizers.forEach((pos, entry) -> {
-            DisplayEntity.BlockDisplayEntity entity = entry.getKey();
-            int time = entry.getValue();
-            if (time > 0) {
-                visualizers.put(pos, Map.entry(entity, time - 1));
-            } else {
-                entity.discard();
+            DisplayEntity.BlockDisplayEntity object = entry.getKey();
+            long time = entry.getValue();
+            if (time < object.getWorld().getTime()) {
+                removeVisualizer(pos);
                 visualizers.remove(pos);
             }
         });
     }
 
-    public static void clearVisualizers(MinecraftServer server) {
-        visualizers.clear();
-        clearWorldVisualizers(server.getWorld(World.OVERWORLD));
-        clearWorldVisualizers(server.getWorld(World.NETHER));
-        clearWorldVisualizers(server.getWorld(World.END));
+    @Override
+    protected void storeVisualizer(BlockPos key, DisplayEntity.BlockDisplayEntity entity) {
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.getWorld())));
     }
 
-    public static void clearWorldVisualizers(ServerWorld world) {
-        if (world!= null) {
-            List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
-            Predicate<DisplayEntity.BlockDisplayEntity> predicate = bd -> bd.getCommandTags().contains("randomTickVisualizer");
-            world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
-                    predicate,
-                    entities);
-            entities.forEach(Entity::discard);
+    @Override
+    protected void updateVisualizerEntity(DisplayEntity.BlockDisplayEntity marker, Object data) {
+        NbtCompound nbt = marker.writeNbt(new NbtCompound());
+        float scale = 0.9f;
+        scale = mapSize(SURVIVE_TIME - marker.age, SURVIVE_TIME, 0.9f);
+        nbt = EntityHelper.scaleEntity(nbt, scale);
+        marker.readNbt(nbt);
+    }
+
+    @Override
+    protected DisplayEntity.BlockDisplayEntity createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
+        DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
+        entity.setNoGravity(true);
+        NbtCompound nbt = entity.writeNbt(new NbtCompound());
+        nbt.put("block_state", NbtHelper.fromBlockState(Blocks.RED_STAINED_GLASS.getDefaultState()));
+        float scale = 0.9f;
+        nbt = EntityHelper.scaleEntity(nbt, scale);
+        nbt.putInt("glow_color_override", 0xFFAAAA);
+        entity.readNbt(nbt);
+        entity.setInvisible(true);
+        entity.setInvulnerable(true);
+        entity.setGlowing(true);
+        entity.noClip = true;
+        entity.setYaw(0);
+        entity.setPos(pos.getX() - (scale / 2), pos.getY() - (scale / 2), pos.getZ() - (scale / 2));
+        entity.addCommandTag(getVisualizerTag());
+        entity.addCommandTag("DoNotTick");
+        if (world instanceof ServerWorld serverWorld) {
+            addMarkerToTeam(serverWorld, "randomTickVisualizerTeam", entity);
+        }
+        world.spawnEntity(entity);
+        return entity;
+    }
+
+    @Override
+    protected void removeVisualizerEntity(BlockPos key) {
+        Map.Entry<DisplayEntity.BlockDisplayEntity, Long> entry = visualizers.get(key);
+        if (entry != null) {
+            entry.getKey().discard();
+            visualizers.remove(key);
         }
     }
+
+    @Override
+    protected void clearAllVisualizers() {
+        visualizers.clear();
+    }
+
+
+    @Override
+    protected DisplayEntity.BlockDisplayEntity getVisualizer(BlockPos key) {
+        return null;
+    }
+
+    @Override
+    protected String getVisualizerTag() {
+        return "randomTickVisualizer";
+    }
+
 }

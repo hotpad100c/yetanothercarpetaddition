@@ -3,6 +3,7 @@ package mypals.ml.mixin.features.visualizers;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
+import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.*;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.Block;
@@ -64,7 +65,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
                     long triggerTick = orderedTick.triggerTick();
                     int subOrder = blockTickCounter.compute(triggerTick, (k, v) -> (v == null ? 1 : v + 1));
 
-                    ScheduledTickVisualizing.setVisualizer(
+                    YetAnotherCarpetAdditionServer.scheduledTickVisualizing.setVisualizer(
                             (ServerWorld) (Object) this,
                             orderedTick.pos(),
                             triggerTick,
@@ -84,7 +85,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
                     long triggerTick = orderedTick.triggerTick();
                     int subOrder = fluidTickCounter.compute(triggerTick, (k, v) -> (v == null ? 1 : v + 1));
 
-                    ScheduledTickVisualizing.setVisualizer(
+                    YetAnotherCarpetAdditionServer.scheduledTickVisualizing.setVisualizer(
                             (ServerWorld) (Object) this,
                             orderedTick.pos(),
                             triggerTick,
@@ -111,7 +112,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
     )
     private void ServerTickAddRandomTickMarker(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci, @Local BlockPos blockPos2) {
         if (YetAnotherCarpetAdditionRules.randomTickVisualize) {
-            RandomTickVisualizing.setVisualizer(chunk.getWorld(), blockPos2);
+            YetAnotherCarpetAdditionServer.randomTickVisualizing.setVisualizer(chunk.getWorld(), blockPos2);
         }
     }
 
@@ -125,7 +126,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
     private void ServerTickAddBlockEventMarker(BlockEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (YetAnotherCarpetAdditionRules.blockEventVisualize) {
             eventCurrentTick.add(event);
-            BlockEventVisualizing.setVisualizer(this.toServerWorld(), event.pos(), eventCurrentTick.size());
+            YetAnotherCarpetAdditionServer.blockEventVisualizing.setVisualizer(this.toServerWorld(), event.pos(), event.pos().toCenterPos(), eventCurrentTick.size());
         }
     }
 
@@ -145,7 +146,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
     private void ServerTickAddGameEventMarker(RegistryEntry<GameEvent> event, Vec3d emitterPos, GameEvent.Emitter emitter, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.gameEventVisualize) {
             String type = event.getKey().get().getValue().toString();
-            String emitterName = "X";
+            String emitterName = "";
             if (emitter.sourceEntity() != null) {
                 emitterName = Text.translatable(emitter.sourceEntity().getType().getTranslationKey()).getString();
             } else {
@@ -153,7 +154,8 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
                     emitterName = Text.translatable(emitter.affectedState().getBlock().getTranslationKey()).getString();
                 }
             }
-            GameEventVisualizing.setVisualizer(this.toServerWorld(), emitterPos, emitterName, type);
+            String[] eventData = new String[]{emitterName, type};
+            YetAnotherCarpetAdditionServer.gameEventVisualizing.setVisualizer(this.toServerWorld(), emitterPos, emitterPos, eventData);
         }
     }
 }

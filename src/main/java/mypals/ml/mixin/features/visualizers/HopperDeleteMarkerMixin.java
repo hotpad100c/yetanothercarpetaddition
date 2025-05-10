@@ -1,5 +1,6 @@
 package mypals.ml.mixin.features.visualizers;
 
+import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.HopperCooldownVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.BlockState;
@@ -23,7 +24,7 @@ public abstract class HopperDeleteMarkerMixin extends BlockWithEntity {
     @Override
     public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
         if (YetAnotherCarpetAdditionRules.hopperCooldownVisualize) {
-            HopperCooldownVisualizing.removeVisualizer(pos);
+            YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.removeVisualizer(pos);
         }
         return super.onBreak(world, pos, state, player);
     }

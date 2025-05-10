@@ -16,11 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(FallingBlock.class)
 public abstract class FallingBlockMixin {
-
-    /**
-     * @author AB
-     * @reason w!
-     */
+    
     @Inject(method = "scheduledTick", at = @At("HEAD"), cancellable = true)
     public void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random, CallbackInfo ci) {
         if (!FallingBlock.canFallThrough(world.getBlockState(pos.down())) || pos.getY() < world.getBottomY()) {

@@ -53,7 +53,6 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
             pistonBlockEntity.getPushedBlock().getBlock().onLandedUpon(world, pistonBlockEntity.getPushedBlock(), pos, entity, fallDistance);
         else {
             super.onLandedUpon(world, state, pos, entity, fallDistance);
-
         }
     }
 
@@ -69,7 +68,10 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
         PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
             pistonBlockEntity.getPushedBlock().getBlock().onEntityLand(world, entity);
-        super.onEntityLand(world, entity);
+        else {
+            super.onEntityLand(world, entity);
+        }
+
     }
 
     @Override
@@ -92,10 +94,10 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
             return 0;
     }
 
-    @Override
+    /*@Override
     protected boolean emitsRedstonePower(BlockState state) {
         return morphMovingPiston;
-    }
+    }*/
 
     @Override
     public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {

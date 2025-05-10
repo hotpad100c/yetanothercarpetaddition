@@ -184,6 +184,39 @@ public class YetAnotherCarpetAdditionRules {
     @Rule(
             categories = {YACA, FEATURE}
     )
+    public static boolean blockUpdateVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean stateUpdateVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean comparatorUpdateVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
     public static boolean waterTNT = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean blocksNoSelfCheck = false;
+
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean blocksNoSuffocate = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean blocksPlaceAtAnywhere = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean blockNoBreakParticles = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean blocksNoHardness = false;
 
 }

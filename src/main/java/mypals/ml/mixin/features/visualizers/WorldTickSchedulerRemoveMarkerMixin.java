@@ -1,6 +1,7 @@
 package mypals.ml.mixin.features.visualizers;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.ScheduledTickVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.server.world.ServerWorld;
@@ -24,7 +25,7 @@ public class WorldTickSchedulerRemoveMarkerMixin<T> {
     )
     private void ServerTickAddScheduledTickMarker(BiConsumer<BlockPos, T> ticker, CallbackInfo ci, @Local OrderedTick<T> orderedTick) {
         if (YetAnotherCarpetAdditionRules.scheduledTickVisualize) {
-            ScheduledTickVisualizing.removeVisualizer(orderedTick.pos());
+            YetAnotherCarpetAdditionServer.scheduledTickVisualizing.removeVisualizer(orderedTick.pos());
         }
     }
 }

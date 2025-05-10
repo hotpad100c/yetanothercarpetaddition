@@ -13,6 +13,10 @@ import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
 import mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager;
 import mypals.ml.features.tickStepCounter.StepManager;
+import mypals.ml.features.visualizingFeatures.BlockEventVisualizing;
+import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
+import mypals.ml.features.visualizingFeatures.GameEventVisualizing;
+import mypals.ml.features.visualizingFeatures.RandomTickVisualizing;
 import mypals.ml.features.visualizingFeatures.*;
 import mypals.ml.network.RuleData;
 import mypals.ml.network.client.RequestCountersPayload;
@@ -31,6 +35,8 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.Block;
+import net.minecraft.client.session.telemetry.WorldLoadedEvent;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.entity.mob.ShulkerEntity;
 import net.minecraft.entity.vehicle.BoatEntity;
@@ -45,6 +51,7 @@ import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldEvents;
 import net.minecraft.world.WorldView;
 import net.minecraft.world.chunk.light.LightingProvider;
 import org.slf4j.Logger;
@@ -62,17 +69,30 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager.initCounterManager;
-import static mypals.ml.features.visualizingFeatures.RandomTickVisualizing.clearVisualizers;
 import static mypals.ml.translations.YACALanguageUtil.getTranslation;
 
 public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExtension {
     public static final String MOD_NAME = "YetAnotherCarpetAddition";
     public static final String MOD_ID = MOD_NAME.toLowerCase();
 
+    private static final List<AbstractVisualizingManager> allVisualizers = new ArrayList<>();
+    public static GameEventVisualizing gameEventVisualizing = new GameEventVisualizing();
+    public static HopperCooldownVisualizing hopperCooldownVisualizing = new HopperCooldownVisualizing();
+    public static BlockEventVisualizing blockEventVisualizing = new BlockEventVisualizing();
+    public static RandomTickVisualizing randomTickVisualizing = new RandomTickVisualizing();
+    public static ScheduledTickVisualizing scheduledTickVisualizing = new ScheduledTickVisualizing();
     public static final String MOD_VERSION = "V1.0.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static ServerWorld serverWorld = null;
+
+    static {
+        allVisualizers.add(gameEventVisualizing);
+        allVisualizers.add(hopperCooldownVisualizing);
+        allVisualizers.add(randomTickVisualizing);
+        allVisualizers.add(blockEventVisualizing);
+        allVisualizers.add(scheduledTickVisualizing);
+    }
 
     @Override
     public String version() {
@@ -117,9 +137,10 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                     && isInteger(YetAnotherCarpetAdditionRules.hopperCounterDataRecorder)
                     && CarpetSettings.hopperCounters)
                 HopperCounterDataManager.tick();
-            RandomTickVisualizing.updateVisualizer();
-            BlockEventVisualizing.updateVisualizer();
-            GameEventVisualizing.updateVisualizer();
+
+            allVisualizers.forEach(visualizer -> visualizer.updateVisualizer());
+
+            BlockUpdateVisualizing.updateVisualizer();
         });
         PayloadTypeRegistry.playC2S().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);
@@ -131,7 +152,6 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                         ServerPlayNetworking.send(context.player(), requestRulesPayload);
                     });
                 });
-
         PayloadTypeRegistry.playC2S().register(RequestCountersPayload.ID, RequestCountersPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(CountersPacketPayload.ID, CountersPacketPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(RequestCountersPayload.ID,
@@ -219,11 +239,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
 
     @Override
     public void onServerClosed(MinecraftServer server) {
-        RandomTickVisualizing.clearVisualizers(server);
-        BlockEventVisualizing.clearVisualizers(server);
-        GameEventVisualizing.clearVisualizers(server);
-        HopperCooldownVisualizing.clearVisualizers(server);
-        ScheduledTickVisualizing.clearVisualizers(server);
+        allVisualizers.forEach(visualizer -> visualizer.clearVisualizers(server));
     }
 
     @Override

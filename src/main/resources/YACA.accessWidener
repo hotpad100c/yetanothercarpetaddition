@@ -17,3 +17,4 @@ accessible field net/minecraft/server/PlayerManager players Ljava/util/List;
 accessible method net/minecraft/entity/decoration/DisplayEntity$BlockDisplayEntity setBlockState (Lnet/minecraft/block/BlockState;)V
 accessible field net/minecraft/block/entity/HopperBlockEntity facing Lnet/minecraft/util/math/Direction;
 
+

@@ -1,57 +1,60 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
-public class BlockEventVisualizing {
-    public static ConcurrentHashMap<BlockPos, Map.Entry<BlockEventObject, Integer>> visualizers = new ConcurrentHashMap<>();
-    public static int SURVIVE_TIME = 100;
+public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, BlockEventVisualizing.BlockEventObject> {
+    private static final ConcurrentHashMap<BlockPos, Map.Entry<BlockEventObject, Long>> visualizers = new ConcurrentHashMap<>();
+    private static final int SURVIVE_TIME = 50;
 
     public static class BlockEventObject {
-
-        public String type;
+        public String tag;
         public DisplayEntity.TextDisplayEntity tickMarker;
         public DisplayEntity.BlockDisplayEntity typeMarker;
 
-        public BlockEventObject(ServerWorld world, BlockPos pos, int order) {
+        public BlockEventObject(ServerWorld world, BlockPos pos, int order, String tag) {
+            this.tag = tag;
             setVisualizer(world, pos, order);
         }
 
         public void setVisualizer(ServerWorld world, BlockPos pos, int order) {
             if (tickMarker != null && !tickMarker.isRemoved()) {
-                NbtCompound nbt = typeMarker.writeNbt(new NbtCompound());
-                String textJson = "{\"text\":\"" + order + "\",\"color\":\"green\"}";
-                nbt.remove("text");
-                nbt.putString("text", textJson);
+                JsonObject textJson = new JsonObject();
+                textJson.addProperty("text", "");
+                JsonArray extra = new JsonArray();
+                JsonObject orderPart = new JsonObject();
+                orderPart.addProperty("text", String.valueOf(order));
+                orderPart.addProperty("color", "green");
+                extra.add(orderPart);
+                textJson.add("extra", extra);
+
+                NbtCompound nbt = tickMarker.writeNbt(new NbtCompound());
+                nbt.putString("text", textJson.toString());
                 tickMarker.readNbt(nbt);
             } else {
-                tickMarker = summon(world, pos.toCenterPos().add(0, -0.4, 0), String.valueOf(order));
+                tickMarker = summonText(world, pos.toCenterPos().add(0, -0.4, 0), String.valueOf(order));
             }
 
-            if (typeMarker == null) {
+            if (typeMarker == null || typeMarker.isRemoved()) {
                 typeMarker = summonMarker(world, pos);
             }
-
         }
 
         public void removeVisualizer() {
@@ -63,53 +66,140 @@ public class BlockEventVisualizing {
             }
         }
 
-        public static DisplayEntity.BlockDisplayEntity summonMarker(World world, BlockPos pos) {
-            DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
-            nbt.put("block_state", NbtHelper.fromBlockState(Blocks.GREEN_STAINED_GLASS.getDefaultState()));
-            nbt = EntityHelper.scaleEntity(nbt, 0.5f);
-            nbt.putInt("glow_color_override", 0xAAFFAA);
-            entity.readNbt(nbt);
-            entity.noClip = true;
-            entity.setGlowing(true);
-            entity.setPos(pos.getX(), pos.getY(), pos.getZ());
-            entity.addCommandTag("blockEventVisualizer");
-            if (world instanceof ServerWorld serverWorld) {
-                addMarkerToTeam(serverWorld, "blockEventTeam", entity);
-            }
-            entity.setInvisible(true);
-            world.spawnEntity(entity);
-            return entity;
-        }
-
-        public static DisplayEntity.TextDisplayEntity summon(ServerWorld world, Vec3d pos, String order) {
+        private DisplayEntity.TextDisplayEntity summonText(ServerWorld world, Vec3d pos, String order) {
             DisplayEntity.TextDisplayEntity entity = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
+
+            JsonObject textJson = new JsonObject();
+            textJson.addProperty("text", "");
+            JsonArray extra = new JsonArray();
+            JsonObject orderPart = new JsonObject();
+            orderPart.addProperty("text", order);
+            orderPart.addProperty("color", "green");
+            extra.add(orderPart);
+            textJson.add("extra", extra);
+
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
             nbt.putString("billboard", "center");
-            String textJson = "{\"text\":\"" + order + "\",\"color\":\"green\"}";
+            nbt.putString("text", textJson.toString());
             nbt.putByte("see_through", (byte) 1);
-            nbt.putInt("background", 0x00000000);
-            nbt.putString("text", textJson);
+            //nbt.putInt("background", 0x00000000);
             entity.readNbt(nbt);
+
             entity.setPos(pos.getX(), pos.getY(), pos.getZ());
-            entity.addCommandTag("blockEventVisualizer");
+            entity.addCommandTag(tag);
+            entity.addCommandTag("DoNotTick");
+            world.spawnEntity(entity);
+            return entity;
+        }
+
+        private DisplayEntity.BlockDisplayEntity summonMarker(World world, BlockPos pos) {
+            DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
+            float scale = 0.5f;
+            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            nbt.put("block_state", NbtHelper.fromBlockState(Blocks.GREEN_STAINED_GLASS.getDefaultState()));
+            nbt = EntityHelper.scaleEntity(nbt, scale);
+            nbt.putInt("glow_color_override", 0xAAFFAA);
+            entity.readNbt(nbt);
+            entity.noClip = true;
+            entity.setGlowing(true);
+            entity.setInvisible(true);
+            entity.setInvulnerable(true);
+
+            float offset = (float) ((1.0f - scale) / 2.0f);
+            entity.setPos(pos.getX() + offset, pos.getY() + offset, pos.getZ() + offset);
+            entity.addCommandTag(tag);
+            entity.addCommandTag("DoNotTick");
+
+            if (world instanceof ServerWorld serverWorld) {
+                addMarkerToTeam(serverWorld, "blockEventTeam", entity);
+            }
             world.spawnEntity(entity);
             return entity;
         }
     }
 
-    public static void setVisualizer(World world, BlockPos pos, int order) {
-        if (visualizers.containsKey(pos)) {
-            visualizers.put(pos, Map.entry(visualizers.get(pos).getKey(), SURVIVE_TIME));
-        } else {
-            if (world instanceof ServerWorld serverWorld) {
-                visualizers.put(pos, Map.entry(new BlockEventObject(serverWorld, pos, order), SURVIVE_TIME));
-            }
-        }
+    @Override
+    protected void storeVisualizer(BlockPos key, BlockEventObject entity) {
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.tickMarker.getWorld())));
+    }
 
+    @Override
+    protected void updateVisualizerEntity(BlockEventObject marker, Object data) {
+        if (data instanceof Integer order && marker.tickMarker != null && !marker.tickMarker.isRemoved()) {
+            JsonObject textJson = new JsonObject();
+            textJson.addProperty("text", "");
+            JsonArray extra = new JsonArray();
+            JsonObject orderPart = new JsonObject();
+            orderPart.addProperty("text", String.valueOf(order));
+            orderPart.addProperty("color", "green");
+            extra.add(orderPart);
+            textJson.add("extra", extra);
+
+            NbtCompound nbt = marker.tickMarker.writeNbt(new NbtCompound());
+            nbt.putString("text", textJson.toString());
+            marker.tickMarker.readNbt(nbt);
+        }
+    }
+
+    @Override
+    protected BlockEventObject createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
+        if (data instanceof Integer order) {
+            BlockPos blockPos = BlockPos.ofFloored(pos);
+            return new BlockEventObject(world, blockPos, order, getVisualizerTag());
+        }
+        return null;
+    }
+
+    @Override
+    protected void removeVisualizerEntity(BlockPos key) {
+        Map.Entry<BlockEventObject, Long> entry = visualizers.get(key);
+        if (entry != null) {
+            entry.getKey().removeVisualizer();
+            visualizers.remove(key);
+        }
+    }
+
+    @Override
+    protected BlockEventObject getVisualizer(BlockPos key) {
+        Map.Entry<BlockEventObject, Long> entry = visualizers.get(key);
+        return entry == null ? null : entry.getKey();
+    }
+
+    @Override
+    protected String getVisualizerTag() {
+        return "blockEventVisualizer";
+    }
+
+    @Override
+    protected void clearAllVisualizers() {
+        visualizers.values().forEach(entry -> entry.getKey().removeVisualizer());
+        visualizers.clear();
+    }
+
+    @Override
+    public void updateVisualizer() {
+        if (!YetAnotherCarpetAdditionRules.blockEventVisualize || !CarpetServer.minecraft_server.getTickManager().shouldTick()) {
+            return;
+        }
+        visualizers.forEach((pos, entry) -> {
+            BlockEventObject object = entry.getKey();
+            long deleteTick = entry.getValue();
+            if (deleteTick < object.tickMarker.getWorld().getTime()) {
+                object.removeVisualizer();
+                visualizers.remove(pos);
+            }
+        });
+    }
+
+    @Override
+    public void setVisualizer(ServerWorld world, BlockPos key, Vec3d pos, Object data) {
+        if (visualizers.containsKey(key)) {
+            removeVisualizer(key);
+        }
+        super.setVisualizer(world, key, pos, data);
     }
 
     private static void addMarkerToTeam(ServerWorld world, String teamName, DisplayEntity.BlockDisplayEntity marker) {
@@ -117,49 +207,9 @@ public class BlockEventVisualizing {
         Team team = scoreboard.getTeam(teamName);
         if (team == null) {
             team = scoreboard.addTeam(teamName);
-
             team.setColor(Formatting.GREEN);
         }
         String entityName = marker.getUuidAsString();
         scoreboard.addScoreHolderToTeam(entityName, team);
-    }
-
-    public static void updateVisualizer() {
-        if (!YetAnotherCarpetAdditionRules.blockEventVisualize || !CarpetServer.minecraft_server.getTickManager().shouldTick())
-            return;
-        visualizers.forEach((pos, entry) -> {
-            BlockEventObject object = entry.getKey();
-            int time = entry.getValue();
-            if (time > 0) {
-                visualizers.put(pos, Map.entry(object, time - 1));
-            } else {
-                object.removeVisualizer();
-                visualizers.remove(pos);
-            }
-        });
-    }
-
-    public static void clearVisualizers(MinecraftServer server) {
-        visualizers.clear();
-        clearWorldVisualizers(server.getWorld(World.OVERWORLD));
-        clearWorldVisualizers(server.getWorld(World.NETHER));
-        clearWorldVisualizers(server.getWorld(World.END));
-    }
-
-    public static void clearWorldVisualizers(ServerWorld world) {
-        if (world!= null) {
-            Predicate<DisplayEntity.BlockDisplayEntity> predicate = bd -> bd.getCommandTags().contains("blockEventVisualizer");
-            List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
-            world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
-                    predicate,
-                    entities);
-            entities.forEach(Entity::discard);
-            Predicate<DisplayEntity.TextDisplayEntity> predicate2 = arm -> arm.getCommandTags().contains("blockEventVisualizer");
-            List<DisplayEntity.TextDisplayEntity> entities2 = new ArrayList<>();
-            world.collectEntitiesByType(EntityType.TEXT_DISPLAY,
-                    predicate2,
-                    entities2);
-            entities2.forEach(Entity::discard);
-        }
     }
 }
