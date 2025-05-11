@@ -218,5 +218,13 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean blocksNoHardness = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean unicodeArgumentsSupport = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean commandEnhance = false;
 
 }

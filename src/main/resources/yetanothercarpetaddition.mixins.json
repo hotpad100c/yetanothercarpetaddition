@@ -9,12 +9,17 @@
     "carpet.SettingsManagerMixin",
     "carpet.hopperCounterViwer.HopperCounterCommandMixin",
     "features.AbstractBlockMixin",
+    "features.AbstractBlockStateMixin",
     "features.EnchantCommandMixin",
     "features.EnchantmentMixin",
     "features.ServerWorldMixin",
     "features.bedRecordHeadRotation.BedBlockEntityMixin",
     "features.bedRecordHeadRotation.BedBlockMixin",
     "features.bedRecordHeadRotation.PlayerEntityWakeUpMixin",
+    "features.betterCommmand.DataCommandMixin",
+    "features.betterCommmand.EntityArgumentMixin",
+    "features.betterCommmand.KillCommandMixin",
+    "features.betterCommmand.StringReaderUnicodeSupportMixin",
     "features.bypassRideRestriction.RideCommandMixin",
     "features.copyableMessages.ServerPlayNetworkHandlerMixinForCopyableChatMessage",
     "features.FallingSnowLayers.SnowLayerBlockMixin",
@@ -41,12 +46,13 @@
     "features.optionalTicking.WorldMixin",
     "features.slienceTP.TeleportCommandMixin",
     "features.stepCounter.TickCommandMixin",
-    "features.AbstractBlockStateMixin",
     "features.visualizers.ChainRestrictedNeighborUpdaterMixin",
     "features.visualizers.HopperDeleteMarkerMixin",
     "features.visualizers.hopperEntityCooldownMixin",
+    "features.visualizers.PostProcessStateBlockMixin",
     "features.visualizers.ScheduledTickAndEventsServerWorldMixin",
-    "features.visualizers.WorldTickSchedulerRemoveMarkerMixin"
+    "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
+    "features.visualizers.WorldUpdateComparatorsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

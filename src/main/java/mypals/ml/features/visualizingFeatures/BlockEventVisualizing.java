@@ -20,6 +20,8 @@ import net.minecraft.world.World;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
+
 public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, BlockEventVisualizing.BlockEventObject> {
     private static final ConcurrentHashMap<BlockPos, Map.Entry<BlockEventObject, Long>> visualizers = new ConcurrentHashMap<>();
     private static final int SURVIVE_TIME = 50;
@@ -76,7 +78,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             textJson.addProperty("text", "");
             JsonArray extra = new JsonArray();
             JsonObject orderPart = new JsonObject();
-            orderPart.addProperty("text", order);
+            orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
             orderPart.addProperty("color", "green");
             extra.add(orderPart);
             textJson.add("extra", extra);
@@ -88,7 +90,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             //nbt.putInt("background", 0x00000000);
             entity.readNbt(nbt);
 
-            entity.setPos(pos.getX(), pos.getY(), pos.getZ());
+            entity.setPos(pos.getX(), pos.getY() + 0.2, pos.getZ());
             entity.addCommandTag(tag);
             entity.addCommandTag("DoNotTick");
             world.spawnEntity(entity);
@@ -133,7 +135,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             textJson.addProperty("text", "");
             JsonArray extra = new JsonArray();
             JsonObject orderPart = new JsonObject();
-            orderPart.addProperty("text", String.valueOf(order));
+            orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
             orderPart.addProperty("color", "green");
             extra.add(orderPart);
             textJson.add("extra", extra);
@@ -191,6 +193,13 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
                 object.removeVisualizer();
                 visualizers.remove(pos);
             }
+            NbtCompound nbt = entry.getKey().typeMarker.writeNbt(new NbtCompound());
+
+            float scale = mapSize(SURVIVE_TIME - entry.getKey().typeMarker.age, SURVIVE_TIME, 0.5f);
+            nbt = EntityHelper.scaleEntity(nbt, scale);
+            entry.getKey().typeMarker.readNbt(nbt);
+            entry.getKey().typeMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
+
         });
     }
 

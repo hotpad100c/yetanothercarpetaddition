@@ -31,13 +31,13 @@ public class CommandManagerCommandExecutionMixin {
             YetAnotherCarpetAdditionServer.gameEventVisualizing.clearVisualizers(parseResults.getContext().getSource().getServer());
         }
         if (command.startsWith("carpet") && command.contains("blockUpdateVisualize") && command.contains("false")) {
-            BlockUpdateVisualizing.clearVisualizers(parseResults.getContext().getSource(), BlockUpdateVisualizing.UpdateType.NC);
+            YetAnotherCarpetAdditionServer.blockUpdateVisualizing.clearVisualizers(parseResults.getContext().getSource(), BlockUpdateVisualizing.UpdateType.NC);
         }
         if (command.startsWith("carpet") && command.contains("stateUpdateVisualize") && command.contains("false")) {
-            BlockUpdateVisualizing.clearVisualizers(parseResults.getContext().getSource(), BlockUpdateVisualizing.UpdateType.PP);
+            YetAnotherCarpetAdditionServer.blockUpdateVisualizing.clearVisualizers(parseResults.getContext().getSource(), BlockUpdateVisualizing.UpdateType.PP);
         }
         if (command.startsWith("carpet") && command.contains("comparatorUpdateVisualize") && command.contains("false")) {
-            BlockUpdateVisualizing.clearVisualizers(parseResults.getContext().getSource(), BlockUpdateVisualizing.UpdateType.CP);
+            YetAnotherCarpetAdditionServer.blockUpdateVisualizing.clearVisualizers(parseResults.getContext().getSource(), BlockUpdateVisualizing.UpdateType.CP);
         }
     }
 }

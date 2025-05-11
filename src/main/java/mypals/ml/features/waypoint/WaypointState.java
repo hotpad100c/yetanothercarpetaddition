@@ -17,7 +17,7 @@ public class WaypointState extends PersistentState {
     public static final Type<WaypointState> TYPE = new Type<>(
             WaypointState::new,
             (nbt, registryLookup) -> WaypointState.fromNbt(nbt),
-            DataFixTypes.SAVED_DATA_COMMAND_STORAGE
+            null
     );
 
     private final Map<String, BlockPos> waypoints = new HashMap<>();

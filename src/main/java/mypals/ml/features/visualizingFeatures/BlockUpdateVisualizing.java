@@ -2,8 +2,8 @@ package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,66 +11,60 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Colors;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
-import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-public class BlockUpdateVisualizing {
-    public static ConcurrentHashMap<BlockPos, Map.Entry<DisplayEntity.BlockDisplayEntity, Integer>> NCvisualizers = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<BlockPos, Map.Entry<DisplayEntity.BlockDisplayEntity, Integer>> PPvisualizers = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<BlockPos, Map.Entry<DisplayEntity.BlockDisplayEntity, Integer>> CPvisualizers = new ConcurrentHashMap<>();
+import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
 
-    public static int SURVIVE_TIME = 20;
-    public static int RANGE = 40;
+public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos, BlockUpdateVisualizing.BlockUpdateObject> {
+    private static final ConcurrentHashMap<BlockPos, Map.Entry<BlockUpdateObject, Long>> visualizers = new ConcurrentHashMap<>();
+    private static final int SURVIVE_TIME = 20;
+    private static final int RANGE = 40;
 
     public enum UpdateType {
-        NC("NCVisualizer", 0xff4f00),
-        PP("PPVisualizer", 0x00ffff),
-        CP("CPVisualizer", 0xffffed);
-        public String tagName;
-        public int color;
+        NC("NCVisualizer", 0xff4f00, Formatting.RED, Blocks.RED_STAINED_GLASS.getDefaultState()),
+        PP("PPVisualizer", 0x00ffff, Formatting.AQUA, Blocks.CYAN_STAINED_GLASS.getDefaultState()),
+        CP("CPVisualizer", 0xffffed, Formatting.YELLOW, Blocks.YELLOW_STAINED_GLASS.getDefaultState());
 
-        UpdateType(String s, int i) {
-            tagName = s;
-            color = i;
+        public final String tagName;
+        public final int color;
+        public final Formatting teamColor;
+        public final BlockState defaultState;
+
+        UpdateType(String tagName, int color, Formatting teamColor, BlockState defaultState) {
+            this.tagName = tagName;
+            this.color = color;
+            this.teamColor = teamColor;
+            this.defaultState = defaultState;
         }
     }
 
-    public static void setVisualizer(World world, BlockPos pos, UpdateType updateType) {
-        switch (updateType) {
-            case NC -> setVisualizer(world, pos, updateType, NCvisualizers);
-            case PP -> setVisualizer(world, pos, updateType, PPvisualizers);
-            case CP -> setVisualizer(world, pos, updateType, CPvisualizers);
-        }
-    }
+    public static class BlockUpdateObject {
+        public final DisplayEntity.BlockDisplayEntity posMarker;
+        public final UpdateType updateType;
+        public final String tag;
 
-    public static void setVisualizer(World world, BlockPos pos, UpdateType updateType, ConcurrentHashMap<BlockPos, Map.Entry<DisplayEntity.BlockDisplayEntity, Integer>> visualizers) {
-        boolean playersNearBy = false;
-        for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
-            if (player.getPos().distanceTo(pos.toCenterPos()) < RANGE) {
-                playersNearBy = true;
-                break;
-            }
+        public BlockUpdateObject(ServerWorld world, BlockPos pos, UpdateType updateType, String tag) {
+            this.updateType = updateType;
+            this.tag = tag;
+            this.posMarker = summonMarker(world, pos);
         }
-        if (!playersNearBy) return;
-        if (visualizers.containsKey(pos)) {
-            visualizers.put(pos, Map.entry(visualizers.get(pos).getKey(), SURVIVE_TIME));
-        } else {
+
+        private DisplayEntity.BlockDisplayEntity summonMarker(ServerWorld world, BlockPos pos) {
             DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
-            entity.setNoGravity(true);
+            float scale = 0.9f;
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
-            nbt.put("block_state", NbtHelper.fromBlockState(Blocks.GLASS.getDefaultState()));
-            float scale = 1.002f;
+            nbt.put("block_state", NbtHelper.fromBlockState(updateType.defaultState));
             nbt = EntityHelper.scaleEntity(nbt, scale);
             nbt.putInt("glow_color_override", updateType.color);
             entity.readNbt(nbt);
@@ -79,16 +73,130 @@ public class BlockUpdateVisualizing {
             entity.setGlowing(true);
             entity.noClip = true;
             entity.setYaw(0);
-            entity.setPos(pos.getX(), pos.getY(), pos.getZ());
-            entity.addCommandTag(updateType.tagName);
+            entity.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
+            entity.addCommandTag(tag);
             entity.addCommandTag("DoNotTick");
-            if (world instanceof ServerWorld serverWorld) {
-                addMarkerToTeam(serverWorld, updateType.tagName, entity);
-            }
+            addMarkerToTeam(world, updateType.tagName, entity);
             world.spawnEntity(entity);
-
-            visualizers.put(pos, Map.entry(entity, SURVIVE_TIME));
+            return entity;
         }
+
+        public void removeVisualizer() {
+            if (posMarker != null && !posMarker.isRemoved()) {
+                posMarker.discard();
+            }
+        }
+    }
+
+    @Override
+    protected void storeVisualizer(BlockPos key, BlockUpdateObject entity) {
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.posMarker.getWorld())));
+    }
+
+    @Override
+    protected void updateVisualizerEntity(BlockUpdateObject marker, Object data) {
+        if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.getWorld().isClient) {
+            marker.posMarker.age = 0;
+            NbtCompound nbt = marker.posMarker.writeNbt(new NbtCompound());
+            float scale = 0.9f;
+            nbt = EntityHelper.scaleEntity(nbt, scale);
+
+            marker.posMarker.readNbt(nbt);
+            BlockPos pos = BlockPos.ofFloored(marker.posMarker.getPos());
+            marker.posMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
+            visualizers.put(pos, Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.posMarker.getWorld())));
+        }
+    }
+
+    @Override
+    protected BlockUpdateObject createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
+        if (data instanceof UpdateType updateType) {
+            BlockPos blockPos = BlockPos.ofFloored(pos);
+            return new BlockUpdateObject(world, blockPos, updateType, updateType.tagName);
+        }
+        return null;
+    }
+
+    @Override
+    protected void removeVisualizerEntity(BlockPos key) {
+        Map.Entry<BlockUpdateObject, Long> entry = visualizers.get(key);
+        if (entry != null) {
+            entry.getKey().removeVisualizer();
+            visualizers.remove(key);
+        }
+    }
+
+    @Override
+    protected BlockUpdateObject getVisualizer(BlockPos key) {
+        Map.Entry<BlockUpdateObject, Long> entry = visualizers.get(key);
+        return entry == null ? null : entry.getKey();
+    }
+
+    @Override
+    protected String getVisualizerTag() {
+        return "";
+    }
+
+    @Override
+    public void clearVisualizers(MinecraftServer server) {
+        //EntityHelper.clearVisualizersInServer(server, getVisualizerTag());
+    }
+
+    @Override
+    protected void clearAllVisualizers() {
+        visualizers.values().forEach(entry -> entry.getKey().removeVisualizer());
+        visualizers.clear();
+    }
+
+    @Override
+    public void updateVisualizer() {
+        if (!CarpetServer.minecraft_server.getTickManager().shouldTick()) {
+            return;
+        }
+        visualizers.forEach((pos, entry) -> {
+            BlockUpdateObject object = entry.getKey();
+            long deleteTick = entry.getValue();
+            if (deleteTick < object.posMarker.getWorld().getTime()) {
+                object.removeVisualizer();
+                visualizers.remove(pos);
+            }
+            NbtCompound nbt = object.posMarker.writeNbt(new NbtCompound());
+            float scale = mapSize(SURVIVE_TIME - object.posMarker.age, SURVIVE_TIME, 0.9f);
+            nbt = EntityHelper.scaleEntity(nbt, scale);
+            object.posMarker.readNbt(nbt);
+            object.posMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
+
+        });
+    }
+
+    public void setVisualizer(ServerWorld world, BlockPos pos, UpdateType updateType) {
+        boolean playersNearBy = false;
+        for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().getPlayerList()) {
+            if (player.getPos().distanceTo(pos.toCenterPos()) < RANGE) {
+                playersNearBy = true;
+                break;
+            }
+        }
+        if (!playersNearBy) return;
+        setVisualizer(world, pos, pos.toCenterPos(), updateType);
+    }
+
+    public void clearVisualizers(ServerCommandSource source, UpdateType updateType) {
+        visualizers.entrySet().removeIf(entry -> {
+            if (entry.getValue().getKey().updateType == updateType) {
+                entry.getValue().getKey().removeVisualizer();
+                return true;
+            }
+            return false;
+        });
+        EntityHelper.clearVisualizersInServer(source.getServer(), updateType.tagName);
+    }
+
+    public List<BlockPos> getVisualizersByType(UpdateType updateType) {
+        return visualizers.entrySet().stream()
+                .filter(entry -> entry.getValue().getKey().updateType == updateType)
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
     }
 
     private static void addMarkerToTeam(ServerWorld world, String teamName, DisplayEntity.BlockDisplayEntity marker) {
@@ -96,76 +204,23 @@ public class BlockUpdateVisualizing {
         Team team = scoreboard.getTeam(teamName);
         if (team == null) {
             team = scoreboard.addTeam(teamName);
-
-            team.setColor(Formatting.RED);
+            UpdateType updateType = getUpdateTypeByTag(teamName);
+            if (updateType != null) {
+                team.setColor(updateType.teamColor);
+            } else {
+                team.setColor(Formatting.WHITE);
+            }
         }
         String entityName = marker.getUuidAsString();
         scoreboard.addScoreHolderToTeam(entityName, team);
     }
 
-    public static void updateVisualizer() {
-        if (!CarpetServer.minecraft_server.getTickManager().shouldTick())
-            return;
-        NCvisualizers.forEach((pos, entry) -> {
-            DisplayEntity.BlockDisplayEntity entity = entry.getKey();
-            int time = entry.getValue();
-            if (time > 0) {
-                NCvisualizers.put(pos, Map.entry(entity, time - 1));
-            } else {
-                entity.discard();
-                NCvisualizers.remove(pos);
+    private static UpdateType getUpdateTypeByTag(String tagName) {
+        for (UpdateType type : UpdateType.values()) {
+            if (type.tagName.equals(tagName)) {
+                return type;
             }
-        });
-        PPvisualizers.forEach((pos, entry) -> {
-            DisplayEntity.BlockDisplayEntity entity = entry.getKey();
-            int time = entry.getValue();
-            if (time > 0) {
-                PPvisualizers.put(pos, Map.entry(entity, time - 1));
-            } else {
-                entity.discard();
-                PPvisualizers.remove(pos);
-            }
-        });
-        CPvisualizers.forEach((pos, entry) -> {
-            DisplayEntity.BlockDisplayEntity entity = entry.getKey();
-            int time = entry.getValue();
-            if (time > 0) {
-                CPvisualizers.put(pos, Map.entry(entity, time - 1));
-            } else {
-                entity.discard();
-                CPvisualizers.remove(pos);
-            }
-        });
-    }
-
-    public static void clearVisualizers(ServerCommandSource source, UpdateType updateType) {
-        ConcurrentHashMap<BlockPos, Map.Entry<DisplayEntity.BlockDisplayEntity, Integer>> visualizers;
-        switch (updateType) {
-            case NC -> {
-                visualizers = NCvisualizers;
-                NCvisualizers.clear();
-            }
-            case PP -> {
-                visualizers = PPvisualizers;
-                PPvisualizers.clear();
-            }
-            case CP -> {
-                visualizers = CPvisualizers;
-                CPvisualizers.clear();
-            }
-            default -> throw new IllegalArgumentException("Unknown UpdateType: " + updateType);
         }
-        visualizers.forEach((pos, entry) -> {
-            DisplayEntity.BlockDisplayEntity entity = entry.getKey();
-            if (!entity.isRemoved()) {
-                entity.discard();
-            }
-        });
-        Predicate<DisplayEntity.BlockDisplayEntity> predicate = bd -> bd.getCommandTags().contains(updateType.tagName);
-        List<DisplayEntity.BlockDisplayEntity> entities = new ArrayList<>();
-        source.getWorld().collectEntitiesByType(EntityType.BLOCK_DISPLAY,
-                predicate,
-                entities);
-        entities.forEach(Entity::discard);
+        return null;
     }
 }

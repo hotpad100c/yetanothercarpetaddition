@@ -2,6 +2,7 @@ package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -69,6 +70,12 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
                 removeVisualizer(pos);
                 visualizers.remove(pos);
             }
+            NbtCompound nbt = entry.getKey().writeNbt(new NbtCompound());
+
+            float scale = mapSize(SURVIVE_TIME - entry.getKey().age, SURVIVE_TIME, 0.9f);
+            nbt = EntityHelper.scaleEntity(nbt, scale);
+            entry.getKey().readNbt(nbt);
+            entry.getKey().setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
         });
     }
 
@@ -81,9 +88,11 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
     protected void updateVisualizerEntity(DisplayEntity.BlockDisplayEntity marker, Object data) {
         NbtCompound nbt = marker.writeNbt(new NbtCompound());
         float scale = 0.9f;
-        scale = mapSize(SURVIVE_TIME - marker.age, SURVIVE_TIME, 0.9f);
         nbt = EntityHelper.scaleEntity(nbt, scale);
         marker.readNbt(nbt);
+        BlockPos blockPos = BlockPos.ofFloored(marker.getPos());
+        marker.setPos(blockPos.toCenterPos().getX() - (scale / 2), blockPos.toCenterPos().getY() - (scale / 2), blockPos.toCenterPos().getZ() - (scale / 2));
+        marker.age = 0;
     }
 
     @Override
@@ -128,7 +137,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
 
     @Override
     protected DisplayEntity.BlockDisplayEntity getVisualizer(BlockPos key) {
-        return null;
+        return visualizers.get(key) == null ? null : visualizers.get(key).getKey();
     }
 
     @Override

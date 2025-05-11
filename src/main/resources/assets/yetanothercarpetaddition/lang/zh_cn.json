@@ -109,5 +109,9 @@
   "carpet.rule.blockNoBreakParticles.name": "无破坏粒子效果",
   "carpet.rule.blockNoBreakParticles.desc": "破坏方块时不显示粒子效果",
   "carpet.rule.blocksNoHardness.name": "方块无硬度",
-  "carpet.rule.blocksNoHardness.desc": "移除方块硬度，使所有方块可瞬间破坏"
+  "carpet.rule.blocksNoHardness.desc": "移除方块硬度，使所有方块可瞬间破坏",
+  "carpet.rule.unicodeArgumentsSupport.name": "Unicode指令参数",
+  "carpet.rule.unicodeArgumentsSupport.desc": "允许指令中出现非英文",
+  "carpet.rule.commandEnhance.name": "指令提升",
+  "carpet.rule.commandEnhance.desc": "提升指令的使用体验"
 }

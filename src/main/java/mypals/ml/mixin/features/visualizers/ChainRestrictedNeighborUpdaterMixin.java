@@ -1,6 +1,7 @@
 package mypals.ml.mixin.features.visualizers;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
 import mypals.ml.features.visualizingFeatures.HopperCooldownVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
@@ -31,8 +32,8 @@ public class ChainRestrictedNeighborUpdaterMixin {
             at = @At("HEAD")
     )
     private void AddNCMarkerSimple(BlockPos pos, Block sourceBlock, BlockPos sourcePos, CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize) return;
-        BlockUpdateVisualizing.setVisualizer(this.world, pos, BlockUpdateVisualizing.UpdateType.NC);
+        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient) return;
+        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.NC);
     }
 
     @Inject(
@@ -40,8 +41,8 @@ public class ChainRestrictedNeighborUpdaterMixin {
             at = @At("HEAD")
     )
     private void AddNCMarkerStateful(BlockState state, BlockPos pos, Block sourceBlock, BlockPos sourcePos, boolean notify, CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize) return;
-        //BlockUpdateVisualizing.setVisualizer(this.world, pos, BlockUpdateVisualizing.UpdateType.PP);
+        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient) return;
+        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.PP);
     }
 
     @Inject(
@@ -49,10 +50,10 @@ public class ChainRestrictedNeighborUpdaterMixin {
             at = @At("HEAD")
     )
     private void AddNCMarkerSixWayEntry(BlockPos pos, Block sourceBlock, Direction except, CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize) return;
+        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient) return;
         for (Direction dir : NeighborUpdater.UPDATE_ORDER) {
             if (!(except != null && dir == except)) {
-                BlockUpdateVisualizing.setVisualizer(this.world, pos.offset(dir), BlockUpdateVisualizing.UpdateType.NC);
+                YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos.offset(dir), BlockUpdateVisualizing.UpdateType.NC);
             }
         }
 
@@ -63,7 +64,8 @@ public class ChainRestrictedNeighborUpdaterMixin {
             at = @At("HEAD")
     )
     private void AddNCMarker(Direction direction, BlockState neighborState, BlockPos pos, BlockPos neighborPos, int flags, int maxUpdateDepth, CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize) return;
-        //BlockUpdateVisualizing.setVisualizer(this.world, pos, BlockUpdateVisualizing.UpdateType.PP);
+        //if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient) return;
+        //YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.PP);
+
     }
 }

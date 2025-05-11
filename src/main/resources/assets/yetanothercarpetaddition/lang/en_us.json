@@ -109,5 +109,9 @@
   "carpet.rule.blockNoBreakParticles.name": "Block No Break Particles",
   "carpet.rule.blockNoBreakParticles.desc": "Disables particles when breaking blocks",
   "carpet.rule.blocksNoHardness.name": "Block No Hardness",
-  "carpet.rule.blocksNoHardness.desc": "Removes block hardness, making all blocks instant to break"
+  "carpet.rule.blocksNoHardness.desc": "Removes block hardness, making all blocks instant to break",
+  "carpet.rule.unicodeArgumentsSupport.name": "Unicode Arguments Support",
+  "carpet.rule.unicodeArgumentsSupport.desc": "Non-english arguments in commands will be supported",
+  "carpet.rule.commandEnhance.name": "Command Enhance",
+  "carpet.rule.commandEnhance.desc": "Enhance command experience"
 }

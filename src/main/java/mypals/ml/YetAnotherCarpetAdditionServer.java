@@ -81,6 +81,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static BlockEventVisualizing blockEventVisualizing = new BlockEventVisualizing();
     public static RandomTickVisualizing randomTickVisualizing = new RandomTickVisualizing();
     public static ScheduledTickVisualizing scheduledTickVisualizing = new ScheduledTickVisualizing();
+    public static BlockUpdateVisualizing blockUpdateVisualizing = new BlockUpdateVisualizing();
     public static final String MOD_VERSION = "V1.0.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -92,6 +93,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         allVisualizers.add(randomTickVisualizing);
         allVisualizers.add(blockEventVisualizing);
         allVisualizers.add(scheduledTickVisualizing);
+        allVisualizers.add(blockUpdateVisualizing);
     }
 
     @Override
@@ -139,8 +141,6 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                 HopperCounterDataManager.tick();
 
             allVisualizers.forEach(visualizer -> visualizer.updateVisualizer());
-
-            BlockUpdateVisualizing.updateVisualizer();
         });
         PayloadTypeRegistry.playC2S().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);

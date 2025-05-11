@@ -16,5 +16,9 @@ accessible field net/minecraft/world/tick/WorldTickScheduler chunkTickSchedulers
 accessible field net/minecraft/server/PlayerManager players Ljava/util/List;
 accessible method net/minecraft/entity/decoration/DisplayEntity$BlockDisplayEntity setBlockState (Lnet/minecraft/block/BlockState;)V
 accessible field net/minecraft/block/entity/HopperBlockEntity facing Lnet/minecraft/util/math/Direction;
+accessible class net/minecraft/server/command/DataCommand$ModifyOperation
+accessible field net/minecraft/command/BlockDataObject pos Lnet/minecraft/util/math/BlockPos;
+accessible field net/minecraft/command/EntityDataObject entity Lnet/minecraft/entity/Entity;
+accessible field net/minecraft/command/StorageDataObject id Lnet/minecraft/util/Identifier;
 
 

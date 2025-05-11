@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, GameEventVisualizing.GameEventObject> {
     private static final ConcurrentHashMap<Vec3d, Map.Entry<GameEventObject, Long>> visualizers = new ConcurrentHashMap<>();
-    private static final int SURVIVE_TIME = 50;
+    private static final int SURVIVE_TIME = 30;
 
     public static class GameEventObject {
         public String type;
@@ -30,8 +30,8 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
         public DisplayEntity.BlockDisplayEntity posMarker;
 
         public GameEventObject(ServerWorld world, Vec3d pos, String emitter, String type, String tag) {
-            setVisualizer(world, pos, emitter, type);
             this.tag = tag;
+            setVisualizer(world, pos, emitter, type);
         }
 
         public void setVisualizer(ServerWorld world, Vec3d pos, String trigger, String type) {
@@ -99,7 +99,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             nbt.putString("billboard", "center");
             nbt.putString("text", textJson.toString());
             nbt.putByte("see_through", (byte) 1);
-            nbt.putInt("background", 0x00000000);
+            //nbt.putInt("background", 0x00000000);
             entity.readNbt(nbt);
 
             entity.setPos(pos.getX(), pos.getY(), pos.getZ());
@@ -181,7 +181,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
 
     @Override
     public void updateVisualizer() {
-        if (!YetAnotherCarpetAdditionRules.gameEventVisualize || !CarpetServer.minecraft_server.getTickManager().shouldTick()) {
+        if (!CarpetServer.minecraft_server.getTickManager().shouldTick()) {
             return;
         }
         visualizers.forEach((pos, entry) -> {
