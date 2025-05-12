@@ -155,6 +155,22 @@
 
 * **说明**：控制活塞推进动画的速度。
 
+### `blocksNoSelfCheck` - 方块无自检
+
+* **说明**：禁用方块的 `OnBlockAdded()` 逻辑
+
+### `blocksNoSuffocate` - 方块无窒息
+
+* **说明**：防止方块造成窒息效果 —— 禁用窒息机制
+
+### `blocksPlaceAtAnywhere` - 方块任意放置
+
+* **说明**：允许在无效或通常受限制的位置放置方块
+
+### `blockNoBreakParticles` - 方块无破坏粒子
+
+* **说明**：破坏方块时不会生成粒子效果
+
 ---
 
 ## 🛏 杂项功能拓展
