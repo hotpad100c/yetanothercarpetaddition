@@ -24,8 +24,11 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 * **Description**: Improves the usability of certain commands.
 
 Currently supported:
+
 • Hovering over the feedback of the `/kill` command shows what was killed and how many of each.
+
 • Hovering over the feedback of the `/data` command shows the specific changes made to the data.
+
 • The feedback of the `/data get` command is now more readable; clicking on the NBT key name copies the corresponding `/data modify` command.
 
 
