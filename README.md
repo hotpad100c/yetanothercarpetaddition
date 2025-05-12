@@ -239,6 +239,150 @@ Currently supported:
 
 ---
 
+## Commands
+
+### `/scheduleTick` Command Format
+
+```
+/scheduleTick <pos> <block> <time> <priority>
+```
+
+* `pos`: Position of the target block (e.g., `0 64 0`)
+* `block`: Block state (e.g., `minecraft:stone`)
+* `time`: Delay time (integer, ≥ 0)
+* `priority`: Priority level (range: -3 to 3)
+
+### `/blockEvent` Command Format
+
+```
+/blockEvent <pos> <block> <type> <data>
+```
+
+* `pos`: Position of the target block
+* `block`: Block state
+* `type`: Event type (0\~2)
+* `data`: Additional data (0\~5)
+
+### `/randomTick` Command Format
+
+```
+/randomTick <pos>
+```
+
+* `pos`: Block position
+
+### `/gameEvent` Command Format (Supports Parameter Combinations)
+
+```
+/gameEvent <pos> <reason> [entity] [blockstate]
+```
+
+Supported combinations:
+
+1. `<pos> <reason>` only
+2. `<pos> <reason> <entity>`
+3. `<pos> <reason> <blockstate>`
+4. `<pos> <reason> <entity> <blockstate>`
+
+* `pos`: Event position (3D coordinates, e.g., `0.5 64.0 0.5`)
+* `reason`: Event name (string)
+* `entity`: Entity triggering the event (optional)
+* `blockstate`: Block state (optional)
+
+### `/worldEvent` Command Format (Two Forms Supported)
+
+1. With player parameter:
+
+```
+/worldEvent <player> <pos> <event> <data>
+```
+
+2. Without player parameter:
+
+```
+/worldEvent <pos> <event> <data>
+```
+
+* `player`: Player entity (optional)
+* `pos`: Event location
+* `event`: Event name (suggested values supported)
+* `data`: Additional data (integer)
+
+### `/rename` Command Format (For Renaming Items)
+
+Two usage options:
+
+1. Specify a name:
+
+```
+/rename <name>
+```
+
+* `name`: New name (string, can include spaces, must be quoted)
+
+2. No parameters:
+
+```
+/rename
+```
+
+* Reverts to default name
+
+---
+
+### `/itemshadowing` Command Format
+
+```
+/itemshadowing
+```
+
+* Clones the item in the main hand to the off-hand
+
+---
+
+### `/waypoint` Command (Main Command)
+
+#### Subcommand: `/waypoint save` (Save a New Waypoint)
+
+1. **Save a waypoint at the player's current position:**
+
+   ```
+   /waypoint save <name>
+   ```
+
+   ```
+   /waypoint save <name> <pos>
+   ```
+
+   * `name`: Waypoint name (string)
+   * `pos`: Waypoint position (block coordinates)
+
+#### Subcommand: `/waypoint remove` (Remove a Named Waypoint)
+
+```
+/waypoint remove <name>
+```
+
+* `name`: Name of the waypoint to remove (string)
+
+#### Subcommand: `/waypoint tp` (Teleport to a Named Waypoint)
+
+```
+/waypoint tp <name>
+```
+
+* `name`: Waypoint name (string)
+
+#### Subcommand: `/waypoint list` (List All Saved Waypoints)
+
+```
+/waypoint list
+```
+
+* No parameters. Displays all saved waypoint names as clickable links. Clicking a name teleports the player to that waypoint.
+
+---
+
 ## 📱GUI Features
 
 ### Carpet Rule GUI (Default: F9)
