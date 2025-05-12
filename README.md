@@ -7,13 +7,27 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 
 ---
 
-## 🧭Main Functional Rules
+## 🧭Main Highlight Rules
 
 ### `enableTickStepCounter` - Tick Step Counter
 
 * **Description**: Enables a tick counter when `/tick freeze` is active, allowing you to track how many game ticks have
   advanced.
 * **Use Case**: Useful for analyzing game progress while the game is frozen.
+
+### `UnicodeArgumentSupport` - Unicode Argument Support
+
+* **Description**: Commands now support non-English characters as arguments.
+
+### `commandEnhance` - Command Experience Enhancement
+
+* **Description**: Improves the usability of certain commands.
+
+Currently supported:
+• Hovering over the feedback of the `/kill` command shows what was killed and how many of each.
+• Hovering over the feedback of the `/data` command shows the specific changes made to the data.
+• The feedback of the `/data get` command is now more readable; clicking on the NBT key name copies the corresponding `/data modify` command.
+
 
 ---
 
@@ -193,6 +207,18 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 ### `blockEventVisualize` - Block Event Visualization
 
 * **Description**: Visualizes the execution order of block events like pistons.
+
+### `blockUpdateVisualize` - NC Update Visualization
+
+* **Description**: Displays where NC (Neighbor Changed) updates occur.
+
+### `stateUpdateVisualize` - PP Update Visualization
+
+* **Description**: Displays where PP (Post-processing) updates occur.
+
+### `comparatorUpdateVisualize` - Comparator Update Visualization
+
+* **Description**: Displays where comparator updates occur.
 
 ---
 
