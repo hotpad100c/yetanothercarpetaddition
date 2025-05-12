@@ -186,6 +186,19 @@ Currently supported:
 
 * **Description**: Snow layers fall under gravity like sand blocks.
 
+### `blocksNoSelfCheck` - Blocks No Self Check
+* **Description**: Disable OnBlockAdded() logic for blocks
+
+### `blocksNoSuffocate` - Blocks No Suffocate
+* **Description**: Prevents blocks from causing suffocation - Disable
+
+### `blocksPlaceAtAnywhere` -  Blocks Place At Anywhere
+* **Description**: Allows placing blocks in invalid or normally restricted locations
+
+### `blockNoBreakParticles` - Block No Breaking Particles
+* **Description**: No particles will spawn when breaking blocks
+
+
 ---
 
 ## 🌟Visualization Tools
