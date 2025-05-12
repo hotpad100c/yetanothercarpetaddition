@@ -230,6 +230,148 @@
 * **注意**：可能会导致奇怪的行为。
 
 ---
+## 指令
+###  `/scheduleTick` 指令格式
+
+```
+/scheduleTick <pos> <block> <time> <priority>
+```
+
+* `pos`: 目标方块的位置（例如：`0 64 0`）
+* `block`: 方块状态（例如：`minecraft:stone`）
+* `time`: 延迟时间（整数，≥0）
+* `priority`: 优先级（范围：-3 到 3）
+
+### `/blockEvent` 指令格式
+
+```
+/blockEvent <pos> <block> <type> <data>
+```
+
+* `pos`: 目标方块的位置
+* `block`: 方块状态
+* `type`: 事件类型（0\~2）
+* `data`: 附加数据（0\~5）
+
+###  `/randomTick` 指令格式
+
+```
+/randomTick <pos>
+```
+
+* `pos`: 方块位置
+
+###  `/gameEvent` 指令格式（可组合参数）
+
+```
+/gameEvent <pos> <reason> [entity] [blockstate]
+```
+
+支持以下组合：
+
+1. 只提供 `<pos> <reason>`
+2. 提供 `<pos> <reason> <entity>`
+3. 提供 `<pos> <reason> <blockstate>`
+4. 提供 `<pos> <reason> <entity> <blockstate>`
+
+* `pos`: 事件位置（三维坐标，如：`0.5 64.0 0.5`）
+* `reason`: 事件名称（字符串）
+* `entity`: 触发事件的实体（可选）
+* `blockstate`: 方块状态（可选）
+
+### 📌 `/worldEvent` 指令格式（支持两种形式）
+
+1. 带玩家参数：
+
+```
+/worldEvent <player> <pos> <event> <data>
+```
+
+2. 不带玩家参数：
+
+```
+/worldEvent <pos> <event> <data>
+```
+
+* `player`: 玩家实体（可选）
+* `pos`: 事件位置
+* `event`: 事件名称（支持建议）
+* `data`: 附加数据（整数）
+
+### `/rename` 指令格式（用于重命名物品）
+
+该指令有两种使用方式：
+
+1. 指定名称：
+
+```
+/rename <name>
+```
+
+* `name`: 新名称（字符串，可以包含空格，需加引号）
+
+2. 不带参数：
+
+```
+/rename
+```
+
+* 回归默认名
+
+---
+
+###  `/itemshadowing` 指令格式
+
+```
+/itemshadowing
+```
+
+* 将主手物品分身到副手
+
+以下是你提供的 Minecraft 指令注册代码中 `waypoint` 指令相关的格式说明（中文，仅说明格式，不解释功能或用途）：
+
+---
+
+###  `/waypoint` 指令（主命令）
+
+#### 子命令：`/waypoint save`（保存一个新的路径点）
+
+1. **保存路径点到玩家当前位置**：
+
+   ```
+   /waypoint save <name>
+   ```
+   ```
+   /waypoint save <name> <pos>
+   ```
+
+   * `name`: 路径点名称（字符串）
+   * `pos`: 路径点位置（方块坐标）
+
+#### 子命令：`/waypoint remove`（删除指定名称的路径点）
+
+```
+/waypoint remove <name>
+```
+
+* `name`: 要删除的路径点名称（字符串）
+
+#### 子命令：`/waypoint tp`（传送到指定名称的路径点）
+
+```
+/waypoint tp <name>
+```
+
+* `name`: 路径点名称（字符串）
+
+#### 子命令：`/waypoint list`（列出所有已保存的路径点）
+
+```
+/waypoint list
+```
+
+* 无参数，显示所有已保存的路径点名称，并且每个名称都是可点击的链接，点击后会传送到该路径点。
+---
 
 ## 📱 GUI功能
 
