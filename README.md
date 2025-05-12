@@ -340,7 +340,7 @@ Two usage options:
 
 ---
 
-### `/waypoint` Command (Main Command)
+### `/waypoint` Command Format
 
 #### Subcommand: `/waypoint save` (Save a New Waypoint)
 
