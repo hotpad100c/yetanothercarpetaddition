@@ -1,7 +1,7 @@
 # YACA 毯上添花 - Carpet规则介绍文档
 
 本模组为 Carpet Mod 的扩展：**Yet Another Carpet Addition（YACA）**，提供了多种调试、性能优化、游戏机制调整等功能规则。以下为所有规则的详细介绍。
-
+![owo](https://count.getloli.com/@YACAC?name=YACAC&theme=3d-num&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto)
 ---
 
 ## 🧭 主亮点功能
