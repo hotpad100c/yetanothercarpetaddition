@@ -5,6 +5,7 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 
 [中文版/ChineseVersion](./README-zn_ch.md)
 
+![owo](https://count.getloli.com/@YACAC?name=YACAC&theme=3d-num&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto)
 ---
 
 ## 🧭Main Highlight Rules
