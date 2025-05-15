@@ -73,14 +73,14 @@ public class RuleWidget {
                 }
             }
 
-            @Override
-            public boolean  mouseClicked(double mouseX, double mouseY, int button) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                return this.active && this.visible && mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
-            }
+//            @Override
+//            public boolean  mouseClicked(double mouseX, double mouseY, int button) {
+//                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
+//                return this.active && this.visible && mouseX >= (double) this.getX()
+//                        && adjustedMouseY >= (double) this.getY() &&
+//                        mouseX < (double) (this.getX() + this.getWidth()) &&
+//                        adjustedMouseY < (double) (this.getY() + this.getHeight());
+//            }
 
 
             @Override
@@ -118,14 +118,14 @@ public class RuleWidget {
                 }
             }
 
-            @Override
-            public boolean  mouseClicked(double mouseX, double mouseY, int button) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                return this.active && this.visible && mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
-            }
+//            @Override
+//            public boolean  mouseClicked(double mouseX, double mouseY, int button) {
+//                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
+//                return this.active && this.visible && mouseX >= (double) this.getX()
+//                        && adjustedMouseY >= (double) this.getY() &&
+//                        mouseX < (double) (this.getX() + this.getWidth()) &&
+//                        adjustedMouseY < (double) (this.getY() + this.getHeight());
+//            }
 
 
             @Override
@@ -162,15 +162,14 @@ public class RuleWidget {
                 }
             }
 
-            @Override
-            public boolean  mouseClicked(double mouseX, double mouseY, int button) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                return this.active && this.visible && mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
-            }
-
+//            @Override
+//            public boolean   ouseClicked(double mouseX, double mouseY, int button) {
+//                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
+//                return this.active && this.visible && mouseX >= (double) this.getX()
+//                        && adjustedMouseY >= (double) this.getY() &&
+//                        mouseX < (double) (this.getX() + this.getWidth()) &&
+//                        adjustedMouseY < (double) (this.getY() + this.getHeight());
+//            }
 
             @Override
             public void onClick(double mouseX, double mouseY) {
