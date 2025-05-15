@@ -7,6 +7,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ScrollableTextFieldWidget;
 import net.minecraft.client.gui.widget.ScrollableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.DefaultFramebufferSet;
@@ -193,7 +194,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
         });
         searchFieldWidget.setMaxLength(100);
 
-        this.addDrawableChild(rulesScrollableWidget = new ScrollableWidget(0, 30,
+        this.addDrawableChild(rulesScrollableWidget = new ScrollableTextFieldWidget(0, 30,
                 this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
             int boxWidth = this.width - 10;
             int boxHeight = 50;
@@ -277,13 +278,13 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
             }
 
-            @Override
-            protected void drawBox(DrawContext context, int x, int y, int width, int height) {
-                context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x1A000000);
-                //context.fill(x, y, width, height, 0x19000000);
-            }
+//            @Override
+//            protected void drawBox(DrawContext context, int x, int y, int width, int height) {
+//                context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x1A000000);
+//                //context.fill(x, y, width, height, 0x19000000);
+//            }
         });
-        this.addDrawableChild(categoriesScrollableWidget = new ScrollableWidget(
+        this.addDrawableChild(categoriesScrollableWidget = new ScrollableTextFieldWidget(
                 this.width - (this.width / 3) + 30, 30, 120, this.height - 30, ScreenTexts.EMPTY) {
             int boxWidth = this.width - 10;
             int boxHeight = 20;
@@ -346,10 +347,10 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
             }
 
-            @Override
-            protected void drawBox(DrawContext context, int x, int y, int width, int height) {
-                context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
-            }
+//            @Override
+//            protected void drawBox(DrawContext context, int x, int y, int width, int height) {
+//                context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
+//            }
         });
     }
 
@@ -361,7 +362,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.drawTexture(spite ->getGui(),searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 10, 10, 10);
+        context.drawTexture(RenderLayer::getGuiTextured,searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 10, 10, 10);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, currentToolTips, mouseX, mouseY);
     }
@@ -373,7 +374,8 @@ public class RulesEditScreen extends Screen implements ParentElement {
         if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
-            Identifier BLUR_SHADER = new Identifier("minecraft", "shaders/post/blur.json");
+
+            Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
             PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
             if (blur != null) {
                 blur.setUniforms("Radius", 20F);

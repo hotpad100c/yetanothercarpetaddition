@@ -37,8 +37,7 @@ public class RuleWidget {
     private ButtonTextures LOCK = new ButtonTextures(Identifier.of(MOD_ID, "ui/lock.png"), Identifier.of(MOD_ID, "ui/unlock.png"), Identifier.of(MOD_ID, "ui/lock_s.png"), Identifier.of(MOD_ID, "ui/unlock_s.png"));
     private ButtonTextures LOVE = new ButtonTextures(Identifier.of(MOD_ID, "ui/loved.png"), Identifier.of(MOD_ID, "ui/love.png"), Identifier.of(MOD_ID, "ui/loved_s.png"), Identifier.of(MOD_ID, "ui/love_s.png"));
     private ButtonTextures TRUE_FALSE = new ButtonTextures(Identifier.of(MOD_ID, "ui/true_t.png"), Identifier.of(MOD_ID, "ui/false_t.png"), Identifier.of(MOD_ID, "ui/true_t_s.png"), Identifier.of(MOD_ID, "ui/false_t_s.png"));
-
-    protected RuleWidget(RuleData ruleData, RulesEditScreen rulesEditScreen) {
+     protected RuleWidget(RuleData ruleData, RulesEditScreen rulesEditScreen) {
         this.rulesEditScreen = rulesEditScreen;
         this.ruleData = ruleData;
         valueWidget = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, x + 30, y + 5, 100, 20, Text.of(ruleData.value)) {
@@ -69,13 +68,13 @@ public class RuleWidget {
 
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(spite ->getGui(),this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                    context.drawTexture(RenderLayer::getGuiTextured,this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean  mouseClicked(double mouseX, double mouseY, int button) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
@@ -114,13 +113,13 @@ public class RuleWidget {
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(spite ->getGui(),this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                    context.drawTexture(RenderLayer::getGuiTextured,this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean  mouseClicked(double mouseX, double mouseY, int button) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
@@ -158,13 +157,13 @@ public class RuleWidget {
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(spite ->getGui(), this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height, this.width, this.height);
+                    context.drawTexture(RenderLayer::getGuiTextured, this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean  mouseClicked(double mouseX, double mouseY, int button) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&

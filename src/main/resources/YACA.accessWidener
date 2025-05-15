@@ -21,4 +21,5 @@ accessible field net/minecraft/command/StorageDataObject id Lnet/minecraft/util/
 accessible method net/minecraft/block/AbstractBlock isTransparent (Lnet/minecraft/block/BlockState;)Z
 accessible method net/minecraft/util/Identifier <init> (Ljava/lang/String;Ljava/lang/String;)V
 accessible field net/minecraft/client/render/GameRenderer pool Lnet/minecraft/client/util/Pool;
+accessible method net/minecraft/block/AbstractBlock getPickStack (Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/item/ItemStack;
 
