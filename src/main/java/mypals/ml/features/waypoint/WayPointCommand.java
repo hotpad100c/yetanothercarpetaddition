@@ -104,8 +104,8 @@ public class WayPointCommand {
                                     Text clickable = Text.literal("• [" + name + "]")
                                             .styled(style -> style
                                                     .withColor(Formatting.AQUA)
-                                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/waypoint tp " + name))
-                                                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to teleport to " + name)))
+                                                    .withClickEvent(new ClickEvent.RunCommand("/waypoint tp " + name))
+                                                    .withHoverEvent(new HoverEvent.ShowText(Text.literal("Click to teleport to " + name)))
                                             );
                                     ctx.getSource().sendFeedback(() -> clickable, false);
                                 }

@@ -71,9 +71,11 @@ public class DataCommandMixin {
             NbtElement oldVal = before.get(key);
             if (oldVal == null || !oldVal.equals(newVal)) {
                 diffs.add(Text.literal("§e" + key + "§r: ")
-                        .append(Text.literal(oldVal == null ? "null" : oldVal.asString()).formatted(Formatting.RED))
+                        .append(Text.literal(oldVal == null ? "null" : oldVal.asString().orElse("null")).formatted(Formatting.RED))
+
+                        .append(Text.literal(oldVal == null ? "null" : oldVal.asString().orElse("null")).formatted(Formatting.RED))
                         .append(" -> ")
-                        .append(Text.literal(newVal.asString()).formatted(Formatting.GREEN)));
+                        .append(Text.literal(newVal.asString().orElse("null")).formatted(Formatting.GREEN)));
             }
         }
 
@@ -83,9 +85,7 @@ public class DataCommandMixin {
                 hoverText.append(line).append("\n");
             }
             Text feedBack = feedbackSupplier.get();
-            Supplier<Text> st = () -> feedBack.copy().styled(style -> style.withHoverEvent(
-                    new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText)
-            ));
+            Supplier<Text> st = () -> feedBack.copy().styled(style -> style.withHoverEvent(new HoverEvent.ShowText(hoverText)));
             original.call(instance, st, broadcastToOps);
         }
     }
@@ -134,7 +134,7 @@ public class DataCommandMixin {
         } else if (nbtElement instanceof NbtCompound) {
             i = ((NbtCompound) nbtElement).getSize();
         } else if (nbtElement instanceof NbtString) {
-            i = nbtElement.asString().length();
+            i = nbtElement.asString().orElse("1").length();
         } else {
             throw GET_UNKNOWN_EXCEPTION.create(path.toString());
         }
