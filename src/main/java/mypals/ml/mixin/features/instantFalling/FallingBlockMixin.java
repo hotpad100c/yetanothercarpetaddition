@@ -26,7 +26,7 @@ public abstract class FallingBlockMixin {
             while (FallingBlock.canFallThrough(world.getBlockState(blockPos)) && blockPos.getY() > world.getBottomY()) {
                 blockPos = blockPos.down();
             }
-            if (blockPos.getY() > world.getBottomY()) {
+            if (blockPos.getY() >= world.getBottomY()) {
                 world.setBlockState(blockPos.up(), blockState);
             }
             ci.cancel();
