@@ -1,18 +1,9 @@
 package mypals.ml.features.visualizingFeatures;
 
-import carpet.CarpetServer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 public abstract class AbstractVisualizingManager<T, E> {
     protected abstract void storeVisualizer(T key, E entity);

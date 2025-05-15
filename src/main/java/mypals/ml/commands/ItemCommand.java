@@ -1,6 +1,5 @@
 package mypals.ml.commands;
 
-import carpet.CarpetSettings;
 import carpet.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;

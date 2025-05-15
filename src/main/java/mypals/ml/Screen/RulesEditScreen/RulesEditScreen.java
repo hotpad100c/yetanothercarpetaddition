@@ -2,12 +2,14 @@ package mypals.ml.Screen.RulesEditScreen;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.PostEffectProcessor;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ScrollableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.render.DefaultFramebufferSet;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.sound.PositionedSoundInstance;
@@ -26,6 +28,7 @@ import java.util.regex.Pattern;
 
 import static mypals.ml.YetAnotherCarpetAdditionClient.*;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
+import static net.minecraft.client.render.RenderLayer.getGui;
 
 public class RulesEditScreen extends Screen implements ParentElement {
     private static final Text CONFIGURE_TEXT = Text.translatable("gui.screen.configure");
@@ -358,7 +361,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.drawTexture(searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 10, 10, 10);
+        context.drawTexture(spite ->getGui(),searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 10, 10, 10);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, currentToolTips, mouseX, mouseY);
     }
@@ -370,8 +373,12 @@ public class RulesEditScreen extends Screen implements ParentElement {
         if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
-            gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
-            gameRenderer.blurPostProcessor.render(delta);
+            Identifier BLUR_SHADER = new Identifier("minecraft", "shaders/post/blur.json");
+            PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
+            if (blur != null) {
+                blur.setUniforms("Radius", 20F);
+                blur.render(client.getFramebuffer(), gameRenderer.pool);
+            }
             this.client.getFramebuffer().beginWrite(false);
         }
 

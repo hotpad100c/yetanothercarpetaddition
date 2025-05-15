@@ -1,11 +1,8 @@
 package mypals.ml.features.visualizingFeatures;
 
-import mypals.ml.YetAnotherCarpetAdditionServer;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.server.world.ServerWorld;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,10 +13,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtFloat;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.packet.s2c.play.EntityAttachS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.util.math.BlockPos;
 
 
 public class EntityHelper {

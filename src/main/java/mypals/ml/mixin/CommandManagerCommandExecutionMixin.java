@@ -3,7 +3,6 @@ package mypals.ml.mixin;
 import com.mojang.brigadier.ParseResults;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.*;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import org.spongepowered.asm.mixin.Mixin;

@@ -14,13 +14,11 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.BlockBreakingInfo;
-import net.minecraft.world.tick.TickManager;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.transformer.meta.MixinInner;
 
 import java.util.Iterator;
 
@@ -40,7 +38,7 @@ public abstract class WorldRenderFreeze {
     @Shadow
     protected abstract void removeBlockBreakingInfo(BlockBreakingInfo info);
 
-    @WrapOperation(method = "render",
+    @WrapOperation(method = "renderEntities",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
     private void blockTickEntityRender(WorldRenderer instance, Entity entity,
                                        double cameraX, double cameraY, double cameraZ,
@@ -56,7 +54,6 @@ public abstract class WorldRenderFreeze {
         if (this.world.getTickManager().shouldTick() &&
                 !YetAnotherCarpetAdditionRules.stopTickingBlockEntities &&
                 !YetAnotherCarpetAdditionRules.stopTickingWeather &&
-                !YetAnotherCarpetAdditionRules.stopTickingBlocks &&
                 !YetAnotherCarpetAdditionRules.stopTickingBlocks &&
                 !YetAnotherCarpetAdditionRules.stopTickingFluids) {
             ++this.ticks;

@@ -9,7 +9,6 @@ import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.JsonHelper;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +17,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class YACALanguageUtil {
     private static final Gson GSON = new Gson();

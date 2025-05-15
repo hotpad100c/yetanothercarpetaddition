@@ -98,8 +98,6 @@
   "carpet.rule.stateUpdateVisualize.desc": "Visualize the area where PP updates occur",
   "carpet.rule.comparatorUpdateVisualize.name": "Comparator Update Visualization",
   "carpet.rule.comparatorUpdateVisualize.desc": "Visualize the area where comparator updates occur",
-  "carpet.rule.waterTNT.name": "WaterTNT",
-  "carpet.rule.waterTNT.desc": "Make 1.21.2+ WaterTNT work in here",
   "carpet.rule.blocksNoSelfCheck.name": "Block No Self Check",
   "carpet.rule.blocksNoSelfCheck.desc": "Disable self-checking logic for blocks",
   "carpet.rule.blocksNoSuffocate.name": "Blocks No Suffocate",

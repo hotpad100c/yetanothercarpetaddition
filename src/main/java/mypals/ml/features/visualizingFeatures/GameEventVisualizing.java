@@ -3,7 +3,6 @@ package mypals.ml.features.visualizingFeatures;
 import carpet.CarpetServer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;

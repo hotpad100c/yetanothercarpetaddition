@@ -98,8 +98,6 @@
   "carpet.rule.stateUpdateVisualize.desc": "可视化PP更新发生的区域",
   "carpet.rule.comparatorUpdateVisualize.name": "比较器更新可视化",
   "carpet.rule.comparatorUpdateVisualize.desc": "可视化比较器更新可视化更新发生的区域",
-  "carpet.rule.waterTNT.name": "k爆",
-  "carpet.rule.waterTNT.desc": "使得1.21.2+的k爆特性在这个版本工作",
   "carpet.rule.blocksNoSelfCheck.name": "方块不自检",
   "carpet.rule.blocksNoSelfCheck.desc": "方块不再自检",
   "carpet.rule.blocksNoSuffocate.name": "方块无窒息判定",

@@ -1,17 +1,13 @@
 package mypals.ml.features.visualizingFeatures;
 
-import carpet.CarpetServer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

@@ -1,6 +1,5 @@
 package mypals.ml.features.waypoint;
 
-import net.minecraft.datafixer.DataFixTypes;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
@@ -10,7 +9,6 @@ import net.minecraft.world.PersistentState;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public class WaypointState extends PersistentState {
     private static final String FILE_NAME = "waypoints";

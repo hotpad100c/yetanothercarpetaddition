@@ -1,6 +1,5 @@
 package mypals.ml.network.server;
 
-import carpet.CarpetSettings;
 import mypals.ml.network.PacketIDs;
 import mypals.ml.network.RuleData;
 import net.minecraft.network.PacketByteBuf;

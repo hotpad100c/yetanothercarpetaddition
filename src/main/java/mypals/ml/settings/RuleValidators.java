@@ -3,7 +3,6 @@ package mypals.ml.settings;
 import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Validator;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 public class RuleValidators {

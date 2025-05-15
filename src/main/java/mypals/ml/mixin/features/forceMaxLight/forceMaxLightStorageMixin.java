@@ -3,8 +3,6 @@ package mypals.ml.mixin.features.forceMaxLight;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.light.ChunkLightProvider;
 import net.minecraft.world.chunk.light.LightStorage;
 import org.spongepowered.asm.mixin.Mixin;
 

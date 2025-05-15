@@ -1,7 +1,5 @@
 package mypals.ml.interfaces;
 
-import org.spongepowered.asm.mixin.Unique;
-
 public interface BedBlockEntityExtension {
     float getSleeperYaw();
 

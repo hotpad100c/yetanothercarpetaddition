@@ -1,7 +1,6 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -17,7 +16,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.Map;

@@ -1,12 +1,6 @@
 package mypals.ml.settings;
 
 import carpet.api.settings.Rule;
-import carpet.api.settings.CarpetRule;
-import carpet.api.settings.Validator;
-import carpet.api.settings.Validators;
-import carpet.utils.Messenger;
-import net.minecraft.server.command.ServerCommandSource;
-import org.jetbrains.annotations.Nullable;
 
 import static carpet.api.settings.RuleCategory.*;
 import static mypals.ml.settings.RuleValidators.MOVING_PISTON_SPEED_VALIDATOR;
@@ -193,10 +187,6 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean comparatorUpdateVisualize = false;
-    @Rule(
-            categories = {YACA, FEATURE}
-    )
-    public static boolean waterTNT = false;
     @Rule(
             categories = {YACA, FEATURE}
     )
