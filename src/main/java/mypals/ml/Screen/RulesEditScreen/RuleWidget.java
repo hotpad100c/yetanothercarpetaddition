@@ -69,7 +69,7 @@ public class RuleWidget {
 
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(spite ->getGui(),this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                    context.drawTexture(RenderLayer::getGuiTextured,this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
@@ -114,7 +114,7 @@ public class RuleWidget {
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(spite ->getGui(),this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                    context.drawTexture(RenderLayer::getGuiTextured,this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
@@ -158,7 +158,7 @@ public class RuleWidget {
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(spite ->getGui(), this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height, this.width, this.height);
+                    context.drawTexture(RenderLayer::getGuiTextured, this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }

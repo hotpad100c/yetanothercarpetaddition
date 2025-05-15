@@ -361,7 +361,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.drawTexture(spite ->getGui(),searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 10, 10, 10);
+        context.drawTexture(RenderLayer::getGuiTextured,searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 10, 10, 10);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, currentToolTips, mouseX, mouseY);
     }
@@ -373,7 +373,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
         if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
-            Identifier BLUR_SHADER = new Identifier("minecraft", "shaders/post/blur.json");
+            Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
             PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
             if (blur != null) {
                 blur.setUniforms("Radius", 20F);
