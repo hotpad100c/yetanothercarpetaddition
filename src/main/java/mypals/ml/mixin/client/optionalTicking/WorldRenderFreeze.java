@@ -47,7 +47,7 @@ public abstract class WorldRenderFreeze {
                                        float tickDelta, MatrixStack matrices,
                                        VertexConsumerProvider vertexConsumers, Operation<Void> original,
                                        @Local(argsOnly = true) RenderTickCounter renderTickCounter) {
-        tickDelta = renderTickCounter.getTickDelta(!YetAnotherCarpetAdditionRules.stopTickingEntities || !MinecraftClient.getInstance().world.getTickManager().shouldTick());
+        tickDelta = YetAnotherCarpetAdditionRules.stopTickingEntities? 1.0F : tickDelta;
         original.call(instance, entity, cameraX, cameraY, cameraZ, tickDelta, matrices, vertexConsumers);
     }
 
