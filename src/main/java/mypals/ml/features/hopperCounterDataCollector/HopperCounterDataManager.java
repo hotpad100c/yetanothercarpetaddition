@@ -21,7 +21,7 @@ public class HopperCounterDataManager {
     public static void initCounterManager() throws IOException {
         allCounters.clear();
         for (DyeColor color : DyeColor.values()) {
-            allCounters.put(color.getName(), HopperCounter.getCounter(color));
+            allCounters.put(color.toString(), HopperCounter.getCounter(color));
         }
         ServerWorld overworld = CarpetServer.minecraft_server.getOverworld();
         Path worldSavePath = overworld.getServer().getSavePath(WorldSavePath.ROOT).normalize();

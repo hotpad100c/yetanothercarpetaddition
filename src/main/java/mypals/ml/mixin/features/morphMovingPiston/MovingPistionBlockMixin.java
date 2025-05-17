@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityCollisionHandler;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -47,7 +48,7 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     }
 
     @Override
-    public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+    public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
         pistonBlockEntity = this.getPistonBlockEntity(world, pos);
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
             pistonBlockEntity.getPushedBlock().getBlock().onLandedUpon(world, pistonBlockEntity.getPushedBlock(), pos, entity, fallDistance);
@@ -57,10 +58,10 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     }
 
     @Override
-    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
+    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity, EntityCollisionHandler handler) {
         pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
-            pistonBlockEntity.getPushedBlock().getBlock().onEntityCollision(pistonBlockEntity.getPushedBlock(), world, pos, entity);
+            pistonBlockEntity.getPushedBlock().getBlock().onEntityCollision(pistonBlockEntity.getPushedBlock(), world, pos, entity,handler);
     }
 
     @Override

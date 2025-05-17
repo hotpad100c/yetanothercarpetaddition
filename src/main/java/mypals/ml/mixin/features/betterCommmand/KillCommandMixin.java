@@ -49,7 +49,7 @@ public class KillCommandMixin {
         }
 
         baseMessage.styled(style -> style.withHoverEvent(
-                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(tooltipBuilder.toString()))
+                new HoverEvent.ShowText(Text.literal(tooltipBuilder.toString()))
         ));
 
         source.sendFeedback(() -> baseMessage, true);

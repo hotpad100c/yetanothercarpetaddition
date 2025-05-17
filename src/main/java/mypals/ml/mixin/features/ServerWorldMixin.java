@@ -22,6 +22,7 @@ import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.tick.TickManager;
 import org.spongepowered.asm.mixin.Final;
@@ -182,35 +183,28 @@ public abstract class ServerWorldMixin extends World {
         }
     }
 
-    @WrapOperation(
-            method = "tickChunk",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
-                    ordinal = 0
-            )
-    )
-    private boolean wrapLightningSpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingEntities || !YetAnotherCarpetAdditionRules.stopTickingWeather) {
-            original.call(instance, entity);
+    @Inject(method = "tickThunder",at = @At("HEAD"), cancellable = true)
+    private void wrapLightningAndSkeletonHorseEntitySpawn(WorldChunk chunk, CallbackInfo ci) {
+        if (YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionRules.stopTickingWeather) {
+            ci.cancel();
         }
-        return false;
     }
 
-    @WrapOperation(
-            method = "tickChunk",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
-                    ordinal = 1
-            )
-    )
-    private boolean wrapSkeletonHorseEntitySpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingWeather) {
-            original.call(instance, entity);
-        }
-        return false;
-    }
+// tickThunder
+//    @WrapOperation(
+//            method = "tickChunk",
+//            at = @At(
+//                    value = "INVOKE",
+//                    target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
+//                    ordinal = 1
+//            )
+//    )
+//    private boolean wrapSkeletonHorseEntitySpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
+//        if (!YetAnotherCarpetAdditionRules.stopTickingWeather) {
+//            original.call(instance, entity);
+//        }
+//        return false;
+//    }
 
     @WrapOperation(
             method = "tick",
@@ -227,7 +221,7 @@ public abstract class ServerWorldMixin extends World {
                     profiler.push("checkDespawn");
                     entity.checkDespawn();
                     profiler.pop();
-                    if (entity instanceof ServerPlayerEntity || this.chunkManager.chunkLoadingManager.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong())) {
+                    if (entity instanceof ServerPlayerEntity || this.chunkManager.chunkLoadingManager.getLevelManager().shouldTickEntities(entity.getChunkPos().toLong())) {
                         Entity entity2 = entity.getVehicle();
                         if (entity2 != null) {
                             if (!entity2.isRemoved() && entity2.hasPassenger(entity)) {

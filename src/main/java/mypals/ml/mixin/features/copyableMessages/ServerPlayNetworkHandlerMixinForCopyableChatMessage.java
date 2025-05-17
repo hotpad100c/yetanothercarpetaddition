@@ -28,8 +28,8 @@ public abstract class ServerPlayNetworkHandlerMixinForCopyableChatMessage {
             Text hoverText = Text.literal("Click to copy").formatted(Formatting.ITALIC).setStyle(hoverStyle);
 
             Text modifiedMessage = Text.of(message.getSignedContent()).copy().setStyle(Style.EMPTY
-                    .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, message.getSignedContent()))
-                    .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, hoverText))
+                    .withClickEvent(new ClickEvent.CopyToClipboard(message.getSignedContent()))
+                    .withHoverEvent(new HoverEvent.ShowText( hoverText))
             );
 
             SignedMessage copyableSignedMessage = new SignedMessage(

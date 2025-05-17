@@ -236,7 +236,7 @@ public class CounterViewerScreen extends Screen implements ParentElement {
     protected void init() {
         Arrays.stream(DyeColor.values()).forEach(color -> {
             int colorValue = color.getSignColor();
-            COLORS.put(color.getName(), colorValue);
+            COLORS.put(color.toString(), colorValue);
         });
         viewModeButton = this.addDrawableChild(CyclingButtonWidget.<ViewMode>builder(
                         viewMode -> Text.translatable(viewMode.getKey())

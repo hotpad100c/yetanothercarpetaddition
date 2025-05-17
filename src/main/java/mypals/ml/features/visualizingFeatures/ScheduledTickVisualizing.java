@@ -5,12 +5,20 @@ import com.google.gson.JsonObject;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static mypals.ml.features.visualizingFeatures.ScheduledTickVisualizing.ScheduledTickObject.getNbtElements;
 
 public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPos, ScheduledTickVisualizing.ScheduledTickObject> {
     private static final ConcurrentHashMap<BlockPos, Map.Entry<ScheduledTickObject, Long>> visualizers = new ConcurrentHashMap<>();
@@ -38,27 +46,27 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             int trigger = (int) (triggerTick - time) - 1;
 
             if (tickMarker != null && !tickMarker.isRemoved()) {
-                JsonObject textJson = new JsonObject();
-                textJson.addProperty("text", "");
-                JsonArray extra = new JsonArray();
-
-                JsonObject triggerPart = new JsonObject();
-                triggerPart.addProperty("text", "T:" + trigger);
-                triggerPart.addProperty("color", "red");
-                extra.add(triggerPart);
-
-                JsonObject priorityPart = new JsonObject();
-                priorityPart.addProperty("text", "\nP:" + priority);
-                priorityPart.addProperty("color", "green");
-                extra.add(priorityPart);
-
-                JsonObject subTickPart = new JsonObject();
-                subTickPart.addProperty("text", "\nS:" + subTickOrder);
-                subTickPart.addProperty("color", "blue");
-                extra.add(subTickPart);
-
+//                JsonObject textJson = new JsonObject();
+//                textJson.addProperty("text", "");
+//                JsonArray extra = new JsonArray();
+//
+//                JsonObject triggerPart = new JsonObject();
+//                triggerPart.addProperty("text", "T:" + trigger);
+//                triggerPart.addProperty("color", "red");
+//                extra.add(triggerPart);
+//
+//                JsonObject priorityPart = new JsonObject();
+//                priorityPart.addProperty("text", "\nP:" + priority);
+//                priorityPart.addProperty("color", "green");
+//                extra.add(priorityPart);
+//
+//                JsonObject subTickPart = new JsonObject();
+//                subTickPart.addProperty("text", "\nS:" + subTickOrder);
+//                subTickPart.addProperty("color", "blue");
+//                extra.add(subTickPart);
                 NbtCompound nbt = tickMarker.writeNbt(new NbtCompound());
-                nbt.putString("text", textJson.toString());
+                NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+                nbt.put("text",nbtList);
                 tickMarker.readNbt(nbt);
             } else {
                 tickMarker = summonText(world, pos.toCenterPos().add(0, -0.4, 0), trigger, priority, subTickOrder);
@@ -77,30 +85,10 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
 
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
-
-            JsonObject triggerPart = new JsonObject();
-            triggerPart.addProperty("text", "T:" + trigger);
-            triggerPart.addProperty("color", "red");
-            extra.add(triggerPart);
-
-            JsonObject priorityPart = new JsonObject();
-            priorityPart.addProperty("text", "\nP:" + priority);
-            priorityPart.addProperty("color", "green");
-            extra.add(priorityPart);
-
-            JsonObject subTickPart = new JsonObject();
-            subTickPart.addProperty("text", "\nS:" + subTickOrder);
-            subTickPart.addProperty("color", "blue");
-            extra.add(subTickPart);
-
-            textJson.add("extra", extra);
-
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+            nbt.put("text",nbtList);
             nbt.putString("billboard", "center");
-            nbt.putString("text", textJson.toString());
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
             entity.readNbt(nbt);
@@ -110,6 +98,30 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             entity.addCommandTag("DoNotTick");
             world.spawnEntity(entity);
             return entity;
+        }
+
+        public static @NotNull NbtList getNbtElements(int trigger, int priority, long subTickOrder) {
+            NbtList nbtList = new NbtList();
+
+            HashMap<String, NbtElement> triggerPart = new HashMap<>();
+            triggerPart.put("text", NbtString.of("T:" + trigger));
+            triggerPart.put("color", NbtString.of("red"));
+            NbtCompound textComponent = new NbtCompound(triggerPart);
+            nbtList.add(textComponent);
+
+            HashMap<String, NbtElement> priorityPart = new HashMap<>();
+            priorityPart.put("text", NbtString.of("\nP:" + priority ));
+            priorityPart.put("color", NbtString.of("red"));
+            textComponent = new NbtCompound(priorityPart);
+            nbtList.add(textComponent);
+
+//            subTickPart
+            HashMap<String, NbtElement> subTickPart = new HashMap<>();
+            subTickPart.put("text", NbtString.of("\nS:" + subTickOrder));
+            subTickPart.put("color", NbtString.of("red"));
+            textComponent = new NbtCompound(subTickPart);
+            nbtList.add(textComponent);
+            return nbtList;
         }
     }
 
@@ -127,29 +139,9 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
 
             long time = marker.tickMarker.getWorld().getTime();
             int trigger = (int) (triggerTick - time) - 1;
-
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
-
-            JsonObject triggerPart = new JsonObject();
-            triggerPart.addProperty("text", "T:" + trigger);
-            triggerPart.addProperty("color", "red");
-            extra.add(triggerPart);
-
-            JsonObject priorityPart = new JsonObject();
-            priorityPart.addProperty("text", "\nP:" + priority);
-            priorityPart.addProperty("color", "green");
-            extra.add(priorityPart);
-
-            JsonObject subTickPart = new JsonObject();
-            subTickPart.addProperty("text", "\nS:" + subTickOrder);
-            subTickPart.addProperty("color", "blue");
-            extra.add(subTickPart);
-            textJson.add("extra", extra);
-            
             NbtCompound nbt = marker.tickMarker.writeNbt(new NbtCompound());
-            nbt.putString("text", textJson.toString());
+            NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+            nbt.put("text",nbtList);
             marker.tickMarker.readNbt(nbt);
         }
     }

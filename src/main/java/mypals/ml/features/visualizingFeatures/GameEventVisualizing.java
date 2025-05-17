@@ -6,8 +6,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.*;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.world.ServerWorld;
@@ -15,6 +14,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,24 +35,36 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
 
         public void setVisualizer(ServerWorld world, Vec3d pos, String trigger, String type) {
             if (textMarker != null && !textMarker.isRemoved()) {
-                JsonObject textJson = new JsonObject();
-                textJson.addProperty("text", "");
-                JsonArray extra = new JsonArray();
+//                JsonObject textJson = new JsonObject();
+//                textJson.addProperty("text", "");
+//                JsonArray extra = new JsonArray();
+//
+//                JsonObject triggerPart = new JsonObject();
+//                triggerPart.addProperty("text", trigger);
+//                triggerPart.addProperty("color", "blue");
+//                extra.add(triggerPart);
+//
+//                JsonObject typePart = new JsonObject();
+//                typePart.addProperty("text", "\n" + type);
+//                typePart.addProperty("color", "blue");
+//                extra.add(typePart);
+//
+//                textJson.add("extra", extra);
+                NbtList nbtList = new NbtList();
+                HashMap<String, NbtElement> triggerPart = new HashMap<>();
+                triggerPart.put("text", NbtString.of(trigger));
+                triggerPart.put("color", NbtString.of("blue"));
+                NbtCompound textComponent = new NbtCompound(triggerPart);
+                nbtList.add(textComponent);
 
-                JsonObject triggerPart = new JsonObject();
-                triggerPart.addProperty("text", trigger);
-                triggerPart.addProperty("color", "blue");
-                extra.add(triggerPart);
-
-                JsonObject typePart = new JsonObject();
-                typePart.addProperty("text", "\n" + type);
-                typePart.addProperty("color", "blue");
-                extra.add(typePart);
-
-                textJson.add("extra", extra);
+                HashMap<String, NbtElement> typePart = new HashMap<>();
+                typePart.put("text", NbtString.of("\n" + type));
+                typePart.put("color", NbtString.of("blue"));
+                textComponent = new NbtCompound(typePart);
+                nbtList.add(textComponent);
 
                 NbtCompound nbt = textMarker.writeNbt(new NbtCompound());
-                nbt.putString("text", textJson.toString());
+                nbt.put("text", nbtList);
                 textMarker.readNbt(nbt);
             } else {
                 textMarker = summonText(world, pos, trigger, type);
@@ -78,25 +90,37 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
 
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
+//            JsonObject textJson = new JsonObject();
+//            textJson.addProperty("text", "");
+//            JsonArray extra = new JsonArray();
+//
+//            JsonObject triggerPart = new JsonObject();
+//            triggerPart.addProperty("text", trigger);
+//            triggerPart.addProperty("color", "blue");
+//            extra.add(triggerPart);
+//
+//            JsonObject typePart = new JsonObject();
+//            typePart.addProperty("text", "\n" + type);
+//            typePart.addProperty("color", "blue");
+//            extra.add(typePart);
+//
+//            textJson.add("extra", extra);
+            NbtList nbtList = new NbtList();
+            HashMap<String, NbtElement> triggerPart = new HashMap<>();
+            triggerPart.put("text", NbtString.of(trigger));
+            triggerPart.put("color", NbtString.of("blue"));
+            NbtCompound textComponent = new NbtCompound(triggerPart);
+            nbtList.add(textComponent);
 
-            JsonObject triggerPart = new JsonObject();
-            triggerPart.addProperty("text", trigger);
-            triggerPart.addProperty("color", "blue");
-            extra.add(triggerPart);
-
-            JsonObject typePart = new JsonObject();
-            typePart.addProperty("text", "\n" + type);
-            typePart.addProperty("color", "blue");
-            extra.add(typePart);
-
-            textJson.add("extra", extra);
+            HashMap<String, NbtElement> typePart = new HashMap<>();
+            typePart.put("text", NbtString.of("\n" + type));
+            typePart.put("color", NbtString.of("blue"));
+            textComponent = new NbtCompound(typePart);
+            nbtList.add(textComponent);
 
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            nbt.put("text", nbtList);
             nbt.putString("billboard", "center");
-            nbt.putString("text", textJson.toString());
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
             entity.readNbt(nbt);

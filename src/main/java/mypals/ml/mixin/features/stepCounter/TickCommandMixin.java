@@ -37,10 +37,7 @@ public class TickCommandMixin {
             StepManager.step(steps);
             if(YetAnotherCarpetAdditionRules.enableTickStepCounter) {
                 modifiedText.styled(style -> style.withHoverEvent(
-                        new HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT,
-                                Text.literal(String.format(Text.translatable("TickStepCounter.stepped").getString(), StepManager.getStepped()))
-                        )
+                        new HoverEvent.ShowText(Text.literal(String.format(Text.translatable("TickStepCounter.stepped").getString(), StepManager.getStepped())))
                 ));
             }
             return modifiedText;

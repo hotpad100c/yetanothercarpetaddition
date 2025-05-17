@@ -3,7 +3,10 @@ package mypals.ml.features.visualizingFeatures;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
@@ -23,9 +26,12 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
         if (data instanceof Integer cooldown) {
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
             String color = cooldown == 0 ? "green" : "red";
-            String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
+            HashMap<String, NbtElement> textNbt = new HashMap<>();
+            textNbt.put("text", NbtString.of("[" + cooldown + "]"));
+            textNbt.put("color", NbtString.of(color));
+            NbtCompound textComponent = new NbtCompound(textNbt);
             nbt.remove("text");
-            nbt.putString("text", textJson);
+            nbt.put("text", textComponent);
             entity.readNbt(nbt);
         }
     }
@@ -44,8 +50,11 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
             String color = cooldown == 0 ? "green" : "red";
             nbt = configureCommonNbt(nbt);
-            String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
-            nbt.putString("text", textJson);
+            HashMap<String, NbtElement> textNbt = new HashMap<>();
+            textNbt.put("text", NbtString.of("[" + cooldown + "]"));
+            textNbt.put("color", NbtString.of(color));
+            NbtCompound textComponent = new NbtCompound(textNbt);
+            nbt.put("text", textComponent);
             entity.readNbt(nbt);
             return entity;
         }

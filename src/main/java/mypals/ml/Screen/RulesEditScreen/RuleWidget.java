@@ -1,5 +1,6 @@
 package mypals.ml.Screen.RulesEditScreen;
 
+import com.mojang.blaze3d.opengl.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import mypals.ml.network.RuleData;
 import mypals.ml.settings.YACAConfigManager;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread;
 import static mypals.ml.YetAnotherCarpetAdditionClient.defaultRules;
 import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
@@ -67,9 +69,9 @@ public class RuleWidget {
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
 
                 if (this.textures != null) {
-                    RenderSystem.disableDepthTest();
+                    disableDepthTest();
                     context.drawTexture(RenderLayer::getGuiTextured,this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
-                    RenderSystem.enableDepthTest();
+                    enableDepthTest();
                 }
             }
 
@@ -112,9 +114,9 @@ public class RuleWidget {
                         mouseX < (double) (this.getX() + this.getWidth()) &&
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
-                    RenderSystem.disableDepthTest();
+                    disableDepthTest();
                     context.drawTexture(RenderLayer::getGuiTextured,this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
-                    RenderSystem.enableDepthTest();
+                    enableDepthTest();
                 }
             }
 
@@ -156,9 +158,9 @@ public class RuleWidget {
                         mouseX < (double) (this.getX() + this.getWidth()) &&
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
-                    RenderSystem.disableDepthTest();
+                    disableDepthTest();
                     context.drawTexture(RenderLayer::getGuiTextured, this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0.0F, 0.0F, this.width, this.height, this.width, this.height, this.width, this.height);
-                    RenderSystem.enableDepthTest();
+                    enableDepthTest();
                 }
             }
 
@@ -263,5 +265,13 @@ public class RuleWidget {
                 }
             }
         }
+    }
+    public static void disableDepthTest() {
+        assertOnRenderThread();
+        GlStateManager._disableDepthTest();
+    }
+
+    public static void enableDepthTest() {
+        GlStateManager._enableDepthTest();
     }
 }

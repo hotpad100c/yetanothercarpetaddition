@@ -1,5 +1,6 @@
 package mypals.ml.Screen.RulesEditScreen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gl.PostEffectProcessor;
@@ -378,10 +379,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
             Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
             PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
             if (blur != null) {
-                blur.setUniforms("Radius", 20F);
-                blur.render(client.getFramebuffer(), gameRenderer.pool);
+                blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
             }
-            this.client.getFramebuffer().beginWrite(false);
+//            this.client.getFramebuffer().beginWrite(false);
+//            RenderSystem.setRenderTarget(this.client.getFramebuffer());
+
         }
 
 

@@ -22,4 +22,7 @@ accessible method net/minecraft/block/AbstractBlock isTransparent (Lnet/minecraf
 accessible method net/minecraft/util/Identifier <init> (Ljava/lang/String;Ljava/lang/String;)V
 accessible field net/minecraft/client/render/GameRenderer pool Lnet/minecraft/client/util/Pool;
 accessible method net/minecraft/block/AbstractBlock getPickStack (Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/item/ItemStack;
+accessible field net/minecraft/server/world/ServerChunkLoadingManager ticketManager Lnet/minecraft/server/world/ChunkTicketManager;
+accessible method net/minecraft/server/command/DataCommand asString (Lnet/minecraft/nbt/NbtElement;)Ljava/lang/String;
+accessible method net/minecraft/nbt/NbtCompound <init> (Ljava/util/Map;)V
 

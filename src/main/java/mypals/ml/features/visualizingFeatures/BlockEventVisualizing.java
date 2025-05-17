@@ -8,7 +8,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.nbt.NbtString;
 import net.minecraft.scoreboard.Scoreboard;
 import net.minecraft.scoreboard.Team;
 import net.minecraft.server.world.ServerWorld;
@@ -17,6 +19,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,17 +41,21 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
 
         public void setVisualizer(ServerWorld world, BlockPos pos, int order) {
             if (tickMarker != null && !tickMarker.isRemoved()) {
-                JsonObject textJson = new JsonObject();
-                textJson.addProperty("text", "");
-                JsonArray extra = new JsonArray();
-                JsonObject orderPart = new JsonObject();
-                orderPart.addProperty("text", String.valueOf(order));
-                orderPart.addProperty("color", "green");
-                extra.add(orderPart);
-                textJson.add("extra", extra);
-
                 NbtCompound nbt = tickMarker.writeNbt(new NbtCompound());
-                nbt.putString("text", textJson.toString());
+//                JsonObject textJson = new JsonObject();
+//                textJson.addProperty("text", "");
+//                JsonArray extra = new JsonArray();
+//                JsonObject orderPart = new JsonObject();
+//                orderPart.addProperty("text", String.valueOf(order));
+//                orderPart.addProperty("color", "green");
+//                extra.add(orderPart);
+//                textJson.add("extra", extra);
+                HashMap<String, NbtElement> textNbt = new HashMap<>();
+                textNbt.put("text", NbtString.of(String.valueOf(order)));
+                textNbt.put("color", NbtString.of("green"));
+                NbtCompound textComponent = new NbtCompound(textNbt);
+                nbt.put("text", textComponent);
+
                 tickMarker.readNbt(nbt);
             } else {
                 tickMarker = summonText(world, pos.toCenterPos().add(0, -0.4, 0), String.valueOf(order));
@@ -73,23 +80,30 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
-
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
-            JsonObject orderPart = new JsonObject();
-            orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
-            orderPart.addProperty("color", "green");
-            extra.add(orderPart);
-            textJson.add("extra", extra);
-
+//            JsonObject textJson = new JsonObject();
+//            textJson.addProperty("text", "");
+//            JsonArray extra = new JsonArray();
+//            JsonObject orderPart = new JsonObject();
+//            orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
+//            orderPart.addProperty("color", "green");
+//            extra.add(orderPart);
+//            textJson.add("extra", extra);
+//
+//            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+//            nbt.putString("billboard", "center");
+//            nbt.putString("text", textJson.toString());
+//            nbt.putByte("see_through", (byte) 1);
+//            //nbt.putInt("background", 0x00000000);
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
-            nbt.putString("billboard", "center");
-            nbt.putString("text", textJson.toString());
+            HashMap<String, NbtElement> textNbt = new HashMap<>();
+            textNbt.put("text", NbtString.of("[" + String.valueOf(order) + "]"));
+            textNbt.put("color", NbtString.of("green"));
+            NbtCompound textComponent = new NbtCompound(textNbt);
+            nbt.put("text", textComponent);
             nbt.putByte("see_through", (byte) 1);
-            //nbt.putInt("background", 0x00000000);
+            nbt.putString("billboard", "center");
+            nbt.putInt("background", 0x00000000);
             entity.readNbt(nbt);
-
             entity.setPos(pos.getX(), pos.getY() + 0.2, pos.getZ());
             entity.addCommandTag(tag);
             entity.addCommandTag("DoNotTick");
@@ -131,17 +145,12 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
     @Override
     protected void updateVisualizerEntity(BlockEventObject marker, Object data) {
         if (data instanceof Integer order && marker.tickMarker != null && !marker.tickMarker.isRemoved()) {
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
-            JsonObject orderPart = new JsonObject();
-            orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
-            orderPart.addProperty("color", "green");
-            extra.add(orderPart);
-            textJson.add("extra", extra);
-
-            NbtCompound nbt = marker.tickMarker.writeNbt(new NbtCompound());
-            nbt.putString("text", textJson.toString());
+              NbtCompound nbt = marker.tickMarker.writeNbt(new NbtCompound());
+              HashMap<String, NbtElement> textNbt = new HashMap<>();
+              textNbt.put("text", NbtString.of("[" + String.valueOf(order) + "]"));
+              textNbt.put("color", NbtString.of("green"));
+              NbtCompound textComponent = new NbtCompound(textNbt);
+              nbt.put("text", textComponent);
             marker.tickMarker.readNbt(nbt);
         }
     }

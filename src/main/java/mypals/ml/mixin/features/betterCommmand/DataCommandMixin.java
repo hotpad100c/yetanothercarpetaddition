@@ -31,9 +31,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static net.minecraft.server.command.DataCommand.asString;
 import static net.minecraft.server.command.DataCommand.getNbt;
 
 @Mixin(DataCommand.class)
@@ -130,7 +132,7 @@ public class DataCommandMixin {
         if (nbtElement instanceof AbstractNbtNumber) {
             i = MathHelper.floor(((AbstractNbtNumber) nbtElement).doubleValue());
         } else if (nbtElement instanceof AbstractNbtList) {
-            i = ((AbstractNbtList<?>) nbtElement).size();
+            i = ((AbstractNbtList) nbtElement).size();
         } else if (nbtElement instanceof NbtCompound) {
             i = ((NbtCompound) nbtElement).getSize();
         } else if (nbtElement instanceof NbtString) {
@@ -171,7 +173,7 @@ public class DataCommandMixin {
         cir.setReturnValue(i);
     }
 
-    private static void appendNbtWithClickablePaths(MutableText text, NbtElement element, String currentPath, String targetStr) {
+    private static void appendNbtWithClickablePaths(MutableText text, NbtElement element, String currentPath, String targetStr) throws CommandSyntaxException {
         if (element instanceof NbtCompound compound) {
             text.append(Text.literal("{\n"));
             for (String key : compound.getKeys()) {
@@ -185,13 +187,19 @@ public class DataCommandMixin {
                 text.append(line);
             }
             text.append(Text.literal("}"));
-        } else if (element instanceof AbstractNbtList<?> list) {
+        } else if (element instanceof AbstractNbtList list) {
             text.append(Text.literal("[\n"));
-            for (int i = 0; i < list.size(); i++) {
+            int i = 0;
+            for (NbtElement child : list) {
+                i++;
                 String path = currentPath + "[" + i + "]";
-                NbtElement child = list.get(i);
                 text.append(renderNbtAsClickable(child, path, targetStr)).append(Text.literal(",\n"));
             }
+//            for (int i = 0; i < list.size(); i++) {
+//                String path = currentPath + "[" + i + "]";
+//                NbtElement child = list.get(i);
+//                text.append(renderNbtAsClickable(child, path, targetStr)).append(Text.literal(",\n"));
+//            }
             text.append(Text.literal("]"));
         } else {
             text.append(renderNbtAsClickable(element, currentPath, targetStr));
@@ -201,12 +209,12 @@ public class DataCommandMixin {
     @Unique
     private static MutableText renderNbtAsClickable(NbtElement element, String path, String targetStr) {
         String cmd = "/data modify " + targetStr + " " + path + " set value ...";
-        return Text.literal(element.asString())
+        return Text.literal(element.asString().orElse("null"))
                 .styled(style -> style
                         .withColor(Formatting.YELLOW)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, cmd))
+                        .withClickEvent(new ClickEvent.CopyToClipboard(cmd))
 
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(cmd)))
+                        .withHoverEvent(new HoverEvent.ShowText(Text.literal(cmd)))
                 );
     }
 }
