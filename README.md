@@ -28,10 +28,15 @@ Currently supported:
 
 • Hovering over the feedback of the `/kill` command shows what was killed and how many of each.
 
+• Hovering over the feedback of the `/clear` command shows what item was cleard and how many of each.
+
 • Hovering over the feedback of the `/data` command shows the specific changes made to the data.
 
 • The feedback of the `/data get` command is now more readable; clicking on the NBT key name copies the corresponding `/data modify` command.
 
+• The feedback of the `/gamerules` command is now more readable; Looks the same like `/carpet` command.
+
+• The feedback of the `/help` command is now more readable; It will only display clickable root command name like `[gamerule]` , each name will display detal command information after been clicked.
 
 ---
 
