@@ -226,5 +226,9 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean commandEnhance = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean bouncierSlime = false;
 
 }

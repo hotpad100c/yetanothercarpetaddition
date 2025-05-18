@@ -1,4 +1,4 @@
-package mypals.ml.features.batterCommands;
+package mypals.ml.features.betterCommands;
 
 
 import net.minecraft.nbt.NbtCompound;

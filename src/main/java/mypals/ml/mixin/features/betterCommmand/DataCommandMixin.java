@@ -6,7 +6,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import mypals.ml.features.batterCommands.DataModifyCapture;
+import mypals.ml.features.betterCommands.DataModifyCapture;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.command.BlockDataObject;
 import net.minecraft.command.DataCommandObject;
@@ -204,7 +204,7 @@ public class DataCommandMixin {
         return Text.literal(element.asString())
                 .styled(style -> style
                         .withColor(Formatting.YELLOW)
-                        .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, cmd))
+                        .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, cmd))
 
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(cmd)))
                 );

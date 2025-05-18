@@ -2,8 +2,11 @@ package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
@@ -17,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -99,7 +103,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
 
         private DisplayEntity.BlockDisplayEntity summonMarker(World world, BlockPos pos) {
             DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
-            float scale = 0.5f;
+            float scale = 0.9f;
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
             nbt.put("block_state", NbtHelper.fromBlockState(Blocks.GREEN_STAINED_GLASS.getDefaultState()));
             nbt = EntityHelper.scaleEntity(nbt, scale);
@@ -124,25 +128,84 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
     }
 
     @Override
-    protected void storeVisualizer(BlockPos key, BlockEventObject entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.tickMarker.getWorld())));
+    protected void storeVisualizer(BlockPos key, BlockEventObject blockEventObject) {
+        visualizers.put(key, Map.entry(blockEventObject, getDeleteTick(SURVIVE_TIME, (ServerWorld) blockEventObject.tickMarker.getWorld())));
     }
 
     @Override
     protected void updateVisualizerEntity(BlockEventObject marker, Object data) {
         if (data instanceof Integer order && marker.tickMarker != null && !marker.tickMarker.isRemoved()) {
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
-            JsonObject orderPart = new JsonObject();
-            orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
-            orderPart.addProperty("color", "green");
-            extra.add(orderPart);
-            textJson.add("extra", extra);
+            NbtCompound nbt2 = marker.typeMarker.writeNbt(new NbtCompound());
+            nbt2 = EntityHelper.scaleEntity(nbt2, 0.9f);
+            float offset = (float) ((1.0f - 0.9f) / 2.0f);
+            marker.typeMarker.setPos(marker.typeMarker.getX() + offset, marker.typeMarker.getY() + offset, marker.typeMarker.getZ() + offset);
+            marker.typeMarker.readNbt(nbt2);
+
 
             NbtCompound nbt = marker.tickMarker.writeNbt(new NbtCompound());
+            JsonObject orderPart = new JsonObject();
+            JsonObject textJson = new JsonObject();
+            if (marker.tickMarker.age != 0) {
+                textJson.addProperty("text", "");
+                JsonArray extra = new JsonArray();
+                orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
+                orderPart.addProperty("color", "green");
+                extra.add(orderPart);
+                textJson.add("extra", extra);
+            } else {
+                String existingText = nbt.getString("text");
+                JsonArray extraArray = new JsonArray();
+                JsonObject orderLine = new JsonObject();
+                orderLine.addProperty("text", "\n[" + order + "]");
+                orderLine.addProperty("color", "green");
+
+                try {
+                    JsonElement parsed = JsonParser.parseString(existingText);
+                    if (parsed.isJsonObject()) {
+                        JsonObject existingJson = parsed.getAsJsonObject();
+
+                        if (existingJson.has("extra") && existingJson.get("extra").isJsonArray()) {
+                            JsonArray originalExtras = existingJson.getAsJsonArray("extra");
+                            for (JsonElement e : originalExtras) {
+                                extraArray.add(e);
+                            }
+                        }
+
+                        if (existingJson.has("text")) {
+                            String baseText = existingJson.get("text").getAsString();
+                            if (!baseText.isEmpty()) {
+                                JsonObject base = new JsonObject();
+                                base.addProperty("text", baseText);
+                                extraArray.add(base);
+                            }
+                        }
+
+                        extraArray.add(orderLine);
+                    } else {
+                        JsonObject fallback = new JsonObject();
+                        fallback.addProperty("text", existingText);
+                        extraArray.add(fallback);
+                        extraArray.add(orderLine);
+                    }
+                } catch (Exception e) {
+                    JsonObject fallback = new JsonObject();
+                    fallback.addProperty("text", existingText);
+                    extraArray.add(fallback);
+                    extraArray.add(orderLine);
+                }
+
+                textJson = new JsonObject();
+                textJson.addProperty("text", "");
+                textJson.add("extra", extraArray);
+            }
+
+
             nbt.putString("text", textJson.toString());
+            marker.tickMarker.age = 0;
+            marker.typeMarker.age = 0;
             marker.tickMarker.readNbt(nbt);
+
+            visualizers.put(marker.tickMarker.getBlockPos(), Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.tickMarker.getWorld())));
         }
     }
 
@@ -195,7 +258,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             }
             NbtCompound nbt = entry.getKey().typeMarker.writeNbt(new NbtCompound());
 
-            float scale = mapSize(SURVIVE_TIME - entry.getKey().typeMarker.age, SURVIVE_TIME, 0.5f);
+            float scale = mapSize(SURVIVE_TIME - entry.getKey().typeMarker.age, SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
             entry.getKey().typeMarker.readNbt(nbt);
             entry.getKey().typeMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
@@ -205,9 +268,9 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
 
     @Override
     public void setVisualizer(ServerWorld world, BlockPos key, Vec3d pos, Object data) {
-        if (visualizers.containsKey(key)) {
+        /*if (visualizers.containsKey(key)) {
             removeVisualizer(key);
-        }
+        }*/
         super.setVisualizer(world, key, pos, data);
     }
 

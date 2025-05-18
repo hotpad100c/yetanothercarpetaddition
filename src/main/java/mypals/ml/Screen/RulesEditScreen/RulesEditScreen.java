@@ -193,7 +193,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
         this.addDrawableChild(rulesScrollableWidget = new ScrollableWidget(0, 30,
                 this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
             int boxWidth = this.width - 10;
-            int boxHeight = 50;
+            int boxHeight = 30;
             int spacing = 5;
 
             @Override
@@ -203,7 +203,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
             @Override
             protected double getDeltaYPerScroll() {
-                return 0;
+                return 10f;
             }
 
             @Override
@@ -293,7 +293,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
             @Override
             protected double getDeltaYPerScroll() {
-                return 0;
+                return 10f;
             }
 
             @Override
@@ -350,15 +350,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
         });
     }
 
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-        return categoriesScrollableWidget.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount) || rulesScrollableWidget.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
-    }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.drawTexture(searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 10, 10, 10);
+        context.drawTexture(searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, currentToolTips, mouseX, mouseY);
     }

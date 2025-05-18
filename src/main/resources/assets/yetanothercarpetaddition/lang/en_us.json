@@ -113,5 +113,8 @@
   "carpet.rule.unicodeArgumentsSupport.name": "Unicode Arguments Support",
   "carpet.rule.unicodeArgumentsSupport.desc": "Non-english arguments in commands will be supported",
   "carpet.rule.commandEnhance.name": "Command Enhance",
-  "carpet.rule.commandEnhance.desc": "Enhance command experience"
+  "carpet.rule.commandEnhance.desc": "Enhance command experience",
+  "carpet.rule.bouncierSlime.name": "BouncierSlimeBlock",
+  "carpet.rule.bouncierSlime.desc": "Slime block will bounce back entities from all sides",
+  "generator.yetanothercarpetaddition.grid": "Chessboard"
 }

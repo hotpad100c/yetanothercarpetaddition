@@ -20,5 +20,8 @@ accessible class net/minecraft/server/command/DataCommand$ModifyOperation
 accessible field net/minecraft/command/BlockDataObject pos Lnet/minecraft/util/math/BlockPos;
 accessible field net/minecraft/command/EntityDataObject entity Lnet/minecraft/entity/Entity;
 accessible field net/minecraft/command/StorageDataObject id Lnet/minecraft/util/Identifier;
-
+accessible field net/minecraft/world/GameRules rules Ljava/util/Map;
+accessible class net/minecraft/world/gen/WorldPresets$Registrar
+accessible method net/minecraft/server/command/GameRuleCommand executeQuery (Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/world/GameRules$Key;)I
+accessible method net/minecraft/server/command/GameRuleCommand executeSet (Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/world/GameRules$Key;)I
 

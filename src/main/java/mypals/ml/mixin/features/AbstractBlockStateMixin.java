@@ -60,13 +60,24 @@ public class AbstractBlockStateMixin {
     }
 
     @Inject(
+            method = "getHardness",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    public void getHardness(BlockView world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
+        if (YetAnotherCarpetAdditionRules.blocksNoHardness) {
+            cir.setReturnValue(0f);
+        }
+    }
+
+    @Inject(
             method = "canPlaceAt",
             at = @At("HEAD"),
             cancellable = true
     )
     public void canPlaceAt(CallbackInfoReturnable<Boolean> cir) {
         if (YetAnotherCarpetAdditionRules.blocksPlaceAtAnywhere) {
-            cir.setReturnValue(false);
+            cir.setReturnValue(true);
         }
     }
 

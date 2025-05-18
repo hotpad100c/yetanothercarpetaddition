@@ -11,6 +11,7 @@ import carpet.mixins.LevelLightEngine_scarpetChunkCreationMixin;
 import carpet.network.ServerNetworkHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
+import mypals.ml.features.GridWorldGen.GridWorldGenerator;
 import mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager;
 import mypals.ml.features.tickStepCounter.StepManager;
 import mypals.ml.features.visualizingFeatures.BlockEventVisualizing;
@@ -50,6 +51,7 @@ import net.minecraft.server.network.ServerCommonNetworkHandler;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.WorldView;
@@ -125,7 +127,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public void onInitialize() {
         loadExtension();
         StepManager.reset();
-
+        GridWorldGenerator.init();
         ServerWorldEvents.LOAD.register((server, world) -> {
             serverWorld = world;
             try {

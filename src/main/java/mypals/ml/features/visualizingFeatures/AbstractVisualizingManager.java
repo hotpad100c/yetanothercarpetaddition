@@ -31,8 +31,10 @@ public abstract class AbstractVisualizingManager<T, E> {
     public void setVisualizer(ServerWorld world, T key, Vec3d pos, Object data) {
         E marker = getVisualizer(key);
         if (marker != null) {
+            //System.out.println("repeated marker added: " + pos);
             updateVisualizerEntity(marker, data);
         } else {
+            //System.out.println("marker added: " + pos);
             marker = createVisualizerEntity(world, pos, data);
             storeVisualizer(key, marker);
         }

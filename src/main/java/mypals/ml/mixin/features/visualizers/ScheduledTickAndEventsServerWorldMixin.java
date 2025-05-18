@@ -112,7 +112,12 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
     )
     private void ServerTickAddRandomTickMarker(WorldChunk chunk, int randomTickSpeed, CallbackInfo ci, @Local BlockPos blockPos2) {
         if (YetAnotherCarpetAdditionRules.randomTickVisualize) {
-            YetAnotherCarpetAdditionServer.randomTickVisualizing.setVisualizer(chunk.getWorld(), blockPos2);
+            if (blockPos2 instanceof BlockPos.Mutable mutable) {
+                YetAnotherCarpetAdditionServer.randomTickVisualizing.setVisualizer(chunk.getWorld(), mutable.toImmutable());
+            } else {
+                YetAnotherCarpetAdditionServer.randomTickVisualizing.setVisualizer(chunk.getWorld(), blockPos2);
+            }
+
         }
     }
 

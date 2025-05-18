@@ -22,8 +22,24 @@ public abstract class PreventServerCrashMixin {
     @Shadow
     public abstract PlayerManager getPlayerManager();
 
+    @WrapMethod(method = "runServer")
+    private void preventServerCrashAll(Operation<Void> original) {
+        if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {
+            try {
+                original.call();
+            } catch (Exception e) {
+                e.printStackTrace();
+                if (this != null && this.getPlayerManager() != null) {
+                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + e.getLocalizedMessage()).formatted(Formatting.RED), false);
+                }
+            }
+        } else {
+            original.call();
+        }
+    }
+
     @WrapMethod(method = "tickWorlds")
-    private void preventServerCrash(BooleanSupplier shouldKeepTicking, Operation<Void> original) {
+    private void preventServerCrashWorld(BooleanSupplier shouldKeepTicking, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {
             try {
                 original.call(shouldKeepTicking);

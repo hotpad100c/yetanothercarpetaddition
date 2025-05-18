@@ -44,8 +44,8 @@ public class RuleWidget {
             @Override
             public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
                 if (this.isVisible()) {
-                    context.fill(RenderLayer.getGuiOverlay(), this.getX(), this.getY() + this.height - 4,
-                            this.width + 1, this.getY() + this.height - 5, 0xAFFFFFFF);
+                    context.fill(RenderLayer.getGuiOverlay(), this.getX() + this.width / 2, this.getY() + this.height - 4,
+                            this.getX(), this.getY() + this.height - 5, 0xAFFFFFFF);
                     super.renderWidget(context, mouseX, mouseY, delta);
                 }
             }
@@ -55,9 +55,9 @@ public class RuleWidget {
         valueWidget.active = true;
         valueWidget.setMaxLength(114514);
         valueWidget.setDimensions(60, 15);
-        valueWidget.setSuggestion(ruleData.suggestions.getFirst());
+        valueWidget.setSuggestion(ruleData.value);
 
-        trueFalseButton = new ToggleButtonWidget(x + 30, y + 5, 30, 12, ruleData.value.toLowerCase().equals("true")) {
+        trueFalseButton = new ToggleButtonWidget(x + 30, y + 5, 30, 13, ruleData.value.toLowerCase().equals("true")) {
             @Override
             public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
@@ -103,7 +103,7 @@ public class RuleWidget {
                                 && ruleData.suggestions.getLast().toLowerCase().equals("false")));
 
         String orgName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
-        lockRule = new ToggleButtonWidget(x - 15, y + 3, 10, 10, defaultRules.contains(orgName)) {
+        lockRule = new ToggleButtonWidget(x - 15, y + 3, 10, 11, defaultRules.contains(orgName)) {
             @Override
             public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
@@ -147,7 +147,7 @@ public class RuleWidget {
 
         lockRule.setTextures(LOCK);
 
-        favoriteRule = new ToggleButtonWidget(x - 15, y - 3, 10, 10, favoriteRules.contains(orgName)) {
+        favoriteRule = new ToggleButtonWidget(x - 15, y - 3, 10, 11, favoriteRules.contains(orgName)) {
             @Override
             public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
@@ -209,27 +209,25 @@ public class RuleWidget {
             categories.append(c).append(" | ");
         }
         String name = ruleData.name.split("\\|")[0];
-        if (isTrueFalseRule) {
-            trueFalseButton.setPosition(x + 5, y + 17);
-            trueFalseButton.render(context, mouseX, mouseY, delta);
-        } else {
-            valueWidget.setPosition(x + 5, y + 17);
-            valueWidget.render(context, mouseX, mouseY, delta);
-        }
 
-        lockRule.setPosition(boxWidth - 15, y + 3);
-        //lockRule.setPosition(100, 100);
+        lockRule.setPosition(boxWidth - 15, y + 4);
         lockRule.render(context, mouseX, mouseY, delta);
 
 
-        favoriteRule.setPosition(boxWidth - 6, y + 4);
-        //lockRule.setPosition(100, 100);
+        favoriteRule.setPosition(boxWidth - 6, y + 5);
         favoriteRule.render(context, mouseX, mouseY, delta);
-        context.drawText(MinecraftClient.getInstance().textRenderer, name + " : " + ruleData.value, x + 5, y + 5, 0xFFFFFF, true);
-        context.drawText(MinecraftClient.getInstance().textRenderer, categories.toString(), x + 5, y + 35, 0xFFFFFF, true);
+        context.drawText(MinecraftClient.getInstance().textRenderer, name + " : ", x + 5, y + 5, 0xFFFFFF, true);
+        if (isTrueFalseRule) {
+            trueFalseButton.setPosition(boxWidth - 50, y + 2);
+            trueFalseButton.render(context, mouseX, mouseY, delta);
+        } else {
+            valueWidget.setPosition(boxWidth - 50, y + 5);
+            valueWidget.render(context, mouseX, mouseY, delta);
+        }
+        context.drawText(MinecraftClient.getInstance().textRenderer, categories.toString(), x + 5, y + boxHeight - 12, 0xFFFFFF, true);
         //context.drawTexture(LOCK.get(true, true), x + 5, y + 5, 0, 0, 10, 10, 10, 10);
 
-        if (isMouseOver) {
+        if (isMouseOver && mouseX <= x + boxWidth / 2) {
             List<Text> toolTips = new ArrayList<>();
 
             toolTips.add(Text.of(name));
@@ -248,7 +246,7 @@ public class RuleWidget {
     public void onClicked(double mouseX, double mouseY, boolean clicked, int button) {
         if (!lockRule.mouseClicked(mouseX, mouseY, button) && !favoriteRule.mouseClicked(mouseX, mouseY, button)) {
             valueWidget.setFocused(clicked && !isTrueFalseRule);
-            valueWidget.setSuggestion(clicked || !valueWidget.getText().isEmpty() ? "" : ruleData.suggestions.getFirst());
+            valueWidget.setSuggestion(clicked || !valueWidget.getText().isEmpty() ? "" : ruleData.value);
             if (clicked && isTrueFalseRule) {
                 trueFalseButton.onClick(mouseX, mouseY);
             } else if (clicked && !isTrueFalseRule) {
