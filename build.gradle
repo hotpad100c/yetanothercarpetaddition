@@ -1,87 +1,56 @@
 plugins {
-    id 'fabric-loom' version '1.10-SNAPSHOT'
-    id 'maven-publish'
-}
-loom {
-    accessWidenerPath = file("src/main/resources/YACA.accessWidener")
-}
-version = project.mod_version
-group = project.maven_group
+	id 'maven-publish'
+	id 'com.github.hierynomus.license' version '0.16.1' apply false
+	id 'fabric-loom' version '1.10-SNAPSHOT' apply false
 
-base {
-    archivesName = project.archives_base_name
-}
+	// https://github.com/ReplayMod/preprocessor
+	// https://github.com/Fallen-Breath/preprocessor
+	id 'com.replaymod.preprocess' version '0a04a5668b'
 
-repositories {
-    maven {
-        url 'https://jitpack.io'
-    }
-    maven {
-        url 'https://masa.dy.fi/maven'
-    }
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
+	// https://github.com/Fallen-Breath/yamlang
+	id 'me.fallenbreath.yamlang' version '1.4.1' apply false
 }
 
-dependencies {
-    // To change the versions see the gradle.properties file
-    minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+preprocess {
+	strictExtraMappings = false
 
-    // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "carpet:fabric-carpet:${project.minecraft_version}-${project.carpet_core_version}"
+	def mc119  = createNode('1.19.4', 1_19_04, '')
+	def mc1204 = createNode('1.20.4', 1_20_04, '')
+	def mc1206 = createNode('1.20.6', 1_20_06, '')
+	def mc1211 = createNode('1.21.1', 1_21_01, '')
+	def mc1213 = createNode('1.21.3', 1_21_03, '')
+	def mc1214 = createNode('1.21.4', 1_21_04, '')
+	def mc1215 = createNode('1.21.5', 1_21_05, '')
 
+	mc119 .link(mc1204, null)
+	mc1204.link(mc1206, null)
+	mc1206.link(mc1211, null)
+	mc1211.link(mc1213, null)
+	mc1213.link(mc1214, null)
+	mc1214.link(mc1215, null)
 }
 
-processResources {
-    inputs.property "version", project.version
-
-    filesMatching("fabric.mod.json") {
-        expand "version": inputs.properties.version
-    }
-}
-
-tasks.withType(JavaCompile).configureEach {
-    it.options.release = 21
-}
-
-java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
-    withSourcesJar()
-
-    sourceCompatibility = JavaVersion.VERSION_21
-    targetCompatibility = JavaVersion.VERSION_21
-}
-
-jar {
-    inputs.property "archivesName", project.base.archivesName
-
-    from("LICENSE") {
-        rename { "${it}_${inputs.properties.archivesName}" }
-    }
-}
-
-// configure the maven publication
-publishing {
-    publications {
-        create("mavenJava", MavenPublication) {
-            artifactId = project.archives_base_name
-            from components.java
-        }
-    }
-
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
-    }
+tasks.register('buildAndGather') {
+	subprojects {
+		dependsOn project.tasks.named('build').get()
+	}
+	doFirst {
+		println 'Gathering builds'
+		def buildLibs = {
+			p -> p.buildDir.toPath().resolve('libs')
+		}
+		delete fileTree(buildLibs(rootProject)) {
+			include '*'
+		}
+		subprojects {
+			copy {
+				from(buildLibs(project)) {
+					include '*.jar'
+					exclude '*-dev.jar', '*-sources.jar', '*-shadow.jar'
+				}
+				into buildLibs(rootProject)
+				duplicatesStrategy = DuplicatesStrategy.INCLUDE
+			}
+		}
+	}
 }

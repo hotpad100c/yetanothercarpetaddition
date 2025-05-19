@@ -1,8 +1,9 @@
 {
   "schemaVersion": 1,
-  "id": "yetanothercarpetaddition",
+  "id": "${id}",
   "version": "${version}",
-  "name": "YetAnotherCarpetAddition",
+
+  "name": "${name}",
   "description": "Some more additional features for carpet...",
   "authors": [
     "༺ཌༀཉི Ryan100c ༃ༀད༻",
@@ -14,7 +15,7 @@
     "homepage": "",
     "sources": "https://github.com/hotpad100c/yetanothercarpetaddition"
   },
-  "license": "CC0-1.0",
+  "license": "LGPL-3.0",
   "icon": "assets/yetanothercarpetaddition/icon.png",
   "environment": "*",
   "entrypoints": {
@@ -28,11 +29,11 @@
   "mixins": [
     "yetanothercarpetaddition.mixins.json"
   ],
-  "accessWidener": "YACA.accessWidener",
+  "accessWidener": "YACA.accesswidener",
   "depends": {
-    "fabricloader": ">=0.15.10",
-    "minecraft": "~1.21",
-    "java": ">=21",
+    "fabricloader": ">=0.11.4",
+    "minecraft": "${minecraft_dependency}",
+    "carpet": "${carpet_dependency}",
     "fabric-api": "*"
   },
   "suggests": {

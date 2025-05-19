@@ -1,7 +1,7 @@
 {
   "required": true,
   "package": "mypals.ml.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "{{COMPATIBILITY_LEVEL}}",
   "mixins": [
     "CommandManagerCommandExecutionMixin",
     "EntityDataObjectMixin",
