@@ -38,6 +38,9 @@ import net.minecraft.util.Identifier;
 //#if MC >= 12102
 //$$ import net.minecraft.client.gl.PostEffectProcessor;
 //$$ import net.minecraft.client.render.DefaultFramebufferSet;
+   //#if MC >= 12104
+   //$$ import net.minecraft.client.gui.widget.ScrollableTextFieldWidget;
+   //#endif
 //#endif
 
 import java.awt.*;
@@ -214,8 +217,13 @@ public class RulesEditScreen extends Screen implements ParentElement {
         });
         searchFieldWidget.setMaxLength(100);
 
-        this.addDrawableChild(rulesScrollableWidget = new ScrollableWidget(0, 30,
-                this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
+        this.addDrawableChild(rulesScrollableWidget = new
+                //#if MC >= 12104
+                //$$ ScrollableTextFieldWidget
+                //#else
+                ScrollableWidget
+                //#endif
+                        (0, 30, this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
             int boxWidth = this.width - 10;
             int boxHeight = 30;
             int spacing = 5;
@@ -298,14 +306,22 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
             }
 
+            //#if MC < 12104
             @Override
             protected void drawBox(DrawContext context, int x, int y, int width, int height) {
                 context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x1A000000);
                 //context.fill(x, y, width, height, 0x19000000);
             }
+            //#endif
         });
-        this.addDrawableChild(categoriesScrollableWidget = new ScrollableWidget(
-                this.width - (this.width / 3) + 30, 30, 120, this.height - 30, ScreenTexts.EMPTY) {
+        this.addDrawableChild(categoriesScrollableWidget = new
+                //#if MC < 12104
+                ScrollableWidget
+                //#else
+                //$$ ScrollableTextFieldWidget
+                //#endif
+
+                        (this.width - (this.width / 3) + 30, 30, 120, this.height - 30, ScreenTexts.EMPTY) {
             int boxWidth = this.width - 10;
             int boxHeight = 20;
             int spacing = 5;
@@ -367,10 +383,12 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
             }
 
+            //#if MC < 12104
             @Override
             protected void drawBox(DrawContext context, int x, int y, int width, int height) {
                 context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
             }
+            //#endif
         });
     }
 
@@ -395,7 +413,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
             //#if MC >= 12102
-            //$$ Identifier BLUR_SHADER = Identifier.of("minecraft", "shaders/post/blur.json");
+            //$$ Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
             //$$ PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
             //$$ if (blur != null) {
             //$$     blur.setUniforms("Radius", 20F);

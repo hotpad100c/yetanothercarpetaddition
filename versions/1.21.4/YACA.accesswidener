@@ -22,3 +22,5 @@ accessible field net/minecraft/world/GameRules rules Ljava/util/Map;
 accessible class net/minecraft/world/gen/WorldPresets$Registrar
 accessible method net/minecraft/server/command/GameRuleCommand executeQuery (Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/world/GameRules$Key;)I
 accessible method net/minecraft/server/command/GameRuleCommand executeSet (Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/world/GameRules$Key;)I
+accessible field net/minecraft/client/render/GameRenderer pool Lnet/minecraft/client/util/Pool;
+accessible method net/minecraft/block/AbstractBlock getPickStack (Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/item/ItemStack;

@@ -50,7 +50,7 @@ import static mypals.ml.settings.YetAnotherCarpetAdditionRules.bedsRecordSleeper
 import static net.minecraft.block.BedBlock.PART;
 
 @Mixin(ServerPlayerEntity.class)
-public class PlayerEntityWakeUpMixin extends PlayerEntity {
+public abstract class PlayerEntityWakeUpMixin extends PlayerEntity {
 
     @Shadow
     @Final

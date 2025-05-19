@@ -73,7 +73,17 @@ public abstract class BedBlockEntityMixin extends BlockEntity {
 
     @Override
     protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        this.yaw = nbt.getFloat("SleeperYaw");
-        this.pitch = nbt.getFloat("SleeperPitch");
+        this.yaw = nbt.getFloat(
+                "SleeperYaw"
+                //#if MC >= 12105
+                //$$ ,0F
+                //#endif
+        );
+        this.pitch = nbt.getFloat(
+                "SleeperPitch"
+                //#if MC >= 12105
+                //$$ ,0F
+                //#endif
+        );
     }
 }

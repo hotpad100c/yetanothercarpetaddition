@@ -31,6 +31,8 @@ public class YetAnotherCarpetAdditionCommands {
     public static void register(CommandDispatcher<ServerCommandSource> serverCommandSourceCommandDispatcher, CommandRegistryAccess commandRegistryAccess, CommandManager.RegistrationEnvironment registrationEnvironment) {
         ExtraVaniallaCommandRegister.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
         ItemCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
+        //#if MC < 12105
         WayPointCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
+        //#endif
     }
 }

@@ -93,7 +93,7 @@ public class RuleWidget {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
                             //#if MC >= 12102
-                            //$$ spite -> getGui(),
+                            //$$ RenderLayer::getGuiTextured,
                             //#endif
                             this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
@@ -101,7 +101,11 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean clicked(double mouseX, double mouseY
+                                   //#if MC >= 12103
+                                   //$$, int button
+                                   //#endif
+            ) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
@@ -142,7 +146,7 @@ public class RuleWidget {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
                             //#if MC >= 12102
-                            //$$ spite -> getGui(),
+                            //$$ RenderLayer::getGuiTextured,
                             //#endif
                             this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
@@ -150,7 +154,11 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean clicked(double mouseX, double mouseY
+                                   //#if MC >= 12103
+                                   //$$, int button
+                                   //#endif
+            ) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
@@ -190,7 +198,7 @@ public class RuleWidget {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
                             //#if MC >= 12102
-                            //$$ spite -> getGui(),
+                            //$$ RenderLayer::getGuiTextured,
                             //#endif
                             this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
@@ -198,7 +206,11 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean clicked(double mouseX, double mouseY
+                                   //#if MC >= 12103
+                                   //$$, int button
+                                   //#endif
+            ) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&

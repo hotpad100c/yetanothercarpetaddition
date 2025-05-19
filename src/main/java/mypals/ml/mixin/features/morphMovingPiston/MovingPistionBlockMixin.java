@@ -167,12 +167,24 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
 
 
     @WrapMethod(method = "getPickStack")
-    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state, Operation<ItemStack> original) {
+    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state,
+                                  //#if MC >= 12104
+                                  //$$ boolean includeData,
+                                  //#endif
+                                  Operation<ItemStack> original) {
         if (morphMovingPiston) {
             if (getPistonBlockEntity(world, pos) != null && getPistonBlockEntity(world, pos).getPushedBlock() != null)
-                return getPistonBlockEntity(world, pos).getPushedBlock().getBlock().getPickStack(world, pos, getPistonBlockEntity(world, pos).getPushedBlock());
+                return getPistonBlockEntity(world, pos).getPushedBlock().getBlock().getPickStack(world, pos, getPistonBlockEntity(world, pos).getPushedBlock()
+                        //#if MC >= 12104
+                        //$$ , includeData
+                        //#endif
+                );
             else return ItemStack.EMPTY;
         }
-        return original.call(world, pos, state);
+        return original.call(world, pos, state
+            //#if MC >= 12104
+            //$$ , includeData
+            //#endif
+        );
     }
 }

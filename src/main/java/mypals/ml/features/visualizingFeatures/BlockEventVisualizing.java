@@ -173,7 +173,12 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
                 extra.add(orderPart);
                 textJson.add("extra", extra);
             } else {
-                String existingText = nbt.getString("text");
+                String existingText = nbt.getString(
+                        "text"
+                        //#if MC >= 12105
+                        //$$ , ""
+                        //#endif
+                );
                 JsonArray extraArray = new JsonArray();
                 JsonObject orderLine = new JsonObject();
                 orderLine.addProperty("text", "\n[" + order + "]");

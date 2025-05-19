@@ -30,7 +30,10 @@ import net.minecraft.world.PersistentState;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
+//#if MC >= 12105
+//$$ import java.util.function.BiFunction;
+//$$ import java.util.function.Supplier;
+//#endif
 
 public class WaypointState extends PersistentState {
     private static final String FILE_NAME = "waypoints";
@@ -48,7 +51,12 @@ public class WaypointState extends PersistentState {
 
     public static WaypointState fromNbt(NbtCompound nbt) {
         WaypointState state = new WaypointState();
-        NbtCompound waypointsNbt = nbt.getCompound("waypoints");
+        NbtCompound waypointsNbt = nbt
+                //#if MC < 12105
+                .getCompound("waypoints");
+                //#else
+                //$$ .getCompoundOrEmpty("waypoints");
+                //#endif
 
         for (String name : waypointsNbt.getKeys()) {
             int[] posArray = waypointsNbt.getIntArray(name);
