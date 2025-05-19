@@ -28,13 +28,18 @@ import net.minecraft.block.BlockState;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+//#if MC >= 12102
+//$$ import net.minecraft.util.math.random.Random;
+//$$ import net.minecraft.world.WorldView;
+//$$ import net.minecraft.world.tick.ScheduledTickView;
+//#endif
 
 @Mixin(AbstractBlock.class)
 public class AbstractBlockMixin {
@@ -53,7 +58,19 @@ public class AbstractBlockMixin {
             method = "getStateForNeighborUpdate",
             at = @At("HEAD")
     )
-    private void AddPPMarker(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos, CallbackInfoReturnable<BlockState> cir) {
+    private void AddPPMarker(BlockState state,
+                             //#if MC >= 12102
+                             //$$ WorldView world, ScheduledTickView tickView,
+                             //#else
+                             Direction direction, BlockState neighborState, WorldAccess world,
+                             //#endif
+                             BlockPos pos,
+                             //#if MC >= 12102
+                             //$$ Direction direction,BlockPos neighborPos,BlockState neighborState, Random random,
+                             //#else
+                             BlockPos neighborPos,
+                             //#endif
+                             CallbackInfoReturnable<BlockState> cir) {
         if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || world.isClient()) return;
         YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) world, pos, BlockUpdateVisualizing.UpdateType.PP);
 

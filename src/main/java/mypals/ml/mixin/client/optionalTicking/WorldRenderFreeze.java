@@ -60,7 +60,12 @@ public abstract class WorldRenderFreeze {
     @Shadow
     protected abstract void removeBlockBreakingInfo(BlockBreakingInfo info);
 
-    @WrapOperation(method = "render",
+    @WrapOperation(
+            //#if MC < 12102
+            method = "render",
+            //#else
+            //$$ method = "renderEntities",
+            //#endif
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
     private void blockTickEntityRender(WorldRenderer instance, Entity entity,
                                        double cameraX, double cameraY, double cameraZ,
@@ -76,7 +81,6 @@ public abstract class WorldRenderFreeze {
         if (this.world.getTickManager().shouldTick() &&
                 !YetAnotherCarpetAdditionRules.stopTickingBlockEntities &&
                 !YetAnotherCarpetAdditionRules.stopTickingWeather &&
-                !YetAnotherCarpetAdditionRules.stopTickingBlocks &&
                 !YetAnotherCarpetAdditionRules.stopTickingBlocks &&
                 !YetAnotherCarpetAdditionRules.stopTickingFluids) {
             ++this.ticks;
