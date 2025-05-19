@@ -34,6 +34,10 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.WorldAccess;
 import org.spongepowered.asm.mixin.Mixin;
+//#if MC >= 12102
+//$$ import net.minecraft.world.WorldView;
+//$$ import net.minecraft.world.tick.ScheduledTickView;
+//#endif
 
 @Mixin(SnowBlock.class)
 public abstract class SnowLayerBlockMixin extends Block {
@@ -42,15 +46,43 @@ public abstract class SnowLayerBlockMixin extends Block {
     }
 
     @WrapMethod(method = "getStateForNeighborUpdate")
-    protected BlockState getStateForNeighborUpdate(BlockState state, Direction direction, BlockState neighborState, WorldAccess world, BlockPos pos, BlockPos neighborPos, Operation<BlockState> original) {
+    protected BlockState getStateForNeighborUpdate(BlockState state,
+                                                   //#if MC >= 12102
+                                                   //$$ WorldView world, ScheduledTickView tickView, BlockPos pos,
+                                                   //$$ Direction direction,
+                                                   //#else
+                                                   Direction direction, BlockState neighborState,
+                                                   WorldAccess world, BlockPos pos,
+                                                   //#endif
+                                                   BlockPos neighborPos,
+                                                   //#if MC >= 12102
+                                                   //$$ BlockState neighborState, Random random,
+                                                   //#endif
+                                                   Operation<BlockState> original) {
         if (YetAnotherCarpetAdditionRules.fallingSnowLayers
         ) {
             if (!state.canPlaceAt(world, pos)) {
-                world.scheduleBlockTick(pos, world.getBlockState(pos).getBlock(), 2);
+                //#if MC < 12102
+                world
+                //#else
+                //$$ tickView
+                //#endif
+                        .scheduleBlockTick(pos, world.getBlockState(pos).getBlock(), 2);
             }
-            return super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+            return
+                    super
+                    //#if MC < 12102
+                            .getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+                    //#else
+                    //$$    .getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+                    //#endif
         } else {
-            return !state.canPlaceAt(world, pos) ? Blocks.AIR.getDefaultState() : super.getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+            return !state.canPlaceAt(world, pos) ? Blocks.AIR.getDefaultState() : super
+                    //#if MC < 12102
+                            .getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+                    //#else
+                    //$$    .getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+                    //#endif
 
         }
     }

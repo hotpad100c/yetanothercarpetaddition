@@ -35,6 +35,10 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+//#if MC >= 12102
+//$$ import net.minecraft.client.gl.PostEffectProcessor;
+//$$ import net.minecraft.client.render.DefaultFramebufferSet;
+//#endif
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -374,7 +378,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.drawTexture(searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
+        context.drawTexture(
+                //#if MC >= 12102
+                //$$ RenderLayer::getGuiTextured,
+                //#endif
+                searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, currentToolTips, mouseX, mouseY);
     }
@@ -386,8 +394,17 @@ public class RulesEditScreen extends Screen implements ParentElement {
         if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
+            //#if MC >= 12102
+            //$$ Identifier BLUR_SHADER = Identifier.of("minecraft", "shaders/post/blur.json");
+            //$$ PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
+            //$$ if (blur != null) {
+            //$$     blur.setUniforms("Radius", 20F);
+            //$$     blur.render(client.getFramebuffer(), gameRenderer.pool);
+            //$$ }
+            //#else
             gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
             gameRenderer.blurPostProcessor.render(delta);
+            //#endif
             this.client.getFramebuffer().beginWrite(false);
         }
 

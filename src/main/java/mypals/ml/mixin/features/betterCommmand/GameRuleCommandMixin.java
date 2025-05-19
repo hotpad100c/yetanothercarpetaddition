@@ -26,8 +26,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.GameRuleCommand;
 import net.minecraft.server.command.ServerCommandSource;
@@ -39,13 +37,20 @@ import net.minecraft.util.Formatting;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+//#if MC >= 12102
+//$$ import net.minecraft.command.CommandRegistryAccess;
+//#endif
 
 import static mypals.ml.features.betterCommands.GamerulesDefaultValueSorter.gamerulesDefaultValues;
 
 @Mixin(GameRuleCommand.class)
 public class GameRuleCommandMixin {
     @WrapMethod(method = "register")
-    private static <T> void register(CommandDispatcher<ServerCommandSource> dispatcher, Operation<Void> original) {
+    private static <T> void register(CommandDispatcher<ServerCommandSource> dispatcher,
+                                     //#if MC >= 12102
+                                     //$$ CommandRegistryAccess commandRegistryAccess,
+                                     //#endif
+                                     Operation<Void> original) {
         final LiteralArgumentBuilder<ServerCommandSource> literalArgumentBuilder = CommandManager.literal("gamerule")
                 .requires((source) -> source.hasPermissionLevel(2))
                 .executes((context) -> {
@@ -53,7 +58,12 @@ public class GameRuleCommandMixin {
 
                     return 1;
                 });
-        GameRules.accept(new GameRules.Visitor() {
+        //#if MC < 12102
+        GameRules
+        //#else
+        //$$ new GameRules(commandRegistryAccess.getEnabledFeatures())
+        //#endif
+            .accept(new GameRules.Visitor() {
             public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
                 literalArgumentBuilder.then(
                         CommandManager.literal(key.getName())

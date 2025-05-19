@@ -23,7 +23,6 @@ package mypals.ml.mixin.features.morphMovingPiston;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.PistonBlockEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -40,9 +39,9 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#if MC >= 12102
+//$$ import org.spongepowered.asm.mixin.Unique;
+//#endif
 
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.morphMovingPiston;
 
@@ -52,6 +51,11 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
         super(settings);
     }
 
+    //#if MC >= 12102
+    //$$ @Unique
+    //$$ PistonBlockEntity pistonBlockEntity;
+    //#endif
+
     @Shadow
     @Nullable
     protected abstract PistonBlockEntity getPistonBlockEntity(BlockView world, BlockPos pos);
@@ -59,7 +63,10 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     @WrapMethod(method = "onUse")
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit, Operation<ActionResult> original) {
         if (morphMovingPiston) {
-            PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, pos);
+            //#if MC < 12102
+            PistonBlockEntity
+            //#endif
+                pistonBlockEntity = this.getPistonBlockEntity(world, pos);
             return pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null ?
                     pistonBlockEntity.getPushedBlock().getBlock().onUse(pistonBlockEntity.getPushedBlock(), world, pos, player, hit) : original.call(state, world, pos, player, hit);
         }
@@ -68,7 +75,10 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
 
     @Override
     public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
-        PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, pos);
+        //#if MC < 12102
+        PistonBlockEntity
+        //#endif
+            pistonBlockEntity = this.getPistonBlockEntity(world, pos);
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
             pistonBlockEntity.getPushedBlock().getBlock().onLandedUpon(world, pistonBlockEntity.getPushedBlock(), pos, entity, fallDistance);
         else {
@@ -78,14 +88,20 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
 
     @Override
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
-        PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
+        //#if MC < 12102
+        PistonBlockEntity
+        //#endif
+            pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
             pistonBlockEntity.getPushedBlock().getBlock().onEntityCollision(pistonBlockEntity.getPushedBlock(), world, pos, entity);
     }
 
     @Override
     public void onEntityLand(BlockView world, Entity entity) {
-        PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
+        //#if MC < 12102
+        PistonBlockEntity
+        //#endif
+            pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
             pistonBlockEntity.getPushedBlock().getBlock().onEntityLand(world, entity);
         else {
@@ -107,7 +123,10 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
 
-        PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, pos);
+        //#if MC < 12102
+        PistonBlockEntity
+        //#endif
+            pistonBlockEntity = this.getPistonBlockEntity(world, pos);
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
             return pistonBlockEntity.getPushedBlock().getBlock().getWeakRedstonePower(pistonBlockEntity.getPushedBlock(), world, pos, direction);
         else
@@ -119,20 +138,28 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
         return morphMovingPiston;
     }*/
 
+    //#if MC < 12102
     @Override
     public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
 
-        PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, pos);
+        //#if MC < 12102
+        PistonBlockEntity
+        //#endif
+            pistonBlockEntity = this.getPistonBlockEntity(world, pos);
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston) {
             return pistonBlockEntity.getPushedBlock().getBlock().isTransparent(pistonBlockEntity.getPushedBlock(), world, pos);
         } else
             return true;
     }
+    //#endif
 
     @WrapMethod(method = "getOutlineShape")
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, Operation<VoxelShape> original) {
         if (morphMovingPiston) {
-            PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, pos);
+            //#if MC < 12102
+            PistonBlockEntity
+            //#endif
+                pistonBlockEntity = this.getPistonBlockEntity(world, pos);
             return pistonBlockEntity.getCollisionShape(world, pos) != null ? pistonBlockEntity.getCollisionShape(world, pos) : VoxelShapes.empty();
         }
         return VoxelShapes.empty();

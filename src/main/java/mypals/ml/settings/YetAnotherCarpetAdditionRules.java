@@ -213,10 +213,12 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean comparatorUpdateVisualize = false;
+    //#if MC < 12102
     @Rule(
             categories = {YACA, FEATURE}
     )
     public static boolean waterTNT = false;
+    //#endif
     @Rule(
             categories = {YACA, FEATURE}
     )

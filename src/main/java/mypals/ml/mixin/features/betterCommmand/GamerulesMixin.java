@@ -20,9 +20,6 @@
 
 package mypals.ml.mixin.features.betterCommmand;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.betterCommands.GamerulesDefaultValueSorter;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Final;
@@ -31,6 +28,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+//#if MC >= 12102
+//$$ import net.minecraft.resource.featuretoggle.FeatureSet;
+//#endif
 
 import java.util.Map;
 
@@ -41,7 +42,11 @@ public class GamerulesMixin {
     public Map<GameRules.Key<?>, GameRules.Rule<?>> rules;
 
     @Inject(
+            //#if MC < 12102
             method = "<init>()V",
+            //#else
+            //$$ method = "<init>(Lnet/minecraft/resource/featuretoggle/FeatureSet;)V",
+            //#endif
             at = @At(
                     "RETURN"
             )
@@ -56,12 +61,20 @@ public class GamerulesMixin {
     }
 
     @Inject(
+            //#if MC < 12102
             method = "<init>(Ljava/util/Map;)V",
+            //#else
+            //$$ method = "<init>(Ljava/util/Map;Lnet/minecraft/resource/featuretoggle/FeatureSet;)V",
+            //#endif
             at = @At(
                     "RETURN"
             )
     )
-    public void createGameRules2(Map rules, CallbackInfo ci) {
+    public void createGameRules2(Map rules,
+                                 //#if MC >= 12102
+                                 //$$ FeatureSet enabledFeatures,
+                                 //#endif
+                                 CallbackInfo ci) {
         GamerulesDefaultValueSorter.gamerulesDefaultValues.clear();
         rules.forEach((key, rule) -> {
             GamerulesDefaultValueSorter

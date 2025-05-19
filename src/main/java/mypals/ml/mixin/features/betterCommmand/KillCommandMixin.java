@@ -22,7 +22,6 @@ package mypals.ml.mixin.features.betterCommmand;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.server.command.KillCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.HoverEvent;
@@ -32,6 +31,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#if MC >= 12102
+//$$ import net.minecraft.server.world.ServerWorld;
+//#endif
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,7 +51,11 @@ public class KillCommandMixin {
         Map<String, Integer> typeCounts = new HashMap<>();
 
         for (Entity entity : targets) {
-            entity.kill();
+            entity.kill(
+                    //#if MC >= 12102
+                    //$$ (ServerWorld) entity.getWorld()
+                    //#endif
+            );
 
             String typeName = entity.getDisplayName().getString();
             typeCounts.merge(typeName, 1, Integer::sum);

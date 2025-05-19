@@ -20,7 +20,6 @@
 
 package mypals.ml.mixin.features;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -33,7 +32,6 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.command.EnchantCommand;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -51,6 +49,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+//#if MC >= 12102
+//$$ import net.minecraft.util.profiler.Profilers;
+//#endif
 
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -62,11 +63,17 @@ public abstract class ServerWorldMixin extends World {
     private EntityList entityList;
 
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
-        super(properties, registryRef, registryManager, dimensionEntry, profiler, isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
+        super(properties, registryRef, registryManager, dimensionEntry,
+                //#if MC <12102
+                profiler,
+                //#endif
+                isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
 
+    //#if MC < 12102
     @Shadow
     protected abstract boolean shouldCancelSpawn(Entity entity);
+    //#endif
 
     @Shadow
     public abstract TickManager getTickManager();
@@ -183,10 +190,20 @@ public abstract class ServerWorldMixin extends World {
             method = "tickChunk",
             at = @At(
                     value = "INVOKE",
+                    //#if MC < 12102
                     target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    //#else
+                    //$$ target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    //#endif
             )
     )
-    private void wrapFluidRandomTick(FluidState instance, World world, BlockPos pos, Random random, Operation<Void> original) {
+    private void wrapFluidRandomTick(FluidState instance,
+                                     //#if MC < 12102
+                                     World world,
+                                     //#else
+                                     //$$ ServerWorld world,
+                                     //#endif
+                                     BlockPos pos, Random random, Operation<Void> original) {
         if (!YetAnotherCarpetAdditionRules.stopTickingFluids) {
             original.call(instance, world, pos, random);
         }
@@ -245,9 +262,12 @@ public abstract class ServerWorldMixin extends World {
     private void wrapEntityTicking(EntityList instance, Consumer<Entity> action, Operation<Void> original, @Local Profiler profiler) {
         this.entityList.forEach(entity -> {
             if (!entity.isRemoved()) {
+                //#if MC < 12102
                 if (this.shouldCancelSpawn(entity)) {
                     entity.discard();
-                } else if (!getTickManager().shouldSkipTick(entity)) {
+                } else
+                //#endif
+                    if (!getTickManager().shouldSkipTick(entity)) {
                     profiler.push("checkDespawn");
                     if (!YetAnotherCarpetAdditionRules.stopCheckEntityDespawn) {
                         entity.checkDespawn();
@@ -278,12 +298,17 @@ public abstract class ServerWorldMixin extends World {
             return;
         }
         entity.resetPosition();
-        Profiler profiler = this.getProfiler();
+        Profiler profiler =
+                //#if MC < 12102
+                this.getProfiler();
+                //#else
+                //$$ Profilers.get();
+                //#endif
         entity.age++;
-        this.getProfiler().push((Supplier<String>) (() -> Registries.ENTITY_TYPE.getId(entity.getType()).toString()));
+        profiler.push((Supplier<String>) (() -> Registries.ENTITY_TYPE.getId(entity.getType()).toString()));
         profiler.visit("tickNonPassenger");
         entity.tick();
-        this.getProfiler().pop();
+        profiler.pop();
 
         for (Entity entity2 : entity.getPassengerList()) {
             this.tickPassenger(entity, entity2);

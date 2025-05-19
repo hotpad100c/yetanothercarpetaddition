@@ -69,7 +69,11 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (carpetRulesKeyBind.wasPressed()) {
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("Requesting rules now！"));
+                MinecraftClient.getInstance().player.sendMessage(Text.literal("Requesting rules now！")
+                        //#if MC >= 12102
+                        //$$ , false
+                        //#endif
+                );
                 ClientPlayNetworking.send(new RequestRulesPayload(MinecraftClient.getInstance().getLanguageManager().getLanguage()));
                 requesting = true;
             }
@@ -86,7 +90,11 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                         .flatMap(r -> r.categories.stream())
                         .distinct().toList());
 
-                context.client().player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！"));
+                context.client().player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！")
+                        //#if MC >= 12102
+                        //$$ , false
+                        //#endif
+                );
                 requesting = false;
                 defaultRules.clear();
                 defaultRules.addAll(Arrays.stream(payload.defaults().split(";")).toList());
@@ -97,9 +105,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 MinecraftClient.getInstance().setScreen(new RulesEditScreen(Text.of("Carpet Rules")));
             });
         });
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            HopperCounterRequestCommand.registerCommand(dispatcher, registryAccess);
-        });
+        ClientCommandRegistrationCallback.EVENT.register(HopperCounterRequestCommand::registerCommand);
         ClientPlayNetworking.registerGlobalReceiver(CountersPacketPayload.ID, (payload, context) -> {
             context.client().execute(() -> {
                 MinecraftClient.getInstance().setScreen(new CounterViewerScreen(payload.currentRecords()));
