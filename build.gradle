@@ -14,18 +14,12 @@ plugins {
 preprocess {
 	strictExtraMappings = false
 
-	def mc119  = createNode('1.19.4', 1_19_04, '')
-	def mc1204 = createNode('1.20.4', 1_20_04, '')
-	def mc1206 = createNode('1.20.6', 1_20_06, '')
 	def mc1211 = createNode('1.21.1', 1_21_01, '')
 	def mc1213 = createNode('1.21.3', 1_21_03, '')
 	def mc1214 = createNode('1.21.4', 1_21_04, '')
 	def mc1215 = createNode('1.21.5', 1_21_05, '')
 
-	mc119 .link(mc1204, null)
-	mc1204.link(mc1206, null)
-	mc1206.link(mc1211, null)
-	mc1211.link(mc1213, null)
+	mc1211.link(mc1213, file('versions/mapping-1.21.1-1.21.3.txt'))
 	mc1213.link(mc1214, file('versions/mapping-1.21.3-1.21.4.txt'))
 	mc1214.link(mc1215, file('versions/mapping-1.21.4-1.21.5.txt'))
 }
