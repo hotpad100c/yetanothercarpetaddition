@@ -27,7 +27,7 @@ preprocess {
 	mc1206.link(mc1211, null)
 	mc1211.link(mc1213, null)
 	mc1213.link(mc1214, file('versions/mapping-1.21.3-1.21.4.txt'))
-	mc1214.link(mc1215, null)
+	mc1214.link(mc1215, file('versions/mapping-1.21.4-1.21.5.txt'))
 }
 
 tasks.register('buildAndGather') {

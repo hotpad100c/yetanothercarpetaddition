@@ -20,11 +20,9 @@
 
 package mypals.ml.mixin.features.copyableMessages;
 
-import carpet.CarpetServer;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.network.message.MessageType;
 import net.minecraft.network.message.SignedMessage;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -32,8 +30,10 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
+//#if MC >= 12105
+//$$ import mypals.ml.utils.adapters.ClickEvent;
+//$$ import mypals.ml.utils.adapters.HoverEvent;
+//#endif
 
 @Mixin(ServerPlayNetworkHandler.class)
 public abstract class ServerPlayNetworkHandlerMixinForCopyableChatMessage {

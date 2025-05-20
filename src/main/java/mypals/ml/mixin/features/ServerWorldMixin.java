@@ -221,7 +221,14 @@ public abstract class ServerWorldMixin extends World {
             original.call(instance, pos);
         }
     }
-
+    //#if MC >= 12105
+    //$$ @Inject(method = "tickThunder", at = @At("HEAD"), cancellable = true)
+    //$$ private void wrapLightningAndSkeletonHorseEntitySpawn(CallbackInfo ci) {
+    //$$     if (YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionRules.stopTickingWeather) {
+    //$$         ci.cancel();
+    //$$     }
+    //$$ }
+    //#else
     @WrapOperation(
             method = "tickChunk",
             at = @At(
@@ -251,6 +258,7 @@ public abstract class ServerWorldMixin extends World {
         }
         return false;
     }
+    //#endif
 
     @WrapOperation(
             method = "tick",

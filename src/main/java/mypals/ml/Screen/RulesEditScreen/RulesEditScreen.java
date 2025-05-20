@@ -416,14 +416,21 @@ public class RulesEditScreen extends Screen implements ParentElement {
             //$$ Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
             //$$ PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
             //$$ if (blur != null) {
-            //$$     blur.setUniforms("Radius", 20F);
-            //$$     blur.render(client.getFramebuffer(), gameRenderer.pool);
+                    //#if MC >= 12105
+                    //$$ blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
+                    //#else
+                    //$$ blur.setUniforms("Radius", 20F);
+                    //$$ blur.render(client.getFramebuffer(), gameRenderer.pool);
+                    //#endif
             //$$ }
             //#else
             gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
             gameRenderer.blurPostProcessor.render(delta);
             //#endif
+
+            //#if MC < 12105
             this.client.getFramebuffer().beginWrite(false);
+            //#endif
         }
 
 

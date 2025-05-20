@@ -45,7 +45,6 @@ import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 //#if MC >= 12102
 //$$ import static net.minecraft.client.render.RenderLayer.getGui;
 //#endif
-
 public class RuleWidget {
     private RuleData ruleData;
     private int x, y;

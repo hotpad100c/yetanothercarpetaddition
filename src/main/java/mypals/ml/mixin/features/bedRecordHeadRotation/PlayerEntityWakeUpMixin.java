@@ -52,9 +52,6 @@ import static net.minecraft.block.BedBlock.PART;
 @Mixin(ServerPlayerEntity.class)
 public abstract class PlayerEntityWakeUpMixin extends PlayerEntity {
 
-    @Shadow
-    @Final
-    public ServerPlayerInteractionManager interactionManager;
 
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
@@ -65,7 +62,7 @@ public abstract class PlayerEntityWakeUpMixin extends PlayerEntity {
 
 
     @Inject(
-            method = "Lnet/minecraft/server/network/ServerPlayerEntity;wakeUp(ZZ)V",
+            method = "wakeUp(ZZ)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;requestTeleport(DDDFF)V",
@@ -80,49 +77,6 @@ public abstract class PlayerEntityWakeUpMixin extends PlayerEntity {
         }
 
 
-    }
-
-    @Override
-    public Iterable<ItemStack> getArmorItems() {
-        return this.getInventory().armor;
-    }
-
-    @Override
-    public boolean isSpectator() {
-        return this.interactionManager.getGameMode() == GameMode.SPECTATOR;
-    }
-
-    @Override
-    public boolean isCreative() {
-        return this.interactionManager.getGameMode() == GameMode.CREATIVE;
-    }
-
-    @Override
-    public ItemStack getEquippedStack(EquipmentSlot slot) {
-        if (slot == EquipmentSlot.MAINHAND) {
-            return this.getInventory().getMainHandStack();
-        } else if (slot == EquipmentSlot.OFFHAND) {
-            return this.getInventory().offHand.get(0);
-        } else {
-            return slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR ? this.getInventory().armor.get(slot.getEntitySlotId()) : ItemStack.EMPTY;
-        }
-    }
-
-    @Override
-    public void equipStack(EquipmentSlot slot, ItemStack stack) {
-        this.processEquippedStack(stack);
-        if (slot == EquipmentSlot.MAINHAND) {
-            this.onEquipStack(slot, this.getInventory().main.set(this.getInventory().selectedSlot, stack), stack);
-        } else if (slot == EquipmentSlot.OFFHAND) {
-            this.onEquipStack(slot, this.getInventory().offHand.set(0, stack), stack);
-        } else if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-            this.onEquipStack(slot, this.getInventory().armor.set(slot.getEntitySlotId(), stack), stack);
-        }
-    }
-
-    @Override
-    public Arm getMainArm() {
-        return this.dataTracker.get(MAIN_ARM) == 0 ? Arm.LEFT : Arm.RIGHT;
     }
 
     @Unique

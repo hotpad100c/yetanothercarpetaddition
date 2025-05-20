@@ -65,7 +65,11 @@ public class FlatGridChunkGenerator extends FlatChunkGenerator {
         for (int y = chunk.getBottomY(); y < chunk.getTopY(); ++y) {
             for (int x = 0; x < 16; ++x) {
                 for (int z = 0; z < 16; ++z) {
-                    chunk.setBlockState(mutable.set(x, y, z), blockState, false);
+                    chunk.setBlockState(mutable.set(x, y, z), blockState
+                            //#if MC < 12105
+                            , false
+                            //#endif
+                    );
                     heightmapOcean.trackUpdate(x, y, z, blockState);
                     heightmapSurface.trackUpdate(x, y, z, blockState);
                 }

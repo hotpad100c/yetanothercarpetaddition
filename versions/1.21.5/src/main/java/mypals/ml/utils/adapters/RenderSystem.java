@@ -18,8 +18,18 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.features.waypoint;
+package mypals.ml.utils.adapters;
 
-public class WayPointCommand {
-    // TODO: Port to 1.21.5
+import com.mojang.blaze3d.opengl.GlStateManager;
+
+import static com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread;
+
+public class RenderSystem{
+    public static void disableDepthTest() {
+        assertOnRenderThread();
+        GlStateManager._disableDepthTest();
+    }
+    public static void enableDepthTest() {
+        GlStateManager._enableDepthTest();
+    }
 }

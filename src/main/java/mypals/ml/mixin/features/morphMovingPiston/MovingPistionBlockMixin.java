@@ -43,6 +43,10 @@ import org.spongepowered.asm.mixin.Shadow;
 //$$ import org.spongepowered.asm.mixin.Unique;
 //#endif
 
+//#if MC >= 12105
+//$$ import net.minecraft.entity.EntityCollisionHandler;
+//#endif
+
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.morphMovingPiston;
 
 @Mixin(PistonExtensionBlock.class)
@@ -74,7 +78,13 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     }
 
     @Override
-    public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance) {
+    public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity,
+                             //#if MC < 12105
+                             float fallDistance
+                             //#else
+                             //$$ double fallDistance
+                             //#endif
+    ) {
         //#if MC < 12102
         PistonBlockEntity
         //#endif
@@ -87,13 +97,23 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     }
 
     @Override
-    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
+    public void onEntityCollision(
+            BlockState state, World world, BlockPos pos, Entity entity
+            //#if MC >= 12105
+            //$$ , EntityCollisionHandler entityCollisionHandler
+            //#endif
+    ) {
         //#if MC < 12102
         PistonBlockEntity
         //#endif
             pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
-            pistonBlockEntity.getPushedBlock().getBlock().onEntityCollision(pistonBlockEntity.getPushedBlock(), world, pos, entity);
+            pistonBlockEntity.getPushedBlock().getBlock().onEntityCollision(
+                    pistonBlockEntity.getPushedBlock(), world, pos, entity
+                    //#if MC >= 12105
+                    //$$ , entityCollisionHandler
+                    //#endif
+            );
     }
 
     @Override

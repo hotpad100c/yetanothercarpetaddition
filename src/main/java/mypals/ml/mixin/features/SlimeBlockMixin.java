@@ -22,7 +22,6 @@ package mypals.ml.mixin.features;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.CactusBlock;
 import net.minecraft.block.SlimeBlock;
 import net.minecraft.block.TranslucentBlock;
 import net.minecraft.entity.Entity;
@@ -32,6 +31,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+//#if MC >= 12105
+//$$ import net.minecraft.entity.EntityCollisionHandler;
+//#endif
 
 @Mixin(SlimeBlock.class)
 public abstract class SlimeBlockMixin extends TranslucentBlock {
@@ -40,7 +42,12 @@ public abstract class SlimeBlockMixin extends TranslucentBlock {
     }
 
     @Override
-    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
+    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity
+                                  //#if MC >= 12105
+                                  //$$ , EntityCollisionHandler handler
+                                  //#endif
+
+    ) {
         if (!YetAnotherCarpetAdditionRules.bouncierSlime) return;
         if (!entity.bypassesLandingEffects()) bounceSide(entity);
     }
