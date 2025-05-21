@@ -1,0 +1,3 @@
+net.minecraft.text.ClickEvent mypals.ml.utils.adapters.ClickEvent
+net.minecraft.text.HoverEvent mypals.ml.utils.adapters.HoverEvent
+com.mojang.blaze3d.systems.RenderSystem mypals.ml.utils.adapters.RenderSystem

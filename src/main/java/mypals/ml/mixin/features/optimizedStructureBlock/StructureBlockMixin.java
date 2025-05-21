@@ -1,38 +1,49 @@
+/*
+ * This file is part of the Yet Another Carpet Addition project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  Ryan100c and contributors
+ *
+ * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Yet Another Carpet Addition is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package mypals.ml.mixin.features.optimizedStructureBlock;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.sugar.Local;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.StructureBlock;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.FurnaceBlockEntity;
 import net.minecraft.block.entity.StructureBlockBlockEntity;
 import net.minecraft.block.enums.StructureBlockMode;
-import net.minecraft.server.command.DataCommand;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockBox;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.world.chunk.Chunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Spliterators;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 @Mixin(StructureBlockBlockEntity.class)
+
 public class StructureBlockMixin extends BlockEntity {
     @Shadow
     private StructureBlockMode mode;
@@ -42,6 +53,8 @@ public class StructureBlockMixin extends BlockEntity {
 
     @Shadow
     private Vec3i size;
+
+    @Shadow private Identifier templateName;
 
     public StructureBlockMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -57,26 +70,36 @@ public class StructureBlockMixin extends BlockEntity {
             }
 
             BlockBox blockBox = new BlockBox(this.getPos());
+            int radius = 80;
+            AtomicBoolean foundValidStructure = new AtomicBoolean(false);
 
-            forEachChunkInCube(this.pos, 80, chunkPos -> {
-                this.world.getChunk(chunkPos.x, chunkPos.z).getBlockEntities().forEach((pos, be) -> {
-                    if (be instanceof StructureBlockBlockEntity) {
+            forEachChunkInCube(this.pos, radius, chunkPos -> {
+
+                Chunk chunk = this.world.getChunk(chunkPos.x, chunkPos.z);
+                chunk.getBlockEntityPositions().forEach(pos -> {
+                    BlockEntity be = chunk.getBlockEntity(pos);
+                    if (be instanceof StructureBlockBlockEntity sb && sb.getMode() == StructureBlockMode.CORNER && Objects.equals(this.templateName.toString(), sb.getTemplateName())) {
                         blockBox.encompass(pos);
+                        foundValidStructure.set(true);
                     }
                 });
+                if (foundValidStructure.get()) {
+                    return;
+                }
             });
 
             int dx = blockBox.getMaxX() - blockBox.getMinX();
             int dy = blockBox.getMaxY() - blockBox.getMinY();
             int dz = blockBox.getMaxZ() - blockBox.getMinZ();
 
-            if (dx > 1 && dy > 1 && dz > 1) {
+            if (dx > 0 && dy > 0 && dz > 0) {
                 this.offset = new BlockPos(
-                        blockBox.getMinX() - this.getPos().getX() + 1,
-                        blockBox.getMinY() - this.getPos().getY() + 1,
-                        blockBox.getMinZ() - this.getPos().getZ() + 1
+                        blockBox.getMinX() - this.getPos().getX()+1,
+                        blockBox.getMinY() - this.getPos().getY()+1,
+                        blockBox.getMinZ() - this.getPos().getZ()+1
                 );
-                this.size = new Vec3i(dx - 1, dy - 1, dz - 1);
+                this.size = new Vec3i(dx-1, dy-1, dz-1);
+
 
                 this.markDirty();
                 BlockState blockState = this.world.getBlockState(this.getPos());
@@ -91,7 +114,6 @@ public class StructureBlockMixin extends BlockEntity {
 
     @Unique
     private static void forEachChunkInCube(BlockPos center, int radius, Consumer<ChunkPos> action) {
-
         int minX = center.getX() - radius;
         int maxX = center.getX() + radius;
         int minY = center.getY() - radius;
@@ -111,3 +133,4 @@ public class StructureBlockMixin extends BlockEntity {
         }
     }
 }
+

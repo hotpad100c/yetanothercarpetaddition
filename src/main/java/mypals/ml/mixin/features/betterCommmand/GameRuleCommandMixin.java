@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Yet Another Carpet Addition project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  Ryan100c and contributors
+ *
+ * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Yet Another Carpet Addition is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package mypals.ml.mixin.features.betterCommmand;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
@@ -6,8 +26,6 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.GameRuleCommand;
 import net.minecraft.server.command.ServerCommandSource;
@@ -19,13 +37,20 @@ import net.minecraft.util.Formatting;
 import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+//#if MC >= 12102
+//$$ import net.minecraft.command.CommandRegistryAccess;
+//#endif
 
 import static mypals.ml.features.betterCommands.GamerulesDefaultValueSorter.gamerulesDefaultValues;
 
 @Mixin(GameRuleCommand.class)
 public class GameRuleCommandMixin {
     @WrapMethod(method = "register")
-    private static <T> void register(CommandDispatcher<ServerCommandSource> dispatcher, Operation<Void> original) {
+    private static <T> void register(CommandDispatcher<ServerCommandSource> dispatcher,
+                                     //#if MC >= 12102
+                                     //$$ CommandRegistryAccess commandRegistryAccess,
+                                     //#endif
+                                     Operation<Void> original) {
         final LiteralArgumentBuilder<ServerCommandSource> literalArgumentBuilder = CommandManager.literal("gamerule")
                 .requires((source) -> source.hasPermissionLevel(2))
                 .executes((context) -> {
@@ -33,7 +58,12 @@ public class GameRuleCommandMixin {
 
                     return 1;
                 });
-        GameRules.accept(new GameRules.Visitor() {
+        //#if MC < 12102
+        GameRules
+        //#else
+        //$$ new GameRules(commandRegistryAccess.getEnabledFeatures())
+        //#endif
+            .accept(new GameRules.Visitor() {
             public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {
                 literalArgumentBuilder.then(
                         CommandManager.literal(key.getName())

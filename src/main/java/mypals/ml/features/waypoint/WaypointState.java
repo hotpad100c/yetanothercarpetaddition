@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Yet Another Carpet Addition project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  Ryan100c and contributors
+ *
+ * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Yet Another Carpet Addition is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package mypals.ml.features.waypoint;
 
 import net.minecraft.datafixer.DataFixTypes;
@@ -10,7 +30,10 @@ import net.minecraft.world.PersistentState;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
+//#if MC >= 12105
+//$$ import java.util.function.BiFunction;
+//$$ import java.util.function.Supplier;
+//#endif
 
 public class WaypointState extends PersistentState {
     private static final String FILE_NAME = "waypoints";
@@ -28,7 +51,12 @@ public class WaypointState extends PersistentState {
 
     public static WaypointState fromNbt(NbtCompound nbt) {
         WaypointState state = new WaypointState();
-        NbtCompound waypointsNbt = nbt.getCompound("waypoints");
+        NbtCompound waypointsNbt = nbt
+                //#if MC < 12105
+                .getCompound("waypoints");
+                //#else
+                //$$ .getCompoundOrEmpty("waypoints");
+                //#endif
 
         for (String name : waypointsNbt.getKeys()) {
             int[] posArray = waypointsNbt.getIntArray(name);

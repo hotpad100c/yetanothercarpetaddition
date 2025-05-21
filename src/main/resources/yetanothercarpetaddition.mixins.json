@@ -1,7 +1,8 @@
 {
   "required": true,
   "package": "mypals.ml.mixin",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "{{COMPATIBILITY_LEVEL}}",
+  "plugin": "mypals.ml.utils.YACAMixinPlugin",
   "mixins": [
     "CommandManagerCommandExecutionMixin",
     "EntityDataObjectMixin",

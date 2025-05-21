@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Yet Another Carpet Addition project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  Ryan100c and contributors
+ *
+ * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Yet Another Carpet Addition is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package mypals.ml.mixin.features.bedRecordHeadRotation;
 
 import com.mojang.authlib.GameProfile;
@@ -30,11 +50,8 @@ import static mypals.ml.settings.YetAnotherCarpetAdditionRules.bedsRecordSleeper
 import static net.minecraft.block.BedBlock.PART;
 
 @Mixin(ServerPlayerEntity.class)
-public class PlayerEntityWakeUpMixin extends PlayerEntity {
+public abstract class PlayerEntityWakeUpMixin extends PlayerEntity {
 
-    @Shadow
-    @Final
-    public ServerPlayerInteractionManager interactionManager;
 
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
@@ -45,7 +62,7 @@ public class PlayerEntityWakeUpMixin extends PlayerEntity {
 
 
     @Inject(
-            method = "Lnet/minecraft/server/network/ServerPlayerEntity;wakeUp(ZZ)V",
+            method = "wakeUp(ZZ)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;requestTeleport(DDDFF)V",
@@ -60,49 +77,6 @@ public class PlayerEntityWakeUpMixin extends PlayerEntity {
         }
 
 
-    }
-
-    @Override
-    public Iterable<ItemStack> getArmorItems() {
-        return this.getInventory().armor;
-    }
-
-    @Override
-    public boolean isSpectator() {
-        return this.interactionManager.getGameMode() == GameMode.SPECTATOR;
-    }
-
-    @Override
-    public boolean isCreative() {
-        return this.interactionManager.getGameMode() == GameMode.CREATIVE;
-    }
-
-    @Override
-    public ItemStack getEquippedStack(EquipmentSlot slot) {
-        if (slot == EquipmentSlot.MAINHAND) {
-            return this.getInventory().getMainHandStack();
-        } else if (slot == EquipmentSlot.OFFHAND) {
-            return this.getInventory().offHand.get(0);
-        } else {
-            return slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR ? this.getInventory().armor.get(slot.getEntitySlotId()) : ItemStack.EMPTY;
-        }
-    }
-
-    @Override
-    public void equipStack(EquipmentSlot slot, ItemStack stack) {
-        this.processEquippedStack(stack);
-        if (slot == EquipmentSlot.MAINHAND) {
-            this.onEquipStack(slot, this.getInventory().main.set(this.getInventory().selectedSlot, stack), stack);
-        } else if (slot == EquipmentSlot.OFFHAND) {
-            this.onEquipStack(slot, this.getInventory().offHand.set(0, stack), stack);
-        } else if (slot.getType() == EquipmentSlot.Type.HUMANOID_ARMOR) {
-            this.onEquipStack(slot, this.getInventory().armor.set(slot.getEntitySlotId(), stack), stack);
-        }
-    }
-
-    @Override
-    public Arm getMainArm() {
-        return this.dataTracker.get(MAIN_ARM) == 0 ? Arm.LEFT : Arm.RIGHT;
     }
 
     @Unique

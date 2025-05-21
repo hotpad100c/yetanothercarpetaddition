@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Yet Another Carpet Addition project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  Ryan100c and contributors
+ *
+ * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Yet Another Carpet Addition is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package mypals.ml.mixin.features.betterCommmand;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -71,9 +91,9 @@ public class DataCommandMixin {
             NbtElement oldVal = before.get(key);
             if (oldVal == null || !oldVal.equals(newVal)) {
                 diffs.add(Text.literal("§e" + key + "§r: ")
-                        .append(Text.literal(oldVal == null ? "null" : oldVal.asString()).formatted(Formatting.RED))
+                        .append(Text.literal(oldVal == null ? "null" : oldVal.toString()).formatted(Formatting.RED))
                         .append(" -> ")
-                        .append(Text.literal(newVal.asString()).formatted(Formatting.GREEN)));
+                        .append(Text.literal(newVal.toString()).formatted(Formatting.GREEN)));
             }
         }
 
@@ -130,11 +150,16 @@ public class DataCommandMixin {
         if (nbtElement instanceof AbstractNbtNumber) {
             i = MathHelper.floor(((AbstractNbtNumber) nbtElement).doubleValue());
         } else if (nbtElement instanceof AbstractNbtList) {
-            i = ((AbstractNbtList<?>) nbtElement).size();
+            i = ((AbstractNbtList
+                    //#if MC < 12105
+                    <?>
+                    //#endif
+                    )
+                    nbtElement).size();
         } else if (nbtElement instanceof NbtCompound) {
             i = ((NbtCompound) nbtElement).getSize();
         } else if (nbtElement instanceof NbtString) {
-            i = nbtElement.asString().length();
+            i = nbtElement.toString().length();
         } else {
             throw GET_UNKNOWN_EXCEPTION.create(path.toString());
         }
@@ -185,12 +210,17 @@ public class DataCommandMixin {
                 text.append(line);
             }
             text.append(Text.literal("}"));
-        } else if (element instanceof AbstractNbtList<?> list) {
+        } else if (element instanceof AbstractNbtList
+                //#if MC < 12105
+                <?>
+                //#endif
+                list) {
             text.append(Text.literal("[\n"));
-            for (int i = 0; i < list.size(); i++) {
+            int i = 0;
+            for (NbtElement child : list) {
+                ++i;
                 String path = currentPath + "[" + i + "]";
-                NbtElement child = list.get(i);
-                text.append(renderNbtAsClickable(child, path, targetStr)).append(Text.literal(",\n"));
+                text.append(renderNbtAsClickable(child, path, targetStr));
             }
             text.append(Text.literal("]"));
         } else {
@@ -201,7 +231,7 @@ public class DataCommandMixin {
     @Unique
     private static MutableText renderNbtAsClickable(NbtElement element, String path, String targetStr) {
         String cmd = "/data modify " + targetStr + " " + path + " set value ...";
-        return Text.literal(element.asString())
+        return Text.literal(element.toString())
                 .styled(style -> style
                         .withColor(Formatting.YELLOW)
                         .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, cmd))

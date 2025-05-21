@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Yet Another Carpet Addition project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  Ryan100c and contributors
+ *
+ * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Yet Another Carpet Addition is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package mypals.ml.Screen.RulesEditScreen;
 
 import net.fabricmc.loader.api.FabricLoader;
@@ -15,6 +35,13 @@ import net.minecraft.screen.ScreenTexts;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
+//#if MC >= 12102
+//$$ import net.minecraft.client.gl.PostEffectProcessor;
+//$$ import net.minecraft.client.render.DefaultFramebufferSet;
+   //#if MC >= 12104
+   //$$ import net.minecraft.client.gui.widget.ScrollableTextFieldWidget;
+   //#endif
+//#endif
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -190,8 +217,13 @@ public class RulesEditScreen extends Screen implements ParentElement {
         });
         searchFieldWidget.setMaxLength(100);
 
-        this.addDrawableChild(rulesScrollableWidget = new ScrollableWidget(0, 30,
-                this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
+        this.addDrawableChild(rulesScrollableWidget = new
+                //#if MC >= 12104
+                //$$ ScrollableTextFieldWidget
+                //#else
+                ScrollableWidget
+                //#endif
+                        (0, 30, this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
             int boxWidth = this.width - 10;
             int boxHeight = 30;
             int spacing = 5;
@@ -274,14 +306,22 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
             }
 
+            //#if MC < 12104
             @Override
             protected void drawBox(DrawContext context, int x, int y, int width, int height) {
                 context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x1A000000);
                 //context.fill(x, y, width, height, 0x19000000);
             }
+            //#endif
         });
-        this.addDrawableChild(categoriesScrollableWidget = new ScrollableWidget(
-                this.width - (this.width / 3) + 30, 30, 120, this.height - 30, ScreenTexts.EMPTY) {
+        this.addDrawableChild(categoriesScrollableWidget = new
+                //#if MC < 12104
+                ScrollableWidget
+                //#else
+                //$$ ScrollableTextFieldWidget
+                //#endif
+
+                        (this.width - (this.width / 3) + 30, 30, 120, this.height - 30, ScreenTexts.EMPTY) {
             int boxWidth = this.width - 10;
             int boxHeight = 20;
             int spacing = 5;
@@ -343,10 +383,12 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
             }
 
+            //#if MC < 12104
             @Override
             protected void drawBox(DrawContext context, int x, int y, int width, int height) {
                 context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
             }
+            //#endif
         });
     }
 
@@ -354,7 +396,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.drawTexture(searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
+        context.drawTexture(
+                //#if MC >= 12102
+                //$$ RenderLayer::getGuiTextured,
+                //#endif
+                searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
             context.drawTooltip(MinecraftClient.getInstance().textRenderer, currentToolTips, mouseX, mouseY);
     }
@@ -366,9 +412,25 @@ public class RulesEditScreen extends Screen implements ParentElement {
         if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
+            //#if MC >= 12102
+            //$$ Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
+            //$$ PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
+            //$$ if (blur != null) {
+                    //#if MC >= 12105
+                    //$$ blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
+                    //#else
+                    //$$ blur.setUniforms("Radius", 20F);
+                    //$$ blur.render(client.getFramebuffer(), gameRenderer.pool);
+                    //#endif
+            //$$ }
+            //#else
             gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
             gameRenderer.blurPostProcessor.render(delta);
+            //#endif
+
+            //#if MC < 12105
             this.client.getFramebuffer().beginWrite(false);
+            //#endif
         }
 
 

@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Yet Another Carpet Addition project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  Ryan100c and contributors
+ *
+ * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Yet Another Carpet Addition is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package mypals.ml.Screen.RulesEditScreen;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -22,7 +42,9 @@ import java.util.Objects;
 import static mypals.ml.YetAnotherCarpetAdditionClient.defaultRules;
 import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
-
+//#if MC >= 12102
+//$$ import static net.minecraft.client.render.RenderLayer.getGui;
+//#endif
 public class RuleWidget {
     private RuleData ruleData;
     private int x, y;
@@ -68,13 +90,21 @@ public class RuleWidget {
 
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                    context.drawTexture(
+                            //#if MC >= 12102
+                            //$$ RenderLayer::getGuiTextured,
+                            //#endif
+                            this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean clicked(double mouseX, double mouseY
+                                   //#if MC >= 12103
+                                   //$$, int button
+                                   //#endif
+            ) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
@@ -113,13 +143,21 @@ public class RuleWidget {
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                    context.drawTexture(
+                            //#if MC >= 12102
+                            //$$ RenderLayer::getGuiTextured,
+                            //#endif
+                            this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean clicked(double mouseX, double mouseY
+                                   //#if MC >= 12103
+                                   //$$, int button
+                                   //#endif
+            ) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
@@ -157,13 +195,21 @@ public class RuleWidget {
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
-                    context.drawTexture(this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                    context.drawTexture(
+                            //#if MC >= 12102
+                            //$$ RenderLayer::getGuiTextured,
+                            //#endif
+                            this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY) {
+            public boolean clicked(double mouseX, double mouseY
+                                   //#if MC >= 12103
+                                   //$$, int button
+                                   //#endif
+            ) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
                 return this.active && this.visible && mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&

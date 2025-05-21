@@ -1,3 +1,23 @@
+/*
+ * This file is part of the Yet Another Carpet Addition project, licensed under the
+ * GNU Lesser General Public License v3.0
+ *
+ * Copyright (C) 2025  Ryan100c and contributors
+ *
+ * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Yet Another Carpet Addition is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 package mypals.ml;
 
 import mypals.ml.Screen.CountersViewer.CounterViewerScreen;
@@ -49,7 +69,11 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (carpetRulesKeyBind.wasPressed()) {
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("Requesting rules now！"));
+                MinecraftClient.getInstance().player.sendMessage(Text.literal("Requesting rules now！")
+                        //#if MC >= 12102
+                        //$$ , false
+                        //#endif
+                );
                 ClientPlayNetworking.send(new RequestRulesPayload(MinecraftClient.getInstance().getLanguageManager().getLanguage()));
                 requesting = true;
             }
@@ -66,7 +90,11 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                         .flatMap(r -> r.categories.stream())
                         .distinct().toList());
 
-                context.client().player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！"));
+                context.client().player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！")
+                        //#if MC >= 12102
+                        //$$ , false
+                        //#endif
+                );
                 requesting = false;
                 defaultRules.clear();
                 defaultRules.addAll(Arrays.stream(payload.defaults().split(";")).toList());
@@ -77,9 +105,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 MinecraftClient.getInstance().setScreen(new RulesEditScreen(Text.of("Carpet Rules")));
             });
         });
-        ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            HopperCounterRequestCommand.registerCommand(dispatcher, registryAccess);
-        });
+        ClientCommandRegistrationCallback.EVENT.register(HopperCounterRequestCommand::registerCommand);
         ClientPlayNetworking.registerGlobalReceiver(CountersPacketPayload.ID, (payload, context) -> {
             context.client().execute(() -> {
                 MinecraftClient.getInstance().setScreen(new CounterViewerScreen(payload.currentRecords()));
