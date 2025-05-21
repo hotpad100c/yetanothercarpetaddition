@@ -26,11 +26,11 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import mypals.ml.utils.adapter.ClickEvent;
+import mypals.ml.utils.adapter.HoverEvent;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.GameRuleCommand;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -94,8 +94,8 @@ public class GameRuleCommandMixin {
             if (!isDefault(key, gameRules.get(key))) {
                 GameRules.Rule<?> rule = gameRules.get(key);
                 MutableText ruleText = Text.literal("- " + key.getName() + ":").styled(style -> style
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/gamerule " + key.getName() + " "))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.translatable(rule.serialize())))
+                                .withClickEvent(ClickEvent.suggestCommand("/gamerule " + key.getName() + " "))
+                                .withHoverEvent(HoverEvent.showText(Text.translatable(rule.serialize())))
                         )
                         .append(getRuleValue(rule, key, true));
                 source.sendFeedback(() -> ruleText, false);
@@ -114,8 +114,8 @@ public class GameRuleCommandMixin {
             MutableText clickable = Text.literal("[" + Text.translatable(category.getCategory()).getString() + "]")
                     .styled(style -> style
                             .withColor(Formatting.YELLOW)
-                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/gamerule list " + name))
-                            .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to view " + name)))
+                            .withClickEvent(ClickEvent.runCommand("/gamerule list " + name))
+                            .withHoverEvent(HoverEvent.showText(Text.literal("Click to view " + name)))
                     );
 
             messageBuilder.append(clickable);
@@ -147,8 +147,8 @@ public class GameRuleCommandMixin {
             if (key.getCategory() == category) {
                 GameRules.Rule<?> rule = gameRules.get(key);
                 MutableText ruleText = Text.literal(key.getName() + ":").styled(style -> style
-                                .withClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, "/gamerule " + key.getName() + " "))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("/gamerule " + key.getName())))
+                                .withClickEvent(ClickEvent.suggestCommand("/gamerule " + key.getName() + " "))
+                                .withHoverEvent(HoverEvent.showText(Text.literal("/gamerule " + key.getName())))
                         )
                         .append(getRuleValue(rule, key, false));
                 source.sendFeedback(() -> ruleText, false);
@@ -172,10 +172,8 @@ public class GameRuleCommandMixin {
                     trueText = trueText.formatted(Formatting.BOLD);
                 }
                 falseText = falseText.styled(style ->
-                        style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                        "/gamerule " + key.getName() + " false"))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        Text.literal("Set to false"))));
+                        style.withClickEvent(ClickEvent.runCommand("/gamerule " + key.getName() + " false"))
+                                .withHoverEvent(HoverEvent.showText(Text.literal("Set to false"))));
 
             } else {
                 falseText = falseText.formatted(listAll ? Formatting.YELLOW : Formatting.GRAY).formatted(Formatting.UNDERLINE);
@@ -183,10 +181,8 @@ public class GameRuleCommandMixin {
                     falseText = falseText.formatted(Formatting.BOLD);
                 }
                 trueText = trueText.styled(style ->
-                        style.withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                        "/gamerule " + key.getName() + " true"))
-                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-                                        Text.literal("Set to true"))));
+                        style.withClickEvent(ClickEvent.runCommand("/gamerule " + key.getName() + " true"))
+                                .withHoverEvent(HoverEvent.showText(Text.literal("Set to true"))));
 
             }
             text.append(trueText).append(" ").append(falseText);

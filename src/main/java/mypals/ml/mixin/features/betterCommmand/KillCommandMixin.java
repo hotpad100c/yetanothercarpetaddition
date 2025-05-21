@@ -21,10 +21,10 @@
 package mypals.ml.mixin.features.betterCommmand;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.HoverEvent;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.command.KillCommand;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -75,7 +75,7 @@ public class KillCommandMixin {
         }
 
         baseMessage.styled(style -> style.withHoverEvent(
-                new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal(tooltipBuilder.toString()))
+                HoverEvent.showText(Text.literal(tooltipBuilder.toString()))
         ));
 
         source.sendFeedback(() -> baseMessage, true);

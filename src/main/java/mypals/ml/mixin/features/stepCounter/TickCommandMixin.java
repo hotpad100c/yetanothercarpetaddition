@@ -23,9 +23,9 @@ package mypals.ml.mixin.features.stepCounter;
 import com.llamalad7.mixinextras.sugar.Local;
 import mypals.ml.features.tickStepCounter.StepManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.HoverEvent;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.TickCommand;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import org.spongepowered.asm.mixin.Mixin;
@@ -57,8 +57,7 @@ public class TickCommandMixin {
             StepManager.step(steps);
             if(YetAnotherCarpetAdditionRules.enableTickStepCounter) {
                 modifiedText.styled(style -> style.withHoverEvent(
-                        new HoverEvent(
-                                HoverEvent.Action.SHOW_TEXT,
+                        HoverEvent.showText(
                                 Text.literal(String.format(Text.translatable("TickStepCounter.stepped").getString(), StepManager.getStepped()))
                         )
                 ));
