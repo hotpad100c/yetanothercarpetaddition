@@ -23,7 +23,6 @@ package mypals.ml.features.visualizingFeatures;
 import carpet.CarpetServer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
@@ -35,7 +34,12 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
+//#if MC >= 12105
+//$$ import net.minecraft.nbt.NbtList;
+//$$ import net.minecraft.nbt.NbtElement;
+//$$ import net.minecraft.nbt.NbtString;
+//$$ import java.util.HashMap;
+//#endif
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,6 +60,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
 
         public void setVisualizer(ServerWorld world, Vec3d pos, String trigger, String type) {
             if (textMarker != null && !textMarker.isRemoved()) {
+                //#if MC < 12105
                 JsonObject textJson = new JsonObject();
                 textJson.addProperty("text", "");
                 JsonArray extra = new JsonArray();
@@ -71,9 +76,26 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
                 extra.add(typePart);
 
                 textJson.add("extra", extra);
+                //#else
+                //$$ NbtList nbtList = new NbtList();
+                //$$ HashMap<String, NbtElement> triggerPart = new HashMap<>();
+                //$$ triggerPart.put("text", NbtString.of(String.valueOf(trigger)));
+                //$$ triggerPart.put("color", NbtString.of("blue"));
+                //$$ NbtCompound textComponent = new NbtCompound(triggerPart);
+                //$$ nbtList.add(textComponent);
+                //$$ HashMap<String, NbtElement> typePart = new HashMap<>();
+                //$$ typePart.put("text", NbtString.of("\n" + type));
+                //$$ typePart.put("color", NbtString.of("blue"));
+                //$$ textComponent = new NbtCompound(typePart);
+                //$$ nbtList.add(textComponent);
+                //#endif
 
                 NbtCompound nbt = textMarker.writeNbt(new NbtCompound());
+                //#if MC < 12105
                 nbt.putString("text", textJson.toString());
+                //#else
+                //$$ nbt.put("text", nbtList);
+                //#endif
                 textMarker.readNbt(nbt);
             } else {
                 textMarker = summonText(world, pos, trigger, type);
@@ -99,6 +121,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
 
+            //#if MC < 12105
             JsonObject textJson = new JsonObject();
             textJson.addProperty("text", "");
             JsonArray extra = new JsonArray();
@@ -114,10 +137,27 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             extra.add(typePart);
 
             textJson.add("extra", extra);
+            //#else
+            //$$ NbtList nbtList = new NbtList();
+            //$$ HashMap<String, NbtElement> triggerPart = new HashMap<>();
+            //$$ triggerPart.put("text", NbtString.of(trigger));
+            //$$ triggerPart.put("color", NbtString.of("blue"));
+            //$$ NbtCompound textComponent = new NbtCompound(triggerPart);
+            //$$ nbtList.add(textComponent);
+            //$$ HashMap<String, NbtElement> typePart = new HashMap<>();
+            //$$ typePart.put("text", NbtString.of("\n" + type));
+            //$$ typePart.put("color", NbtString.of("blue"));
+            //$$ textComponent = new NbtCompound(typePart);
+            //$$ nbtList.add(textComponent);
+            //#endif
 
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
             nbt.putString("billboard", "center");
+            //#if MC < 12105
             nbt.putString("text", textJson.toString());
+            //#else
+            //$$ nbt.put("text", nbtList);
+            //#endif
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
             entity.readNbt(nbt);

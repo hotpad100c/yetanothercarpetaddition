@@ -23,13 +23,13 @@ package mypals.ml.mixin.features.betterCommmand;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.HoverEvent;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ClearCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -135,6 +135,6 @@ public class ClearCommandMixin {
             tooltip.append(Text.literal("- ").append(representativeStack.getName()).append(" x" + entry.getValue() + "\n"));
         }
 
-        return baseText.setStyle(Style.EMPTY.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, tooltip)));
+        return baseText.setStyle(Style.EMPTY.withHoverEvent(HoverEvent.showText(tooltip)));
     }
 }

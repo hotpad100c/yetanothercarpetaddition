@@ -26,6 +26,10 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+//#if MC >= 12105
+//$$ import net.minecraft.nbt.NbtElement;
+//$$ import net.minecraft.nbt.NbtString;
+//#endif
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,9 +47,17 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
         if (data instanceof Integer cooldown) {
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
             String color = cooldown == 0 ? "green" : "red";
+            //#if MC < 12105
             String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
             nbt.remove("text");
             nbt.putString("text", textJson);
+            //#else
+            //$$ HashMap<String, NbtElement> textNbt = new HashMap<>();
+            //$$ textNbt.put("text", NbtString.of("[" + cooldown + "]"));
+            //$$ textNbt.put("color", NbtString.of(color));
+            //$$ NbtCompound textComponent = new NbtCompound(textNbt);
+            //$$ nbt.put("text", textComponent);
+            //#endif
             entity.readNbt(nbt);
         }
     }

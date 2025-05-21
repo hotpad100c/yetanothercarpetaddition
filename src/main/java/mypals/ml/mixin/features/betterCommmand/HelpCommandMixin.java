@@ -26,20 +26,17 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.ParseResults;
 import com.mojang.brigadier.arguments.StringArgumentType;
-import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.context.ParsedCommandNode;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import com.mojang.brigadier.suggestion.Suggestions;
-import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.brigadier.tree.CommandNode;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.ClickEvent;
+import mypals.ml.utils.adapter.HoverEvent;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.HelpCommand;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.ClickEvent;
-import net.minecraft.text.HoverEvent;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -48,10 +45,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 
 @Mixin(HelpCommand.class)
 public class HelpCommandMixin {
@@ -106,8 +101,8 @@ public class HelpCommandMixin {
                                 feedback.append(Text.literal("[" + name + "] ")
                                         .styled(style -> style
                                                 .withColor(Formatting.YELLOW)
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/help " + name))
-                                                .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("Click to view " + name)))
+                                                .withClickEvent(ClickEvent.runCommand("/help " + name))
+                                                .withHoverEvent(HoverEvent.showText(Text.literal("Click to view " + name)))
                                         ));
 
                             }
