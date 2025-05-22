@@ -51,7 +51,7 @@ if (mcVersion >= 12005) {
 JavaVersion MIXIN_COMPATIBILITY_LEVEL = JAVA_COMPATIBILITY
 
 loom {
-	accessWidenerPath = file("YACA.accessWidener")
+	accessWidenerPath = file("YACA.accesswidener")
 
 	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=false']
 	runConfigs.configureEach {
@@ -99,7 +99,7 @@ version = fullProjectVersion
 // See https://youtrack.jetbrains.com/issue/IDEA-296490
 // if IDEA complains about "Cannot resolve resource filtering of MatchingCopyAction" and you want to know why
 processResources {
-	from "YACA.accessWidener"
+	from "YACA.accesswidener"
 
 	inputs.property "id", project.mod_id
 	inputs.property "name", project.mod_name
