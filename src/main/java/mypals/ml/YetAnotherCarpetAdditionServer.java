@@ -39,6 +39,7 @@ import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
 import mypals.ml.features.visualizingFeatures.GameEventVisualizing;
 import mypals.ml.features.visualizingFeatures.RandomTickVisualizing;
 import mypals.ml.features.visualizingFeatures.*;
+import mypals.ml.features.waypoint.WaypointManager;
 import mypals.ml.network.RuleData;
 import mypals.ml.network.client.RequestCountersPayload;
 import mypals.ml.network.client.RequestRulesPayload;
@@ -148,6 +149,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         loadExtension();
         StepManager.reset();
         GridWorldGenerator.init();
+        ServerLifecycleEvents.SERVER_STARTED.register(WaypointManager::init);
         ServerWorldEvents.LOAD.register((server, world) -> {
             serverWorld = world;
             try {
