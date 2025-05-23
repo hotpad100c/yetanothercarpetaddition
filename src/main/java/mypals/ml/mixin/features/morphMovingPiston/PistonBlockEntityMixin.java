@@ -21,25 +21,14 @@
 package mypals.ml.mixin.features.morphMovingPiston;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import me.fallenbreath.conditionalmixin.api.annotation.Condition;
-import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import mypals.ml.utils.ModIds;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.state.property.Properties;
-import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.movingPistonSpeed;
 
-@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
+//@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
 @Mixin(PistonBlockEntity.class)
 public abstract class PistonBlockEntityMixin {
 
