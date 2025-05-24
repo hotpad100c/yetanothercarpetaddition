@@ -27,7 +27,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.command.RideCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -48,7 +47,13 @@ public class ExtraVaniallaCommandFeatureManager {
     }
 
     public static int addGameEvent(ServerCommandSource source, Vec3d pos, String reason, @Nullable Entity entity, @Nullable BlockState blockState) {
-        RegistryEntry<GameEvent> event = Registries.GAME_EVENT.getEntry(Identifier.of("minecraft:" + reason)).orElse(null);
+        RegistryEntry<GameEvent> event = Registries.GAME_EVENT.getEntry(
+                //#if MC >= 12101
+                Identifier.of("minecraft:" + reason)
+                //#else
+                //$$ new Identifier("minecraft", reason)
+                //#endif
+        ).orElse(null);
         if (event == null) {
             source.sendError(Text.literal("Unknown GameEvent: " + reason));
             return 0;

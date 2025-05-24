@@ -24,11 +24,7 @@ import carpet.CarpetExtension;
 import carpet.CarpetServer;
 import carpet.CarpetSettings;
 import carpet.api.settings.CarpetRule;
-import carpet.api.settings.RuleHelper;
-import carpet.api.settings.SettingsManager;
 import carpet.logging.LoggerRegistry;
-import carpet.mixins.LevelLightEngine_scarpetChunkCreationMixin;
-import carpet.network.ServerNetworkHandler;
 import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
 import mypals.ml.features.GridWorldGen.GridWorldGenerator;
@@ -47,49 +43,27 @@ import mypals.ml.network.server.CountersPacketPayload;
 import mypals.ml.network.server.RulesPacketPayload;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.translations.YetAnotherCarpetAdditionTranslations;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
-
-import net.fabricmc.fabric.api.entity.event.v1.ServerLivingEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+//#if MC >= 12006
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+//#endif
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.Block;
-import net.minecraft.client.session.telemetry.WorldLoadedEvent;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.entity.mob.ShulkerEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.entity.vehicle.MinecartEntity;
-import net.minecraft.network.message.MessageChain;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.ServerNetworkIo;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerCommonNetworkHandler;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.chunk.light.LightingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager.initCounterManager;
 import static mypals.ml.translations.YACALanguageUtil.getTranslation;
@@ -166,8 +140,10 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
 
             allVisualizers.forEach(visualizer -> visualizer.updateVisualizer());
         });
+        //#if MC >= 12006
         PayloadTypeRegistry.playC2S().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);
+        //#endif
         ServerPlayNetworking.registerGlobalReceiver(RequestRulesPayload.ID,
                 (payload, context) -> {
                     context.server().execute(() -> {
@@ -176,8 +152,10 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                         ServerPlayNetworking.send(context.player(), requestRulesPayload);
                     });
                 });
+        //#if MC >= 12006
         PayloadTypeRegistry.playC2S().register(RequestCountersPayload.ID, RequestCountersPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(CountersPacketPayload.ID, CountersPacketPayload.CODEC);
+        //#endif
         ServerPlayNetworking.registerGlobalReceiver(RequestCountersPayload.ID,
                 (payload, context) -> {
                     context.server().execute(() -> {

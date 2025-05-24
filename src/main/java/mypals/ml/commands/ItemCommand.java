@@ -26,7 +26,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.command.CommandRegistryAccess;
+//#if MC >= 12006
 import net.minecraft.component.DataComponentTypes;
+//#endif
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.item.ItemStack;
@@ -56,7 +58,11 @@ public class ItemCommand {
 
         ItemStack itemStack = ((ServerPlayerEntity) entity).getMainHandStack();
 
+        //#if MC >= 12006
         itemStack.set(DataComponentTypes.CUSTOM_NAME, Text.literal(name));
+        //#else
+        //$$ itemStack.setCustomName(Text.literal(name));
+        //#endif
 
         return 1;
     }
@@ -67,7 +73,12 @@ public class ItemCommand {
 
         ItemStack itemStack = ((ServerPlayerEntity) entity).getMainHandStack();
 
+        //#if MC >= 12006
         itemStack.remove(DataComponentTypes.CUSTOM_NAME);
+        //#else
+        //$$ itemStack.removeCustomName();
+        //#endif
+
 
         return 1;
     }

@@ -36,6 +36,9 @@ import net.minecraft.world.gen.chunk.FlatChunkGeneratorConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
 
 import java.util.concurrent.CompletableFuture;
+//#if MC < 12101
+//$$ import java.util.concurrent.Executor;
+//#endif
 
 public class FlatGridChunkGenerator extends FlatChunkGenerator {
     public static final MapCodec<FlatGridChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
@@ -54,7 +57,11 @@ public class FlatGridChunkGenerator extends FlatChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<Chunk> populateNoise(Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
+    public CompletableFuture<Chunk> populateNoise(
+            //#if MC < 12101
+            //$$ Executor executor,
+            //#endif
+            Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
         ChunkPos chunkPos = chunk.getPos();
         boolean isBlack = (chunkPos.x + chunkPos.z) % 2 == 0;
         BlockState blockState = isBlack ? Blocks.BLACK_STAINED_GLASS.getDefaultState() : Blocks.WHITE_STAINED_GLASS.getDefaultState();

@@ -20,52 +20,24 @@
 
 package mypals.ml.Screen.CountersViewer;
 
-import carpet.helpers.HopperCounter;
-import mypals.ml.Screen.RulesEditScreen.CategoryEntry;
-import mypals.ml.Screen.RulesEditScreen.RuleWidget;
-import mypals.ml.YetAnotherCarpetAdditionClient;
-import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.block.entity.VaultBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.gui.widget.ScrollableWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
-import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.joml.Vector3ic;
-import org.joml.Vector4f;
 
 import java.awt.*;
-import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static mypals.ml.YetAnotherCarpetAdditionClient.*;
-import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
 public class CounterViewerScreen extends Screen implements ParentElement {
     private final Map<String, Map<String, String>> data;
