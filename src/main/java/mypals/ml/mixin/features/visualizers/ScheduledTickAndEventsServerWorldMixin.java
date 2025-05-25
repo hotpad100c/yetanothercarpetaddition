@@ -24,6 +24,7 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
 import mypals.ml.YetAnotherCarpetAdditionServer;
+import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.features.visualizingFeatures.*;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.Block;
@@ -40,6 +41,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.WorldChunk;
 import net.minecraft.world.event.GameEvent;
+import net.minecraft.world.poi.PointOfInterestType;
+import net.minecraft.world.tick.ChunkTickScheduler;
 import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.WorldTickScheduler;
 import org.spongepowered.asm.mixin.Final;
@@ -51,10 +54,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 
@@ -71,6 +71,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
     @Shadow
     public abstract ServerWorld toServerWorld();
 
+
     @Inject(
             method = "tick",
             at = @At("HEAD")
@@ -78,6 +79,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
     private void ServerTickAddScheduledTickMarker(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         Map<Long, Integer> blockTickCounter = new HashMap<>();
         Map<Long, Integer> fluidTickCounter = new HashMap<>();
+
 
         blockTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
             chunkTickScheduler.getQueueAsStream().forEach(orderedTick -> {

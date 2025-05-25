@@ -23,15 +23,20 @@ package mypals.ml.mixin.features;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import mypals.ml.YetAnotherCarpetAdditionServer;
+import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluid;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerChunkManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
@@ -41,7 +46,10 @@ import net.minecraft.world.EntityList;
 import net.minecraft.world.MutableWorldProperties;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.tick.OrderedTick;
 import net.minecraft.world.tick.TickManager;
+import net.minecraft.world.tick.WorldTickScheduler;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -53,6 +61,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //$$ import net.minecraft.util.profiler.Profilers;
 //#endif
 
+import java.util.HashSet;
+import java.util.PriorityQueue;
+import java.util.Queue;
+import java.util.Set;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -85,13 +98,25 @@ public abstract class ServerWorldMixin extends World {
     @Shadow
     protected abstract void tickPassenger(Entity vehicle, Entity passenger);
 
+    @Shadow
+    @Final
+    private WorldTickScheduler<Fluid> fluidTickScheduler;
+
+    @Shadow
+    @Final
+    private WorldTickScheduler<Block> blockTickScheduler;
+
+    @Shadow
+    @NotNull
+    public abstract MinecraftServer getServer();
+
     @Inject(
             method = "tickWeather",
             at = @At("HEAD"),
             cancellable = true
     )
     private void tickWeather(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingWeather) {
+        if (YetAnotherCarpetAdditionRules.stopTickingWeather || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
             ci.cancel();
         }
     }
@@ -102,7 +127,7 @@ public abstract class ServerWorldMixin extends World {
             cancellable = true
     )
     private void tickBlocks(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingBlocks) {
+        if (YetAnotherCarpetAdditionRules.stopTickingBlocks || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick) {
             ci.cancel();
         }
     }
@@ -113,7 +138,7 @@ public abstract class ServerWorldMixin extends World {
             cancellable = true
     )
     private void tickFluid(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingFluids) {
+        if (YetAnotherCarpetAdditionRules.stopTickingFluids || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick) {
             ci.cancel();
         }
     }
@@ -124,10 +149,10 @@ public abstract class ServerWorldMixin extends World {
             cancellable = true
     )
     private void tickEntity(Entity entity, CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingEntities && !(entity instanceof PlayerEntity)) {
+        if ((YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) && !(entity instanceof PlayerEntity)) {
             ci.cancel();
         }
-        if (entity.getCommandTags().contains("dontTick")) {
+        if (entity.getCommandTags().contains("DoNotTick")) {
             ci.cancel();
         }
     }
@@ -146,7 +171,7 @@ public abstract class ServerWorldMixin extends World {
             cancellable = true
     )
     private void tickTime(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingTime) {
+        if (YetAnotherCarpetAdditionRules.stopTickingTime || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTime) {
             ci.cancel();
         }
     }
@@ -157,7 +182,7 @@ public abstract class ServerWorldMixin extends World {
             cancellable = true
     )
     private void tickSpawners(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingSpawners) {
+        if (YetAnotherCarpetAdditionRules.stopTickingSpawners || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingSpawners) {
             ci.cancel();
         }
     }
@@ -168,7 +193,7 @@ public abstract class ServerWorldMixin extends World {
             cancellable = true
     )
     private void processSyncedBlockEvents(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingBlockEvents) {
+        if (YetAnotherCarpetAdditionRules.stopTickingBlockEvents || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingBlockEvents) {
             ci.cancel();
         }
     }
@@ -181,7 +206,7 @@ public abstract class ServerWorldMixin extends World {
             )
     )
     private void wrapRandomTick(BlockState instance, ServerWorld serverWorld, BlockPos blockPos, Random random, Operation<Void> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingBlocks) {
+        if (!YetAnotherCarpetAdditionRules.stopTickingBlocks || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks) {
             original.call(instance, serverWorld, blockPos, random);
         }
     }
@@ -204,7 +229,7 @@ public abstract class ServerWorldMixin extends World {
                                      //$$ ServerWorld world,
                                      //#endif
                                      BlockPos pos, Random random, Operation<Void> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingFluids) {
+        if (!YetAnotherCarpetAdditionRules.stopTickingFluids || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids) {
             original.call(instance, world, pos, random);
         }
     }
@@ -217,10 +242,11 @@ public abstract class ServerWorldMixin extends World {
             )
     )
     private void wrapIceAndSnowTick(ServerWorld instance, BlockPos pos, Operation<Void> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingBlocks) {
+        if (!YetAnotherCarpetAdditionRules.stopTickingBlocks || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks) {
             original.call(instance, pos);
         }
     }
+
     //#if MC >= 12105
     //$$ @Inject(method = "tickThunder", at = @At("HEAD"), cancellable = true)
     //$$ private void wrapLightningAndSkeletonHorseEntitySpawn(CallbackInfo ci) {
@@ -238,7 +264,7 @@ public abstract class ServerWorldMixin extends World {
             )
     )
     private boolean wrapLightningSpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingEntities || !YetAnotherCarpetAdditionRules.stopTickingWeather) {
+        if (!YetAnotherCarpetAdditionRules.stopTickingEntities || !YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
             original.call(instance, entity);
         }
         return false;
@@ -253,12 +279,64 @@ public abstract class ServerWorldMixin extends World {
             )
     )
     private boolean wrapSkeletonHorseEntitySpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingWeather) {
+        if (!YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
             original.call(instance, entity);
         }
         return false;
     }
+
     //#endif
+    @Inject(
+            method = "tick",
+            at = @At("HEAD"),
+            cancellable = true
+    )
+    private void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
+        YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.globalOrder = 0;
+        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks || YetAnotherCarpetAdditionRules.stopTickingBlocks) {
+            blockTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
+                Queue<OrderedTick<Block>> queuedTick = chunkTickScheduler.tickQueue;
+                Queue<OrderedTick<Block>> newQueuedTick = new PriorityQueue(OrderedTick.TRIGGER_TICK_COMPARATOR);
+                queuedTick.forEach(orderedTick -> {
+                    newQueuedTick.add(new OrderedTick(
+                            orderedTick.type(),
+                            orderedTick.pos(),
+                            orderedTick.triggerTick() + 1,
+                            orderedTick.priority(),
+                            orderedTick.subTickOrder()
+                    ));
+                });
+                if (newQueuedTick != null) {
+                    chunkTickScheduler.tickQueue.clear();
+                    chunkTickScheduler.tickQueue.addAll(newQueuedTick);
+                }
+
+            });
+        }
+        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids || YetAnotherCarpetAdditionRules.stopTickingFluids) {
+            fluidTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
+                Queue<OrderedTick<Fluid>> queuedTick = chunkTickScheduler.tickQueue;
+                Queue<OrderedTick<Fluid>> newQueuedTick = new PriorityQueue(OrderedTick.TRIGGER_TICK_COMPARATOR);
+                queuedTick.forEach(orderedTick -> {
+                    newQueuedTick.add(new OrderedTick(
+                            orderedTick.type(),
+                            orderedTick.pos(),
+                            orderedTick.triggerTick() + 2,
+                            orderedTick.priority(),
+                            orderedTick.subTickOrder()
+                    ));
+                });
+                if (newQueuedTick != null) {
+                    chunkTickScheduler.tickQueue.clear();
+                    chunkTickScheduler.tickQueue.addAll(newQueuedTick);
+                }
+            });
+        }
+    }
+
+    private static float targetAInterval = 1000.0f / SelectiveFreezeManager.entitiesTickSpeed;
+    private static float accumulatedTime = 0.0f;
+    private static long lastTickTime = System.nanoTime();
 
     @WrapOperation(
             method = "tick",
@@ -268,50 +346,65 @@ public abstract class ServerWorldMixin extends World {
             )
     )
     private void wrapEntityTicking(EntityList instance, Consumer<Entity> action, Operation<Void> original, @Local Profiler profiler) {
-        this.entityList.forEach(entity -> {
-            if (!entity.isRemoved()) {
-                //#if MC < 12102
-                if (this.shouldCancelSpawn(entity)) {
-                    entity.discard();
-                } else
-                //#endif
-                    if (!getTickManager().shouldSkipTick(entity)) {
-                    profiler.push("checkDespawn");
-                    if (!YetAnotherCarpetAdditionRules.stopCheckEntityDespawn) {
-                        entity.checkDespawn();
-                    }
-                    profiler.pop();
-                    if (this.chunkManager.chunkLoadingManager.getTicketManager().shouldTickEntities(entity.getChunkPos().toLong())) {
-                        Entity entity2 = entity.getVehicle();
-                        if (entity2 != null) {
-                            if (!entity2.isRemoved() && entity2.hasPassenger(entity)) {
-                                return;
-                            }
-
-                            entity.stopRiding();
-                        }
-
-                        profiler.push("tick");
-                        this.tickEntity(this::tickEntity, entity);
-                        profiler.pop();
-                    }
-                }
+        /*long currentTime = System.nanoTime();
+        float deltaTime = (currentTime - lastTickTime) / 1_000_000.0f;
+        accumulatedTime += deltaTime;
+        lastTickTime = currentTime;
+        targetAInterval = 1000.0f / SelectiveFreezeManager.entitiesTickSpeed;
+        if (SelectiveFreezeManager.entitiesTickSpeed <= this.getServer().getTickManager().getTickRate()) {
+            if (accumulatedTime >= targetAInterval) {
+                entityTicking(instance, action, original, profiler);
+                accumulatedTime -= targetAInterval;
             }
-        });
+        } else {
+            int ticks = (int) (accumulatedTime / targetAInterval);
+            for (int i = 0; i < ticks; i++) {
+                entityTicking(instance, action, original, profiler);
+            }
+            accumulatedTime -= ticks * targetAInterval;
+        }*/
+        original.call(instance, action);
+        //entityTicking(instance, action, original, profiler);
+    }
+
+    @WrapOperation(
+            method = "method_31420",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/world/ServerWorld;tickEntity(Ljava/util/function/Consumer;Lnet/minecraft/entity/Entity;)V"
+            )
+    )
+    private void entityTicking(ServerWorld instance, Consumer consumer, Entity entity, Operation<Void> original, @Local Profiler profiler) {
+        if (!(YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) || entity instanceof PlayerEntity) {
+            original.call(instance, consumer, entity);
+        }
+    }
+
+    @WrapOperation(
+            method = "method_31420",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/entity/Entity;checkDespawn()V"
+            )
+    )
+    private void entityDespawn(Entity instance, Operation<Void> original, @Local Profiler profiler) {
+        if (!YetAnotherCarpetAdditionRules.stopCheckEntityDespawn || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopCheckEntityDespawn) {
+            instance.checkDespawn();
+        }
     }
 
     @Unique
     public void tickEntity(Entity entity) {
-        if (YetAnotherCarpetAdditionRules.stopTickingEntities && !(entity instanceof PlayerEntity)) {
+        if ((YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) && !(entity instanceof PlayerEntity)) {
             return;
         }
         entity.resetPosition();
         Profiler profiler =
                 //#if MC < 12102
                 this.getProfiler();
-                //#else
-                //$$ Profilers.get();
-                //#endif
+        //#else
+        //$$ Profilers.get();
+        //#endif
         entity.age++;
         profiler.push((Supplier<String>) (() -> Registries.ENTITY_TYPE.getId(entity.getType()).toString()));
         profiler.visit("tickNonPassenger");

@@ -20,6 +20,8 @@
 
 package mypals.ml.mixin.features.optionalTicking;
 
+import mypals.ml.YetAnotherCarpetAdditionServer;
+import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.boss.dragon.EnderDragonFight;
@@ -37,7 +39,7 @@ public class EnderDragonFightMixin {
             cancellable = true
     )
     private void tickEntity(CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingDragonFight) {
+        if (YetAnotherCarpetAdditionRules.stopTickingDragonFight || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingDragonFight) {
             ci.cancel();
         }
     }

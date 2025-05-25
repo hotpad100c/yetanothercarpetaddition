@@ -23,6 +23,8 @@ package mypals.ml;
 import mypals.ml.Screen.CountersViewer.CounterViewerScreen;
 import mypals.ml.Screen.RulesEditScreen.RulesEditScreen;
 import mypals.ml.commands.HopperCounterRequestCommand;
+import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
+import mypals.ml.network.OptionalFreezePayload;
 import mypals.ml.network.RuleData;
 import mypals.ml.network.client.RequestRulesPayload;
 import mypals.ml.network.server.CountersPacketPayload;
@@ -34,6 +36,7 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.RenderLayer;
@@ -56,6 +59,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static List<String> chachedCategories = new ArrayList<>();
     public static CopyOnWriteArrayList<String> defaultRules = new CopyOnWriteArrayList<>();
     public static CopyOnWriteArrayList<String> favoriteRules = new CopyOnWriteArrayList<>();
+    public static SelectiveFreezeManager selectiveFreezeManager = new SelectiveFreezeManager();
     public boolean requesting = false;
 
     @Override
@@ -77,6 +81,56 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 ClientPlayNetworking.send(new RequestRulesPayload(MinecraftClient.getInstance().getLanguageManager().getLanguage()));
                 requesting = true;
             }
+        });
+        ClientPlayNetworking.registerGlobalReceiver(OptionalFreezePayload.ID, (payload, context) -> {
+            context.client().execute(() -> {
+                switch (payload.phase().toLowerCase()) {
+                    case "worldborder":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingWorldBorder = payload.freeze();
+                        break;
+                    case "weather":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingWeather = payload.freeze();
+                        break;
+                    case "time":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingTime = payload.freeze();
+                        break;
+                    case "tileblocks":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingTileBlocks = payload.freeze();
+                        break;
+                    case "tilefluids":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingTileFluids = payload.freeze();
+                        break;
+                    case "tiletick":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingTileTick = payload.freeze();
+                        break;
+                    case "raid":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingRaid = payload.freeze();
+                        break;
+                    case "chunkmanager":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingChunkManager = payload.freeze();
+                        break;
+                    case "blockevents":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingBlockEvents = payload.freeze();
+                        break;
+                    case "dragonfight":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingDragonFight = payload.freeze();
+                        break;
+                    case "entitydespawn":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopCheckEntityDespawn = payload.freeze();
+                        break;
+                    case "entities":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingEntities = payload.freeze();
+                        break;
+                    case "blockentities":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingBlockEntities = payload.freeze();
+                        break;
+                    case "spawners":
+                        YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingSpawners = payload.freeze();
+                        break;
+                    default:
+
+                }
+            });
         });
         ClientPlayNetworking.registerGlobalReceiver(RulesPacketPayload.ID, (payload, context) -> {
             context.client().execute(() -> {

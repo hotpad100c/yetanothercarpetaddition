@@ -18,27 +18,30 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.mixin.features.optionalTicking;
+package mypals.ml.network;
 
-import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.village.raid.RaidManager;
-import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.codec.PacketCodec;
+import net.minecraft.network.packet.CustomPayload;
 
-@Mixin(RaidManager.class)
-public class RaidManagerMixin {
-    @Inject(
-            method = "tick",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    private void tick(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingRaid || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingRaid) {
-            ci.cancel();
-        }
+public record OptionalFreezePayload(String phase, boolean freeze) implements CustomPayload {
+    public static final CustomPayload.Id<OptionalFreezePayload> ID = new Id<>(PacketIDs.FREEZE_PACKET_ID);
+    public static final PacketCodec<PacketByteBuf, OptionalFreezePayload> CODEC = PacketCodec.of(
+            OptionalFreezePayload::write,
+            OptionalFreezePayload::new
+    );
+
+    public OptionalFreezePayload(PacketByteBuf buf) {
+        this(buf.readString(), buf.readBoolean());
+    }
+
+    public void write(PacketByteBuf buf) {
+        buf.writeString(phase);
+        buf.writeBoolean(freeze);
+    }
+
+    @Override
+    public CustomPayload.Id<? extends CustomPayload> getId() {
+        return ID;
     }
 }

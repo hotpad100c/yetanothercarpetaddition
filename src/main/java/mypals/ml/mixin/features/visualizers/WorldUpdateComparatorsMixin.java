@@ -33,6 +33,10 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.function.BooleanSupplier;
 //#if MC >= 12102
 //$$ import net.minecraft.world.block.WireOrientation;
 //#endif
@@ -88,8 +92,8 @@ public abstract class WorldUpdateComparatorsMixin {
                                           //#if MC < 12102
                                           BlockPos sourcePos,
                                           //#else
-                                           //$$ WireOrientation orientation,
-                                           //#endif
+                                          //$$ WireOrientation orientation,
+                                          //#endif
                                           boolean notify, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.comparatorUpdateVisualize && !this.isClient())
             YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) this, pos, BlockUpdateVisualizing.UpdateType.CP);

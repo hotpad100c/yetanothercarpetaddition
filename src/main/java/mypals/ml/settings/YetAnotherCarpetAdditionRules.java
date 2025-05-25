@@ -213,10 +213,21 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean comparatorUpdateVisualize = false;
+
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean blockEntityOrderVisualize = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean POIVisualize = false;
+
     //#if MC < 12102
     @Rule(
             categories = {YACA, FEATURE}
     )
+
     public static boolean waterTNT = false;
     //#endif
     @Rule(

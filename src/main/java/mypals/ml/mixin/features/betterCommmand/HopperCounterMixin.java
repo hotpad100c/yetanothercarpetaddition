@@ -18,27 +18,18 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.mixin.features.optionalTicking;
+package mypals.ml.mixin.features.betterCommmand;
 
-import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.village.raid.RaidManager;
+import carpet.helpers.HopperCounter;
+import it.unimi.dsi.fastutil.objects.Object2LongLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import mypals.ml.utils.adapter.HoverEvent;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(RaidManager.class)
-public class RaidManagerMixin {
-    @Inject(
-            method = "tick",
-            at = @At("HEAD"),
-            cancellable = true
-    )
-    private void tick(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingRaid || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingRaid) {
-            ci.cancel();
-        }
-    }
+@Mixin(HopperCounter.class)
+public class HopperCounterMixin {
+    private final Object2LongMap<Item> counter = new Object2LongLinkedOpenHashMap();
 }

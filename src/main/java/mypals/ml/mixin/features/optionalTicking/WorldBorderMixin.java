@@ -20,6 +20,7 @@
 
 package mypals.ml.mixin.features.optionalTicking;
 
+import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.network.message.MessageChain;
 import net.minecraft.network.message.SignedMessage;
@@ -42,7 +43,7 @@ public class WorldBorderMixin {
             cancellable = true
     )
     private void tick(CallbackInfo ci) {
-        if(!YetAnotherCarpetAdditionRules.stopTickingWorldBorder) {
+        if (YetAnotherCarpetAdditionRules.stopTickingWorldBorder || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWorldBorder) {
             ci.cancel();
         }
     }
