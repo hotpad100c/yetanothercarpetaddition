@@ -24,6 +24,8 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 
 * **Description**: Improves the usability of certain commands.
 
+### /tick freeze <phase>      <- freeze different phases, like `entities` `block event` 
+
 Currently supported:
 
 • Hovering over the feedback of the `/kill` command shows what was killed and how many of each.
