@@ -8,7 +8,9 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 ![owo](https://count.getloli.com/@YACAC?name=YACAC&theme=3d-num&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto)
 ---
 
-## 🧭Main Highlight Rules
+## 🧭Main Highlight Rules & Commands
+
+### /tick freeze <phase>      <- freeze different phases, like `entities` `block event` 
 
 ### `enableTickStepCounter` - Tick Step Counter
 
@@ -23,8 +25,6 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 ### `commandEnhance` - Command Experience Enhancement
 
 * **Description**: Improves the usability of certain commands.
-
-### /tick freeze <phase>      <- freeze different phases, like `entities` `block event` 
 
 Currently supported:
 
