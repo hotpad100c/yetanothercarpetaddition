@@ -6,7 +6,9 @@
 
 ---
 
-## 🧭 主亮点功能
+## 🧭 主亮点功能&指令
+
+### /tick freeze <phase>      <- 暂停部分阶段，如 `entities` `block event` 
 
 ### `enableTickStepCounter` - 刻步进计数器
 
