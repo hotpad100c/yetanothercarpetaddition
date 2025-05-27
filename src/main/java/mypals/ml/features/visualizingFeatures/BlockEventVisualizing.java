@@ -54,10 +54,12 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
         public String tag;
         public DisplayEntity.TextDisplayEntity tickMarker;
         public DisplayEntity.BlockDisplayEntity typeMarker;
+        public Long summonTime;
 
         public BlockEventObject(ServerWorld world, BlockPos pos, int order, String tag) {
             this.tag = tag;
             setVisualizer(world, pos, order);
+            summonTime = world.getTime();
         }
 
         public void setVisualizer(ServerWorld world, BlockPos pos, int order) {
@@ -165,7 +167,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             NbtCompound nbt = marker.tickMarker.writeNbt(new NbtCompound());
             JsonObject orderPart = new JsonObject();
             JsonObject textJson = new JsonObject();
-            if (marker.tickMarker.age != 0) {
+            if (marker.tickMarker.getWorld().getTime() != marker.summonTime) {
                 textJson.addProperty("text", "");
                 JsonArray extra = new JsonArray();
                 orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
@@ -283,7 +285,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             }
             NbtCompound nbt = entry.getKey().typeMarker.writeNbt(new NbtCompound());
 
-            float scale = mapSize(SURVIVE_TIME - entry.getKey().typeMarker.age, SURVIVE_TIME, 0.9f);
+            float scale = mapSize((int) (deleteTick - CarpetServer.minecraft_server.getOverworld().getTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
             entry.getKey().typeMarker.readNbt(nbt);
             entry.getKey().typeMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));

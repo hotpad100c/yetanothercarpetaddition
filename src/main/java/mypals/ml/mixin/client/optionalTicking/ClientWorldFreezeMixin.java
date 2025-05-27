@@ -22,6 +22,7 @@ package mypals.ml.mixin.client.optionalTicking;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import mypals.ml.YetAnotherCarpetAdditionClient;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.client.world.ClientChunkManager;
 import net.minecraft.client.world.ClientWorld;
@@ -58,7 +59,7 @@ public abstract class ClientWorldFreezeMixin extends World {
             cancellable = true
     )
     private void blockTickBlockEntities(CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.stopTickingTime) {
+        if (YetAnotherCarpetAdditionRules.stopTickingTime || YetAnotherCarpetAdditionRules.stopTickingWeather || YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingWeather) {
             ci.cancel();
         }
     }
@@ -69,15 +70,16 @@ public abstract class ClientWorldFreezeMixin extends World {
             cancellable = true
     )
     private void blockTickEntities(Entity entity, CallbackInfo ci) {
-        if (!(entity instanceof PlayerEntity) && YetAnotherCarpetAdditionRules.stopTickingEntities) {
+        if (!(entity instanceof PlayerEntity) && (YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingEntities)) {
             ci.cancel();
+
         }
     }
 
     @WrapOperation(method = "tickEntities",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;tickBlockEntities()V"))
     private void blockTickClientChunkManager(ClientWorld instance, Operation<Void> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingBlockEntities) {
+        if (!YetAnotherCarpetAdditionRules.stopTickingBlockEntities || !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingBlockEntities) {
             original.call(instance);
         }
     }
@@ -85,7 +87,7 @@ public abstract class ClientWorldFreezeMixin extends World {
     @WrapOperation(method = "tick",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientChunkManager;tick(Ljava/util/function/BooleanSupplier;Z)V"))
     private void blockTickClientChunkManager(ClientChunkManager instance, BooleanSupplier shouldKeepTicking, boolean tickChunks, Operation<Void> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingChunkManager) {
+        if (!YetAnotherCarpetAdditionRules.stopTickingChunkManager || YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingChunkManager) {
             original.call(instance, shouldKeepTicking, false);
         }
 

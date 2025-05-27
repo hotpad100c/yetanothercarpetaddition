@@ -29,6 +29,7 @@ import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
 import mypals.ml.features.GridWorldGen.GridWorldGenerator;
 import mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager;
+import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.features.tickStepCounter.StepManager;
 import mypals.ml.features.visualizingFeatures.BlockEventVisualizing;
 import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
@@ -36,6 +37,7 @@ import mypals.ml.features.visualizingFeatures.GameEventVisualizing;
 import mypals.ml.features.visualizingFeatures.RandomTickVisualizing;
 import mypals.ml.features.visualizingFeatures.*;
 import mypals.ml.features.waypoint.WaypointManager;
+import mypals.ml.network.OptionalFreezePayload;
 import mypals.ml.network.RuleData;
 import mypals.ml.network.client.RequestCountersPayload;
 import mypals.ml.network.client.RequestRulesPayload;
@@ -43,6 +45,8 @@ import mypals.ml.network.server.CountersPacketPayload;
 import mypals.ml.network.server.RulesPacketPayload;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.translations.YetAnotherCarpetAdditionTranslations;
+import mypals.ml.utils.POIManage;
+import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -55,12 +59,25 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.CommandRegistryAccess;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
+import net.minecraft.entity.mob.ShulkerEntity;
+import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.entity.vehicle.MinecartEntity;
+import net.minecraft.network.message.MessageChain;
+import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.World;
+import net.minecraft.world.WorldEvents;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.chunk.light.LightingProvider;
+import net.minecraft.world.poi.PointOfInterestType;
+import net.minecraft.world.poi.PointOfInterestTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
@@ -79,7 +96,7 @@ import static mypals.ml.translations.YACALanguageUtil.getTranslation;
 public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExtension {
     public static final String MOD_NAME = "YetAnotherCarpetAddition";
     public static final String MOD_ID = MOD_NAME.toLowerCase();
-
+    public static SelectiveFreezeManager selectiveFreezeManager = new SelectiveFreezeManager();
     private static final List<AbstractVisualizingManager> allVisualizers = new ArrayList<>();
     public static GameEventVisualizing gameEventVisualizing = new GameEventVisualizing();
     public static HopperCooldownVisualizing hopperCooldownVisualizing = new HopperCooldownVisualizing();
@@ -87,6 +104,8 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static RandomTickVisualizing randomTickVisualizing = new RandomTickVisualizing();
     public static ScheduledTickVisualizing scheduledTickVisualizing = new ScheduledTickVisualizing();
     public static BlockUpdateVisualizing blockUpdateVisualizing = new BlockUpdateVisualizing();
+    public static BlockEntityOrderVisualizing blockEntityOrderVisualizing = new BlockEntityOrderVisualizing();
+    public static POIVisualizing poiVisualizing = new POIVisualizing();
     public static final String MOD_VERSION = "V1.0.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -99,6 +118,8 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         allVisualizers.add(blockEventVisualizing);
         allVisualizers.add(scheduledTickVisualizing);
         allVisualizers.add(blockUpdateVisualizing);
+        allVisualizers.add(blockEntityOrderVisualizing);
+        allVisualizers.add(poiVisualizing);
     }
 
     @Override
@@ -141,6 +162,25 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
             }
         });
         ServerTickEvents.END_WORLD_TICK.register((world) -> {
+
+            if (YetAnotherCarpetAdditionRules.POIVisualize) {
+                world.getServer().getPlayerManager().players.forEach(
+                        player -> {
+                            POIManage.getPOIsWithinRange(player, world,
+                                            POIVisualizing.RANGE)
+                                    .forEach(poi -> {
+                                        PointOfInterestType type = poi.getType().value();
+                                        Vec3d pos = poi.getPos().toCenterPos();
+                                        YetAnotherCarpetAdditionServer.poiVisualizing.setVisualizer(
+                                                player.getServerWorld(),
+                                                poi.getPos(),
+                                                pos,
+                                                poi
+                                        );
+                                    });
+                        });
+            }
+
             if (!Objects.equals(YetAnotherCarpetAdditionRules.hopperCounterDataRecorder, "off")
                     && isInteger(YetAnotherCarpetAdditionRules.hopperCounterDataRecorder)
                     && CarpetSettings.hopperCounters)
@@ -149,6 +189,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
             allVisualizers.forEach(visualizer -> visualizer.updateVisualizer());
         });
         //#if MC >= 12006
+        PayloadTypeRegistry.playS2C().register(OptionalFreezePayload.ID, OptionalFreezePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(RequestCountersPayload.ID, RequestCountersPayload.CODEC);

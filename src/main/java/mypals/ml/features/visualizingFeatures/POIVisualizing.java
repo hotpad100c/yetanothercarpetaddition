@@ -25,18 +25,20 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+//#if MC >= 12105
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtString;
+//#endif
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
-//#if MC >= 12105
-//$$ import net.minecraft.nbt.NbtElement;
-//$$ import net.minecraft.nbt.NbtString;
-//#endif
+import net.minecraft.world.poi.PointOfInterest;
+import net.minecraft.world.poi.PointOfInterestType;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockPos, DisplayEntity.TextDisplayEntity> {
+public class POIVisualizing extends AbstractVisualizingManager<BlockPos, DisplayEntity.TextDisplayEntity> {
     private static final Map<BlockPos, DisplayEntity.TextDisplayEntity> visualizers = new HashMap<>();
 
     @Override
@@ -48,25 +50,51 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
     protected void updateVisualizerEntity(DisplayEntity.TextDisplayEntity entity, Object data) {
         if (entity.isRemoved()) {
             entity.discard();
-            removeVisualizer(entity.getBlockPos());
+            visualizers.remove(entity.getBlockPos());
             return;
         }
-        if (data instanceof Integer cooldown) {
+        if (data instanceof PointOfInterest poi) {
             NbtCompound nbt = entity.writeNbt(new NbtCompound());
-            String color = cooldown == 0 ? "green" : "red";
             //#if MC < 12105
-            String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
+
+            String textJson = "{\"text\":\"" + "[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
+                    poi.getType().value().ticketCount() + "]"
+                    + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
             nbt.remove("text");
             nbt.putString("text", textJson);
             //#else
-            //$$ HashMap<String, NbtElement> textNbt = new HashMap<>();
-            //$$ textNbt.put("text", NbtString.of("[" + cooldown + "]"));
-            //$$ textNbt.put("color", NbtString.of(color));
-            //$$ NbtCompound textComponent = new NbtCompound(textNbt);
+            //$$HashMap<String, NbtElement> textNbt = new HashMap<>();
+            //$$textNbt.put("text", NbtString.of("[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
+            //$$        poi.getType().value().ticketCount() + "]"));
+            //$$textNbt.put("color", NbtString.of((poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white"))));
+            //$$NbtCompound textComponent = new NbtCompound(textNbt);
             //$$ nbt.put("text", textComponent);
             //#endif
             entity.readNbt(nbt);
         }
+    }
+
+    @Override
+    protected DisplayEntity.TextDisplayEntity createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
+        if (data instanceof PointOfInterest poi) {
+            DisplayEntity.TextDisplayEntity entity = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
+            entity.setInvisible(true);
+            entity.setNoGravity(true);
+            entity.setInvulnerable(true);
+            entity.setPos(pos.getX(), pos.getY() + 0.1f, pos.getZ());
+            entity.addCommandTag(getVisualizerTag());
+            entity.addCommandTag("DoNotTick");
+            world.spawnEntity(entity);
+            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            nbt = configureCommonNbt(nbt);
+            String textJson = "{\"text\":\"" + "[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
+                    poi.getType().value().ticketCount() + "]"
+                    + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
+            nbt.putString("text", textJson);
+            entity.readNbt(nbt);
+            return entity;
+        }
+        return null;
     }
 
     public static int RANGE = 50;
@@ -82,28 +110,6 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
 
         if (!playersNearBy) return;
         super.setVisualizer((ServerWorld) world, key, pos, data);
-    }
-
-    @Override
-    protected DisplayEntity.TextDisplayEntity createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
-        if (data instanceof Integer cooldown) {
-            DisplayEntity.TextDisplayEntity entity = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
-            entity.setInvisible(true);
-            entity.setNoGravity(true);
-            entity.setInvulnerable(true);
-            entity.setPos(pos.getX(), pos.getY(), pos.getZ());
-            entity.addCommandTag(getVisualizerTag());
-            entity.addCommandTag("DoNotTick");
-            world.spawnEntity(entity);
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
-            String color = cooldown == 0 ? "green" : "red";
-            nbt = configureCommonNbt(nbt);
-            String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
-            nbt.putString("text", textJson);
-            entity.readNbt(nbt);
-            return entity;
-        }
-        return null;
     }
 
     @Override
@@ -127,7 +133,7 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
 
     @Override
     protected String getVisualizerTag() {
-        return "hopperCooldownVisualizer";
+        return "POIVisualizer";
     }
 
 

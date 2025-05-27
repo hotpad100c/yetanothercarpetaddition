@@ -30,13 +30,16 @@ import net.minecraft.util.DyeColor;
 import net.minecraft.util.WorldSavePath;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HopperCounterDataManager {
     private static Map<String, HopperCounter> allCounters = new HashMap<>();
     private static CounterLogger counterLogger;
     private static int tickCounter = 0;
+    private static final int MAX_ROWS = 100;
 
     public static void initCounterManager() throws IOException {
         allCounters.clear();
@@ -64,18 +67,18 @@ public class HopperCounterDataManager {
             ServerWorld overworld = CarpetServer.minecraft_server.getOverworld();
             Path worldSavePath = overworld.getServer().getSavePath(WorldSavePath.ROOT).normalize();
             Path countersDir = worldSavePath.resolve("counters");
-            String csvFilePath = countersDir.resolve("counters.csv").toString();
+            Path csvFilePath = countersDir.resolve("counters.csv");
 
             try {
-
+                Files.createDirectories(countersDir);
                 if (counterLogger == null) {
-                    counterLogger = new CounterLogger(csvFilePath, allCounters.keySet().stream().toList());
+                    counterLogger = new CounterLogger(csvFilePath.toString(), allCounters.keySet().stream().toList());
                 }
+                trimCsvIfNeeded(csvFilePath);
 
                 Map<String, String> counters = new HashMap<>();
                 allCounters.forEach((name, counter) -> {
                     if (counter != null) {
-
                         String counterValue = counter.getTotalItems() + "^^^";
                         for (Text text : counter.format(CarpetServer.minecraft_server, false, false)) {
                             counterValue += text.getString() + "@@";
@@ -83,12 +86,30 @@ public class HopperCounterDataManager {
                         counters.put(name, counterValue);
                     }
                 });
-
                 counterLogger.logCounters(counters);
                 YetAnotherCarpetAdditionServer.LOGGER.info("Logged counters to {}", csvFilePath);
             } catch (IOException e) {
                 YetAnotherCarpetAdditionServer.LOGGER.error("Failed to log counters", e);
             }
         }
+    }
+
+    private static void trimCsvIfNeeded(Path csvFilePath) throws IOException {
+        if (!Files.exists(csvFilePath)) {
+            return;
+        }
+
+
+        List<String> lines = Files.readAllLines(csvFilePath);
+        if (lines.size() <= MAX_ROWS + 1) {// +1 -> 表头
+            return;
+        }
+
+        List<String> newLines = lines.subList(0, 1);
+        newLines.addAll(lines.subList(lines.size() - MAX_ROWS + 1, lines.size()));
+
+        Files.write(csvFilePath, newLines.stream()
+                .collect(Collectors.joining(System.lineSeparator()))
+                .getBytes());
     }
 }

@@ -20,24 +20,58 @@
 
 package mypals.ml.Screen.CountersViewer;
 
+import carpet.helpers.HopperCounter;
+import mypals.ml.Screen.RulesEditScreen.CategoryEntry;
+import mypals.ml.Screen.RulesEditScreen.RuleWidget;
+import mypals.ml.YetAnotherCarpetAdditionClient;
+import mypals.ml.YetAnotherCarpetAdditionServer;
+import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.render.PieChartRenderer;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.block.entity.VaultBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CyclingButtonWidget;
+import net.minecraft.client.gui.widget.ScrollableWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.client.render.GameRenderer;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.item.Item;
+import net.minecraft.item.Items;
+import net.minecraft.registry.Registries;
+import net.minecraft.screen.ScreenTexts;
+import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextColor;
 import net.minecraft.util.DyeColor;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector3ic;
+import org.joml.Vector4f;
 
 import java.awt.*;
+import java.time.Instant;
 import java.time.format.DateTimeParseException;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static mypals.ml.YetAnotherCarpetAdditionClient.*;
+import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
 public class CounterViewerScreen extends Screen implements ParentElement {
     private final Map<String, Map<String, String>> data;
@@ -144,20 +178,49 @@ public class CounterViewerScreen extends Screen implements ParentElement {
             if (hovered(mouseX, mouseY, size, drawContext, color)) {
                 if (alreadyShowingTooltip) return alreadyShowingTooltip;
                 List<Text> tooltip = new ArrayList<>();
+                List<Map.Entry<Item, Integer>> items = new ArrayList<>();
                 tooltip.add(Text.literal(Text.translatable(viewMode.getKey()).getString() + ": " + data.split("\\^\\^\\^")[0]));
                 tooltip.add(Text.literal("Time: " + time.substring(11, 22)));
                 Arrays.stream(data.split("\\^\\^\\^")[1].split("@@")).forEach(s -> {
                     if (!s.isEmpty()) {
+
                         tooltip.add(Text.literal(s.split(" t")[0]));
                     }
                 });
+
                 drawContext.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltip, mouseX, mouseY);
+
+                //PieChartRenderer.drawPieChart(drawContext, 100, 100, Float.parseFloat(data.split("\\^\\^\\^")[0]), items);
+
                 return true;
             } else {
                 return alreadyShowingTooltip;
             }
         }
     }
+
+    /*private static String itemParseRegex = "-\\s*([^:]+):\\s*(\\d+),\\s*\\d+/h";
+    private static Pattern itemParsePattern = Pattern.compile(itemParseRegex);
+
+    private static Map.Entry<Item, Integer> parseItemLine(String input) {
+        Matcher matcher = itemParsePattern.matcher(input.trim());
+        if (matcher.matches()) {
+            String itemName = matcher.group(1).trim();
+            int quantity = Integer.parseInt(matcher.group(2));
+            return Map.entry(getItemFromString(itemName), quantity);
+        }
+        return Map.entry(Items.AIR, 0);
+    }
+
+    public static Item getItemFromString(String item) {
+        String itemId = item.toLowerCase(Locale.ROOT).replace(" ", "_");
+        if (!itemId.contains(":")) {
+            itemId = "minecraft:" + itemId;
+        }
+
+        Identifier blockId = Identifier.of(itemId);
+        return Registries.ITEM.get(blockId);
+    }*/
 
     public CounterViewerScreen(Map<String, Map<String, String>> data) {
         super(Text.literal("Hopper Counter Data Viwer"));
@@ -214,8 +277,7 @@ public class CounterViewerScreen extends Screen implements ParentElement {
                             /*Instant currInstant = Instant.parse(currTimestamp);
                             Instant prevInstant = Instant.parse(prevTimestamp);
                             double deltaTime = (currInstant.toEpochMilli() - prevInstant.toEpochMilli()) / 1000.0;
-                            value = deltaTime > 0 ? (currValue - prevValue) / deltaTime : 0;
-*/
+                            value = deltaTime > 0 ? (currValue - prevValue) / deltaTime : 0;*/
                             value = Math.max(0, currValue - prevValue);
                         } catch (NumberFormatException | DateTimeParseException e) {
                             value = 0;

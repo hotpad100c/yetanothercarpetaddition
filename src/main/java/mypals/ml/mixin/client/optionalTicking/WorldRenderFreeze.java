@@ -25,6 +25,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import mypals.ml.YetAnotherCarpetAdditionClient;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderTickCounter;
@@ -34,6 +35,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.BlockBreakingInfo;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.world.tick.TickManager;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
@@ -70,8 +72,11 @@ public abstract class WorldRenderFreeze {
     private void blockTickEntityRender(WorldRenderer instance, Entity entity,
                                        double cameraX, double cameraY, double cameraZ,
                                        float tickDelta, MatrixStack matrices,
-                                       VertexConsumerProvider vertexConsumers, Operation<Void> original) {
-        tickDelta = YetAnotherCarpetAdditionRules.stopTickingEntities? 1.0F : tickDelta;
+                                       VertexConsumerProvider vertexConsumers, Operation<Void> original,
+                                       @Local(argsOnly = true) RenderTickCounter renderTickCounter) {
+        tickDelta = (YetAnotherCarpetAdditionRules.stopTickingEntities
+                || YetAnotherCarpetAdditionClient.selectiveFreezeManager
+                .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;
         original.call(instance, entity, cameraX, cameraY, cameraZ, tickDelta, matrices, vertexConsumers);
     }
 
@@ -81,7 +86,12 @@ public abstract class WorldRenderFreeze {
                 !YetAnotherCarpetAdditionRules.stopTickingBlockEntities &&
                 !YetAnotherCarpetAdditionRules.stopTickingWeather &&
                 !YetAnotherCarpetAdditionRules.stopTickingBlocks &&
-                !YetAnotherCarpetAdditionRules.stopTickingFluids) {
+                !YetAnotherCarpetAdditionRules.stopTickingFluids &&
+                !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingBlockEntities &&
+                !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingWeather &&
+                !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingTileBlocks &&
+                !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingTileFluids &&
+                !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingTileTick) {
             ++this.ticks;
         }
 

@@ -20,6 +20,8 @@
 
 package mypals.ml.mixin.features.optionalTicking;
 
+import mypals.ml.YetAnotherCarpetAdditionServer;
+import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.server.world.ServerEntityManager;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,7 +37,7 @@ public class ServerChunkManagerMixin {
             cancellable = true
     )
     private void tickChunkManager(CallbackInfo ci) {
-        if(YetAnotherCarpetAdditionRules.stopTickingChunkManager) {
+        if (YetAnotherCarpetAdditionRules.stopTickingChunkManager || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingChunkManager) {
             ci.cancel();
         }
     }
