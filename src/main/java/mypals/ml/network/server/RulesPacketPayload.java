@@ -40,12 +40,15 @@ public record RulesPacketPayload(List<RuleData> rules, String defaults) implemen
     //$$ public static final Identifier ID = PacketIDs.SYNC_RULES_ID;
     //#endif
 
-    RulesPacketPayload(PacketByteBuf buf) {
-        this(buf.readList(RuleData.CODEC), buf.readString());
+    public RulesPacketPayload(PacketByteBuf buf) {
+        this(buf.readList(RuleData::new), buf.readString());
     }
 
+    //#if MC < 12006
+    //$$ @Override
+    //#endif
     public void write(PacketByteBuf buf) {
-        buf.writeCollection(this.rules(), RuleData.CODEC);
+        buf.writeCollection(this.rules(), ((buf1, value) -> value.write(buf1)));
         buf.writeString(this.defaults);
     }
 

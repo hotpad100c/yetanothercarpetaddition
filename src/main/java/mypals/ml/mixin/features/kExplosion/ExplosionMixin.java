@@ -54,7 +54,11 @@ public class ExplosionMixin implements ExplosionExtension {
 
         boolean bl = this.world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING);
         boolean bl2 = this.entity == null || !this.entity.isTouchingWater();
-        boolean bl3 = this.entity == null || this.entity.getType() != EntityType.BREEZE_WIND_CHARGE && this.entity.getType() != EntityType.WIND_CHARGE;
+        boolean bl3 = this.entity == null ||
+                //#if MC >= 12006
+                this.entity.getType() != EntityType.BREEZE_WIND_CHARGE &&
+                //#endif
+                this.entity.getType() != EntityType.WIND_CHARGE;
         if (bl) {
             return bl2 && bl3;
         } else {

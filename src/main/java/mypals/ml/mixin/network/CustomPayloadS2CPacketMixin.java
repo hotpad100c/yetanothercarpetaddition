@@ -18,11 +18,16 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.mixin.features.kExplosion;
+package mypals.ml.mixin.network;
 
+import me.fallenbreath.conditionalmixin.api.annotation.Condition;
+import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.utils.DummyClass;
+import mypals.ml.utils.ModIds;
 import org.spongepowered.asm.mixin.Mixin;
 
+@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<= 1.20.4"))
 @Mixin(DummyClass.class)
-public class BlockAttachedEntityMixin {
+public abstract class CustomPayloadS2CPacketMixin {
+    // impl in 1.20.4
 }

@@ -48,13 +48,17 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 //#if MC >= 12006
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 //#endif
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
 import org.slf4j.Logger;
@@ -64,6 +68,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+//#if MC < 12006
+//$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+//$$ import net.minecraft.network.PacketByteBuf;
+//#endif
 
 import static mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager.initCounterManager;
 import static mypals.ml.translations.YACALanguageUtil.getTranslation;
@@ -143,31 +151,61 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         //#if MC >= 12006
         PayloadTypeRegistry.playC2S().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);
-        //#endif
-        ServerPlayNetworking.registerGlobalReceiver(RequestRulesPayload.ID,
-                (payload, context) -> {
-                    context.server().execute(() -> {
-                        String lang = payload.lang();
-                        RulesPacketPayload requestRulesPayload = new RulesPacketPayload(getRules(context.player().getServerWorld(), lang), getDefaults());
-                        ServerPlayNetworking.send(context.player(), requestRulesPayload);
-                    });
-                });
-        //#if MC >= 12006
         PayloadTypeRegistry.playC2S().register(RequestCountersPayload.ID, RequestCountersPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(CountersPacketPayload.ID, CountersPacketPayload.CODEC);
         //#endif
+        ServerPlayNetworking.registerGlobalReceiver(RequestRulesPayload.ID,
+                //#if MC >= 12006
+                (payload, context) -> context.server().execute(() -> {
+                    String lang = payload.lang();
+                    ServerPlayerEntity player = context.player();
+                //#else
+                //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
+                //$$ String lang = buf.readString();
+                //#endif
+                    RulesPacketPayload rulesPacketPayload = new RulesPacketPayload(getRules(player.getServerWorld(), lang), getDefaults());
+                    //#if MC >= 12006
+                    ServerPlayNetworking.send(player, rulesPacketPayload);
+                    //#else
+                    //$$ PacketByteBuf data = PacketByteBufs.create();
+                    //$$ data.writeCollection(
+                    //$$         rulesPacketPayload.rules(),
+                    //$$         (rulesBuffer, rule) -> rule.write(rulesBuffer)
+                    //$$ );
+                    //$$ data.writeString(rulesPacketPayload.defaults());
+                    //$$ ServerPlayNetworking.send(player, RulesPacketPayload.ID, data);
+                    //#endif
+                })
+        );
         ServerPlayNetworking.registerGlobalReceiver(RequestCountersPayload.ID,
-                (payload, context) -> {
-                    context.server().execute(() -> {
-                        CountersPacketPayload requestRulesPayload = null;
-                        try {
-                            requestRulesPayload = new CountersPacketPayload(HopperCounterDataManager.getCounterLogger().readCounters());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        ServerPlayNetworking.send(context.player(), requestRulesPayload);
-                    });
-                });
+                //#if MC >= 12006
+                (payload, context) -> context.server().execute(() -> {
+                    ServerPlayerEntity player = context.player();
+                //#else
+                //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
+                //#endif
+                    CountersPacketPayload countersPacketPayload = null;
+                    try {
+                        countersPacketPayload = new CountersPacketPayload(HopperCounterDataManager.getCounterLogger().readCounters());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    //#if MC >= 12006
+                    ServerPlayNetworking.send(player, countersPacketPayload);
+                    //#else
+                    //$$ PacketByteBuf data = PacketByteBufs.create();
+                    //$$ data.writeMap(
+                    //$$         countersPacketPayload.currentRecords(),
+                    //$$         PacketByteBuf::writeString,
+                    //$$         (countersBuffer, counters) -> countersBuffer.writeMap(
+                    //$$                 counters,
+                    //$$                 PacketByteBuf::writeString,
+                    //$$                 PacketByteBuf::writeString
+                    //$$         )
+                    //$$ );
+                    //$$ ServerPlayNetworking.send(player, CountersPacketPayload.ID, data);
+                    //#endif
+                }));
     }
 
     private Path getConfigFile() {

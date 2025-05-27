@@ -60,7 +60,9 @@
     "features.visualizers.PostProcessStateBlockMixin",
     "features.visualizers.ScheduledTickAndEventsServerWorldMixin",
     "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
-    "features.visualizers.WorldUpdateComparatorsMixin"
+    "features.visualizers.WorldUpdateComparatorsMixin",
+    "network.CustomPayloadC2SPacketMixin",
+    "network.CustomPayloadS2CPacketMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -37,10 +37,13 @@ public record RequestCountersPayload(String temp) implements CustomPayload {
     //$$ public static final Identifier ID = PacketIDs.REQUEST_COUNTERS_DATA_ID;
     //#endif
 
-    RequestCountersPayload(PacketByteBuf buf) {
+    public RequestCountersPayload(PacketByteBuf buf) {
         this(buf.readString());
     }
 
+    //#if MC < 12006
+    //$$ @Override
+    //#endif
     public void write(PacketByteBuf buf) {
         buf.writeString("hi");
     }

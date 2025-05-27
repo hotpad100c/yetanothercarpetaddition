@@ -35,6 +35,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
+//#if MC < 12006
+//$$ import net.minecraft.registry.RegistryKey;
+//#endif
 
 import static mypals.ml.features.moreCommandOperations.WorldEventMapper.WORLD_EVENT_MAP;
 
@@ -50,15 +53,23 @@ public class ExtraVaniallaCommandFeatureManager {
         RegistryEntry<GameEvent> event = Registries.GAME_EVENT.getEntry(
                 //#if MC >= 12101
                 Identifier.of("minecraft:" + reason)
-                //#else
+                //#elseif MC >= 12006
                 //$$ new Identifier("minecraft", reason)
+                //#else
+                //$$ RegistryKey.of(Registries.GAME_EVENT.getKey(), new Identifier("minecraft", reason))
                 //#endif
         ).orElse(null);
         if (event == null) {
             source.sendError(Text.literal("Unknown GameEvent: " + reason));
             return 0;
         }
-        source.getWorld().emitGameEvent(event, pos, new GameEvent.Emitter(entity, blockState));
+        source.getWorld().emitGameEvent(
+                //#if MC >= 12006
+                event,
+                //#else
+                //$$ event.value(),
+                //#endif
+                pos, new GameEvent.Emitter(entity, blockState));
         source.sendFeedback(() -> Text.literal("GameEvent <" + reason + "> was emitted at [" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + "]" +
                 (entity == null ? " " : (" by entity <" + entity.getName() + ">")) + (blockState == null ? " " : (" with block [" +
                 Text.translatable(blockState.getBlock().getTranslationKey()).getString() + "]"))), true);

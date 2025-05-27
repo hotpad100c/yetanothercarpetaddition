@@ -37,10 +37,13 @@ public record  RequestRulesPayload(String lang) implements CustomPayload {
     //$$ public static final Identifier ID = PacketIDs.REQUEST_RULES_ID;
     //#endif
 
-     RequestRulesPayload(PacketByteBuf buf) {
+    public RequestRulesPayload(PacketByteBuf buf) {
         this(buf.readString());
     }
 
+    //#if MC < 12006
+    //$$ @Override
+    //#endif
     public void write(PacketByteBuf buf) {
          buf.writeString(this.lang);
     }

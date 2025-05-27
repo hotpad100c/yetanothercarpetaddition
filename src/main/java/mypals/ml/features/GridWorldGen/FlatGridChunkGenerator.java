@@ -20,7 +20,11 @@
 
 package mypals.ml.features.GridWorldGen;
 
+//#if MC >= 12006
 import com.mojang.serialization.MapCodec;
+//#else
+//$$ import com.mojang.serialization.Codec;
+//#endif
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -41,7 +45,19 @@ import java.util.concurrent.CompletableFuture;
 //#endif
 
 public class FlatGridChunkGenerator extends FlatChunkGenerator {
-    public static final MapCodec<FlatGridChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
+    public static final
+    //#if MC >= 12006
+    MapCodec<FlatGridChunkGenerator>
+    //#else
+    //$$ Codec<FlatGridChunkGenerator>
+    //#endif
+
+            CODEC = RecordCodecBuilder
+            //#if MC >= 12006
+            .mapCodec(
+            //#else
+            //$$ .create(
+            //#endif
             instance -> instance.group(
                     FlatChunkGeneratorConfig.CODEC.fieldOf("settings").forGetter(FlatChunkGenerator::getConfig)
             ).apply(instance, instance.stable(FlatGridChunkGenerator::new))
@@ -52,7 +68,13 @@ public class FlatGridChunkGenerator extends FlatChunkGenerator {
     }
 
     @Override
-    protected MapCodec<? extends ChunkGenerator> getCodec() {
+    protected
+    //#if MC >= 12006
+    MapCodec<? extends ChunkGenerator>
+    //#else
+    //$$ Codec<? extends ChunkGenerator>
+    //#endif
+    getCodec() {
         return CODEC;
     }
 

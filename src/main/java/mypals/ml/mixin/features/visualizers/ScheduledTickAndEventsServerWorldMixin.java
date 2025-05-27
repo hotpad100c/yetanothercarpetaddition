@@ -168,9 +168,19 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
             method = "emitGameEvent",
             at = @At("HEAD")
     )
-    private void ServerTickAddGameEventMarker(RegistryEntry<GameEvent> event, Vec3d emitterPos, GameEvent.Emitter emitter, CallbackInfo ci) {
+    private void ServerTickAddGameEventMarker(
+            //#if MC >= 12006
+            RegistryEntry<GameEvent> event,
+            //#else
+            //$$ GameEvent event,
+            //#endif
+            Vec3d emitterPos, GameEvent.Emitter emitter, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.gameEventVisualize) {
-            String type = event.getKey().get().getValue().toString();
+            String type = event
+                    //#if MC < 12006
+                    //$$ .getRegistryEntry()
+                    //#endif
+                    .getKey().get().getValue().toString();
             String emitterName = "";
             if (emitter.sourceEntity() != null) {
                 emitterName = Text.translatable(emitter.sourceEntity().getType().getTranslationKey()).getString();

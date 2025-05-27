@@ -21,7 +21,9 @@
 package mypals.ml.network;
 
 import net.minecraft.network.PacketByteBuf;
+//#if MC >= 12006
 import net.minecraft.network.codec.PacketCodec;
+//#endif
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,7 +49,9 @@ public class RuleData {
         this.categories = categories;
     }
 
+    //#if MC >= 12006
     public static final PacketCodec<PacketByteBuf, RuleData> CODEC = PacketCodec.of(RuleData::write, RuleData::new);
+    //#endif
 
     public void write(PacketByteBuf buf) {
         buf.writeString(this.name);
@@ -68,8 +72,8 @@ public class RuleData {
                     buf.writeString("Enum");
                 }*/
 
-        buf.writeString(this.value);
         buf.writeString(this.defaultValue);
+        buf.writeString(this.value);
         buf.writeString(this.description);
         AtomicReference<String> suggestions = new AtomicReference<String>();
         suggestions.set("");
@@ -94,18 +98,17 @@ public class RuleData {
 
     public RuleData(PacketByteBuf buf) {
         this(
-                buf.readString(),
-                getRuleType(buf.readString()),
-                buf.readString(),
-                buf.readString(),
-                buf.readString(),
-                Arrays.stream(buf.readString().split("\\|")).toList(),
-                Arrays.stream(buf.readString().split("~")).toList()
+                buf.readString(), // name
+                getRuleType(buf.readString()), // type
+                buf.readString(), // defaultValue
+                buf.readString(), // value
+                buf.readString(), //des
+                Arrays.stream(buf.readString().split("\\|")).toList(), //suggestions
+                Arrays.stream(buf.readString().split("~")).toList() //categories
         );
     }
     private static Class<?> getRuleType(String name) {
         return switch (name) {
-            case "String" -> String.class;
             case "Integer" -> Integer.class;
             case "Boolean" -> Boolean.class;
             case "Float" -> Float.class;

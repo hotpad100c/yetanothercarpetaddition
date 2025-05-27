@@ -407,7 +407,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
     @Override
     public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackgroundTexture(context, MENU_BACKGROUND_TEXTURE, 0, 0, 0.0F, 0.0F, width, height);
+        renderBackgroundTexture(context
+                //#if MC > 12004
+                , MENU_BACKGROUND_TEXTURE, 0, 0, 0.0F, 0.0F, width, height
+                //#endif
+        );
         GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
         if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
             super.renderBackground(context, mouseX, mouseY, delta);
@@ -423,7 +427,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                     //$$ blur.render(client.getFramebuffer(), gameRenderer.pool);
                     //#endif
             //$$ }
-            //#else
+            //#elseif MC > 12004
             gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
             gameRenderer.blurPostProcessor.render(delta);
             //#endif

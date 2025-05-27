@@ -88,7 +88,12 @@ public abstract class SnowLayerBlockMixin extends Block {
     }
 
     @Override
-    protected void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+    //#if MC >= 12006
+    protected
+    //#else
+    //$$ public
+    //#endif
+    void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
         if (YetAnotherCarpetAdditionRules.fallingSnowLayers
         ) {
             world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);

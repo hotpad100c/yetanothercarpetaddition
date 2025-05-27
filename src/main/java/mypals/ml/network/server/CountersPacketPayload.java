@@ -39,7 +39,7 @@ public record CountersPacketPayload(Map<String, Map<String, String>> currentReco
     //$$ public static final Identifier ID = PacketIDs.SYNC_COUNTERS_DATA_ID;
     //#endif
 
-    CountersPacketPayload(PacketByteBuf buf) {
+    public CountersPacketPayload(PacketByteBuf buf) {
         this(buf.readMap(
                         PacketByteBuf::readString, // Read timestamp
                         countersBuffer -> countersBuffer.readMap(
@@ -50,6 +50,9 @@ public record CountersPacketPayload(Map<String, Map<String, String>> currentReco
         );
     }
 
+    //#if MC < 12006
+    //$$ @Override
+    //#endif
     public void write(PacketByteBuf buf) {
         buf.writeMap(
                 this.currentRecords(), // Access currentRecords field

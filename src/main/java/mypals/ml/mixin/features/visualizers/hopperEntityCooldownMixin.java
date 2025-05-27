@@ -45,9 +45,21 @@ public class hopperEntityCooldownMixin {
     private static void ServerTickAddMarker(World world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, CallbackInfo ci) {
         if (world instanceof ServerWorld serverWorld && YetAnotherCarpetAdditionRules.hopperCooldownVisualize) {
             YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld, pos, pos.toCenterPos(), blockEntity.transferCooldown);
-            BlockEntity blockEntity1 = world.getBlockEntity(pos.offset(blockEntity.facing));
+            BlockEntity blockEntity1 = world.getBlockEntity(pos
+                    //#if MC >= 12006
+                    .offset(blockEntity.facing)
+                    //#endif
+            );
             if (blockEntity1 instanceof HopperBlockEntity hopperblockentity) {
-                YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld, pos.offset(blockEntity.facing), pos.offset(blockEntity.facing).toCenterPos(), hopperblockentity.transferCooldown);
+                YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld
+                        //#if MC >= 12006
+                        , pos.offset(blockEntity.facing)
+                        , pos.offset(blockEntity.facing)
+                        //#else
+                        //$$ , pos
+                        //$$ , pos
+                        //#endif
+                                .toCenterPos(), hopperblockentity.transferCooldown);
             }
         }
     }

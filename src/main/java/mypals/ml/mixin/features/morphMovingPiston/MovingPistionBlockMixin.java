@@ -39,6 +39,10 @@ import net.minecraft.world.WorldView;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+//#if MC >= 12004
+//$$ import net.minecraft.util.Hand;
+//#endif
+
 //#if MC >= 12102
 //$$ import org.spongepowered.asm.mixin.Unique;
 //#endif
@@ -65,16 +69,28 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     protected abstract PistonBlockEntity getPistonBlockEntity(BlockView world, BlockPos pos);
 
     @WrapMethod(method = "onUse")
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit, Operation<ActionResult> original) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player,
+                              //#if MC <= 12004
+                              //$$ Hand hand,
+                              //#endif
+                              BlockHitResult hit, Operation<ActionResult> original) {
         if (morphMovingPiston) {
             //#if MC < 12102
             PistonBlockEntity
             //#endif
                 pistonBlockEntity = this.getPistonBlockEntity(world, pos);
             return pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null ?
-                    pistonBlockEntity.getPushedBlock().getBlock().onUse(pistonBlockEntity.getPushedBlock(), world, pos, player, hit) : original.call(state, world, pos, player, hit);
+                    pistonBlockEntity.getPushedBlock().getBlock().onUse(pistonBlockEntity.getPushedBlock(), world, pos, player,
+                            //#if MC <= 12004
+                            //$$ hand,
+                            //#endif
+                            hit) : original.call(state, world, pos, player, hit);
         }
-        return original.call(state, world, pos, player, hit);
+        return original.call(state, world, pos, player,
+                //#if MC <= 12004
+                //$$ hand,
+                //#endif
+                hit);
     }
 
     @Override

@@ -133,8 +133,8 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
         entity.setPos(pos.getX() - (scale / 2), pos.getY() - (scale / 2), pos.getZ() - (scale / 2));
         entity.addCommandTag(getVisualizerTag());
         entity.addCommandTag("DoNotTick");
-        if (world instanceof ServerWorld serverWorld) {
-            addMarkerToTeam(serverWorld, "randomTickVisualizerTeam", entity);
+        if (!world.isClient()) {
+            addMarkerToTeam(world, "randomTickVisualizerTeam", entity);
         }
         world.spawnEntity(entity);
         return entity;

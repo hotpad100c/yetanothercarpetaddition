@@ -38,6 +38,10 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
+//#if MC < 12006
+//$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+//$$ import net.minecraft.network.PacketByteBuf;
+//#endif
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -68,42 +72,57 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                         //$$ , false
                         //#endif
                 );
-                ClientPlayNetworking.send(new RequestRulesPayload(MinecraftClient.getInstance().getLanguageManager().getLanguage()));
+                String lang = client.getLanguageManager().getLanguage();
+                //#if MC >= 12006
+                ClientPlayNetworking.send(new RequestRulesPayload(lang));
+                //#else
+                //$$ PacketByteBuf buf = PacketByteBufs.create();
+                //$$ ClientPlayNetworking.send(RequestRulesPayload.ID, buf.writeString(lang));
+                //#endif
                 requesting = true;
             }
         });
-        ClientPlayNetworking.registerGlobalReceiver(RulesPacketPayload.ID, (payload, context) -> {
-            context.client().execute(() -> {
-                chachedRules.clear();
-                chachedRules.addAll(payload.rules());
+        ClientPlayNetworking.registerGlobalReceiver(RulesPacketPayload.ID,
+                //#if MC >= 12006
+                (payload, context) -> context.client().execute(() -> {
+                    MinecraftClient client = context.client();
+                //#else
+                //$$ (client, player, buf, packetSender) -> client.execute(() -> {
+                //$$     RulesPacketPayload payload = new RulesPacketPayload(buf);
+                //#endif
+                    chachedRules.clear();
+                    chachedRules.addAll(payload.rules());
 
-                chachedCategories.clear();
-                chachedCategories.add("favorite");
-                chachedCategories.add("default");
-                chachedCategories.addAll(chachedRules.stream()
-                        .flatMap(r -> r.categories.stream())
-                        .distinct().toList());
+                    chachedCategories.clear();
+                    chachedCategories.add("favorite");
+                    chachedCategories.add("default");
+                    chachedCategories.addAll(chachedRules.stream()
+                            .flatMap(r -> r.categories.stream())
+                            .distinct().toList());
+                    client.player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！")
+                            //#if MC >= 12102
+                            //$$ , false
+                            //#endif
+                    );
+                    requesting = false;
+                    defaultRules.clear();
+                    defaultRules.addAll(Arrays.stream(payload.defaults().split(";")).toList());
 
-                context.client().player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！")
-                        //#if MC >= 12102
-                        //$$ , false
-                        //#endif
-                );
-                requesting = false;
-                defaultRules.clear();
-                defaultRules.addAll(Arrays.stream(payload.defaults().split(";")).toList());
+                    favoriteRules.clear();
+                    favoriteRules.addAll(YACAConfigManager.readFavoriteRules());
 
-                favoriteRules.clear();
-                favoriteRules.addAll(YACAConfigManager.readFavoriteRules());
-
-                MinecraftClient.getInstance().setScreen(new RulesEditScreen(Text.of("Carpet Rules")));
-            });
-        });
+                    client.setScreen(new RulesEditScreen(Text.of("Carpet Rules")));
+                }));
+        ClientPlayNetworking.registerGlobalReceiver(CountersPacketPayload.ID,
+                //#if MC >= 12006
+                (payload, context) -> context.client().execute(() -> {
+                    MinecraftClient client = context.client();
+                //#else
+                //$$ (client, player, buf, packetSender) -> client.execute(() -> {
+                //$$   CountersPacketPayload payload = new CountersPacketPayload(buf);
+                //#endif
+                    client.setScreen(new CounterViewerScreen(payload.currentRecords()));
+                }));
         ClientCommandRegistrationCallback.EVENT.register(HopperCounterRequestCommand::registerCommand);
-        ClientPlayNetworking.registerGlobalReceiver(CountersPacketPayload.ID, (payload, context) -> {
-            context.client().execute(() -> {
-                MinecraftClient.getInstance().setScreen(new CounterViewerScreen(payload.currentRecords()));
-            });
-        });
     }
 }
