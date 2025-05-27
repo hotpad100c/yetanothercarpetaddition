@@ -92,7 +92,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
             }
             NbtCompound nbt = entry.getKey().writeNbt(new NbtCompound());
 
-            float scale = mapSize(SURVIVE_TIME - entry.getKey().age, SURVIVE_TIME, 0.9f);
+            float scale = mapSize((int) (time - CarpetServer.minecraft_server.getOverworld().getTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
             entry.getKey().readNbt(nbt);
             entry.getKey().setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
