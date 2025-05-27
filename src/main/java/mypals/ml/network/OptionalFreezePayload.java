@@ -21,27 +21,45 @@
 package mypals.ml.network;
 
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
+//#if MC >= 12006
+import net.minecraft.network.codec.PacketCodec;
+//#else
+import net.minecraft.util.Identifier;
+//#endif
 
 public record OptionalFreezePayload(String phase, boolean freeze) implements CustomPayload {
+    //#if MC >= 12006
     public static final CustomPayload.Id<OptionalFreezePayload> ID = new Id<>(PacketIDs.FREEZE_PACKET_ID);
     public static final PacketCodec<PacketByteBuf, OptionalFreezePayload> CODEC = PacketCodec.of(
             OptionalFreezePayload::write,
             OptionalFreezePayload::new
     );
+    //#else
+    //$$ public static final Identifier ID = PacketIDs.FREEZE_PACKET_ID;
+    //#endif
 
     public OptionalFreezePayload(PacketByteBuf buf) {
         this(buf.readString(), buf.readBoolean());
     }
 
+    //#if MC < 12006
+    //$$ @Override
+    //#endif
     public void write(PacketByteBuf buf) {
         buf.writeString(phase);
         buf.writeBoolean(freeze);
     }
 
+    //#if MC >= 12006
     @Override
-    public CustomPayload.Id<? extends CustomPayload> getId() {
+    public Id<? extends CustomPayload> getId() {
         return ID;
     }
+    //#else
+    //$$ @Override
+    //$$ public Identifier id() {
+    //$$     return ID;
+    //$$ }
+    //#endif
 }

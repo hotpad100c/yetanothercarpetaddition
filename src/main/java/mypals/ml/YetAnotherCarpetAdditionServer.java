@@ -46,7 +46,6 @@ import mypals.ml.network.server.RulesPacketPayload;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.translations.YetAnotherCarpetAdditionTranslations;
 import mypals.ml.utils.POIManage;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -57,13 +56,6 @@ import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 //#endif
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.s2c.common.CustomPayloadS2CPacket;
-import net.minecraft.entity.mob.ShulkerEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
-import net.minecraft.entity.vehicle.MinecartEntity;
-import net.minecraft.network.message.MessageChain;
-import net.minecraft.registry.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
@@ -71,13 +63,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.chunk.light.LightingProvider;
 import net.minecraft.world.poi.PointOfInterestType;
-import net.minecraft.world.poi.PointOfInterestTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
@@ -186,7 +172,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                     && CarpetSettings.hopperCounters)
                 HopperCounterDataManager.tick();
 
-            allVisualizers.forEach(visualizer -> visualizer.updateVisualizer());
+            allVisualizers.forEach(AbstractVisualizingManager::updateVisualizer);
         });
         //#if MC >= 12006
         PayloadTypeRegistry.playS2C().register(OptionalFreezePayload.ID, OptionalFreezePayload.CODEC);

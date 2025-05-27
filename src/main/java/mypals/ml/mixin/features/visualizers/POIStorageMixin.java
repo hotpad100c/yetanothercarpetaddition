@@ -20,23 +20,10 @@
 
 package mypals.ml.mixin.features.visualizers;
 
-import com.mojang.serialization.Codec;
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.BlockState;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.network.DebugInfoSender;
-import net.minecraft.server.world.ChunkErrorHandler;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.HeightLimitView;
-import net.minecraft.world.poi.PointOfInterestSet;
-import net.minecraft.world.poi.PointOfInterestStorage;
-import net.minecraft.world.poi.PointOfInterestType;
-import net.minecraft.world.storage.ChunkPosKeyedStorage;
-import net.minecraft.world.storage.SerializingRegionBasedStorage;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

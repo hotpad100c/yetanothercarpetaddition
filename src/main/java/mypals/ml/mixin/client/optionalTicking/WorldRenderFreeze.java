@@ -72,8 +72,7 @@ public abstract class WorldRenderFreeze {
     private void blockTickEntityRender(WorldRenderer instance, Entity entity,
                                        double cameraX, double cameraY, double cameraZ,
                                        float tickDelta, MatrixStack matrices,
-                                       VertexConsumerProvider vertexConsumers, Operation<Void> original,
-                                       @Local(argsOnly = true) RenderTickCounter renderTickCounter) {
+                                       VertexConsumerProvider vertexConsumers, Operation<Void> original) {
         tickDelta = (YetAnotherCarpetAdditionRules.stopTickingEntities
                 || YetAnotherCarpetAdditionClient.selectiveFreezeManager
                 .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;

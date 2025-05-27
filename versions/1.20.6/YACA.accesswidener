@@ -22,5 +22,9 @@ accessible field net/minecraft/command/EntityDataObject entity Lnet/minecraft/en
 accessible field net/minecraft/command/StorageDataObject id Lnet/minecraft/util/Identifier;
 accessible field net/minecraft/world/GameRules rules Ljava/util/Map;
 accessible class net/minecraft/world/gen/WorldPresets$Registrar
+accessible method net/minecraft/world/storage/SerializingRegionBasedStorage get (J)Ljava/util/Optional;
+accessible field net/minecraft/world/poi/PointOfInterestSet pointsOfInterestByType Ljava/util/Map;
+accessible field net/minecraft/world/tick/ChunkTickScheduler tickQueue Ljava/util/Queue;
+accessible field net/minecraft/world/tick/ChunkTickScheduler queuedTicks Ljava/util/Set;
 accessible method net/minecraft/server/command/GameRuleCommand executeQuery (Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/world/GameRules$Key;)I
 accessible method net/minecraft/server/command/GameRuleCommand executeSet (Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/world/GameRules$Key;)I

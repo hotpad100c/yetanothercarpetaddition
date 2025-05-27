@@ -63,9 +63,7 @@
     "features.visualizers.ScheduledTickAndEventsServerWorldMixin",
     "features.visualizers.TickBlockEntitiesRecordOrderMixin",
     "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
-    "features.visualizers.WorldUpdateComparatorsMixin",
-    "network.CustomPayloadC2SPacketMixin",
-    "network.CustomPayloadS2CPacketMixin"
+    "features.visualizers.WorldUpdateComparatorsMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -22,7 +22,6 @@ package mypals.ml.mixin.features.optionalTicking;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -46,7 +45,10 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-import org.spongepowered.asm.mixin.injection.At;
+//#if MC < 12006
+//$$ import net.minecraft.network.PacketByteBuf;
+//$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+//#endif
 
 import java.util.Arrays;
 
@@ -307,7 +309,19 @@ public abstract class TickCommandMixin {
             default:
                 throw new IllegalArgumentException("Unknown phase: " + phase);
         }
-        source.getServer().getPlayerManager().players.forEach(p -> ServerPlayNetworking.send(p, new OptionalFreezePayload(phase, freeze)));
+        source.getServer().getPlayerManager().players.forEach(
+                //#if MC >= 12006
+                p -> ServerPlayNetworking.send(p, new OptionalFreezePayload(phase, freeze))
+                //#else
+                //$$ p -> {
+                //$$     PacketByteBuf buf = PacketByteBufs.create();
+                //$$     buf.writeString(phase);
+                //$$     buf.writeBoolean(freeze);
+                //$$     ServerPlayNetworking.send(p, OptionalFreezePayload.ID, buf);
+                //$$ }
+                //#endif
+
+        );
 
         source.sendFeedback(() ->
                 Text.translatable(freeze ? "Froze"
