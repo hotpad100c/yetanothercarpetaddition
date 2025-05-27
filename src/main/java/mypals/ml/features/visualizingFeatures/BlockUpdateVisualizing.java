@@ -44,6 +44,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static mypals.ml.features.visualizingFeatures.EntityHelper.clearWorldVisualizers;
 import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
 
 public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos, BlockUpdateVisualizing.BlockUpdateObject> {
@@ -159,7 +160,11 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
     @Override
     public void clearVisualizers(MinecraftServer server) {
-        //EntityHelper.clearVisualizersInServer(server, getVisualizerTag());
+            for (ServerWorld world : server.getWorlds()) {
+                clearWorldVisualizers(world, "NCVisualizer");
+                clearWorldVisualizers(world, "PPVisualizer");
+                clearWorldVisualizers(world, "CPVisualizer");
+            }
     }
 
     @Override
