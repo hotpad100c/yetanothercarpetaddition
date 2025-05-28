@@ -186,7 +186,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
                 visualizers.remove(pos);
             }
             NbtCompound nbt = object.posMarker.writeNbt(new NbtCompound());
-            float scale = mapSize(SURVIVE_TIME - object.posMarker.age, SURVIVE_TIME, 0.9f);
+            float scale = mapSize((int)(deleteTick - CarpetServer.minecraft_server.getOverworld().getTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
             object.posMarker.readNbt(nbt);
             object.posMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
