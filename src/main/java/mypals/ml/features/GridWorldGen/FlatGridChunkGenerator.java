@@ -20,7 +20,11 @@
 
 package mypals.ml.features.GridWorldGen;
 
+//#if MC >= 12006
 import com.mojang.serialization.MapCodec;
+//#else
+//$$ import com.mojang.serialization.Codec;
+//#endif
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -36,9 +40,24 @@ import net.minecraft.world.gen.chunk.FlatChunkGeneratorConfig;
 import net.minecraft.world.gen.noise.NoiseConfig;
 
 import java.util.concurrent.CompletableFuture;
+//#if MC < 12101
+//$$ import java.util.concurrent.Executor;
+//#endif
 
 public class FlatGridChunkGenerator extends FlatChunkGenerator {
-    public static final MapCodec<FlatGridChunkGenerator> CODEC = RecordCodecBuilder.mapCodec(
+    public static final
+    //#if MC >= 12006
+    MapCodec<FlatGridChunkGenerator>
+    //#else
+    //$$ Codec<FlatGridChunkGenerator>
+    //#endif
+
+            CODEC = RecordCodecBuilder
+            //#if MC >= 12006
+            .mapCodec(
+            //#else
+            //$$ .create(
+            //#endif
             instance -> instance.group(
                     FlatChunkGeneratorConfig.CODEC.fieldOf("settings").forGetter(FlatChunkGenerator::getConfig)
             ).apply(instance, instance.stable(FlatGridChunkGenerator::new))
@@ -49,12 +68,22 @@ public class FlatGridChunkGenerator extends FlatChunkGenerator {
     }
 
     @Override
-    protected MapCodec<? extends ChunkGenerator> getCodec() {
+    protected
+    //#if MC >= 12006
+    MapCodec<? extends ChunkGenerator>
+    //#else
+    //$$ Codec<? extends ChunkGenerator>
+    //#endif
+    getCodec() {
         return CODEC;
     }
 
     @Override
-    public CompletableFuture<Chunk> populateNoise(Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
+    public CompletableFuture<Chunk> populateNoise(
+            //#if MC < 12101
+            //$$ Executor executor,
+            //#endif
+            Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
         ChunkPos chunkPos = chunk.getPos();
         boolean isBlack = (chunkPos.x + chunkPos.z) % 2 == 0;
         BlockState blockState = isBlack ? Blocks.BLACK_STAINED_GLASS.getDefaultState() : Blocks.WHITE_STAINED_GLASS.getDefaultState();

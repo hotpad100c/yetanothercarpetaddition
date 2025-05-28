@@ -27,7 +27,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.command.RideCommand;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -36,6 +35,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
+//#if MC < 12006
+//$$ import net.minecraft.registry.RegistryKey;
+//#endif
 
 import static mypals.ml.features.moreCommandOperations.WorldEventMapper.WORLD_EVENT_MAP;
 
@@ -48,12 +50,26 @@ public class ExtraVaniallaCommandFeatureManager {
     }
 
     public static int addGameEvent(ServerCommandSource source, Vec3d pos, String reason, @Nullable Entity entity, @Nullable BlockState blockState) {
-        RegistryEntry<GameEvent> event = Registries.GAME_EVENT.getEntry(Identifier.of("minecraft:" + reason)).orElse(null);
+        RegistryEntry<GameEvent> event = Registries.GAME_EVENT.getEntry(
+                //#if MC >= 12101
+                Identifier.of("minecraft:" + reason)
+                //#elseif MC >= 12006
+                //$$ new Identifier("minecraft", reason)
+                //#else
+                //$$ RegistryKey.of(Registries.GAME_EVENT.getKey(), new Identifier("minecraft", reason))
+                //#endif
+        ).orElse(null);
         if (event == null) {
             source.sendError(Text.literal("Unknown GameEvent: " + reason));
             return 0;
         }
-        source.getWorld().emitGameEvent(event, pos, new GameEvent.Emitter(entity, blockState));
+        source.getWorld().emitGameEvent(
+                //#if MC >= 12006
+                event,
+                //#else
+                //$$ event.value(),
+                //#endif
+                pos, new GameEvent.Emitter(entity, blockState));
         source.sendFeedback(() -> Text.literal("GameEvent <" + reason + "> was emitted at [" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + "]" +
                 (entity == null ? " " : (" by entity <" + entity.getName() + ">")) + (blockState == null ? " " : (" with block [" +
                 Text.translatable(blockState.getBlock().getTranslationKey()).getString() + "]"))), true);

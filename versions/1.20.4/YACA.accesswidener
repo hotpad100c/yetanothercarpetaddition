@@ -1,0 +1,26 @@
+accessWidener v1 named
+accessible method net/minecraft/server/world/ServerWorld tickFluid (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/fluid/Fluid;)V
+accessible method net/minecraft/server/world/ServerWorld tickBlock (Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V
+accessible field net/minecraft/world/World blockEntityTickers Ljava/util/List;
+accessible method net/minecraft/client/gui/widget/ScrollableWidget getScrollY ()D
+accessible method net/minecraft/client/gui/widget/ScrollableWidget setScrollY (D)V
+accessible method net/minecraft/block/AbstractBlock getStrongRedstonePower (Lnet/minecraft/block/BlockState;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)I
+accessible method net/minecraft/block/AbstractBlock getWeakRedstonePower (Lnet/minecraft/block/BlockState;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;)I
+accessible method net/minecraft/block/AbstractBlock onEntityCollision (Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;)V
+accessible method net/minecraft/entity/decoration/ArmorStandEntity setMarker (Z)V
+accessible field net/minecraft/block/entity/HopperBlockEntity transferCooldown I
+accessible field net/minecraft/world/tick/WorldTickScheduler chunkTickSchedulers Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
+accessible field net/minecraft/server/PlayerManager players Ljava/util/List;
+accessible method net/minecraft/entity/decoration/DisplayEntity$BlockDisplayEntity setBlockState (Lnet/minecraft/block/BlockState;)V
+accessible class net/minecraft/server/command/DataCommand$ModifyOperation
+accessible field net/minecraft/command/BlockDataObject pos Lnet/minecraft/util/math/BlockPos;
+accessible field net/minecraft/command/EntityDataObject entity Lnet/minecraft/entity/Entity;
+accessible field net/minecraft/command/StorageDataObject id Lnet/minecraft/util/Identifier;
+accessible field net/minecraft/world/GameRules rules Ljava/util/Map;
+accessible class net/minecraft/world/gen/WorldPresets$Registrar
+accessible method net/minecraft/world/storage/SerializingRegionBasedStorage get (J)Ljava/util/Optional;
+accessible field net/minecraft/world/poi/PointOfInterestSet pointsOfInterestByType Ljava/util/Map;
+accessible field net/minecraft/world/tick/ChunkTickScheduler tickQueue Ljava/util/Queue;
+accessible field net/minecraft/world/tick/ChunkTickScheduler queuedTicks Ljava/util/Set;
+accessible method net/minecraft/server/command/GameRuleCommand executeQuery (Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/world/GameRules$Key;)I
+accessible method net/minecraft/server/command/GameRuleCommand executeSet (Lcom/mojang/brigadier/context/CommandContext;Lnet/minecraft/world/GameRules$Key;)I

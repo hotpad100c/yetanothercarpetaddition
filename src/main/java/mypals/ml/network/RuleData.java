@@ -20,12 +20,11 @@
 
 package mypals.ml.network;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.PacketByteBuf;
+//#if MC >= 12006
 import net.minecraft.network.codec.PacketCodec;
+//#endif
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -50,11 +49,14 @@ public class RuleData {
         this.categories = categories;
     }
 
-    public static final PacketCodec<PacketByteBuf, RuleData> CODEC = PacketCodec.of(
-            (value, buf) -> {
-                buf.writeString(value.name);
+    //#if MC >= 12006
+    public static final PacketCodec<PacketByteBuf, RuleData> CODEC = PacketCodec.of(RuleData::write, RuleData::new);
+    //#endif
 
-                buf.writeString(value.type.toString());
+    public void write(PacketByteBuf buf) {
+        buf.writeString(this.name);
+
+        buf.writeString(this.type.toString());
                 /*if(value.type == String.class) {
                     buf.writeString("String");
                 }
@@ -70,56 +72,49 @@ public class RuleData {
                     buf.writeString("Enum");
                 }*/
 
-                buf.writeString(value.value);
-                buf.writeString(value.defaultValue);
-                buf.writeString(value.description);
-                AtomicReference<String> suggestions = new AtomicReference<String>();
-                suggestions.set("");
-                value.suggestions.forEach(
-                        suggestion -> {
-                            if (!Objects.equals(suggestion, "null"))
-                                suggestions.set(suggestions + suggestion.toString() + "|");
-                        }
-                );
-                buf.writeString(suggestions.toString());
-
-                AtomicReference<String> categories = new AtomicReference<>();
-                categories.set("");
-                value.categories.forEach(
-                        category -> {
-                            if (!Objects.equals(category, "null"))
-                                categories.set(categories + category.toString() + "~");
-                        }
-                );
-                buf.writeString(categories.toString());
-            },
-            buf -> {
-                String name = buf.readString();
-                Class<?> type = String.class;
-                switch (buf.readString()) {
-                    case "String" -> type = String.class;
-                    case "Integer" -> type = Integer.class;
-                    case "Boolean" -> type = Boolean.class;
-                    case "Float" -> type = Float.class;
-                    case "Enum" -> type = Enum.class;
+        buf.writeString(this.defaultValue);
+        buf.writeString(this.value);
+        buf.writeString(this.description);
+        AtomicReference<String> suggestions = new AtomicReference<String>();
+        suggestions.set("");
+        this.suggestions.forEach(
+                suggestion -> {
+                    if (!Objects.equals(suggestion, "null"))
+                        suggestions.set(suggestions + suggestion.toString() + "|");
                 }
-                String value = buf.readString();
-                String defaultValue = buf.readString();
-                String des = buf.readString();
-                List<String> suggestions = Arrays.stream(buf.readString().split("\\|")).toList();
-                List<String> categories = Arrays.stream(buf.readString().split("~")).toList();
+        );
+        buf.writeString(suggestions.toString());
 
-                return new RuleData(
-                        name,
-                        type,
-                        defaultValue,
-                        value,
-                        des,
-                        suggestions,
-                        categories
-                );
-            }
-    );
+        AtomicReference<String> categories = new AtomicReference<>();
+        categories.set("");
+        this.categories.forEach(
+                category -> {
+                    if (!Objects.equals(category, "null"))
+                        categories.set(categories + category.toString() + "~");
+                }
+        );
+        buf.writeString(categories.toString());
+    }
 
+    public RuleData(PacketByteBuf buf) {
+        this(
+                buf.readString(), // name
+                getRuleType(buf.readString()), // type
+                buf.readString(), // defaultValue
+                buf.readString(), // value
+                buf.readString(), //des
+                Arrays.stream(buf.readString().split("\\|")).toList(), //suggestions
+                Arrays.stream(buf.readString().split("~")).toList() //categories
+        );
+    }
+    private static Class<?> getRuleType(String name) {
+        return switch (name) {
+            case "Integer" -> Integer.class;
+            case "Boolean" -> Boolean.class;
+            case "Float" -> Float.class;
+            case "Enum" -> Enum.class;
+            default -> String.class;
+        };
+    }
 
 }

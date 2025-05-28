@@ -20,31 +20,47 @@
 
 package mypals.ml.network.server;
 
-import carpet.CarpetSettings;
 import mypals.ml.network.PacketIDs;
 import mypals.ml.network.RuleData;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
+//#if MC >= 12006
+import net.minecraft.network.codec.PacketCodec;
+//#else
+import net.minecraft.util.Identifier;
+//#endif
 
 import java.util.List;
 
 public record RulesPacketPayload(List<RuleData> rules, String defaults) implements CustomPayload {
+    //#if MC >= 12006
     public static final CustomPayload.Id<RulesPacketPayload> ID = new CustomPayload.Id<>(PacketIDs.SYNC_RULES_ID);
-    public static final PacketCodec<PacketByteBuf, RulesPacketPayload> CODEC = PacketCodec.of(
-            (value, buf) -> {
-                buf.writeCollection(value.rules(), RuleData.CODEC);
-                buf.writeString(value.defaults);
-            },
-            buf ->
-                    new RulesPacketPayload(
-                            buf.readList(RuleData.CODEC),
-                            buf.readString()
-                    )
-    );
+    public static final PacketCodec<PacketByteBuf, RulesPacketPayload> CODEC = PacketCodec.of(RulesPacketPayload::write, RulesPacketPayload::new);
+    //#else
+    //$$ public static final Identifier ID = PacketIDs.SYNC_RULES_ID;
+    //#endif
 
+    public RulesPacketPayload(PacketByteBuf buf) {
+        this(buf.readList(RuleData::new), buf.readString());
+    }
+
+    //#if MC < 12006
+    //$$ @Override
+    //#endif
+    public void write(PacketByteBuf buf) {
+        buf.writeCollection(this.rules(), ((buf1, value) -> value.write(buf1)));
+        buf.writeString(this.defaults);
+    }
+
+    //#if MC >= 12006
     @Override
     public CustomPayload.Id<? extends CustomPayload> getId() {
         return ID;
     }
+    //#else
+    //$$ @Override
+    //$$ public Identifier id() {
+    //$$     return ID;
+    //$$ }
+    //#endif
 }

@@ -22,20 +22,41 @@ package mypals.ml.network.client;
 
 import mypals.ml.network.PacketIDs;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
+//#if MC >= 12006
+import net.minecraft.network.codec.PacketCodec;
+//#else
+//$$ import net.minecraft.util.Identifier;
+//#endif
 
 public record RequestCountersPayload(String temp) implements CustomPayload {
+    //#if MC >= 12006
     public static final Id<RequestCountersPayload> ID = new Id<>(PacketIDs.REQUEST_COUNTERS_DATA_ID);
-    public static final PacketCodec<PacketByteBuf, RequestCountersPayload> CODEC = PacketCodec.of(
-            (value, buf) ->
-                    buf.writeString("hi")
-            , buf -> new RequestCountersPayload(
-                    buf.readString()
-            ));
+    public static final PacketCodec<PacketByteBuf, RequestCountersPayload> CODEC = PacketCodec.of(RequestCountersPayload::write, RequestCountersPayload::new);
+    //#else
+    //$$ public static final Identifier ID = PacketIDs.REQUEST_COUNTERS_DATA_ID;
+    //#endif
 
+    public RequestCountersPayload(PacketByteBuf buf) {
+        this(buf.readString());
+    }
+
+    //#if MC < 12006
+    //$$ @Override
+    //#endif
+    public void write(PacketByteBuf buf) {
+        buf.writeString("hi");
+    }
+
+    //#if MC >= 12006
     @Override
     public Id<? extends CustomPayload> getId() {
         return ID;
     }
+    //#else
+    //$$ @Override
+    //$$ public Identifier id() {
+    //$$     return ID;
+    //$$ }
+    //#endif
 }

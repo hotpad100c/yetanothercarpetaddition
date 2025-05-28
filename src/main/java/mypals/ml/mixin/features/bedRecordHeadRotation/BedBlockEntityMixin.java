@@ -66,13 +66,26 @@ public abstract class BedBlockEntityMixin extends BlockEntity {
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+    protected void writeNbt(NbtCompound nbt
+            //#if MC >= 12006
+            , RegistryWrapper.WrapperLookup registryLookup
+            //#endif
+    ) {
         nbt.putFloat("SleeperYaw", this.yaw);
         nbt.putFloat("SleeperPitch", this.pitch);
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
+    //#if MC >= 12006
+    protected
+    //#else
+    //$$ public
+    //#endif
+    void readNbt(NbtCompound nbt
+            //#if MC >= 12006
+            , RegistryWrapper.WrapperLookup registryLookup
+            //#endif
+    ) {
         this.yaw = nbt.getFloat(
                 "SleeperYaw"
                 //#if MC >= 12105

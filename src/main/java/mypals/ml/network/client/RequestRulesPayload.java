@@ -21,25 +21,42 @@
 package mypals.ml.network.client;
 
 import mypals.ml.network.PacketIDs;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.math.BlockPos;
-
-import java.util.UUID;
+//#if MC >= 12006
+import net.minecraft.network.codec.PacketCodec;
+//#else
+import net.minecraft.util.Identifier;
+//#endif
 
 public record  RequestRulesPayload(String lang) implements CustomPayload {
+    //#if MC >= 12006
     public static final Id<RequestRulesPayload> ID = new CustomPayload.Id<>(PacketIDs.REQUEST_RULES_ID);
-    public static final PacketCodec<PacketByteBuf, RequestRulesPayload> CODEC = PacketCodec.of(
-            (value, buf) ->
-                    buf.writeString(value.lang)
-            ,buf -> new RequestRulesPayload(
-                    buf.readString()
-            ));
+    public static final PacketCodec<PacketByteBuf, RequestRulesPayload> CODEC = PacketCodec.of(RequestRulesPayload::write, RequestRulesPayload::new);
+    //#else
+    //$$ public static final Identifier ID = PacketIDs.REQUEST_RULES_ID;
+    //#endif
 
+    public RequestRulesPayload(PacketByteBuf buf) {
+        this(buf.readString());
+    }
+
+    //#if MC < 12006
+    //$$ @Override
+    //#endif
+    public void write(PacketByteBuf buf) {
+         buf.writeString(this.lang);
+    }
+
+    //#if MC >= 12006
     @Override
     public Id<? extends CustomPayload> getId() {
         return ID;
     }
+    //#else
+    //$$ @Override
+    //$$ public Identifier id() {
+    //$$     return ID;
+    //$$ }
+    //#endif
 }
