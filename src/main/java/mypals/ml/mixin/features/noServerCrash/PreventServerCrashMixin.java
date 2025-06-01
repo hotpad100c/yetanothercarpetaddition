@@ -23,6 +23,8 @@ package mypals.ml.mixin.features.noServerCrash;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.ClickEvent;
+import mypals.ml.utils.adapter.HoverEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.world.ServerWorld;
@@ -34,6 +36,7 @@ import org.spongepowered.asm.mixin.Shadow;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
@@ -48,9 +51,14 @@ public abstract class PreventServerCrashMixin {
             try {
                 original.call();
             } catch (Exception e) {
+                StringBuilder sb = new StringBuilder();
                 e.printStackTrace();
+                Arrays.stream(e.getStackTrace()).forEach(stackTraceElement -> {
+                    sb.append(stackTraceElement.toString()).append("\n");
+                });
                 if (this != null && this.getPlayerManager() != null) {
-                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + e.getLocalizedMessage()).formatted(Formatting.RED), false);
+                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + e.getLocalizedMessage())
+                            .formatted(Formatting.RED).styled(s -> s.withClickEvent(ClickEvent.copyToClipboard(sb.toString())).withHoverEvent(HoverEvent.showText(Text.literal("Copy stack trace")))), false);
                 }
             }
         } else {
@@ -64,9 +72,14 @@ public abstract class PreventServerCrashMixin {
             try {
                 original.call(shouldKeepTicking);
             } catch (Exception e) {
+                StringBuilder sb = new StringBuilder();
                 e.printStackTrace();
+                Arrays.stream(e.getStackTrace()).forEach(stackTraceElement -> {
+                    sb.append(stackTraceElement.toString()).append("\n");
+                });
                 if (this != null && this.getPlayerManager() != null) {
-                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + e.getLocalizedMessage()).formatted(Formatting.RED), false);
+                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + e.getLocalizedMessage())
+                            .formatted(Formatting.RED).styled(s -> s.withClickEvent(ClickEvent.copyToClipboard(sb.toString())).withHoverEvent(HoverEvent.showText(Text.literal("Copy stack trace")))), false);
                 }
             }
         } else {

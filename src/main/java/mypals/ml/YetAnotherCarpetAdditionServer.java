@@ -25,11 +25,14 @@ import carpet.CarpetServer;
 import carpet.CarpetSettings;
 import carpet.api.settings.CarpetRule;
 import carpet.logging.LoggerRegistry;
+import carpet.patches.EntityPlayerMPFake;
 import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
 import mypals.ml.features.GridWorldGen.GridWorldGenerator;
+import mypals.ml.features.fakePlayerControl.FakePlayerControlManager;
 import mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager;
 import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
+import mypals.ml.features.subscribeRules.RuleSubscribeManager;
 import mypals.ml.features.tickStepCounter.StepManager;
 import mypals.ml.features.visualizingFeatures.BlockEventVisualizing;
 import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
@@ -51,6 +54,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 //#if MC >= 12006
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 //#endif
@@ -61,11 +65,13 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -138,7 +144,11 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         loadExtension();
         StepManager.reset();
         GridWorldGenerator.init();
-        ServerLifecycleEvents.SERVER_STARTED.register(WaypointManager::init);
+        ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
+            WaypointManager.init(server);
+            RuleSubscribeManager.init(server);
+
+        });
         ServerWorldEvents.LOAD.register((server, world) -> {
             serverWorld = world;
             try {
@@ -148,7 +158,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
             }
         });
         ServerTickEvents.END_WORLD_TICK.register((world) -> {
-
+            FakePlayerControlManager.tickBinds(world);
             if (YetAnotherCarpetAdditionRules.POIVisualize) {
                 world.getServer().getPlayerManager().players.forEach(
                         player -> {
@@ -186,10 +196,10 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                 (payload, context) -> context.server().execute(() -> {
                     String lang = payload.lang();
                     ServerPlayerEntity player = context.player();
-                //#else
-                //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
-                //$$ String lang = buf.readString();
-                //#endif
+                    //#else
+                    //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
+                    //$$ String lang = buf.readString();
+                    //#endif
                     RulesPacketPayload rulesPacketPayload = new RulesPacketPayload(getRules(player.getServerWorld(), lang), getDefaults());
                     //#if MC >= 12006
                     ServerPlayNetworking.send(player, rulesPacketPayload);
@@ -208,9 +218,9 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                 //#if MC >= 12006
                 (payload, context) -> context.server().execute(() -> {
                     ServerPlayerEntity player = context.player();
-                //#else
-                //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
-                //#endif
+                    //#else
+                    //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
+                    //#endif
                     CountersPacketPayload countersPacketPayload = null;
                     try {
                         countersPacketPayload = new CountersPacketPayload(HopperCounterDataManager.getCounterLogger().readCounters());
@@ -302,10 +312,14 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
 
     @Override
     public void onServerLoaded(MinecraftServer server) {
+        if (Objects.equals(CarpetSettings.commandPlayer, "false")) {
+            FakePlayerControlManager.binds.forEach((player, data) -> FakePlayerControlManager.unbindPlayer(player, data.getValue()));
+        }
     }
 
     @Override
     public void onServerClosed(MinecraftServer server) {
+        FakePlayerControlManager.binds.forEach((player, data) -> FakePlayerControlManager.unbindPlayer(player, data.getValue()));
         allVisualizers.forEach(visualizer -> visualizer.clearVisualizers(server));
     }
 

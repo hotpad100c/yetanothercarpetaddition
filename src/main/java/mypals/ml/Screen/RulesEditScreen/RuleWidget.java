@@ -42,6 +42,7 @@ import java.util.Objects;
 import static mypals.ml.YetAnotherCarpetAdditionClient.defaultRules;
 import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
+
 //#if MC >= 12102
 //$$ import static net.minecraft.client.render.RenderLayer.getGui;
 //#endif
@@ -119,7 +120,7 @@ public class RuleWidget {
                 this.playDownSound(MinecraftClient.getInstance().getSoundManager());
                 String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
                 MinecraftClient.getInstance().getNetworkHandler().sendCommand(("carpet " + commandName + " " + this.toggled));
-                ruleData.value = valueWidget.getText();
+                ruleData.value = this.toggled ? "true" : "false";
                 valueWidget.setText("");
             }
         };

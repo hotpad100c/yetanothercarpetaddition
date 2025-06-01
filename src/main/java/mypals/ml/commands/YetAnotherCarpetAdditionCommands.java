@@ -32,5 +32,7 @@ public class YetAnotherCarpetAdditionCommands {
         ExtraVaniallaCommandRegister.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
         ItemCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
         WayPointCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
+        SubscribeRuleCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
+        BindPlayerCommand.register(serverCommandSourceCommandDispatcher, commandRegistryAccess);
     }
 }

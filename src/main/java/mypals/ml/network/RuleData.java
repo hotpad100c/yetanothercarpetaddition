@@ -57,20 +57,6 @@ public class RuleData {
         buf.writeString(this.name);
 
         buf.writeString(this.type.toString());
-                /*if(value.type == String.class) {
-                    buf.writeString("String");
-                }
-                if(value.type == Integer.class) {
-                    buf.writeString("Integer");
-                }if(value.type == Boolean.class) {
-                    buf.writeString("Boolean");
-                }
-                if(value.type == Float.class) {
-                    buf.writeString("Float");
-                }
-                if(value.type == Enum.class) {
-                    buf.writeString("Enum");
-                }*/
 
         buf.writeString(this.defaultValue);
         buf.writeString(this.value);
@@ -107,6 +93,7 @@ public class RuleData {
                 Arrays.stream(buf.readString().split("~")).toList() //categories
         );
     }
+
     private static Class<?> getRuleType(String name) {
         return switch (name) {
             case "Integer" -> Integer.class;
