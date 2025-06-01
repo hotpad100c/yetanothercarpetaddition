@@ -319,7 +319,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
 
     @Override
     public void onServerClosed(MinecraftServer server) {
-        FakePlayerControlManager.binds.forEach((player, data) -> FakePlayerControlManager.unbindPlayer(player, data.getValue()));
+        //FakePlayerControlManager.binds.forEach((player, data) -> FakePlayerControlManager.unbindPlayer(player, data.getValue()));
         allVisualizers.forEach(visualizer -> visualizer.clearVisualizers(server));
     }
 
