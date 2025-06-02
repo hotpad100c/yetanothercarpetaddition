@@ -10,6 +10,8 @@
 
 ### /tick freeze <phase>      <- 暂停部分阶段，如 `entities` `block event` 
 
+### /bindToFake <player><fakeplayer>     <- beta阶段的功能，使玩家可以控制假人。执行后将假人绑定到玩家，并同步视线/位置/背包内容等信息；绑定后第二次对同样目标输入指令时自动解绑。
+
 ### `enableTickStepCounter` - 刻步进计数器
 
 * **说明**：在 `/tick freeze` 后启用计数器，用于计算步进了多少个游戏刻。
