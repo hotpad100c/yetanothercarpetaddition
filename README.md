@@ -12,6 +12,8 @@ performance optimizations, and game mechanic adjustments. Below is a full list o
 
 ### /tick freeze <phase>      <- freeze different phases, like `entities` `block event` 
 
+### /bindToFake <player> <fakeplayer>    <— Beta feature that allows a player to control a fakePlayer. When executed, it binds the fakePlayer to the player and synchronizes view direction, position, inventory contents, and other entity data. If the command is executed a second time on the same target, it will automatically unbind.
+
 ### `enableTickStepCounter` - Tick Step Counter
 
 * **Description**: Enables a tick counter when `/tick freeze` is active, allowing you to track how many game ticks have
