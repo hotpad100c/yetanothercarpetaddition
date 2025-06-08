@@ -120,5 +120,7 @@
   "carpet.rule.commandEnhance.desc": "Enhance command experience",
   "carpet.rule.bouncierSlime.name": "BouncierSlimeBlock",
   "carpet.rule.bouncierSlime.desc": "Slime block will bounce back entities from all sides",
-  "generator.yetanothercarpetaddition.grid": "Chessboard"
+  "generator.yetanothercarpetaddition.grid": "Chessboard",
+  "carpet.rule.logInfoToChat.name": "Log Info To Chat",
+  "carpet.rule.logInfoToChat.desc": "Display background logs in chat"
 }

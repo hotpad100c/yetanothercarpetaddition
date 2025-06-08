@@ -31,6 +31,7 @@ import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
 import mypals.ml.features.GridWorldGen.GridWorldGenerator;
 import mypals.ml.features.fakePlayerControl.FakePlayerControlManager;
 import mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager;
+import mypals.ml.features.log2Chat.LogAppender;
 import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.features.subscribeRules.RuleSubscribeManager;
 import mypals.ml.features.tickStepCounter.StepManager;
@@ -69,6 +70,11 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.poi.PointOfInterestType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,8 +145,23 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         }
     }
 
+    public void setUpLogger() {
+        org.apache.logging.log4j.Logger rootLogger = LogManager.getRootLogger();
+
+        LogAppender chatAppender = new LogAppender("ChatAppender",
+                null,
+                PatternLayout.createDefaultLayout(),
+                true,
+                Property.EMPTY_ARRAY);
+        chatAppender.start();
+        ((org.apache.logging.log4j.core.Logger) rootLogger).addAppender(chatAppender);
+
+    }
+
     @Override
     public void onInitialize() {
+
+        setUpLogger();
         loadExtension();
         StepManager.reset();
         GridWorldGenerator.init();
@@ -265,7 +286,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
             }
             return result;
         } catch (IOException e) {
-            CarpetSettings.LOG.error("Exception while loading Carpet rules from config", e);
+            //CarpetSettings.LOG.error("Exception while loading Carpet rules from config", e);
             return new ArrayList<>();
         }
     }
@@ -280,7 +301,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
 
     public List<RuleData> getRules(ServerWorld serverWorld, String lang) {
         List<RuleData> rules = new ArrayList<>();
-
+        
         CarpetServer.settingsManager.getCarpetRules().forEach(rule -> {
             if (rule instanceof CarpetRule<?>) {
                 rules.add(

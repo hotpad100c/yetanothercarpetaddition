@@ -120,5 +120,7 @@
   "carpet.rule.commandEnhance.desc": "提升指令的使用体验",
   "carpet.rule.bouncierSlime.name": "更弹的粘液块",
   "carpet.rule.bouncierSlime.desc": "粘液块的每一个面都会反弹实体",
-  "generator.yetanothercarpetaddition.grid": "棋盘"
+  "generator.yetanothercarpetaddition.grid": "棋盘",
+  "carpet.rule.logInfoToChat.name": "聊天栏日志监控",
+  "carpet.rule.logInfoToChat.desc": "在聊天栏中显示后台日志"
 }

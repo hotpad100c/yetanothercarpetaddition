@@ -263,5 +263,9 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean bouncierSlime = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean logInfoToChat = false;
 
 }
