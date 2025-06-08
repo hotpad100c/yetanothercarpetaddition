@@ -122,5 +122,9 @@
   "carpet.rule.bouncierSlime.desc": "粘液块的每一个面都会反弹实体",
   "generator.yetanothercarpetaddition.grid": "棋盘",
   "carpet.rule.logInfoToChat.name": "聊天栏日志监控",
-  "carpet.rule.logInfoToChat.desc": "在聊天栏中显示后台日志"
+  "carpet.rule.logInfoToChat.desc": "在聊天栏中显示后台日志",
+  "carpet.rule.copyBlockState.name": "方块状态复制",
+  "carpet.rule.copyBlockState.desc": "下蹲时ctrl+中建将复制方块状态。",
+  "carpet.rule.autoDust.name": "自动放置粉",
+  "carpet.rule.autoDust.desc": "开启后在玩家防止的方块的上方自动放置红石粉。"
 }

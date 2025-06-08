@@ -212,6 +212,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         PayloadTypeRegistry.playC2S().register(RequestCountersPayload.ID, RequestCountersPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(CountersPacketPayload.ID, CountersPacketPayload.CODEC);
         //#endif
+        
         ServerPlayNetworking.registerGlobalReceiver(RequestRulesPayload.ID,
                 //#if MC >= 12006
                 (payload, context) -> context.server().execute(() -> {
@@ -301,7 +302,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
 
     public List<RuleData> getRules(ServerWorld serverWorld, String lang) {
         List<RuleData> rules = new ArrayList<>();
-        
+
         CarpetServer.settingsManager.getCarpetRules().forEach(rule -> {
             if (rule instanceof CarpetRule<?>) {
                 rules.add(
