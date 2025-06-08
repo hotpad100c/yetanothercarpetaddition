@@ -74,20 +74,5 @@ public class LogAppender extends AbstractAppender {
                 );
             }
         }
-
-        /*if (CarpetServer.minecraft_server != null ) {
-            CarpetServer.minecraft_server.sendMessage(
-                    Text.literal(event.getThreadName() + " " + message)
-                            .styled(style -> style.withClickEvent(mypals.ml.utils.adapter.ClickEvent.copyToClipboard(
-                                    event.getContextStack().pop())).withHoverEvent(HoverEvent.showText(
-                                    Text.literal("Logger: " + event.getLoggerName() + "\n").formatted(Formatting.GOLD)
-                                            .append("Level: " + event.getLevel() + "\n")
-                                            .append("Marker: " + event.getMarker() + "\n")
-                                            .append("Thread: " + event.getThreadName() + "\n")
-                                            .append("Fqcn: " + event.getLoggerFqcn() + "\n")
-
-                            )))
-            );
-        }*/
     }
 }
