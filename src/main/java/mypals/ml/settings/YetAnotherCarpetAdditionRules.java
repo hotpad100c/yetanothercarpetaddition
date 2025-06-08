@@ -269,7 +269,7 @@ public class YetAnotherCarpetAdditionRules {
     public static boolean logInfoToChat = false;
 
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE, CLIENT}
     )
     public static boolean copyBlockState = false;
     @Rule(
