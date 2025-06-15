@@ -22,15 +22,9 @@ package mypals.ml.mixin.features.mobAIVisualize;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.MobAIVisualizer;
-import net.minecraft.client.font.MultilineText;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.GoalSelector;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.PlainTextContent;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,9 +32,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.selectors.TargetSelector;
-
-import java.util.Map;
 
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.mobAIVisualize;
 
@@ -53,10 +44,6 @@ public class MobAIMixin {
     @Shadow
     @Final
     protected GoalSelector targetSelector;
-
-    @Shadow
-    @Nullable
-    private LivingEntity target;
 
     @Inject(method = "tickNewAi", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/EntityNavigation;tick()V"))
     private void displayTargetAboveHead(CallbackInfo ci) {

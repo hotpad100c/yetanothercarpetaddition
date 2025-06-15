@@ -32,12 +32,13 @@ import net.minecraft.nbt.NbtCompound;
 //$$import net.minecraft.nbt.NbtList;
 //#endif
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.Vec3d;
-import org.spongepowered.asm.mixin.injection.selectors.TargetSelector;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static mypals.ml.features.visualizingFeatures.MobGoals.getGoalName;
 
 public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entry<MobAIVisualizer.MobAIData, DisplayEntity.TextDisplayEntity>> {
     private static final Map<Entity, Map.Entry<MobAIVisualizer.MobAIData, DisplayEntity.TextDisplayEntity>> visualizers = new HashMap<>();
@@ -132,10 +133,11 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
 
         data.goalSelector.getGoals().forEach(goal -> {
             if (goal.getGoal() != null) {
-                String goalName = goal.getGoal().getClass().getSimpleName();
+                String goalName = getGoalName(goal.getGoal().getClass());
+                String translatedName = Text.translatable("goal.minecraft." + goalName).getString();
                 String color = goal.isRunning() ? "gold" : "gray";
                 JsonObject goalPart = new JsonObject();
-                goalPart.addProperty("text", "- " + goalName + "\n");
+                goalPart.addProperty("text", "- " + translatedName + "\n");
                 goalPart.addProperty("color", color);
                 extra.add(goalPart);
             }
@@ -148,10 +150,11 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
 
         data.targetSelector.getGoals().forEach(goal -> {
             if (goal.getGoal() != null) {
-                String goalName = goal.getGoal().getClass().getSimpleName();
+                String goalName = getGoalName(goal.getGoal().getClass());
+                String translatedName = Text.translatable("goal.minecraft." + goalName).getString();
                 String color = goal.isRunning() ? "gold" : "gray";
                 JsonObject goalPart = new JsonObject();
-                goalPart.addProperty("text", "- " + goalName + "\n");
+                goalPart.addProperty("text", "- " + translatedName + "\n");
                 goalPart.addProperty("color", color);
                 extra.add(goalPart);
             }
