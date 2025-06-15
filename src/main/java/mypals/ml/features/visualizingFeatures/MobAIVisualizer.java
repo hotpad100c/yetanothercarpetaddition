@@ -28,6 +28,9 @@ import net.minecraft.entity.ai.goal.GoalSelector;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
+//#if MC >= 12105
+//$$import net.minecraft.nbt.NbtList;
+//#endif
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
