@@ -126,5 +126,9 @@
   "carpet.rule.copyBlockState.name": "Copy Block State",
   "carpet.rule.copyBlockState.desc": "Sneak and Ctrl + Middle Click to copy the block state.",
   "carpet.rule.autoDust.name": "Auto Dust Placement",
-  "carpet.rule.autoDust.desc": "Automatically places redstone dust on top of blocks placed by the player when enabled."
+  "carpet.rule.autoDust.desc": "Automatically places redstone dust on top of blocks placed by the player when enabled.",
+  "carpet.rule.chessboardSuperFlatSettings.name": "Chessboard SuperFlat Settings",
+  "carpet.rule.chessboardSuperFlatSettings.desc": "ChenkGenerator settings for chessboard superflat.\n off - Disable",
+  "carpet.rule.mobAIVisualize.name": "Mob AI Visualization",
+  "carpet.rule.mobAIVisualize.desc": "Visualize mob goals."
 }

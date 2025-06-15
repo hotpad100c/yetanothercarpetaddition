@@ -84,6 +84,9 @@ public class CommandManagerCommandExecutionMixin {
         if (command.startsWith("carpet") && command.contains("POIVisualize") && command.contains("false")) {
             YetAnotherCarpetAdditionServer.poiVisualizing.clearVisualizers(parseResults.getContext().getSource().getServer());
         }
+        if (command.startsWith("carpet") && command.contains("mobAIVisualize") && command.contains("false")) {
+            YetAnotherCarpetAdditionServer.mobAIVisualizer.clearVisualizers(parseResults.getContext().getSource().getServer());
+        }
 
 
     }

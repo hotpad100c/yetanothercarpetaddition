@@ -22,7 +22,11 @@ package mypals.ml.settings;
 
 import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Validator;
+import net.minecraft.registry.Registries;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -33,6 +37,41 @@ public class RuleValidators {
         @Override
         public Float validate(@Nullable ServerCommandSource source, CarpetRule<Float> changingRule, Float newValue, String userInput) {
             return Math.max(0.0f, Math.min(newValue, 1.0f));
+        }
+    }
+
+    public static class GRID_WORLD_SETTINGS_VALIDATOR extends Validator<String> {
+        static String DEFAULT_PRESET = "minecraft:white_stained_glass;minecraft:black_stained_glass;1";
+
+        @Override
+        public String validate(@Nullable ServerCommandSource source, CarpetRule<String> changingRule, String newValue, String userInput) {
+            String[] parts = newValue.split(";");
+            if (newValue.equals("off")) {
+                return "off";
+            }
+            //#if MC < 12105
+            //$$if (!Registries.BLOCK.containsId(Identifier.of("minecraft", parts[0].replace("minecraft:", "")))
+            //$$        || !Registries.BLOCK.containsId(Identifier.of("minecraft", parts[1].replace("minecraft:", ""))
+            //$$))
+            //#else
+            if (!Registries.BLOCK.containsId(Identifier.ofVanilla(parts[0].replace("minecraft:", "")))
+                    || !Registries.BLOCK.containsId(Identifier.ofVanilla(parts[1].replace("minecraft:", ""))
+            ))
+            //#endif
+            {
+                if (source != null)
+                    source.sendError(Text.of("Invalid block IDs: " + parts[0] + " or " + parts[1]));
+                return DEFAULT_PRESET;
+            }
+
+            try {
+                int value = Integer.parseInt(parts[2]);
+                return parts[0].replace("minecraft:", "") + ";" + parts[1].replace("minecraft:", "") + ";" + Math.max(1, value);
+            } catch (NumberFormatException e) {
+                if (source != null)
+                    source.sendError(Text.of("Invalid size value: " + parts[2] + " using default(1)."));
+                return parts[0] + ";" + parts[1] + ";1";
+            }
         }
     }
 }

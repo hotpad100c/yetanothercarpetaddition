@@ -21,15 +21,12 @@
 package mypals.ml.mixin.features.gridWorldPreset;
 
 import mypals.ml.features.GridWorldGen.FlatGridChunkGenerator;
-import mypals.ml.features.GridWorldGen.GridWorldGenerator;
-import net.minecraft.client.QuickPlayLogger;
 import net.minecraft.registry.RegistryEntryLookup;
 import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.structure.StructureSet;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.biome.Biome;
-import net.minecraft.world.biome.BiomeKeys;
-import net.minecraft.world.biome.source.*;
 import net.minecraft.world.dimension.DimensionOptions;
 import net.minecraft.world.gen.WorldPreset;
 import net.minecraft.world.gen.WorldPresets;
@@ -41,6 +38,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
 
 @Mixin(WorldPresets.Registrar.class)
 public abstract class WorldPresetsRegistrarMixin {
@@ -62,15 +60,16 @@ public abstract class WorldPresetsRegistrarMixin {
     @Shadow
     protected abstract DimensionOptions createOverworldOptions(ChunkGenerator chunkGenerator);
 
-    @Inject(method = "<init>",
-            at = @At("TAIL"))
-    public void bootstrap(CallbackInfo ci) {
-        
-        this.register(GridWorldGenerator.GRID, this.createOverworldOptions(
+    //private static final RegistryKey<WorldPreset> GRID = of("grid_world");
+
+    @Inject(method = "bootstrap()V", at = @At("RETURN"))
+    private void addCustomPresets(CallbackInfo ci) {
+        /*this.register(GRID, this.createOverworldOptions(
                 new FlatGridChunkGenerator(FlatChunkGeneratorConfig.getDefaultConfig(
                         this.biomeLookup, this.structureSetLookup, this.featureLookup
                 ))
-        ));
-        System.out.println("Registered Grid World Preset");
+        ));*/
     }
+
+
 }

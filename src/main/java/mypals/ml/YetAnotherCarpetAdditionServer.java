@@ -104,6 +104,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static BlockUpdateVisualizing blockUpdateVisualizing = new BlockUpdateVisualizing();
     public static BlockEntityOrderVisualizing blockEntityOrderVisualizing = new BlockEntityOrderVisualizing();
     public static POIVisualizing poiVisualizing = new POIVisualizing();
+    public static MobAIVisualizer mobAIVisualizer = new MobAIVisualizer();
     public static final String MOD_VERSION = "V1.0.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -118,6 +119,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         allVisualizers.add(blockUpdateVisualizing);
         allVisualizers.add(blockEntityOrderVisualizing);
         allVisualizers.add(poiVisualizing);
+        allVisualizers.add(mobAIVisualizer);
     }
 
     @Override
@@ -164,7 +166,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         setUpLogger();
         loadExtension();
         StepManager.reset();
-        GridWorldGenerator.init();
+        //GridWorldGenerator.init();
         ServerLifecycleEvents.SERVER_STARTED.register((server) -> {
             WaypointManager.init(server);
             RuleSubscribeManager.init(server);
@@ -212,7 +214,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         PayloadTypeRegistry.playC2S().register(RequestCountersPayload.ID, RequestCountersPayload.CODEC);
         PayloadTypeRegistry.playS2C().register(CountersPacketPayload.ID, CountersPacketPayload.CODEC);
         //#endif
-        
+
         ServerPlayNetworking.registerGlobalReceiver(RequestRulesPayload.ID,
                 //#if MC >= 12006
                 (payload, context) -> context.server().execute(() -> {

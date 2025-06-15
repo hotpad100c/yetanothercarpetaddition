@@ -20,23 +20,29 @@
 
 package mypals.ml.features.GridWorldGen;
 
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.gen.WorldPreset;
-import net.minecraft.world.gen.WorldPresets;
 
-import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
+import net.minecraft.block.Block;
 
 public class GridWorldGenerator {
-    public static final RegistryKey<WorldPreset> GRID = GridWorldGenerator.of("grid");
+    /*public static final RegistryKey<WorldPreset> GRID = GridWorldGenerator.of("grid_world");
 
-    public static RegistryKey<WorldPreset> of(String id) {
+
+    private static RegistryKey<WorldPreset> of(String id) {
         return RegistryKey.of(RegistryKeys.WORLD_PRESET, Identifier.of(MOD_ID, id));
     }
 
     public static void init() {
+        //Registry.register(Registries.TYPE, GridWorldGenerator.GRID, WorldPresetTags.NORMAL);
+    }*/
+    public static class ChessboardSuperFlatSettings {
+        public Block white;
+        public Block black;
+        public int size;
 
+        public ChessboardSuperFlatSettings(Block white, Block black, int size) {
+            this.white = white;
+            this.black = black;
+            this.size = size;
+        }
     }
-
 }

@@ -126,5 +126,9 @@
   "carpet.rule.copyBlockState.name": "方块状态复制",
   "carpet.rule.copyBlockState.desc": "下蹲时ctrl+中建将复制方块状态。",
   "carpet.rule.autoDust.name": "自动放置粉",
-  "carpet.rule.autoDust.desc": "开启后在玩家防止的方块的上方自动放置红石粉。"
+  "carpet.rule.autoDust.desc": "开启后在玩家防止的方块的上方自动放置红石粉。",
+  "carpet.rule.chessboardSuperFlatSettings.name": "棋盘超平坦设置",
+  "carpet.rule.chessboardSuperFlatSettings.desc": "棋盘超平坦世界生成设置。\noff=禁用",
+  "carpet.rule.mobAIVisualize.name": "生物AI可视化",
+  "carpet.rule.mobAIVisualize.desc": "可视化怪物目标选择器"
 }
