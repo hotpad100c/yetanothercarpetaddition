@@ -41,7 +41,7 @@ public class EnchantCommandMixin {
     )
     private static int getMaxLevel(ServerCommandSource source, Collection<? extends Entity> targets, RegistryEntry<Enchantment> enchantment, int level, Operation<Integer> original) throws CommandSyntaxException {
         Enchantment enchantment2 = enchantment.value();
-        if (level > enchantment2.getMaxLevel()) {
+        if (level > enchantment2.getMaxLevel() && !YetAnotherCarpetAdditionRules.enchantCommandLimitOverwrite) {
             throw FAILED_LEVEL_EXCEPTION.create(level, enchantment2.getMaxLevel());
         } else {
             int i = 0;
