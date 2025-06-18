@@ -10,14 +10,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(Enchantment.class)
 public class EnchantmentMixin {
-    @Inject(
+    /*@Inject(
             method = "getMaxLevel",
             at = @At("HEAD"),
             cancellable = true
     )
     private void getMaxLevel(CallbackInfoReturnable<Integer> cir) {
-        if(YetAnotherCarpetAdditionRules.enchantCommandLimitOverwrite) {
+       /* if(YetAnotherCarpetAdditionRules.enchantCommandLimitOverwrite) {
             cir.setReturnValue(32767);
         }
-    }
+    }*/
 }
