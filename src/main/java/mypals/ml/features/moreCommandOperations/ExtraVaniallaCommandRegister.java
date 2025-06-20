@@ -53,7 +53,7 @@ public class ExtraVaniallaCommandRegister {
             (context, builder) -> CommandSource.suggestMatching(WORLD_EVENT_MAP.keySet(), builder);
 
     public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
-        dispatcher.register(CommandManager.literal("scheduleTick")
+        dispatcher.register(CommandManager.literal("scheduleTick").requires(Commands.hasPermission(2))
                 .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                         .then(CommandManager.argument("block", BlockStateArgumentType.blockState(registryAccess))
                                 .then(CommandManager.argument("time", IntegerArgumentType.integer(0))
@@ -72,7 +72,7 @@ public class ExtraVaniallaCommandRegister {
 
                                                     return Command.SINGLE_SUCCESS;
                                                 }))))));
-        dispatcher.register(CommandManager.literal("blockEvent")
+        dispatcher.register(CommandManager.literal("blockEvent").requires(Commands.hasPermission(2))
                 .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                         .then(CommandManager.argument("block", BlockStateArgumentType.blockState(registryAccess))
                                 .then(CommandManager.argument("type", IntegerArgumentType.integer(0,2))
@@ -88,7 +88,7 @@ public class ExtraVaniallaCommandRegister {
 
                                                     return 1;
                                                 }))))));
-        dispatcher.register(CommandManager.literal("randomTick")
+        dispatcher.register(CommandManager.literal("randomTick").requires(Commands.hasPermission(2))
                 .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                         .executes(context -> {
                             ServerCommandSource source = context.getSource();
@@ -100,7 +100,7 @@ public class ExtraVaniallaCommandRegister {
                             return 1;
                         })));
         dispatcher.register(
-                CommandManager.literal("gameEvent")
+                CommandManager.literal("gameEvent").requires(Commands.hasPermission(2))
                         .then(CommandManager.argument("pos", Vec3ArgumentType.vec3())
                                 .then(CommandManager.argument("reason", StringArgumentType.word())
                                         .suggests((context, builder) -> CommandSource.suggestMatching(
@@ -143,7 +143,7 @@ public class ExtraVaniallaCommandRegister {
                                 )
                         )
         );
-        dispatcher.register(CommandManager.literal("worldEvent")
+        dispatcher.register(CommandManager.literal("worldEvent").requires(Commands.hasPermission(2))
                 .then(CommandManager.argument("player", EntityArgumentType.player())
                         .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                                 .then(CommandManager.argument("event", StringArgumentType.string()).suggests(WORLD_EVENT_SUGGESTIONS)
