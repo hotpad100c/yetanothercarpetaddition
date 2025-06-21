@@ -48,6 +48,20 @@ import java.util.Collection;
 @Mixin(EnchantCommand.class)
 public class EnchantCommandMixin {
 
+
+  @ModifyExpressionValue(
+        method = "execute",
+        at = @At(
+        value = "INVOKE",
+        target = "Lnet/minecraft/enchantment/Enchantment;getMaxLevel()I"
+      )
+    )
+    private boolean modifyLevelCheck(boolean original, ServerCommandSource source, Collection<? extends Entity> targets, RegistryEntry<Enchantment> enchantment, int level) {
+          return original && !YetAnotherCarpetAdditionRules.enchantCommandLimitOverwrite;
+   }
+
+
+    
     @ModifyExpressionValue(
             method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/enchantment/Enchantment;isAcceptableItem(Lnet/minecraft/item/ItemStack;)Z")
     )
