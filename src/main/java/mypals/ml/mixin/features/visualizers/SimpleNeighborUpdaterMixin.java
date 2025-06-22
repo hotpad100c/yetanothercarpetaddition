@@ -9,6 +9,9 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+//#if MC >= 12102
+//$$ import net.minecraft.world.block.WireOrientation;
+//#endif
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import net.minecraft.world.block.NeighborUpdater;
 import net.minecraft.world.block.SimpleNeighborUpdater;
