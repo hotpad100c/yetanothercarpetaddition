@@ -20,6 +20,7 @@
 
 package mypals.ml.features.moreCommandOperations;
 
+import carpet.utils.CommandHelper;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -53,7 +54,7 @@ public class ExtraVaniallaCommandRegister {
             (context, builder) -> CommandSource.suggestMatching(WORLD_EVENT_MAP.keySet(), builder);
 
     public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
-        dispatcher.register(CommandManager.literal("scheduleTick").requires(Commands.hasPermission(2))
+        dispatcher.register(CommandManager.literal("scheduleTick").requires(source -> CommandHelper.canUseCommand(source, 2))
                 .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                         .then(CommandManager.argument("block", BlockStateArgumentType.blockState(registryAccess))
                                 .then(CommandManager.argument("time", IntegerArgumentType.integer(0))
@@ -65,17 +66,17 @@ public class ExtraVaniallaCommandRegister {
                                                     Block block = BlockStateArgumentType.getBlockState(context, "block").getBlockState().getBlock();
                                                     int time = IntegerArgumentType.getInteger(context, "time");
                                                     int priority = IntegerArgumentType.getInteger(context, "priority");
-                                                    source.getWorld().scheduleBlockTick(pos, block,time, TickPriority.byIndex(priority));
+                                                    source.getWorld().scheduleBlockTick(pos, block, time, TickPriority.byIndex(priority));
 
                                                     source.sendFeedback(() -> Text.literal("ScheduleTick for [" + Text.translatable(block.getTranslationKey()).getString() + "] was added at [" + pos.getX() + "," +
-                                                            pos.getY() + "," + pos.getZ() + "] with delay of [" + time + "]and priority[" + priority +"]."),true);
+                                                            pos.getY() + "," + pos.getZ() + "] with delay of [" + time + "]and priority[" + priority + "]."), true);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 }))))));
-        dispatcher.register(CommandManager.literal("blockEvent").requires(Commands.hasPermission(2))
+        dispatcher.register(CommandManager.literal("blockEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
                 .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                         .then(CommandManager.argument("block", BlockStateArgumentType.blockState(registryAccess))
-                                .then(CommandManager.argument("type", IntegerArgumentType.integer(0,2))
+                                .then(CommandManager.argument("type", IntegerArgumentType.integer(0, 2))
                                         .then(CommandManager.argument("data", IntegerArgumentType.integer(0, 5))
                                                 .executes(context -> {
                                                     ServerCommandSource source = context.getSource();
@@ -84,28 +85,28 @@ public class ExtraVaniallaCommandRegister {
                                                     Block block = BlockStateArgumentType.getBlockState(context, "block").getBlockState().getBlock();
                                                     int type = IntegerArgumentType.getInteger(context, "type");
                                                     int data = IntegerArgumentType.getInteger(context, "data");
-                                                    addBlockEvent(source,pos, block, type, data);
+                                                    addBlockEvent(source, pos, block, type, data);
 
                                                     return 1;
                                                 }))))));
-        dispatcher.register(CommandManager.literal("randomTick").requires(Commands.hasPermission(2))
+        dispatcher.register(CommandManager.literal("randomTick").requires(source -> CommandHelper.canUseCommand(source, 2))
                 .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                         .executes(context -> {
                             ServerCommandSource source = context.getSource();
 
                             BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
 
-                            addRandomTick(source,pos);
+                            addRandomTick(source, pos);
 
                             return 1;
                         })));
         dispatcher.register(
-                CommandManager.literal("gameEvent").requires(Commands.hasPermission(2))
+                CommandManager.literal("gameEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
                         .then(CommandManager.argument("pos", Vec3ArgumentType.vec3())
                                 .then(CommandManager.argument("reason", StringArgumentType.word())
                                         .suggests((context, builder) -> CommandSource.suggestMatching(
                                                 Registries.GAME_EVENT.streamEntries()
-                                                        .map(entry -> entry.registryKey().getValue().toString().replace("minecraft:",""))
+                                                        .map(entry -> entry.registryKey().getValue().toString().replace("minecraft:", ""))
                                                         .collect(Collectors.toList()), builder
                                         ))
                                         .then(CommandManager.argument("entity", EntityArgumentType.entity())
@@ -143,7 +144,7 @@ public class ExtraVaniallaCommandRegister {
                                 )
                         )
         );
-        dispatcher.register(CommandManager.literal("worldEvent").requires(Commands.hasPermission(2))
+        dispatcher.register(CommandManager.literal("worldEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
                 .then(CommandManager.argument("player", EntityArgumentType.player())
                         .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
                                 .then(CommandManager.argument("event", StringArgumentType.string()).suggests(WORLD_EVENT_SUGGESTIONS)
@@ -155,7 +156,7 @@ public class ExtraVaniallaCommandRegister {
                                                     BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
                                                     String event = StringArgumentType.getString(context, "event");
                                                     int data = IntegerArgumentType.getInteger(context, "data");
-                                                    addWorldEvent(source, pos, event,player, data);
+                                                    addWorldEvent(source, pos, event, player, data);
 
                                                     return 1;
                                                 }))))
@@ -168,7 +169,7 @@ public class ExtraVaniallaCommandRegister {
                                             BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
                                             String event = StringArgumentType.getString(context, "event");
                                             int data = IntegerArgumentType.getInteger(context, "data");
-                                            addWorldEvent(source, pos, event,null, data);
+                                            addWorldEvent(source, pos, event, null, data);
 
                                             return 1;
                                         }))))

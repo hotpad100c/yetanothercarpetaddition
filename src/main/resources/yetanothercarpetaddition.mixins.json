@@ -70,6 +70,7 @@
     "features.visualizers.POIStorageMixin",
     "features.visualizers.PostProcessStateBlockMixin",
     "features.visualizers.ScheduledTickAndEventsServerWorldMixin",
+    "features.visualizers.SimpleNeighborUpdaterMixin",
     "features.visualizers.TickBlockEntitiesRecordOrderMixin",
     "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
     "features.visualizers.WorldUpdateComparatorsMixin"

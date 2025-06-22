@@ -21,47 +21,28 @@
 package mypals.ml.mixin.features;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.mojang.brigadier.exceptions.Dynamic2CommandExceptionType;
-import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
-import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.command.EnchantCommand;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-
-import java.util.Collection;
 
 @Mixin(EnchantCommand.class)
 public class EnchantCommandMixin {
 
 
-  @ModifyExpressionValue(
-        method = "execute",
-        at = @At(
-        value = "INVOKE",
-        target = "Lnet/minecraft/enchantment/Enchantment;getMaxLevel()I"
-      )
+    @ModifyExpressionValue(
+            method = "execute",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/enchantment/Enchantment;getMaxLevel()I",
+                    ordinal = 0
+            )
     )
-    private boolean modifyLevelCheck(boolean original, ServerCommandSource source, Collection<? extends Entity> targets, RegistryEntry<Enchantment> enchantment, int level) {
-          return original && !YetAnotherCarpetAdditionRules.enchantCommandLimitOverwrite;
-   }
+    private static int modifyLevelCheck(int original) {
+        return YetAnotherCarpetAdditionRules.enchantCommandLimitOverwrite ? Integer.MAX_VALUE : original;
+    }
 
 
-    
     @ModifyExpressionValue(
             method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/enchantment/Enchantment;isAcceptableItem(Lnet/minecraft/item/ItemStack;)Z")
     )

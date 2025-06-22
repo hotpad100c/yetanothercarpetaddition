@@ -73,6 +73,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
             display.addCommandTag(getVisualizerTag());
             display.addCommandTag("DoNotTick");
             world.spawnEntity(display);
+            display.startRiding(mobAIData.entity);
             displayTargetAndGoals(mobAIData, display);
             return Map.entry(mobAIData, display);
         }
@@ -115,7 +116,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
                 return;
             }
             displayTargetAndGoals(mobAIData, display);
-            display.setPos(keyEntity.getX(), keyEntity.getY() + keyEntity.getHeight() + 0.5, keyEntity.getZ());
+            //display.setPos(keyEntity.getX(), keyEntity.getY() + keyEntity.getHeight() + 0.5, keyEntity.getZ());
 
         }
     }
@@ -134,7 +135,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         data.goalSelector.getGoals().forEach(goal -> {
             if (goal.getGoal() != null) {
                 String goalName = getGoalName(goal.getGoal().getClass());
-                String translatedName = Text.translatable("goal.minecraft." + goalName).getString();
+                String translatedName = Text.translatable(goalName).getString();
                 String color = goal.isRunning() ? "gold" : "gray";
                 JsonObject goalPart = new JsonObject();
                 goalPart.addProperty("text", "- " + translatedName + "\n");
@@ -151,7 +152,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         data.targetSelector.getGoals().forEach(goal -> {
             if (goal.getGoal() != null) {
                 String goalName = getGoalName(goal.getGoal().getClass());
-                String translatedName = Text.translatable("goal.minecraft." + goalName).getString();
+                String translatedName = Text.translatable(goalName).getString();
                 String color = goal.isRunning() ? "gold" : "gray";
                 JsonObject goalPart = new JsonObject();
                 goalPart.addProperty("text", "- " + translatedName + "\n");
