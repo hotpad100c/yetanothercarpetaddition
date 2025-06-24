@@ -63,7 +63,7 @@ public abstract class EntityCollisionMixin extends Entity {
 
     @Override
     public boolean isPushable() {
-        return (YetAnotherCarpetAdditionRules.moreHardCollisions || super.isPushable() )|| instanceof AbstractMinecartEntity;
+        return (YetAnotherCarpetAdditionRules.moreHardCollisions || super.isPushable() )|| this instanceof AbstractMinecartEntity;
     }
 
     @Override
