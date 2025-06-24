@@ -22,6 +22,7 @@ package mypals.ml.mixin.features.moreCollidableEntities;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EntityType.*;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.TntEntity;
