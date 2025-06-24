@@ -35,7 +35,7 @@ import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin({WardenPoetEntity.class, EnderDragonPart.class, GhastEntity.class, FallingBlockEntity.class,
+@Mixin({WardenEntity.class, EnderDragonPart.class, GhastEntity.class, FallingBlockEntity.class,
         MinecartEntity.class, StriderEntity.class, TntEntity.class, IronGolemEntity.class,
         SnifferEntity.class, EvokerFangsEntity.class, CamelEntity.class, PlayerEntity.class,
         HoglinEntity.class, HorseEntity.class, SkeletonHorseEntity.class, ZombieHorseEntity.class,
