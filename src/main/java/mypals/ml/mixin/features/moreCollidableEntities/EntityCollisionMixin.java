@@ -30,44 +30,65 @@ import net.minecraft.entity.mob.*;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.TridentEntity;
-import net.minecraft.entity.vehicle.*;
+import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin({WardenEntity.class, EnderDragonPart.class, GhastEntity.class, FallingBlockEntity.class,
+@Mixin({WardenPoetEntity.class, EnderDragonPart.class, GhastEntity.class, FallingBlockEntity.class,
         MinecartEntity.class, StriderEntity.class, TntEntity.class, IronGolemEntity.class,
         SnifferEntity.class, EvokerFangsEntity.class, CamelEntity.class, PlayerEntity.class,
         HoglinEntity.class, HorseEntity.class, SkeletonHorseEntity.class, ZombieHorseEntity.class,
         TridentEntity.class, DonkeyEntity.class, LlamaEntity.class, ZoglinEntity.class})
 public abstract class EntityCollisionMixin extends Entity {
-    public EntityCollisionMixin(EntityType<?> type, World world) {
+    protected EntityCollisionMixin(EntityType<?> type, World world) {
         super(type, world);
+    }
+
+   
+    private boolean isMinecart() {
+        return this.getType() == EntityType.MINECART ||
+               this.getType() == EntityType.CHEST_MINECART ||
+               this.getType() == EntityType.FURNACE_MINECART ||
+               this.getType() == EntityType.HOPPER_MINECART ||
+               this.getType() == EntityType.TNT_MINECART ||
+               this.getType() == EntityType.COMMAND_BLOCK_MINECART ||
+               this.getType() == EntityType.SPAWNER_MINECART;
+    }
+
+    private boolean isBoat() {
+        return this.getType() == EntityType.BOAT ||
+               this.getType() == EntityType.CHEST_BOAT;
     }
 
     @Override
     public boolean collidesWith(Entity other) {
-        if (YetAnotherCarpetAdditionRules.moreHardCollisions 
-            && BoatEntity.canCollide(this, other)) {
+        if (YetAnotherCarpetAdditionRules.moreHardCollisions && BoatEntity.canCollide(this, other)) {
             return true;
-        } else if (other instanceof BoatEntity || other instanceof ShulkerEntity) {
-            return true;
-        } else if(this instanceof AbstractMinecartEntity me){
-            return AbstractBoatEntity.canCollide(me, entity);
-        }else{
-           return super.collidesWith(other);
         }
-            
-        return (YetAnotherCarpetAdditionRules.moreHardCollisions && BoatEntity.canCollide(this, other)) ||( other instanceof BoatEntity || other instanceof ShulkerEntity);
+        
+        if (other instanceof BoatEntity || other instanceof ShulkerEntity) {
+            return true;
+        }
+        
+        if (isMinecart() || isBoat()) {
+            return BoatEntity.canCollide(this, other);
+        }
+        
+        return super.collidesWith(other);
     }
 
     @Override
     public boolean isPushable() {
-        return (YetAnotherCarpetAdditionRules.moreHardCollisions || super.isPushable() )|| this instanceof AbstractMinecartEntity || this instanceof AbstractBoatEntity;
+        
+        return YetAnotherCarpetAdditionRules.moreHardCollisions || 
+               super.isPushable() || 
+               isMinecart() || 
+               isBoat();
     }
 
     @Override
     public boolean isCollidable() {
-        return YetAnotherCarpetAdditionRules.moreHardCollisions || super.isCollidable();
+        return YetAnotherCarpetAdditionRules.moreHardCollisions || super.isCollidable() || isBoat();
     }
 }
