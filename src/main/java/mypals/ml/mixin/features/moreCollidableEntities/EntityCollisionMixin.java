@@ -22,7 +22,7 @@ package mypals.ml.mixin.features.moreCollidableEntities;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
+import net.minecraft.entity.EntityType.*;
 import net.minecraft.entity.FallingBlockEntity;
 import net.minecraft.entity.TntEntity;
 import net.minecraft.entity.boss.dragon.EnderDragonPart;
@@ -55,12 +55,32 @@ public abstract class EntityCollisionMixin extends Entity {
                this.getType() == EntityType.COMMAND_BLOCK_MINECART ||
                this.getType() == EntityType.SPAWNER_MINECART;
     }
-
+//#if MC <1213
     private boolean isBoat() {
         return this.getType() == EntityType.BOAT ||
                this.getType() == EntityType.CHEST_BOAT;
     }
-
+//#else
+//$  private boolean isBoat() {
+//$          return this.getType() == EntityType.OAK_BOAT ||
+//$                 this.getType() == EntityType.ACACIA_BOAT ||
+//$                 this.getType() == EntityType.CHERRY_BOAT ||
+//$                 this.getType() == EntityType.JUNGLE_BOAT ||
+//$                 this.getType() == EntityType.SPRUCE_BOAT ||
+//$                 this.getType() == EntityType.BIRCH_BOAT ||
+//$                 this.getType() == EntityType.DARK_OAK_BOAT ||
+//$                 this.getType() == EntityType.MANGROVE_BOAT ||
+//$                 this.getType() == EntityType.PALE_OAK_BOAT ||
+//$                 this.getType() == EntityType.OAK_CHEST_BOAT ||
+//$                 this.getType() == EntityType.ACACIA_CHEST_BOAT ||
+//$                 this.getType() == EntityType.CHERRY_CHEST_BOAT ||
+//$                 this.getType() == EntityType.JUNGLE_CHEST_BOAT ||
+//$                 this.getType() == EntityType.SPRUCE_CHEST_BOAT ||
+//$                 this.getType() == EntityType.DARK_OAK_CHEST_BOAT ||
+//$                 this.getType() == EntityType.BAMBOO_RAFT ||
+//$                 this.getType() == EntityType.BAMBOO_CHEST_RAFT;
+//$      }
+//#endif
     @Override
     public boolean collidesWith(Entity other) {
         if (YetAnotherCarpetAdditionRules.moreHardCollisions && BoatEntity.canCollide(this, other)) {
