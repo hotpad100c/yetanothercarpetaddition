@@ -47,8 +47,8 @@ public abstract class EntityCollisionMixin extends Entity {
 
     @Override
     public boolean collidesWith(Entity other) {
-        if (YetAnotherCarpetAdditionRules.moreHardCollisions is true 
-            && BoatEntity.canCollide(this, other) returns true) {
+        if (YetAnotherCarpetAdditionRules.moreHardCollisions 
+            && BoatEntity.canCollide(this, other)) {
             return true;
         } else if (other instanceof BoatEntity || other instanceof ShulkerEntity) {
             return true;
