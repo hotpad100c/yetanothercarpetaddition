@@ -30,7 +30,7 @@ import net.minecraft.entity.mob.*;
 import net.minecraft.entity.passive.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.TridentEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
+import net.minecraft.entity.vehicle.*;
 import net.minecraft.entity.vehicle.MinecartEntity;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -47,16 +47,27 @@ public abstract class EntityCollisionMixin extends Entity {
 
     @Override
     public boolean collidesWith(Entity other) {
+        if (YetAnotherCarpetAdditionRules.moreHardCollisions is true 
+            && BoatEntity.canCollide(this, other) returns true) {
+            return true;
+        } else if (other instanceof BoatEntity || other instanceof ShulkerEntity) {
+            return true;
+        } else if(this instanceof AbstractMinecartEntity me){
+            return AbstractBoatEntity.canCollide(me, entity);
+        }else{
+           return super.collidesWith(other);
+        }
+            
         return (YetAnotherCarpetAdditionRules.moreHardCollisions && BoatEntity.canCollide(this, other)) ||( other instanceof BoatEntity || other instanceof ShulkerEntity);
     }
 
     @Override
     public boolean isPushable() {
-        return YetAnotherCarpetAdditionRules.moreHardCollisions || super.isPushable();
+        return (YetAnotherCarpetAdditionRules.moreHardCollisions || super.isPushable() )|| instanceof AbstractMinecartEntity;
     }
 
     @Override
     public boolean isCollidable() {
-        return YetAnotherCarpetAdditionRules.moreHardCollisions;
+        return YetAnotherCarpetAdditionRules.moreHardCollisions || super.isCollidable();
     }
 }
