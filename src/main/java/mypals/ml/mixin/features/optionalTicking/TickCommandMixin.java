@@ -177,28 +177,6 @@ public abstract class TickCommandMixin {
         }
         return modifiedText;
     }
-
-    @Unique
-    private static int executeFreeze(ServerCommandSource source, boolean frozen) {
-        StepManager.reset();
-        ServerTickManager serverTickManager = source.getServer().getTickManager();
-        if (frozen) {
-            if (serverTickManager.isSprinting()) {
-                serverTickManager.stopSprinting();
-            }
-            if (serverTickManager.isStepping()) {
-                serverTickManager.stopStepping();
-            }
-        }
-        serverTickManager.setFrozen(frozen);
-        if (frozen) {
-            source.sendFeedback(() -> Text.translatable("commands.tick.status.frozen"), true);
-        } else {
-            source.sendFeedback(() -> Text.translatable("commands.tick.status.running"), true);
-        }
-        return frozen ? 1 : 0;
-    }
-
     @Unique
     private static int executePhaseFreeze(ServerCommandSource source, String phase, boolean freeze) {
         switch (phase.toLowerCase()) {
