@@ -20,12 +20,12 @@
 
 package mypals.ml.mixin.features.optionalTicking;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.tickStepCounter.StepManager;
 import mypals.ml.network.OptionalFreezePayload;
@@ -36,28 +36,25 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.TimeArgumentType;
 import net.minecraft.server.ServerTickManager;
 import net.minecraft.server.command.CommandManager;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.TickCommand;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.TimeHelper;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
-//#if MC < 12006
-//$$ import net.minecraft.network.PacketByteBuf;
-//$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-//#endif
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.Slice;
 
 import java.util.Arrays;
 
 @Mixin(TickCommand.class)
 public abstract class TickCommandMixin {
-        @Unique
+    @Unique
     private static LiteralArgumentBuilder<ServerCommandSource> freezeNode$YACA = null;
-        @Unique
+    @Unique
     private static LiteralArgumentBuilder<ServerCommandSource> unfreezeNode$YACA = null;
     @Unique
     private static final String[] PHASE_SUGGESTIONS = {
@@ -107,69 +104,44 @@ public abstract class TickCommandMixin {
         return unfreezeNode;
     }
 
+    @ModifyArg(
+            method = "register",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lcom/mojang/brigadier/CommandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;",
+                    remap = false
+            )
+    )
+    private static LiteralArgumentBuilder<ServerCommandSource> enhanceFreezeAndUnfreeze(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
+        enhanceFreezeNode(rootNode);
+        enhanceUnfreezeNode(rootNode);
+        return rootNode;
+    }
 
+    @Unique
+    private static void enhanceFreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
+        rootNode.then(
+                CommandManager.literal("freeze")
+                        .requires(source -> YetAnotherCarpetAdditionRules.tickCommandEnhanced())
+                        .executes(freezeNode$YACA.build().getCommand())
+                        .then(
+                                CommandManager.argument("phase", StringArgumentType.word())
+                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
+                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase"), true))
+                        )
+        );
+    }
 
-
-    
-    @WrapMethod(method = "register")
-    private static void register(CommandDispatcher<ServerCommandSource> dispatcher, Operation<Void> original) {
-        dispatcher.register(
-                CommandManager.literal("tick")
-                        .requires(source -> source.hasPermissionLevel(3))
+    @Unique
+    private static void enhanceUnfreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
+        rootNode.then(
+                CommandManager.literal("unfreeze")
+                        .requires(source -> YetAnotherCarpetAdditionRules.tickCommandEnhanced())
+                        .executes(unfreezeNode$YACA.build().getCommand())
                         .then(
-                                CommandManager.literal("query")
-                                        .executes(context -> executeQuery(context.getSource()))
-                        )
-                        .then(
-                                CommandManager.literal("rate")
-                                        .then(
-                                                CommandManager.argument("rate", FloatArgumentType.floatArg(1.0F, 10000.0F))
-                                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(new String[]{DEFAULT_TICK_RATE_STRING}, suggestionsBuilder))
-                                                        .executes(context -> executeRate(context.getSource(), FloatArgumentType.getFloat(context, "rate")))
-                                        )
-                        )
-                        .then(
-                                CommandManager.literal("step")
-                                        .executes(context -> executeStep(context.getSource(), 1))
-                                        .then(
-                                                CommandManager.literal("stop")
-                                                        .executes(context -> executeStopStep(context.getSource()))
-                                        )
-                                        .then(
-                                                CommandManager.argument("time", TimeArgumentType.time(1))
-                                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(new String[]{"1t", "1s"}, suggestionsBuilder))
-                                                        .executes(context -> executeStep(context.getSource(), IntegerArgumentType.getInteger(context, "time")))
-                                        )
-                        )
-                        .then(
-                                CommandManager.literal("sprint")
-                                        .then(
-                                                CommandManager.literal("stop")
-                                                        .executes(context -> executeStopSprint(context.getSource()))
-                                        )
-                                        .then(
-                                                CommandManager.argument("time", TimeArgumentType.time(1))
-                                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(new String[]{"60s", "1d", "3d"}, suggestionsBuilder))
-                                                        .executes(context -> executeSprint(context.getSource(), IntegerArgumentType.getInteger(context, "time")))
-                                        )
-                        )
-                        .then(
-                                CommandManager.literal("freeze")
-                                        .executes(context -> executeFreeze(context.getSource(), true))
-                                        .then(
-                                                CommandManager.argument("phase", StringArgumentType.word())
-                                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
-                                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase"), true))
-                                        )
-                        )
-                        .then(
-                                CommandManager.literal("unfreeze")
-                                        .executes(context -> executeFreeze(context.getSource(), false))
-                                        .then(
-                                                CommandManager.argument("phase", StringArgumentType.word())
-                                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
-                                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase"), false))
-                                        )
+                                CommandManager.argument("phase", StringArgumentType.word())
+                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
+                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase"), false))
                         )
         );
     }
@@ -180,11 +152,9 @@ public abstract class TickCommandMixin {
         boolean bl = serverTickManager.step(steps);
         if (bl) {
             source.sendFeedback(() -> modifyFeedbackText(Text.translatable("commands.tick.step.success", steps), steps), true);
-
         } else {
             source.sendError(Text.translatable("commands.tick.step.fail"));
         }
-
         return 1;
     }
 
@@ -245,11 +215,9 @@ public abstract class TickCommandMixin {
             } else {
                 source.sendFeedback(() -> Text.translatable("commands.tick.status.running"), false);
             }
-
             String string3 = format(serverTickManager.getNanosPerTick());
             source.sendFeedback(() -> Text.translatable("commands.tick.query.rate.running", new Object[]{string2, string, string3}), false);
         }
-
         long[] ls = Arrays.copyOf(source.getServer().getTickTimes(), source.getServer().getTickTimes().length);
         Arrays.sort(ls);
         String string4 = format(ls[ls.length / 2]);
@@ -265,7 +233,6 @@ public abstract class TickCommandMixin {
         if (bl) {
             source.sendFeedback(() -> Text.translatable("commands.tick.sprint.stop.success"), true);
         }
-
         source.sendFeedback(() -> Text.translatable("commands.tick.status.sprinting"), true);
         return 1;
     }
@@ -292,19 +259,16 @@ public abstract class TickCommandMixin {
             if (serverTickManager.isSprinting()) {
                 serverTickManager.stopSprinting();
             }
-
             if (serverTickManager.isStepping()) {
                 serverTickManager.stopStepping();
             }
         }
-
         serverTickManager.setFrozen(frozen);
         if (frozen) {
             source.sendFeedback(() -> Text.translatable("commands.tick.status.frozen"), true);
         } else {
             source.sendFeedback(() -> Text.translatable("commands.tick.status.running"), true);
         }
-
         return frozen ? 1 : 0;
     }
 
@@ -324,7 +288,7 @@ public abstract class TickCommandMixin {
                 YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks = freeze;
                 break;
             case "tilefluids":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids = freeze;
+               BUFFERS.append("                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids = freeze;\n");
                 break;
             case "tiletick":
                 YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick = freeze;
@@ -357,23 +321,10 @@ public abstract class TickCommandMixin {
                 throw new IllegalArgumentException("Unknown phase: " + phase);
         }
         source.getServer().getPlayerManager().players.forEach(
-                //#if MC >= 12006
                 p -> ServerPlayNetworking.send(p, new OptionalFreezePayload(phase, freeze))
-                //#else
-                //$$ p -> {
-                //$$     PacketByteBuf buf = PacketByteBufs.create();
-                //$$     buf.writeString(phase);
-                //$$     buf.writeBoolean(freeze);
-                //$$     ServerPlayNetworking.send(p, OptionalFreezePayload.ID, buf);
-                //$$ }
-                //#endif
-
         );
-
         source.sendFeedback(() ->
-                Text.translatable(freeze ? "Froze"
-                        : "Unfreeze").append(
-                        " [" + phase + "]"), true);
+                Text.translatable(freeze ? "Froze" : "Unfroze").append(" [" + phase + "]"), true);
         return 1;
     }
 }
