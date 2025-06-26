@@ -36,6 +36,7 @@ import net.minecraft.command.CommandSource;
 import net.minecraft.command.argument.TimeArgumentType;
 import net.minecraft.server.ServerTickManager;
 import net.minecraft.server.command.CommandManager;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.command.TickCommand;
 import net.minecraft.text.MutableText;
@@ -54,6 +55,10 @@ import java.util.Arrays;
 
 @Mixin(TickCommand.class)
 public abstract class TickCommandMixin {
+        @Unique
+    private static LiteralArgumentBuilder<ServerCommandSource> freezeNode$YACA = null;
+        @Unique
+    private static LiteralArgumentBuilder<ServerCommandSource> unfreezeNode$YACA = null;
     @Unique
     private static final String[] PHASE_SUGGESTIONS = {
             "worldBorder", "weather", "time", "tileBlocks", "tileFluids", "tileTick",
@@ -64,6 +69,48 @@ public abstract class TickCommandMixin {
     @Final
     private static String DEFAULT_TICK_RATE_STRING;
 
+    @ModifyExpressionValue(
+            method = "register",
+            slice = @Slice(
+                    from = @At(
+                            value = "CONSTANT",
+                            args = "stringValue=freeze"
+                    )
+            ),
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/command/CommandManager;literal(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;",
+                    ordinal = 0
+            )
+    )
+    private static LiteralArgumentBuilder<ServerCommandSource> storeFreezeNode(LiteralArgumentBuilder<ServerCommandSource> freezeNode) {
+        freezeNode$TISCM = freezeNode;
+        return freezeNode;
+    }
+
+    @ModifyExpressionValue(
+            method = "register",
+            slice = @Slice(
+                    from = @At(
+                            value = "CONSTANT",
+                            args = "stringValue=unfreeze"
+                    )
+            ),
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/command/CommandManager;literal(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;",
+                    ordinal = 0
+            )
+    )
+    private static LiteralArgumentBuilder<ServerCommandSource> storeUnfreezeNode(LiteralArgumentBuilder<ServerCommandSource> unfreezeNode) {
+        unfreezeNode$TISCM = unfreezeNode;
+        return unfreezeNode;
+    }
+
+
+
+
+    
     @WrapMethod(method = "register")
     private static void register(CommandDispatcher<ServerCommandSource> dispatcher, Operation<Void> original) {
         dispatcher.register(
