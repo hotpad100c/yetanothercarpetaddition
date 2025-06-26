@@ -121,7 +121,7 @@ public abstract class TickCommandMixin {
     @Unique
     private static void enhanceFreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
         rootNode.then(
-                CommandManager.literal("freeze")
+                CommandManager.literal("freezePhase")
                         .requires(source -> YetAnotherCarpetAdditionRules.tickCommandEnhanced())
                         .executes(freezeNode$YACA.build().getCommand())
                         .then(
@@ -135,7 +135,7 @@ public abstract class TickCommandMixin {
     @Unique
     private static void enhanceUnfreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
         rootNode.then(
-                CommandManager.literal("unfreeze")
+                CommandManager.literal("unfreezePhase")
                         .requires(source -> YetAnotherCarpetAdditionRules.tickCommandEnhanced())
                         .executes(unfreezeNode$YACA.build().getCommand())
                         .then(
