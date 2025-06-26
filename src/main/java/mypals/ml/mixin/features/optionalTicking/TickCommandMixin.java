@@ -84,7 +84,7 @@ public abstract class TickCommandMixin {
             )
     )
     private static LiteralArgumentBuilder<ServerCommandSource> storeFreezeNode(LiteralArgumentBuilder<ServerCommandSource> freezeNode) {
-        freezeNode$TISCM = freezeNode;
+        freezeNode$YACA = freezeNode;
         return freezeNode;
     }
 
@@ -103,7 +103,7 @@ public abstract class TickCommandMixin {
             )
     )
     private static LiteralArgumentBuilder<ServerCommandSource> storeUnfreezeNode(LiteralArgumentBuilder<ServerCommandSource> unfreezeNode) {
-        unfreezeNode$TISCM = unfreezeNode;
+        unfreezeNode$YACA = unfreezeNode;
         return unfreezeNode;
     }
 
