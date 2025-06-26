@@ -2,7 +2,7 @@
  * This file is part of the Yet Another Carpet Addition project, licensed under the
  * GNU Lesser General Public License v3.0
  *
- * Copyright (C) 2025  Ryan100c and contributors
+ * Copyright (C) 2025 Ryan100c and contributors
  *
  * Yet Another Carpet Addition is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published by
@@ -108,7 +108,7 @@ public abstract class TickCommandMixin {
             method = "register",
             at = @At(
                     value = "INVOKE",
-                    target = "Lcom/mojang/brigadier/CommandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;",
+                    target = "Lcom/mojang/brigadier/ComlmandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;",
                     remap = false
             )
     )
