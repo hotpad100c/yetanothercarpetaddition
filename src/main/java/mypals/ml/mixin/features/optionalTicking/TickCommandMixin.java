@@ -158,83 +158,10 @@ public abstract class TickCommandMixin {
         return 1;
     }
 
-    @Unique
-    private static int executeStopStep(ServerCommandSource source) {
-        ServerTickManager serverTickManager = source.getServer().getTickManager();
-        boolean bl = serverTickManager.stopStepping();
-        if (bl) {
-            source.sendFeedback(() -> Text.translatable("commands.tick.step.stop.success"), true);
-            return 1;
-        } else {
-            source.sendError(Text.translatable("commands.tick.step.stop.fail"));
-            return 0;
-        }
-    }
-
-    @Unique
-    private static int executeStopSprint(ServerCommandSource source) {
-        ServerTickManager serverTickManager = source.getServer().getTickManager();
-        boolean bl = serverTickManager.stopSprinting();
-        if (bl) {
-            source.sendFeedback(() -> Text.translatable("commands.tick.sprint.stop.success"), true);
-            return 1;
-        } else {
-            source.sendError(Text.translatable("commands.tick.sprint.stop.fail"));
-            return 0;
-        }
-    }
 
     @Unique
     private static String format(long nanos) {
         return String.format("%.1f", (float) nanos / (float) TimeHelper.MILLI_IN_NANOS);
-    }
-
-    @Unique
-    private static int executeRate(ServerCommandSource source, float rate) {
-        ServerTickManager serverTickManager = source.getServer().getTickManager();
-        serverTickManager.setTickRate(rate);
-        String string = String.format("%.1f", rate);
-        source.sendFeedback(() -> Text.translatable("commands.tick.rate.success", new Object[]{string}), true);
-        return (int) rate;
-    }
-
-    @Unique
-    private static int executeQuery(ServerCommandSource source) {
-        ServerTickManager serverTickManager = source.getServer().getTickManager();
-        String string = format(source.getServer().getAverageNanosPerTick());
-        float f = serverTickManager.getTickRate();
-        String string2 = String.format("%.1f", f);
-        if (serverTickManager.isSprinting()) {
-            source.sendFeedback(() -> Text.translatable("commands.tick.status.sprinting"), false);
-            source.sendFeedback(() -> Text.translatable("commands.tick.query.rate.sprinting", new Object[]{string2, string}), false);
-        } else {
-            if (serverTickManager.isFrozen()) {
-                source.sendFeedback(() -> Text.translatable("commands.tick.status.frozen"), false);
-            } else if (serverTickManager.getNanosPerTick() < source.getServer().getAverageNanosPerTick()) {
-                source.sendFeedback(() -> Text.translatable("commands.tick.status.lagging"), false);
-            } else {
-                source.sendFeedback(() -> Text.translatable("commands.tick.status.running"), false);
-            }
-            String string3 = format(serverTickManager.getNanosPerTick());
-            source.sendFeedback(() -> Text.translatable("commands.tick.query.rate.running", new Object[]{string2, string, string3}), false);
-        }
-        long[] ls = Arrays.copyOf(source.getServer().getTickTimes(), source.getServer().getTickTimes().length);
-        Arrays.sort(ls);
-        String string4 = format(ls[ls.length / 2]);
-        String string5 = format(ls[(int) ((double) ls.length * 0.95)]);
-        String string6 = format(ls[(int) ((double) ls.length * 0.99)]);
-        source.sendFeedback(() -> Text.translatable("commands.tick.query.percentiles", new Object[]{string4, string5, string6, ls.length}), false);
-        return (int) f;
-    }
-
-    @Unique
-    private static int executeSprint(ServerCommandSource source, int ticks) {
-        boolean bl = source.getServer().getTickManager().startSprint(ticks);
-        if (bl) {
-            source.sendFeedback(() -> Text.translatable("commands.tick.sprint.stop.success"), true);
-        }
-        source.sendFeedback(() -> Text.translatable("commands.tick.status.sprinting"), true);
-        return 1;
     }
 
     @Unique
