@@ -114,7 +114,7 @@ public abstract class TickCommandMixin {
             method = "register",
             at = @At(
                     value = "INVOKE",
-                    target = "Lcom/mojang/brigadier/ComlmandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;"
+                    target = "Lcom/mojang/brigadier/ComlmandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;",
                     remap = false
             )
     )
