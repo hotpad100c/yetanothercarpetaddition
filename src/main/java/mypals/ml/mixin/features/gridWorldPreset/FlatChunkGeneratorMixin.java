@@ -47,6 +47,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+//#if MC <= 12006
+//$$ import java.util.concurrent.Executor;
+//#endif
 
 @Mixin(FlatChunkGenerator.class)
 public class FlatChunkGeneratorMixin {
@@ -66,6 +69,9 @@ public class FlatChunkGeneratorMixin {
 
     @WrapMethod(method = "populateNoise")
     public CompletableFuture<Chunk> populateNoise(
+            //#if MC <= 12006
+            //$$ Executor executor,
+            //#endif
             Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk, Operation<CompletableFuture<Chunk>> original
     ) {
         if (!Objects.equals(YetAnotherCarpetAdditionRules.chessboardSuperFlatSettings, "off")) {
@@ -98,7 +104,12 @@ public class FlatChunkGeneratorMixin {
 
             return CompletableFuture.completedFuture(chunk);
         } else {
-            return original.call(blender, noiseConfig, structureAccessor, chunk);
+            return original.call(
+                    //#if MC <= 12006
+                    //$$ executor,
+                    //#endif
+                    blender, noiseConfig, structureAccessor, chunk
+            );
         }
     }
 

@@ -1,1 +1,1 @@
-com.mojang.blaze3d.systems.RenderSystem mypals.ml.utils.adapters.RenderSystem
+com.mojang.blaze3d.systems.RenderSystem mypals.ml.utils.adapter.RenderSystem

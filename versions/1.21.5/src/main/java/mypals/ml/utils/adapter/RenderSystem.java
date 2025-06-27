@@ -18,23 +18,17 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.utils.adapters;
+package mypals.ml.utils.adapter;
 
-//#if MC <= 12104
-
-import com.mojang.blaze3d.platform.GlStateManager;
-//#else
-//$$ import com.mojang.blaze3d.opengl.GlStateManager;
-//#endif
+import com.mojang.blaze3d.opengl.GlStateManager;
 
 import static com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread;
 
-public class RenderSystem {
+public class RenderSystem{
     public static void disableDepthTest() {
         assertOnRenderThread();
         GlStateManager._disableDepthTest();
     }
-
     public static void enableDepthTest() {
         GlStateManager._enableDepthTest();
     }
