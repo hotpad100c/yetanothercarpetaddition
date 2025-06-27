@@ -36,5 +36,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(TickCommand.class)
 public class TickCommandMixin {
+    @Inject(method = "executeFreeze",
+            at = @At("RETURN"))
+    private static void modifyFeedbackText(ServerCommandSource source, boolean frozen, CallbackInfoReturnable<Integer> cir) {
+        StepManager.reset();
+    }
+    @ModifyArg(
+            method = "executeStep(Lnet/minecraft/server/command/ServerCommandSource;I)I",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/server/command/ServerCommandSource;sendFeedback(Ljava/util/function/Supplier;Z)V",
+                    ordinal = 0
+            ),
+            index = 0
+    )
+    private static java.util.function.Supplier<Text> modifyFeedbackText(java.util.function.Supplier<Text> original, @Local(argsOnly = true) int steps) {
+        return () -> {
+            Text originalText = original.get();
+            MutableText modifiedText = originalText.copy();
+            StepManager.step(steps);
+            if(YetAnotherCarpetAdditionRules.enableTickStepCounter) {
+                modifiedText.styled(style -> style.withHoverEvent(
+                        HoverEvent.showText(
+                                Text.literal(String.format(Text.translatable("TickStepCounter.stepped").getString(), StepManager.getStepped()))
+                        )
+                ));
+            }
+            return modifiedText;
+        };
+    }
 
 }
