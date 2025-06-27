@@ -48,6 +48,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.Final;
+//#if MC < 12006
+//$$ import net.minecraft.network.PacketByteBuf;
+//$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+//#endif
+
 
 import java.util.Arrays;
 
@@ -210,7 +215,17 @@ public abstract class TickCommandMixin {
                 throw new IllegalArgumentException("Unknown phase: " + phase);
         }
         source.getServer().getPlayerManager().players.forEach(
+                //#if MC >= 12006
                 p -> ServerPlayNetworking.send(p, new OptionalFreezePayload(phase, freeze))
+                //#else
+                //$$ p -> {
+                //$$     PacketByteBuf buf = PacketByteBufs.create();
+                //$$     buf.writeString(phase);
+                //$$     buf.writeBoolean(freeze);
+                //$$     ServerPlayNetworking.send(p, OptionalFreezePayload.ID, buf);
+                //$$ }
+                //#endif
+
         );
         source.sendFeedback(() ->
                 Text.translatable(freeze ? "Froze" : "Unfroze").append(" [" + phase + "]"), true);
