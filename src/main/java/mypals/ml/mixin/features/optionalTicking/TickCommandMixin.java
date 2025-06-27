@@ -111,14 +111,15 @@ public abstract class TickCommandMixin {
     }
 
     @ModifyArg(
-            method = "register",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lcom/mojang/brigadier/ComlmandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;",
-                    remap = false
-            )
-    )
-    private static LiteralArgumentBuilder<ServerCommandSource> enhanceFreezeAndUnfreeze(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
+			method = "register",
+			at = @At(
+					value = "INVOKE",
+					target = "Lcom/mojang/brigadier/CommandDispatcher;register(Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;)Lcom/mojang/brigadier/tree/LiteralCommandNode;",
+					remap = false
+			)
+	)
+	private static LiteralArgumentBuilder<ServerCommandSource> enhanceFreezeAndUnfreeze(LiteralArgumentBuilder<ServerCommandSource> rootNode)
+	{
         enhanceFreezeNode(rootNode);
         enhanceUnfreezeNode(rootNode);
         return rootNode;
