@@ -127,7 +127,7 @@ public abstract class TickCommandMixin {
 
     @Unique
     private static void enhanceFreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
-        rootNode.then(
+        freezeNode$YACA.then(
                 CommandManager.literal("phase")
                         .executes(freezeNode$YACA.build().getCommand())
                         .then(
@@ -139,7 +139,7 @@ public abstract class TickCommandMixin {
     }
     @Unique
     private static void enhanceUnfreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
-        rootNode.then(
+        unfreezeNode$YACA.then(
                 CommandManager.literal("phase")
                         .executes(unfreezeNode$YACA.build().getCommand())
                         .then(
