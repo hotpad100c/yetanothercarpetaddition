@@ -123,7 +123,6 @@ public abstract class TickCommandMixin {
     private static void enhanceFreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
         rootNode.then(
                 CommandManager.literal("freezePhase")
-                        .requires(source -> YetAnotherCarpetAdditionRules.tickCommandEnhanced())
                         .executes(freezeNode$YACA.build().getCommand())
                         .then(
                                 CommandManager.argument("phase", StringArgumentType.word())
@@ -132,33 +131,6 @@ public abstract class TickCommandMixin {
                         )
         );
     }
-
-    @Unique
-    private static void enhanceUnfreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
-        rootNode.then(
-                CommandManager.literal("unfreezePhase")
-                        .requires(source -> YetAnotherCarpetAdditionRules.tickCommandEnhanced())
-                        .executes(unfreezeNode$YACA.build().getCommand())
-                        .then(
-                                CommandManager.argument("phase", StringArgumentType.word())
-                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
-                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase"), false))
-                        )
-        );
-    }
-
-    @Unique
-    private static int executeStep(ServerCommandSource source, int steps) {
-        ServerTickManager serverTickManager = source.getServer().getTickManager();
-        boolean bl = serverTickManager.step(steps);
-        if (bl) {
-            source.sendFeedback(() -> modifyFeedbackText(Text.translatable("commands.tick.step.success", steps), steps), true);
-        } else {
-            source.sendError(Text.translatable("commands.tick.step.fail"));
-        }
-        return 1;
-    }
-
 
     @Unique
     private static String format(long nanos) {
