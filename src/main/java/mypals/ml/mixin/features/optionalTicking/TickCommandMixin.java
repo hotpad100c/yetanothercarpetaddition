@@ -131,7 +131,18 @@ public abstract class TickCommandMixin {
                         )
         );
     }
-
+    @Unique
+    private static void enhanceFreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
+        rootNode.then(
+                CommandManager.literal("unfreezePhase")
+                        .executes(unfreezeNode$YACA.build().getCommand())
+                        .then(
+                                CommandManager.argument("phase", StringArgumentType.word())
+                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
+                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase"), false))
+                        )
+        );
+    }
     @Unique
     private static String format(long nanos) {
         return String.format("%.1f", (float) nanos / (float) TimeHelper.MILLI_IN_NANOS);
@@ -166,7 +177,7 @@ public abstract class TickCommandMixin {
                 YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks = freeze;
                 break;
             case "tilefluids":
-               BUFFERS.append("                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids = freeze;\n");
+               YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids = freeze;
                 break;
             case "tiletick":
                 YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick = freeze;
