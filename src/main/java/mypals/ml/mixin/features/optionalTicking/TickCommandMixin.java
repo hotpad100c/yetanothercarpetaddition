@@ -60,8 +60,8 @@ import java.util.Arrays;
 public abstract class TickCommandMixin {
     @Unique
     private static LiteralArgumentBuilder<ServerCommandSource> freezeNode$YACA = null;
-    @Unique
-    private static LiteralArgumentBuilder<ServerCommandSource> unfreezeNode$YACA = null;
+  
+
     @Unique
     private static final String[] PHASE_SUGGESTIONS = {
             "worldBorder", "weather", "time", "tileBlocks", "tileFluids", "tileTick",
@@ -90,25 +90,7 @@ public abstract class TickCommandMixin {
         freezeNode$YACA = freezeNode;
         return freezeNode;
     }
-
-    @ModifyExpressionValue(
-            method = "register",
-            slice = @Slice(
-                    from = @At(
-                            value = "CONSTANT",
-                            args = "stringValue=unfreeze"
-                    )
-            ),
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/command/CommandManager;literal(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;",
-                    ordinal = 0
-            )
-    )
-    private static LiteralArgumentBuilder<ServerCommandSource> storeUnfreezeNode(LiteralArgumentBuilder<ServerCommandSource> unfreezeNode) {
-        unfreezeNode$YACA = unfreezeNode;
-        return unfreezeNode;
-    }
+    
 
     @ModifyArg(
 			method = "register",
@@ -120,116 +102,104 @@ public abstract class TickCommandMixin {
 	)
 	private static LiteralArgumentBuilder<ServerCommandSource> enhanceFreezeAndUnfreeze(LiteralArgumentBuilder<ServerCommandSource> rootNode)
 	{
-        enhanceFreezeNode(rootNode);
-        enhanceUnfreezeNode(rootNode);
-        return rootNode;
-    }
+            enhanceFreezeNode(rootNode);
+            return rootNode;
+        }
 
     @Unique
     private static void enhanceFreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
-        freezeNode$YACA.then(
+        rootNode.then(
                 CommandManager.literal("phase")
                         .executes(freezeNode$YACA.build().getCommand())
                         .then(
                                 CommandManager.argument("phase", StringArgumentType.word())
                                         .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
-                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase"), true))
+                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase")))
                         )
         );
     }
+    
+	
     @Unique
-    private static void enhanceUnfreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
-        unfreezeNode$YACA.then(
-                CommandManager.literal("phase")
-                        .executes(unfreezeNode$YACA.build().getCommand())
-                        .then(
-                                CommandManager.argument("phase", StringArgumentType.word())
-                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
-                                        .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase"), false))
-                        )
-        );
-    }
-    @Unique
-    private static String format(long nanos) {
-        return String.format("%.1f", (float) nanos / (float) TimeHelper.MILLI_IN_NANOS);
+    private static int executePhaseFreeze(ServerCommandSource source, String phase) {
+    boolean newFreezeState;
+
+    switch (phase.toLowerCase()) {
+        case "worldborder":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWorldBorder);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWorldBorder = newFreezeState;
+            break;
+        case "weather":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather = newFreezeState;
+            break;
+        case "time":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTime);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTime = newFreezeState;
+            break;
+        case "tileblocks":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks = newFreezeState;
+            break;
+        case "tilefluids":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids = newFreezeState;
+            break;
+        case "tiletick":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick = newFreezeState;
+            break;
+        case "raid":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingRaid);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingRaid = newFreezeState;
+            break;
+        case "chunkmanager":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingChunkManager);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingChunkManager = newFreezeState;
+            break;
+        case "blockevents":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingBlockEvents);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingBlockEvents = newFreezeState;
+            break;
+        case "dragonfight":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingDragonFight);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingDragonFight = newFreezeState;
+            break;
+        case "entitydespawn":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopCheckEntityDespawn);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopCheckEntityDespawn = newFreezeState;
+            break;
+        case "entities":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities = newFreezeState;
+            break;
+        case "blockentities":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingBlockEntities);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingBlockEntities = newFreezeState;
+            break;
+        case "spawners":
+            newFreezeState = !(YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingSpawners);
+            YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingSpawners = newFreezeState;
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown phase: " + phase);
     }
 
-    @Unique
-    private static Text modifyFeedbackText(Text original, int steps) {
-        MutableText modifiedText = original.copy();
-        StepManager.step(steps);
-        if (YetAnotherCarpetAdditionRules.enableTickStepCounter) {
-            modifiedText.styled(style -> style.withHoverEvent(
-                    HoverEvent.showText(
-                            Text.literal(String.format(Text.translatable("TickStepCounter.stepped").getString(), StepManager.getStepped()))
-                    )
-            ));
-        }
-        return modifiedText;
-    }
-    @Unique
-    private static int executePhaseFreeze(ServerCommandSource source, String phase, boolean freeze) {
-        switch (phase.toLowerCase()) {
-            case "worldborder":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWorldBorder = freeze;
-                break;
-            case "weather":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather = freeze;
-                break;
-            case "time":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTime = freeze;
-                break;
-            case "tileblocks":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks = freeze;
-                break;
-            case "tilefluids":
-               YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids = freeze;
-                break;
-            case "tiletick":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick = freeze;
-                break;
-            case "raid":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingRaid = freeze;
-                break;
-            case "chunkmanager":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingChunkManager = freeze;
-                break;
-            case "blockevents":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingBlockEvents = freeze;
-                break;
-            case "dragonfight":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingDragonFight = freeze;
-                break;
-            case "entitydespawn":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopCheckEntityDespawn = freeze;
-                break;
-            case "entities":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities = freeze;
-                break;
-            case "blockentities":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingBlockEntities = freeze;
-                break;
-            case "spawners":
-                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingSpawners = freeze;
-                break;
-            default:
-                throw new IllegalArgumentException("Unknown phase: " + phase);
-        }
-        source.getServer().getPlayerManager().players.forEach(
-                //#if MC >= 12006
-                p -> ServerPlayNetworking.send(p, new OptionalFreezePayload(phase, freeze))
-                //#else
-                //$$ p -> {
-                //$$     PacketByteBuf buf = PacketByteBufs.create();
-                //$$     buf.writeString(phase);
-                //$$     buf.writeBoolean(freeze);
-                //$$     ServerPlayNetworking.send(p, OptionalFreezePayload.ID, buf);
-                //$$ }
-                //#endif
+    // 发送状态给所有玩家
+    source.getServer().getPlayerManager().players.forEach(
+        //#if MC >= 12006
+        p -> ServerPlayNetworking.send(p, new OptionalFreezePayload(phase, newFreezeState))
+        //#else
+        //$$ p -> {
+        //$$     PacketByteBuf buf = PacketByteBufs.create();
+        //$$     buf.writeString(phase);
+        //$$     buf.writeBoolean(newFreezeState);
+        //$$     ServerPlayNetworking.send(p, OptionalFreezePayload.ID, buf);
+        //$$ }
+        //#endif
+    );
 
-        );
-        source.sendFeedback(() ->
-                Text.translatable(freeze ? "Froze" : "Unfroze").append(" [" + phase + "]"), true);
-        return 1;
+    source.sendFeedback(() ->Text.translatable(newFreezeState ? "Froze" : "Unfroze").append(" [" + phase + "]"), true);
+    return 1;
     }
 }
