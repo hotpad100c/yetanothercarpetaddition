@@ -62,7 +62,7 @@ public class AbstractBlockStateMixin {
             at = @At("HEAD"),
             cancellable = true
     )
-    public void onStateReplaced(BlockView world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
+    public void shouldSuffocate(BlockView world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (YetAnotherCarpetAdditionRules.blocksNoSuffocate) {
             cir.setReturnValue(false);
         }
