@@ -131,6 +131,8 @@
   "carpet.rule.chessboardSuperFlatSettings.desc": "棋盘超平坦世界生成设置。\noff=禁用",
   "carpet.rule.mobAIVisualize.name": "生物AI可视化",
   "carpet.rule.mobAIVisualize.desc": "可视化怪物目标选择器",
+  "carpet.rule.RconOutputFix.name": "Rcon 输出修复",
+  "carpet.rule.RconOutputFix.desc": "Rcon 输出将保留空格。",
   "class_8716$class_8717": "调试目标选择器自定义负载$目标",
   "class_1321$class_9788": "可驯服实体$可驯服逃避危险目标",
   "class_1338": "逃离实体目标",

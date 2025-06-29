@@ -131,6 +131,8 @@
   "carpet.rule.chessboardSuperFlatSettings.desc": "ChenkGenerator settings for chessboard superflat.\n off - Disable",
   "carpet.rule.mobAIVisualize.name": "Mob AI Visualization",
   "carpet.rule.mobAIVisualize.desc": "Visualize mob goals.",
+  "carpet.rule.RconOutputFix.name": "Rcon Output Fix",
+  "carpet.rule.RconOutputFix.desc": "Rcon output will be separated in  Line now.",
   "class_8716$class_8717": "DebugGoalSelectorCustomPayload$Goal",
   "class_1321$class_9788": "TameableEntity$TameableEscapeDangerGoal",
   "class_1338": "FleeEntityGoal",

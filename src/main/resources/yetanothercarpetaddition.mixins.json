@@ -61,6 +61,7 @@
     "features.optionalTicking.TickCommandMixin",
     "features.optionalTicking.WorldBorderMixin",
     "features.optionalTicking.WorldMixin",
+    "features.rconOutputFix.rconOutputMixin",
     "features.slienceTP.TeleportCommandMixin",
     "features.stepCounter.TickCommandMixin",
     "features.subscribeRules.PlayerManagerMixin",

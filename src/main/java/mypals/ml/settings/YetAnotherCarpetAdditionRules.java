@@ -281,5 +281,8 @@ public class YetAnotherCarpetAdditionRules {
             validators = {RuleValidators.GRID_WORLD_SETTINGS_VALIDATOR.class}
     )
     public static String chessboardSuperFlatSettings = "off";
-
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean RconOutputFix = true;
 }
