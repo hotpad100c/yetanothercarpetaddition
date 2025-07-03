@@ -36,7 +36,6 @@ import net.minecraft.component.type.BlockStateComponent;
 //#endif
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.state.property.Property;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -69,7 +68,6 @@ public class MinecraftClientMixin {
         if (this.crosshairTarget != null && this.crosshairTarget.getType() != net.minecraft.util.hit.HitResult.Type.MISS) {
             if (this.crosshairTarget.getType() == HitResult.Type.BLOCK) {
                 BlockPos blockPos = ((BlockHitResult) this.crosshairTarget).getBlockPos();
-
                 if (Screen.hasShiftDown()) {
                     setBlockStateData(itemStack, player.getWorld().getBlockState(blockPos));
                 }
@@ -95,8 +93,6 @@ public class MinecraftClientMixin {
         //$$     nbt.putString(property.getName(), value.toString());
         //$$});
         //$$stack.getOrCreateNbt().put("BlockStateTag", nbt);
-        //$$System.out.println("B: " + nbt);
-
         //#endif
 
     }

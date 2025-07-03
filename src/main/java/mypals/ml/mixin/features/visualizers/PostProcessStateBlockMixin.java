@@ -48,7 +48,8 @@ public class PostProcessStateBlockMixin {
     )
     private static void AddPPMarker(BlockState state, WorldAccess world, BlockPos pos, CallbackInfoReturnable<BlockState> cir) {
         if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || world.isClient()) return;
-        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) world, pos, BlockUpdateVisualizing.UpdateType.PP);
+        BlockPos sourcePos = pos.toImmutable();
+        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) world, sourcePos, BlockUpdateVisualizing.UpdateType.PP);
 
     }
 
