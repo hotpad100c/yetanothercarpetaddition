@@ -24,6 +24,11 @@ import carpet.CarpetServer;
 import carpet.helpers.HopperCounter;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import net.minecraft.block.ShulkerBoxBlock;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
@@ -82,6 +87,23 @@ public class HopperCounterDataManager {
                         String counterValue = counter.getTotalItems() + "^^^";
                         for (Text text : counter.format(CarpetServer.minecraft_server, false, false)) {
                             counterValue += text.getString() + "@@";
+                        }
+                        // Append detailed item list
+                        for (ItemStack stack : counter.getInventory().getHeldStacks()) {
+                            if (!stack.isEmpty()) {
+                                if (stack.getItem() instanceof BlockItem && ((BlockItem) stack.getItem()).getBlock() instanceof ShulkerBoxBlock) {
+                                    ContainerComponent container = stack.get(DataComponentTypes.CONTAINER);
+                                    if (container != null) {
+                                        for (ItemStack itemStack : container.stream()) {
+                                            if (!itemStack.isEmpty()) {
+                                                counterValue += "  " + itemStack.getName().getString() + ":" + itemStack.getCount() + "@@";
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    counterValue += stack.getName().getString() + ":" + stack.getCount() + "@@";
+                                }
+                            }
                         }
                         counters.put(name, counterValue);
                     }
