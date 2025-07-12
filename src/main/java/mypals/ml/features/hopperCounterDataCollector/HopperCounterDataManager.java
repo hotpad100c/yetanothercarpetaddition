@@ -80,8 +80,9 @@ public class HopperCounterDataManager {
                 allCounters.forEach((name, counter) -> {
                     if (counter != null) {
                         String counterValue = counter.getTotalItems() + "^^^";
-                        for (Text text : counter.format(CarpetServer.minecraft_server, false, false)) {
-                            counterValue += text.getString() + "@@";
+                        List<Text> formatted = counter.format(CarpetServer.minecraft_server, false, false);
+                        for (int i = 1; i < formatted.size(); i++) {
+                            counterValue += formatted.get(i).getString() + "@@";
                         }
                         counters.put(name, counterValue);
                     }
