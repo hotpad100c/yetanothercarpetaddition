@@ -105,6 +105,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static BlockEntityOrderVisualizing blockEntityOrderVisualizing = new BlockEntityOrderVisualizing();
     public static POIVisualizing poiVisualizing = new POIVisualizing();
     public static MobAIVisualizer mobAIVisualizer = new MobAIVisualizer();
+    public static TreeGrowthObstacleVisualzing treeGrowthObstacleVisualzing = new TreeGrowthObstacleVisualzing();
     public static final String MOD_VERSION = "V1.0.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -120,6 +121,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         allVisualizers.add(blockEntityOrderVisualizing);
         allVisualizers.add(poiVisualizing);
         allVisualizers.add(mobAIVisualizer);
+        allVisualizers.add(treeGrowthObstacleVisualzing);
     }
 
     @Override

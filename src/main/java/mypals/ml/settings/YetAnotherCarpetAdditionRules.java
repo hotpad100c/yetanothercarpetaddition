@@ -217,6 +217,11 @@ public class YetAnotherCarpetAdditionRules {
     )
     public static boolean POIVisualize = false;
 
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean treeGrowthObstacleVisualize = false;
+
     //#if MC < 12102
     @Rule(
             categories = {YACA, FEATURE}

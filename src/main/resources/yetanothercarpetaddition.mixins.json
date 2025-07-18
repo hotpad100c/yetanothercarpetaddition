@@ -78,6 +78,7 @@
     "features.visualizers.ScheduledTickAndEventsServerWorldMixin",
     "features.visualizers.SimpleNeighborUpdaterMixin",
     "features.visualizers.TickBlockEntitiesRecordOrderMixin",
+    "features.visualizers.TreeGrowthObstacleUpdaterMixin",
     "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
     "features.visualizers.WorldUpdateComparatorsMixin"
   ],
