@@ -26,6 +26,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -73,9 +74,9 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
                 extra.add(orderPart);
                 textJson.add("extra", extra);
 
-                NbtCompound nbt = tickMarker.writeNbt(new NbtCompound());
+                NbtCompound nbt = NBTDataManager.readFromEntity(tickMarker, new NbtCompound());
                 nbt.putString("text", textJson.toString());
-                tickMarker.readNbt(nbt);
+                NBTDataManager.writeToEntity(tickMarker, nbt);
             } else {
                 tickMarker = summonText(world, pos.toCenterPos().add(0, -0.4, 0), String.valueOf(order));
             }
@@ -109,12 +110,12 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             extra.add(orderPart);
             textJson.add("extra", extra);
 
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt.putString("billboard", "center");
             nbt.putString("text", textJson.toString());
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
 
             entity.setPos(pos.getX(), pos.getY() + 0.2, pos.getZ());
             entity.addCommandTag(tag);
@@ -126,11 +127,11 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
         private DisplayEntity.BlockDisplayEntity summonMarker(World world, BlockPos pos) {
             DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
             float scale = 0.9f;
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt.put("block_state", NbtHelper.fromBlockState(Blocks.GREEN_STAINED_GLASS.getDefaultState()));
             nbt = EntityHelper.scaleEntity(nbt, scale);
             nbt.putInt("glow_color_override", 0xAAFFAA);
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
             entity.noClip = true;
             entity.setGlowing(true);
             entity.setInvisible(true);
@@ -157,14 +158,13 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
     @Override
     protected void updateVisualizerEntity(BlockEventObject marker, Object data) {
         if (data instanceof Integer order && marker.tickMarker != null && !marker.tickMarker.isRemoved()) {
-            NbtCompound nbt2 = marker.typeMarker.writeNbt(new NbtCompound());
+            NbtCompound nbt2 = NBTDataManager.readFromEntity(marker.typeMarker, new NbtCompound());
             nbt2 = EntityHelper.scaleEntity(nbt2, 0.9f);
             float offset = (float) ((1.0f - 0.9f) / 2.0f);
             marker.typeMarker.setPos(marker.typeMarker.getX() + offset, marker.typeMarker.getY() + offset, marker.typeMarker.getZ() + offset);
-            marker.typeMarker.readNbt(nbt2);
+            NBTDataManager.writeToEntity(marker.typeMarker, nbt2);
 
-
-            NbtCompound nbt = marker.tickMarker.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(marker.tickMarker, new NbtCompound());
             JsonObject orderPart = new JsonObject();
             JsonObject textJson = new JsonObject();
             if (marker.tickMarker.getWorld().getTime() != marker.summonTime) {
@@ -230,8 +230,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             nbt.putString("text", textJson.toString());
             marker.tickMarker.age = 0;
             marker.typeMarker.age = 0;
-            marker.tickMarker.readNbt(nbt);
-
+            NBTDataManager.writeToEntity(marker.tickMarker, nbt);
             visualizers.put(marker.tickMarker.getBlockPos(), Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.tickMarker.getWorld())));
         }
     }
@@ -283,11 +282,11 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
                 object.removeVisualizer();
                 visualizers.remove(pos);
             }
-            NbtCompound nbt = entry.getKey().typeMarker.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entry.getKey().typeMarker, new NbtCompound());
 
             float scale = mapSize((int) (deleteTick - CarpetServer.minecraft_server.getOverworld().getTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
-            entry.getKey().typeMarker.readNbt(nbt);
+            NBTDataManager.writeToEntity(entry.getKey().typeMarker, nbt);
             entry.getKey().typeMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
 
         });

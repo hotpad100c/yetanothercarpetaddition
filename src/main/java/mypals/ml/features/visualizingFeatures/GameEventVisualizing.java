@@ -23,6 +23,7 @@ package mypals.ml.features.visualizingFeatures;
 import carpet.CarpetServer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
@@ -90,13 +91,13 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
                 //$$ nbtList.add(textComponent);
                 //#endif
 
-                NbtCompound nbt = textMarker.writeNbt(new NbtCompound());
+                NbtCompound nbt = NBTDataManager.readFromEntity(textMarker, new NbtCompound());
                 //#if MC < 12105
                 nbt.putString("text", textJson.toString());
                 //#else
                 //$$ nbt.put("text", nbtList);
                 //#endif
-                textMarker.readNbt(nbt);
+                NBTDataManager.writeToEntity(textMarker, nbt);
             } else {
                 textMarker = summonText(world, pos, trigger, type);
             }
@@ -151,7 +152,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             //$$ nbtList.add(textComponent);
             //#endif
 
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt.putString("billboard", "center");
             //#if MC < 12105
             nbt.putString("text", textJson.toString());
@@ -160,8 +161,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             //#endif
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
-            entity.readNbt(nbt);
-
+            NBTDataManager.writeToEntity(entity, nbt);
             entity.setPos(pos.getX(), pos.getY(), pos.getZ());
             entity.addCommandTag(tag);
             entity.addCommandTag("DoNotTick");
@@ -172,11 +172,12 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
         private DisplayEntity.BlockDisplayEntity summonMarker(World world, Vec3d pos) {
             DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
             float scale = 0.3f;
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt.put("block_state", NbtHelper.fromBlockState(Blocks.BLUE_STAINED_GLASS_PANE.getDefaultState()));
             nbt = EntityHelper.scaleEntity(nbt, scale);
             nbt.putInt("glow_color_override", 0xAAAAFF);
-            entity.readNbt(nbt);
+            
+            NBTDataManager.writeToEntity(entity, nbt);
             entity.noClip = true;
             entity.setGlowing(true);
             entity.setPos(pos.getX() - (scale / 2), pos.getY() - (scale / 2) - 0.1f, pos.getZ() - (scale / 2));

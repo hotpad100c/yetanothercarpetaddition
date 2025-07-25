@@ -43,7 +43,9 @@ import static mypals.ml.YetAnotherCarpetAdditionClient.defaultRules;
 import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
-//#if MC >= 12102
+//#if MC >= 12106
+//$$ import net.minecraft.client.gl.RenderPipelines;
+//#elseif MC >= 12102
 //$$ import static net.minecraft.client.render.RenderLayer.getGui;
 //#endif
 public class RuleWidget {
@@ -67,8 +69,21 @@ public class RuleWidget {
             @Override
             public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
                 if (this.isVisible()) {
-                    context.fill(RenderLayer.getGuiOverlay(), this.getX() + this.width / 2, this.getY() + this.height - 4,
-                            this.getX(), this.getY() + this.height - 5, 0xAFFFFFFF);
+                    context.fill(
+                            //#if MC >= 12106
+                            //$$
+                            //#else
+                            RenderLayer.getGuiOverlay(),
+                            //#endif
+
+                            this.getX() + this.width / 2, this.getY() + this.height - 4,
+                            this.getX(), this.getY() + this.height - 5,
+                            //#if MC >= 12106
+                            //$$ -1072689136
+                            //#else
+                            0xAFFFFFFF
+                            //#endif
+                    );
                     super.renderWidget(context, mouseX, mouseY, delta);
                 }
             }
@@ -92,7 +107,9 @@ public class RuleWidget {
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
-                            //#if MC >= 12102
+                            //#if MC >= 12106
+                            //$$ RenderPipelines.GUI_TEXTURED,
+                            //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
                             this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
@@ -119,7 +136,13 @@ public class RuleWidget {
                 this.toggled = !this.toggled;
                 this.playDownSound(MinecraftClient.getInstance().getSoundManager());
                 String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
-                MinecraftClient.getInstance().getNetworkHandler().sendCommand(("carpet " + commandName + " " + this.toggled));
+                MinecraftClient.getInstance().getNetworkHandler()
+                        //#if MC >= 12106
+                        //$$ .sendChatCommand(
+                        //#else
+                        .sendCommand(
+                                //#endif
+                                ("carpet " + commandName + " " + this.toggled));
                 ruleData.value = this.toggled ? "true" : "false";
                 valueWidget.setText("");
             }
@@ -145,7 +168,9 @@ public class RuleWidget {
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
-                            //#if MC >= 12102
+                            //#if MC >= 12106
+                            //$$ RenderPipelines.GUI_TEXTURED,
+                            //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
                             this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
@@ -172,7 +197,15 @@ public class RuleWidget {
                 this.toggled = !this.toggled;
 
                 String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
-                MinecraftClient.getInstance().getNetworkHandler().sendCommand((toggled ? "carpet setDefault " : "carpet removeDefault ") + commandName + (toggled ? " " + ruleData.value : ""));
+                MinecraftClient.getInstance().getNetworkHandler()
+
+                        //#if MC >= 12106
+                        //$$.sendChatCommand(
+                        //#else
+                        .sendCommand(
+                                //#endif
+                                (toggled ? "carpet setDefault " : "carpet removeDefault ") + commandName + (toggled ? " " + ruleData.value : "")
+                        );
 
                 if (toggled) {
                     defaultRules.add(commandName);
@@ -197,7 +230,9 @@ public class RuleWidget {
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
-                            //#if MC >= 12102
+                            //#if MC >= 12106
+                            //$$ RenderPipelines.GUI_TEXTURED,
+                            //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
                             this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
@@ -263,7 +298,7 @@ public class RuleWidget {
 
         favoriteRule.setPosition(boxWidth - 6, y + 5);
         favoriteRule.render(context, mouseX, mouseY, delta);
-        context.drawText(MinecraftClient.getInstance().textRenderer, name + " : ", x + 5, y + 5, 0xFFFFFF, true);
+        context.drawText(MinecraftClient.getInstance().textRenderer, name + " : ", x + 5, y + 5, 0xFFFFFFFF, true);
         if (isTrueFalseRule) {
             trueFalseButton.setPosition(boxWidth - 50, y + 2);
             trueFalseButton.render(context, mouseX, mouseY, delta);
@@ -271,7 +306,7 @@ public class RuleWidget {
             valueWidget.setPosition(boxWidth - 50, y + 5);
             valueWidget.render(context, mouseX, mouseY, delta);
         }
-        context.drawText(MinecraftClient.getInstance().textRenderer, categories.toString(), x + 5, y + boxHeight - 12, 0xFFFFFF, true);
+        context.drawText(MinecraftClient.getInstance().textRenderer, categories.toString(), x + 5, y + boxHeight - 12, 0xFFFFFFFF, true);
         //context.drawTexture(LOCK.get(true, true), x + 5, y + 5, 0, 0, 10, 10, 10, 10);
 
         if (isMouseOver && mouseX <= x + boxWidth / 2) {
@@ -302,7 +337,13 @@ public class RuleWidget {
             } else {
                 if (!valueWidget.getText().isEmpty() && !isTrueFalseRule) {
                     String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
-                    MinecraftClient.getInstance().getNetworkHandler().sendCommand(("carpet " + commandName + " " + valueWidget.getText()));
+                    MinecraftClient.getInstance().getNetworkHandler()
+                            //#if MC >= 12106
+                            //$$.sendChatCommand(
+                            //#else
+                            .sendCommand(
+                                    //#endif
+                                    ("carpet " + commandName + " " + valueWidget.getText()));
                     ruleData.value = valueWidget.getText();
                     valueWidget.setText("");
                 }

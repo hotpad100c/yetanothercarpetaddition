@@ -21,6 +21,7 @@
 package mypals.ml.features.fakePlayerControl;
 
 import carpet.patches.EntityPlayerMPFake;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
@@ -59,15 +60,19 @@ public class FakePlayerControlManager {
 
     public static void bindPlayer(ServerPlayerEntity player, EntityPlayerMPFake fakePlayer) {
         NbtCompound playerData = new NbtCompound();
-        player.writeNbt(playerData);
-        player.writeCustomDataToNbt(playerData);
+        NBTDataManager.readFromEntity(player, playerData);
         playerData.putString("GameMode", player.interactionManager.getGameMode().getName());
         playerData.putString("MainArm", player.getMainArm().toString());
         bindTempData.put(player, playerData);
 
         binds.put(player,
                 Map.entry(addBindTeam(player, fakePlayer, player.getServerWorld()), fakePlayer));
-        player.readNbt(fakePlayer.writeNbt(new NbtCompound()));
+
+
+        NbtCompound fakePlayerData = new NbtCompound();
+
+        NBTDataManager.writeToEntity(player, NBTDataManager.readFromEntity(fakePlayer, fakePlayerData));
+
         player.setPosition(fakePlayer.getX(), fakePlayer.getY(), fakePlayer.getZ());
         player.setYaw(fakePlayer.getYaw());
         player.setPitch(fakePlayer.getPitch());
@@ -149,11 +154,10 @@ public class FakePlayerControlManager {
         Team team = binds.get(player).getKey();
         team.getScoreboard().removeTeam(team);
         System.out.println("Unbinding player: " + player.getName().getString() + " from fake player: " + fakePlayer.getName().getString());
-        fakePlayer.readNbt(player.writeNbt(new NbtCompound()));
+        NBTDataManager.writeToEntity(fakePlayer, NBTDataManager.readFromEntity(player, new NbtCompound()));
 
         NbtCompound playerData = bindTempData.get(player);
-        player.readNbt(playerData);
-        player.readCustomDataFromNbt(playerData);
+        NBTDataManager.writeToEntity(player, playerData);
 
         //#if MC>=12105
         //$$String gameModeName = playerData.getString("GameMode").get();

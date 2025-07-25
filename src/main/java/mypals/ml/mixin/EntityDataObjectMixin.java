@@ -23,6 +23,7 @@ package mypals.ml.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.command.EntityDataObject;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -51,7 +52,7 @@ public class EntityDataObjectMixin {
     public void setNbt(NbtCompound nbt, CallbackInfo ci) throws CommandSyntaxException {
         if (YetAnotherCarpetAdditionRules.bypassModifyPlayerDataRestriction) {
             UUID uUID = this.entity.getUuid();
-            this.entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(this.entity, nbt);
             this.entity.setUuid(uUID);
             ci.cancel();
         }

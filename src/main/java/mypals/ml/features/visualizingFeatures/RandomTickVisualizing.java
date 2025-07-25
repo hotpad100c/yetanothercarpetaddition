@@ -22,6 +22,7 @@ package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
@@ -90,11 +91,11 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
                 removeVisualizer(pos);
                 visualizers.remove(pos);
             }
-            NbtCompound nbt = entry.getKey().writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entry.getKey(), new NbtCompound());
 
             float scale = mapSize((int) (time - CarpetServer.minecraft_server.getOverworld().getTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
-            entry.getKey().readNbt(nbt);
+            NBTDataManager.writeToEntity(entry.getKey(), nbt);
             entry.getKey().setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
         });
     }
@@ -106,10 +107,11 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
 
     @Override
     protected void updateVisualizerEntity(DisplayEntity.BlockDisplayEntity marker, Object data) {
-        NbtCompound nbt = marker.writeNbt(new NbtCompound());
+        NbtCompound nbt = NBTDataManager.readFromEntity(marker, new NbtCompound());
+
         float scale = 0.9f;
         nbt = EntityHelper.scaleEntity(nbt, scale);
-        marker.readNbt(nbt);
+        NBTDataManager.writeToEntity(marker, nbt);
         BlockPos blockPos = BlockPos.ofFloored(marker.getPos());
         marker.setPos(blockPos.toCenterPos().getX() - (scale / 2), blockPos.toCenterPos().getY() - (scale / 2), blockPos.toCenterPos().getZ() - (scale / 2));
         marker.age = 0;
@@ -119,12 +121,13 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
     protected DisplayEntity.BlockDisplayEntity createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
         DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
         entity.setNoGravity(true);
-        NbtCompound nbt = entity.writeNbt(new NbtCompound());
+        NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
         nbt.put("block_state", NbtHelper.fromBlockState(Blocks.RED_STAINED_GLASS.getDefaultState()));
         float scale = 0.9f;
         nbt = EntityHelper.scaleEntity(nbt, scale);
         nbt.putInt("glow_color_override", 0xFFAAAA);
-        entity.readNbt(nbt);
+        NBTDataManager.writeToEntity(entity, nbt);
+
         entity.setInvisible(true);
         entity.setInvulnerable(true);
         entity.setGlowing(true);

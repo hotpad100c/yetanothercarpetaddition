@@ -21,6 +21,7 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -54,7 +55,8 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
             return;
         }
         if (data instanceof PointOfInterest poi) {
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
+
             //#if MC < 12105
 
             String textJson = "{\"text\":\"" + "[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
@@ -70,7 +72,8 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
             //$$NbtCompound textComponent = new NbtCompound(textNbt);
             //$$ nbt.put("text", textComponent);
             //#endif
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
+
         }
     }
 
@@ -85,13 +88,14 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
             entity.addCommandTag(getVisualizerTag());
             entity.addCommandTag("DoNotTick");
             world.spawnEntity(entity);
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt = configureCommonNbt(nbt);
             String textJson = "{\"text\":\"" + "[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
                     poi.getType().value().ticketCount() + "]"
                     + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
             nbt.putString("text", textJson);
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
+
             return entity;
         }
         return null;

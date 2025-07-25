@@ -46,22 +46,24 @@ public abstract class EntityCollisionMixin extends Entity {
         super(type, world);
     }
 
-   
+
     private boolean isMinecart() {
         return this.getType() == EntityType.MINECART ||
-               this.getType() == EntityType.CHEST_MINECART ||
-               this.getType() == EntityType.FURNACE_MINECART ||
-               this.getType() == EntityType.HOPPER_MINECART ||
-               this.getType() == EntityType.TNT_MINECART ||
-               this.getType() == EntityType.COMMAND_BLOCK_MINECART ||
-               this.getType() == EntityType.SPAWNER_MINECART;
+                this.getType() == EntityType.CHEST_MINECART ||
+                this.getType() == EntityType.FURNACE_MINECART ||
+                this.getType() == EntityType.HOPPER_MINECART ||
+                this.getType() == EntityType.TNT_MINECART ||
+                this.getType() == EntityType.COMMAND_BLOCK_MINECART ||
+                this.getType() == EntityType.SPAWNER_MINECART;
     }
-//#if MC < 12103
+
+    //#if MC < 12103
     private boolean isBoat() {
         return this.getType() == EntityType.BOAT ||
-               this.getType() == EntityType.CHEST_BOAT;
+                this.getType() == EntityType.CHEST_BOAT;
     }
-//#else
+
+    //#else
 //$$  private boolean isBoat() {
 //$$          return this.getType() == EntityType.OAK_BOAT ||
 //$$                 this.getType() == EntityType.ACACIA_BOAT ||
@@ -87,29 +89,37 @@ public abstract class EntityCollisionMixin extends Entity {
         if (YetAnotherCarpetAdditionRules.moreHardCollisions && BoatEntity.canCollide(this, other)) {
             return true;
         }
-        
+
         if (other instanceof BoatEntity || other instanceof ShulkerEntity) {
             return true;
         }
-        
+
         if (isMinecart() || isBoat()) {
             return BoatEntity.canCollide(this, other);
         }
-        
+
         return super.collidesWith(other);
     }
 
     @Override
     public boolean isPushable() {
-        
-        return YetAnotherCarpetAdditionRules.moreHardCollisions || 
-               super.isPushable() || 
-               isMinecart() || 
-               isBoat();
+
+        return YetAnotherCarpetAdditionRules.moreHardCollisions ||
+                super.isPushable() ||
+                isMinecart() ||
+                isBoat();
     }
 
     @Override
-    public boolean isCollidable() {
-        return YetAnotherCarpetAdditionRules.moreHardCollisions || super.isCollidable() || isBoat();
+    public boolean isCollidable(
+            //#if MC>=12106
+            //$$ Entity entity
+            //#endif
+    ) {
+        return YetAnotherCarpetAdditionRules.moreHardCollisions || super.isCollidable(
+                //#if MC>=12106
+                //$$ entity
+                //#endif
+        ) || isBoat();
     }
 }

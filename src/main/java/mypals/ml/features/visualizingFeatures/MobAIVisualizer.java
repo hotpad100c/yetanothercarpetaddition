@@ -22,6 +22,7 @@ package mypals.ml.features.visualizingFeatures;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ai.goal.GoalSelector;
@@ -162,7 +163,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         });
 
         textJson.add("extra", extra);
-        NbtCompound nbt = display.writeNbt(new NbtCompound());
+        NbtCompound nbt = NBTDataManager.readFromEntity(display, new NbtCompound());
         //#if MC >= 12105
         //$$NbtList nbtList = new NbtList();
         //$$extra.forEach(element -> {
@@ -177,7 +178,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         nbt.putString("text", textJson.toString());
         //#endif
         nbt = configureCommonNbt(nbt);
-        display.readNbt(nbt);
+        NBTDataManager.writeToEntity(display, nbt);
     }
 
 

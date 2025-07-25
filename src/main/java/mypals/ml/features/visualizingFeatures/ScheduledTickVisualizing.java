@@ -22,6 +22,7 @@ package mypals.ml.features.visualizingFeatures;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -88,13 +89,13 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
                 //$$ NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
                 //#endif
 
-                NbtCompound nbt = tickMarker.writeNbt(new NbtCompound());
+                NbtCompound nbt = NBTDataManager.readFromEntity(tickMarker, new NbtCompound());
                 //#if MC < 12105
                 nbt.putString("text", textJson.toString());
                 //#else
                 //$$ nbt.put("text", nbtList);
                 //#endif
-                tickMarker.readNbt(nbt);
+                NBTDataManager.writeToEntity(tickMarker, nbt);
             } else {
                 tickMarker = summonText(world, pos.toCenterPos().add(0, -0.4, 0), trigger, priority, subTickOrder);
             }
@@ -137,7 +138,7 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             //$$ NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
             //#endif
 
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt.putString("billboard", "center");
             //#if MC < 12105
             nbt.putString("text", textJson.toString());
@@ -146,7 +147,7 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             //#endif
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
 
             entity.setPos(pos.getX(), pos.getY(), pos.getZ());
             entity.addCommandTag(tag);
@@ -195,13 +196,13 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             //$$ NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
             //#endif
 
-            NbtCompound nbt = marker.tickMarker.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(marker.tickMarker, new NbtCompound());
             //#if MC < 12105
             nbt.putString("text", textJson.toString());
             //#else
             //$$ nbt.put("text", nbtList);
             //#endif
-            marker.tickMarker.readNbt(nbt);
+            NBTDataManager.writeToEntity(marker.tickMarker, nbt);
         }
     }
 

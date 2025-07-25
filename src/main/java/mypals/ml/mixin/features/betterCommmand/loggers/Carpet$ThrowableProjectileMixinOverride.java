@@ -30,6 +30,7 @@ import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.TridentEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -47,7 +48,9 @@ public abstract class Carpet$ThrowableProjectileMixinOverride extends Entity {
     }
 
     @Inject(method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V", at = @At("RETURN"))
-    private void addLogger(EntityType<? extends ProjectileEntity> entityType_1, World world_1, CallbackInfo ci) {
+    private void addLogger(EntityType<? extends ProjectileEntity> entityType_1, World world_1,
+                          
+                           CallbackInfo ci) {
         if (LoggerRegistry.__projectiles && !world_1.isClient)
             YACA$logHelper = new TrajectoryLogHelper("projectiles");
     }

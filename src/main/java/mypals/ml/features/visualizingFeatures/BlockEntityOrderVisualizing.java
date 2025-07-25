@@ -21,6 +21,7 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -53,7 +54,7 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
             return;
         }
         if (data instanceof Integer order) {
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             //#if MC < 12105
             String textJson = "{\"text\":\"" + "#" + order + "\",\"color\":\"" + "white" + "\"}";
             nbt.remove("text");
@@ -65,7 +66,7 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
             //$$ NbtCompound textComponent = new NbtCompound(textNbt);
             //$$ nbt.put("text", textComponent);
             //#endif
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
         }
     }
 
@@ -80,11 +81,11 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
             entity.addCommandTag(getVisualizerTag());
             entity.addCommandTag("DoNotTick");
             world.spawnEntity(entity);
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt = configureCommonNbt(nbt);
             String textJson = "{\"text\":\"" + "#" + order + "\",\"color\":\"" + "white" + "\"}";
             nbt.putString("text", textJson);
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
             return entity;
         }
         return null;

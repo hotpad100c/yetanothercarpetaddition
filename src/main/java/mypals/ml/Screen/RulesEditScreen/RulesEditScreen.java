@@ -38,10 +38,17 @@ import net.minecraft.util.Identifier;
 //#if MC >= 12102
 //$$ import net.minecraft.client.gl.PostEffectProcessor;
 //$$ import net.minecraft.client.render.DefaultFramebufferSet;
-   //#if MC >= 12104
-   //$$ import net.minecraft.client.gui.widget.ScrollableTextFieldWidget;
-   //#endif
+//#if MC >= 12104
+//$$ import net.minecraft.client.gui.widget.ScrollableTextFieldWidget;
 //#endif
+//#endif
+
+//#if MC >= 12106
+//$$ import net.minecraft.client.gl.RenderPipelines;
+//#elseif MC >= 12102
+//$$ import static net.minecraft.client.render.RenderLayer.getGui;
+//#endif
+
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -175,21 +182,36 @@ public class RulesEditScreen extends Screen implements ParentElement {
     @Override
     protected void init() {
         setCurrentCategory(chachedCategories.get(2));
-        this.addDrawableChild(searchFieldWidget =
-                new TextFieldWidget(MinecraftClient.getInstance().textRenderer,
-                        15, 10, this.width - (this.width / 3) - 7, 15, CONFIGURE_TEXT) {
-                    @Override
-                    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-                        if (this.isVisible()) {
-                            context.fill(RenderLayer.getGuiOverlay(), this.getX(), this.getY() - 1,
-                                    this.width + 1, this.height + 1 + 9, 0x0AAAAAAA);
 
-                            context.fill(RenderLayer.getGuiOverlay(), this.getX(), this.getY() + this.height - 4,
-                                    this.width + 1, this.getY() + this.height - 5, 0xAFFFFFFF);
-                            super.renderWidget(context, mouseX, mouseY, delta);
-                        }
-                    }
-                });
+        this.addDrawableChild(
+
+                searchFieldWidget =
+                        new TextFieldWidget(MinecraftClient.getInstance().textRenderer,
+                                15, 10, this.width - (this.width / 3) - 7, 15, CONFIGURE_TEXT) {
+                            @Override
+                            public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+                                if (this.isVisible()) {
+                                    context.fill(
+                                            //#if MC >= 12106
+                                            //$$
+                                            //#else
+                                            RenderLayer.getGuiOverlay(),
+                                            //#endif
+                                            this.getX(), this.getY() - 1,
+                                            this.width + 1, this.height + 1 + 9, 0x0AAAAAAA);
+
+                                    context.fill(
+                                            //#if MC >= 12106
+                                            //$$
+                                            //#else
+                                            RenderLayer.getGuiOverlay(),
+                                            //#endif
+                                            this.getX(), this.getY() + this.height - 4,
+                                            this.width + 1, this.getY() + this.height - 5, 0xAFFFFFFF);
+                                    super.renderWidget(context, mouseX, mouseY, delta);
+                                }
+                            }
+                        });
         searchFieldWidget.setDrawsBackground(false);
         searchFieldWidget.setChangedListener(newText -> {
             if (newText.isEmpty()) {
@@ -217,179 +239,187 @@ public class RulesEditScreen extends Screen implements ParentElement {
         });
         searchFieldWidget.setMaxLength(100);
 
-        this.addDrawableChild(rulesScrollableWidget = new
-                //#if MC >= 12104
-                //$$ ScrollableTextFieldWidget
-                //#else
-                ScrollableWidget
-                //#endif
-                        (0, 30, this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
-            int boxWidth = this.width - 10;
-            int boxHeight = 30;
-            int spacing = 5;
 
-            @Override
-            protected int getContentsHeight() {
-                return (boxHeight + spacing) * rulesInCurrentCategory.size() - spacing;
-            }
+        this.addDrawableChild(
+                rulesScrollableWidget = new
+                        //#if MC >= 12104
+                        //$$ ScrollableTextFieldWidget
+                        //#else
+                        ScrollableWidget
+                                //#endif
+                                (0, 30, this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
+                            int boxWidth = this.width - 10;
+                            int boxHeight = 30;
+                            int spacing = 5;
 
-            @Override
-            protected double getDeltaYPerScroll() {
-                return 10f;
-            }
+                            @Override
+                            protected int getContentsHeight() {
+                                return (boxHeight + spacing) * rulesInCurrentCategory.size() - spacing;
+                            }
 
-            @Override
-            protected void renderContents(DrawContext context, int mouseX, int mouseY, float delta) {
-                int index = 0;
-                double adjustedMouseY = mouseY + this.getScrollY();
+                            @Override
+                            protected double getDeltaYPerScroll() {
+                                return 10f;
+                            }
 
-                currentToolTips = new ArrayList<>();
-                for (RuleWidget entry : rulesInCurrentCategory) {
-                    int x = 5;
-                    int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
-                    entry.setPosition(x, y);
-                    boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y &&
-                            adjustedMouseY <= y + boxHeight && mouseY >= this.getY();
+                            @Override
+                            protected void renderContents(DrawContext context, int mouseX, int mouseY, float delta) {
+                                int index = 0;
+                                double adjustedMouseY = mouseY + this.getScrollY();
 
-                    List<Text> tooltips = entry.renderContents(context, mouseX, mouseY, delta, isMouseOver,
-                            index, spacing, boxHeight, boxWidth);
+                                currentToolTips = new ArrayList<>();
+                                for (RuleWidget entry : rulesInCurrentCategory) {
+                                    int x = 5;
+                                    int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
+                                    entry.setPosition(x, y);
+                                    boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y &&
+                                            adjustedMouseY <= y + boxHeight && mouseY >= this.getY();
 
-                    currentToolTips = currentToolTips.isEmpty() && !(tooltips == null) ? tooltips
-                            : currentToolTips;
+                                    List<Text> tooltips = entry.renderContents(context, mouseX, mouseY, delta, isMouseOver,
+                                            index, spacing, boxHeight, boxWidth);
 
-                    index++;
-                }
-            }
+                                    currentToolTips = currentToolTips.isEmpty() && !(tooltips == null) ? tooltips
+                                            : currentToolTips;
 
-            @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                int index = 0;
+                                    index++;
+                                }
+                            }
+
+                            @Override
+                            public boolean mouseClicked(double mouseX, double mouseY, int button) {
+                                int index = 0;
 
 
-                double adjustedMouseY = mouseY + this.getScrollY();
+                                double adjustedMouseY = mouseY + this.getScrollY();
 
-                for (RuleWidget entry : rulesInCurrentCategory) {
-                    int x = 5;
-                    int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
-                    entry.onClicked(mouseX, mouseY, mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight, button);
-                    index++;
-                }
+                                for (RuleWidget entry : rulesInCurrentCategory) {
+                                    int x = 5;
+                                    int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
+                                    entry.onClicked(mouseX, mouseY, mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight, button);
+                                    index++;
+                                }
 
-                return super.mouseClicked(mouseX, mouseY, button);
-            }
+                                return super.mouseClicked(mouseX, mouseY, button);
+                            }
 
-            @Override
-            public boolean charTyped(char chr, int modifiers) {
-                for (RuleWidget entry : rulesInCurrentCategory) {
-                    if (entry.valueWidget.isFocused()) {
-                        entry.valueWidget.charTyped(chr, modifiers);
-                        return true;
-                    }
-                }
-                return super.charTyped(chr, modifiers);
-            }
+                            @Override
+                            public boolean charTyped(char chr, int modifiers) {
+                                for (RuleWidget entry : rulesInCurrentCategory) {
+                                    if (entry.valueWidget.isFocused()) {
+                                        entry.valueWidget.charTyped(chr, modifiers);
+                                        return true;
+                                    }
+                                }
+                                return super.charTyped(chr, modifiers);
+                            }
 
-            @Override
-            public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+                            @Override
+                            public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 
-                for (RuleWidget entry : rulesInCurrentCategory) {
-                    if (entry.valueWidget.isFocused()) {
-                        entry.valueWidget.keyPressed(keyCode, scanCode, modifiers);
-                        return true;
-                    }
-                }
-                return super.keyPressed(keyCode, scanCode, modifiers);
-            }
+                                for (RuleWidget entry : rulesInCurrentCategory) {
+                                    if (entry.valueWidget.isFocused()) {
+                                        entry.valueWidget.keyPressed(keyCode, scanCode, modifiers);
+                                        return true;
+                                    }
+                                }
+                                return super.keyPressed(keyCode, scanCode, modifiers);
+                            }
 
-            @Override
-            protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+                            @Override
+                            protected void appendClickableNarrations(NarrationMessageBuilder builder) {
 
-            }
+                            }
 
-            //#if MC < 12104
-            @Override
-            protected void drawBox(DrawContext context, int x, int y, int width, int height) {
-                context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x1A000000);
-                //context.fill(x, y, width, height, 0x19000000);
-            }
-            //#endif
-        });
+                            //#if MC < 12104
+                            @Override
+                            protected void drawBox(DrawContext context, int x, int y, int width, int height) {
+                                context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(),
+                                        0x19000000
+                                );
+                                //context.fill(x, y, width, height, 0x19000000);
+                            }
+                            //#endif
+                        });
+        //#if MC >= 12106
+        //$$ rulesScrollableWidget.setAlpha(0.7f);
+        //#endif
         this.addDrawableChild(categoriesScrollableWidget = new
                 //#if MC < 12104
                 ScrollableWidget
-                //#else
-                //$$ ScrollableTextFieldWidget
-                //#endif
+                        //#else
+                        //$$ ScrollableTextFieldWidget
+                        //#endif
 
                         (this.width - (this.width / 3) + 30, 30, 120, this.height - 30, ScreenTexts.EMPTY) {
-            int boxWidth = this.width - 10;
-            int boxHeight = 20;
-            int spacing = 5;
+                    int boxWidth = this.width - 10;
+                    int boxHeight = 20;
+                    int spacing = 5;
 
-            @Override
-            protected int getContentsHeight() {
-                return (boxHeight + spacing) * categoriesInScreen.size() - spacing;
-            }
-
-            @Override
-            protected double getDeltaYPerScroll() {
-                return 10f;
-            }
-
-            @Override
-            protected void renderContents(DrawContext context, int mouseX, int mouseY, float delta) {
-                int index = 0;
-                double adjustedMouseY = mouseY + this.getScrollY();
-
-                for (CategoryEntry categoryEntry : categoriesInScreen) {
-                    int x = this.getX() + 5;
-                    int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
-
-                    boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight;
-                    context.fill(x, y, x + boxWidth, y + boxHeight, categoryEntry.selected ? 0x2F060606 : 0x50060606);
-                    int borderColor = isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB();
-                    context.drawBorder(x, y, boxWidth, boxHeight, borderColor);
-                    context.drawText(MinecraftClient.getInstance().textRenderer, categoryEntry.name, x + 5, y + 5, 0xFFFFFF, true);
-                    index++;
-                }
-            }
-
-
-            @Override
-            public boolean mouseClicked(double mouseX, double mouseY, int button) {
-                int index = 0;
-                double adjustedMouseY = mouseY + this.getScrollY();
-                for (CategoryEntry entry : categoriesInScreen) {
-                    int x = this.getX() + 5;
-                    int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
-                    if (mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight) {
-                        setCurrentCategory(entry.getName());
-                        entry.setSelected(true);
-                        categoriesInScreen.get(index).setSelected(true);
-                        MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
-                        //rulesScrollableWidget.setScrollY()
-                        return true;
-                    } else {
-                        entry.setSelected(false);
+                    @Override
+                    protected int getContentsHeight() {
+                        return (boxHeight + spacing) * categoriesInScreen.size() - spacing;
                     }
-                    index++;
-                }
 
-                return super.mouseClicked(mouseX, mouseY, button);
-            }
+                    @Override
+                    protected double getDeltaYPerScroll() {
+                        return 10f;
+                    }
 
-            @Override
-            protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+                    @Override
+                    protected void renderContents(DrawContext context, int mouseX, int mouseY, float delta) {
+                        int index = 0;
+                        double adjustedMouseY = mouseY + this.getScrollY();
 
-            }
+                        for (CategoryEntry categoryEntry : categoriesInScreen) {
+                            int x = this.getX() + 5;
+                            int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
 
-            //#if MC < 12104
-            @Override
-            protected void drawBox(DrawContext context, int x, int y, int width, int height) {
-                context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
-            }
-            //#endif
-        });
+                            boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight;
+                            context.fill(x, y, x + boxWidth, y + boxHeight, categoryEntry.selected ? 0x2F060606 : 0x50060606);
+                            int borderColor = isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB();
+                            context.drawBorder(x, y, boxWidth, boxHeight, borderColor);
+                            context.drawText(MinecraftClient.getInstance().textRenderer,
+                                    categoryEntry.name, x + 5, y + 5, 0xFFFFFFFF, true);
+                            index++;
+                        }
+                    }
+
+
+                    @Override
+                    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+                        int index = 0;
+                        double adjustedMouseY = mouseY + this.getScrollY();
+                        for (CategoryEntry entry : categoriesInScreen) {
+                            int x = this.getX() + 5;
+                            int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
+                            if (mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight) {
+                                setCurrentCategory(entry.getName());
+                                entry.setSelected(true);
+                                categoriesInScreen.get(index).setSelected(true);
+                                MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                                //rulesScrollableWidget.setScrollY()
+                                return true;
+                            } else {
+                                entry.setSelected(false);
+                            }
+                            index++;
+                        }
+
+                        return super.mouseClicked(mouseX, mouseY, button);
+                    }
+
+                    @Override
+                    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+
+                    }
+
+                    //#if MC < 12104
+                    @Override
+                    protected void drawBox(DrawContext context, int x, int y, int width, int height) {
+                        context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
+                    }
+                    //#endif
+                });
     }
 
 
@@ -397,7 +427,9 @@ public class RulesEditScreen extends Screen implements ParentElement {
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         context.drawTexture(
-                //#if MC >= 12102
+                //#if MC >= 12106
+                //$$ RenderPipelines.GUI_TEXTURED,
+                //#elseif MC >= 12102
                 //$$ RenderLayer::getGuiTextured,
                 //#endif
                 searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
@@ -420,12 +452,15 @@ public class RulesEditScreen extends Screen implements ParentElement {
             //$$ Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
             //$$ PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
             //$$ if (blur != null) {
-                    //#if MC >= 12105
-                    //$$ blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
-                    //#else
-                    //$$ blur.setUniforms("Radius", 20F);
-                    //$$ blur.render(client.getFramebuffer(), gameRenderer.pool);
-                    //#endif
+
+            //#if MC >= 12106
+            //$$ this.blur();
+            //#elseif MC >= 12105
+            //$$ blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
+            //#else
+            //$$ blur.setUniforms("Radius", 20F);
+            //$$ blur.render(client.getFramebuffer(), gameRenderer.pool);
+            //#endif
             //$$ }
             //#elseif MC > 12004
             gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
@@ -439,7 +474,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
 
         context.drawText(MinecraftClient.getInstance().textRenderer,
-                currentCategory, this.width - (this.width / 3) + 20, 17, 0xFFFFFF, true);
+                currentCategory, this.width - (this.width / 3) + 20, 17, 0xFFFFFFFF, true);
         /*context.fill(this.width - (this.width / 3) + 15, 0, this.width - (this.width / 3) + 20,
                 this.height, 0xAAC0C0C0);
         context.fill(this.width - (this.width / 3) + 20, 25, this.width - 2,

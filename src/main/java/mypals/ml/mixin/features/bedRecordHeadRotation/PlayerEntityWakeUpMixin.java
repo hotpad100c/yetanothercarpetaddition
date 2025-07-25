@@ -56,9 +56,16 @@ public abstract class PlayerEntityWakeUpMixin extends PlayerEntity {
     @Shadow
     public ServerPlayNetworkHandler networkHandler;
 
+    //#if MC >= 12106
+    //$$ public PlayerEntityWakeUpMixin(World world, GameProfile gameProfile) {
+    //$$     super(world, gameProfile);
+    //$$ }
+    //#else
     public PlayerEntityWakeUpMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
+
         super(world, pos, yaw, gameProfile);
     }
+    //#endif
 
 
     @Inject(

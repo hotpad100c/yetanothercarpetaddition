@@ -32,6 +32,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.DyeColor;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+//#if MC >= 12106
+//$$ import org.joml.Matrix3x2fStack;
+//#endif
 
 import java.awt.*;
 import java.time.format.DateTimeParseException;
@@ -99,11 +102,25 @@ public class CounterViewerScreen extends Screen implements ParentElement {
             this(new RenderPoint(x1, y1, data, time), new RenderPoint(x2, y2, data, time), lineWidth, color);
         }
 
-        public void render(MatrixStack poseStack, DrawContext drawContext) {
 
+        public void render(
+                //#if MC >= 12106
+                //$$ Matrix3x2fStack poseStack
+                //#else
+                MatrixStack poseStack
+                //#endif
+                , DrawContext drawContext
+        ) {
+
+            //#if MC >= 12106
+            //$$ poseStack.pushMatrix();
+            //$$ poseStack.translate(this.startPoint.x, this.startPoint.y);
+            //$$ poseStack.rotate(this.rotationAngleInDeg);
+            //#else
             poseStack.push();
             poseStack.translate(this.startPoint.x, this.startPoint.y, 0);
             poseStack.multiply(new Quaternionf().rotationAxis((float) Math.toRadians(this.rotationAngleInDeg), new Vector3f(0, 0, 90)));
+            //#endif
             if (this.lineWidth % 2 == 0 || this.lineWidth == 1) {
                 drawContext.fill(0, 0,
                         (int) this.lineLength + 1, this.lineWidth, this.color);
@@ -111,7 +128,11 @@ public class CounterViewerScreen extends Screen implements ParentElement {
                 drawContext.fill(0, -this.lineWidth / 2,
                         (int) this.lineLength + 1, this.lineWidth / 2, this.color);
             }
+            //#if MC >= 12106
+            //$$ poseStack.popMatrix();
+            //#else
             poseStack.pop();
+            //#endif
         }
 
         private void calculateLine() {
@@ -166,28 +187,6 @@ public class CounterViewerScreen extends Screen implements ParentElement {
         }
     }
 
-    /*private static String itemParseRegex = "-\\s*([^:]+):\\s*(\\d+),\\s*\\d+/h";
-    private static Pattern itemParsePattern = Pattern.compile(itemParseRegex);
-
-    private static Map.Entry<Item, Integer> parseItemLine(String input) {
-        Matcher matcher = itemParsePattern.matcher(input.trim());
-        if (matcher.matches()) {
-            String itemName = matcher.group(1).trim();
-            int quantity = Integer.parseInt(matcher.group(2));
-            return Map.entry(getItemFromString(itemName), quantity);
-        }
-        return Map.entry(Items.AIR, 0);
-    }
-
-    public static Item getItemFromString(String item) {
-        String itemId = item.toLowerCase(Locale.ROOT).replace(" ", "_");
-        if (!itemId.contains(":")) {
-            itemId = "minecraft:" + itemId;
-        }
-
-        Identifier blockId = Identifier.of(itemId);
-        return Registries.ITEM.get(blockId);
-    }*/
 
     public CounterViewerScreen(Map<String, Map<String, String>> data) {
         super(Text.literal("Hopper Counter Data Viwer"));
@@ -309,10 +308,13 @@ public class CounterViewerScreen extends Screen implements ParentElement {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
         super.render(context, mouseX, mouseY, delta);
 
+        //#if MC >= 12106
+        //$$ Matrix3x2fStack poseStack = context.getMatrices();
+        //#else
         MatrixStack poseStack = context.getMatrices();
+        //#endif
 
         int chartX = 40;
         int chartY = 50;

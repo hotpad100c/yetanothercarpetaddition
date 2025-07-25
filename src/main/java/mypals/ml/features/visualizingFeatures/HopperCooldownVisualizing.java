@@ -21,6 +21,7 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -52,7 +53,7 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
             return;
         }
         if (data instanceof Integer cooldown) {
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             String color = cooldown == 0 ? "green" : "red";
             //#if MC < 12105
             String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
@@ -65,7 +66,7 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
             //$$ NbtCompound textComponent = new NbtCompound(textNbt);
             //$$ nbt.put("text", textComponent);
             //#endif
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
         }
     }
 
@@ -95,12 +96,12 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
             entity.addCommandTag(getVisualizerTag());
             entity.addCommandTag("DoNotTick");
             world.spawnEntity(entity);
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             String color = cooldown == 0 ? "green" : "red";
             nbt = configureCommonNbt(nbt);
             String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
             nbt.putString("text", textJson);
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
             return entity;
         }
         return null;

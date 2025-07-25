@@ -22,6 +22,7 @@ package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
@@ -84,11 +85,11 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
         private DisplayEntity.BlockDisplayEntity summonMarker(ServerWorld world, BlockPos pos) {
             DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
             float scale = 0.9f;
-            NbtCompound nbt = entity.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt.put("block_state", NbtHelper.fromBlockState(updateType.defaultState));
             nbt = EntityHelper.scaleEntity(nbt, scale);
             nbt.putInt("glow_color_override", updateType.color);
-            entity.readNbt(nbt);
+            NBTDataManager.writeToEntity(entity, nbt);
             entity.setInvisible(true);
             entity.setInvulnerable(true);
             entity.setGlowing(true);
@@ -118,11 +119,11 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     protected void updateVisualizerEntity(BlockUpdateObject marker, Object data) {
         if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.getWorld().isClient) {
             marker.posMarker.age = 0;
-            NbtCompound nbt = marker.posMarker.writeNbt(new NbtCompound());
+            NbtCompound nbt = NBTDataManager.readFromEntity(marker.posMarker, new NbtCompound());
             float scale = 0.9f;
             nbt = EntityHelper.scaleEntity(nbt, scale);
 
-            marker.posMarker.readNbt(nbt);
+            NBTDataManager.writeToEntity(marker.posMarker, nbt);
             BlockPos pos = BlockPos.ofFloored(marker.posMarker.getPos());
             marker.posMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
             visualizers.put(pos, Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.posMarker.getWorld())));
@@ -160,11 +161,11 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
     @Override
     public void clearVisualizers(MinecraftServer server) {
-            for (ServerWorld world : server.getWorlds()) {
-                clearWorldVisualizers(world, "NCVisualizer");
-                clearWorldVisualizers(world, "PPVisualizer");
-                clearWorldVisualizers(world, "CPVisualizer");
-            }
+        for (ServerWorld world : server.getWorlds()) {
+            clearWorldVisualizers(world, "NCVisualizer");
+            clearWorldVisualizers(world, "PPVisualizer");
+            clearWorldVisualizers(world, "CPVisualizer");
+        }
     }
 
     @Override
@@ -185,10 +186,11 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
                 object.removeVisualizer();
                 visualizers.remove(pos);
             }
-            NbtCompound nbt = object.posMarker.writeNbt(new NbtCompound());
-            float scale = mapSize((int)(deleteTick - CarpetServer.minecraft_server.getOverworld().getTime()), SURVIVE_TIME, 0.9f);
+
+            NbtCompound nbt = NBTDataManager.readFromEntity(object.posMarker, new NbtCompound());
+            float scale = mapSize((int) (deleteTick - CarpetServer.minecraft_server.getOverworld().getTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
-            object.posMarker.readNbt(nbt);
+            NBTDataManager.writeToEntity(object.posMarker, nbt);
             object.posMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
 
         });
