@@ -30,3 +30,8 @@ accessible field net/minecraft/client/render/GameRenderer pool Lnet/minecraft/cl
 accessible method net/minecraft/block/AbstractBlock onEntityCollision (Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/EntityCollisionHandler;)V
 accessible method net/minecraft/block/AbstractBlock getPickStack (Lnet/minecraft/world/WorldView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Z)Lnet/minecraft/item/ItemStack;
 accessible method net/minecraft/nbt/NbtCompound <init> (Ljava/util/Map;)V
+accessible field net/minecraft/world/gen/trunk/TrunkPlacer baseHeight I
+accessible field net/minecraft/world/gen/trunk/TrunkPlacer firstRandomHeight I
+accessible field net/minecraft/world/gen/trunk/TrunkPlacer secondRandomHeight I
+accessible class net/minecraft/server/MinecraftServer$DebugStart
+accessible method net/minecraft/server/MinecraftServer$DebugStart <init> (JI)V

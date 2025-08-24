@@ -296,7 +296,9 @@ public class RulesEditScreen extends Screen implements ParentElement {
                                     int x = 5;
                                     int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
                                     entry.onClicked(mouseX, mouseY, mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight, button);
+                                    //System.out.println("Clicked:" + entry);
                                     index++;
+
                                 }
 
                                 return super.mouseClicked(mouseX, mouseY, button);

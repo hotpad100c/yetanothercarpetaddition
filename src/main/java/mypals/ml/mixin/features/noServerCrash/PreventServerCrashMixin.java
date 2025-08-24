@@ -22,21 +22,20 @@ package mypals.ml.mixin.features.noServerCrash;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import mypals.ml.utils.adapter.ClickEvent;
 import mypals.ml.utils.adapter.HoverEvent;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.PlayerManager;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.util.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.function.BooleanSupplier;
 
 @Mixin(MinecraftServer.class)
@@ -45,45 +44,65 @@ public abstract class PreventServerCrashMixin {
     @Shadow
     public abstract PlayerManager getPlayerManager();
 
-    @WrapMethod(method = "runServer")
-    private void preventServerCrashAll(Operation<Void> original) {
+
+    @Shadow
+    public abstract void tick(BooleanSupplier shouldKeepTicking);
+
+    @WrapOperation(method = "runServer", at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/server/MinecraftServer;runTasksTillTickEnd()V"))
+    private void preventServerCrashRunServer(MinecraftServer instance, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {
             try {
-                original.call();
-            } catch (Exception e) {
-                StringBuilder sb = new StringBuilder();
-                e.printStackTrace();
-                Arrays.stream(e.getStackTrace()).forEach(stackTraceElement -> {
-                    sb.append(stackTraceElement.toString()).append("\n");
-                });
+                original.call(instance);
+            } catch (Throwable t) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                t.printStackTrace(pw);
                 if (this != null && this.getPlayerManager() != null) {
-                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + e.getLocalizedMessage())
-                            .formatted(Formatting.RED).styled(s -> s.withClickEvent(ClickEvent.copyToClipboard(sb.toString())).withHoverEvent(HoverEvent.showText(Text.literal("Copy stack trace")))), false);
+                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + t)
+                            .formatted(Formatting.RED).styled(s -> s.withHoverEvent(HoverEvent.showText(Text.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
                 }
             }
         } else {
-            original.call();
+            original.call(instance);
         }
     }
 
-    @WrapMethod(method = "tickWorlds")
-    private void preventServerCrashWorld(BooleanSupplier shouldKeepTicking, Operation<Void> original) {
+    @WrapMethod(method = "tick")
+    private void preventServerCrashAll(BooleanSupplier shouldKeepTicking, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {
             try {
                 original.call(shouldKeepTicking);
-            } catch (Exception e) {
-                StringBuilder sb = new StringBuilder();
-                e.printStackTrace();
-                Arrays.stream(e.getStackTrace()).forEach(stackTraceElement -> {
-                    sb.append(stackTraceElement.toString()).append("\n");
-                });
+            } catch (Throwable t) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                t.printStackTrace(pw);
                 if (this != null && this.getPlayerManager() != null) {
-                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + e.getLocalizedMessage())
-                            .formatted(Formatting.RED).styled(s -> s.withClickEvent(ClickEvent.copyToClipboard(sb.toString())).withHoverEvent(HoverEvent.showText(Text.literal("Copy stack trace")))), false);
+                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + t)
+                            .formatted(Formatting.RED).styled(s -> s.withHoverEvent(HoverEvent.showText(Text.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
                 }
             }
         } else {
             original.call(shouldKeepTicking);
+        }
+    }
+
+    @WrapOperation(method = "tickWorlds", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;tick(Ljava/util/function/BooleanSupplier;)V"))
+    private void preventServerCrashWorld(ServerWorld instance, BooleanSupplier shouldKeepTicking, Operation<Void> original) {
+        if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {
+            try {
+                original.call(instance, shouldKeepTicking);
+            } catch (Throwable t) {
+                StringWriter sw = new StringWriter();
+                PrintWriter pw = new PrintWriter(sw);
+                t.printStackTrace(pw);
+                if (this != null && this.getPlayerManager() != null) {
+                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + t)
+                            .formatted(Formatting.RED).styled(s -> s.withHoverEvent(HoverEvent.showText(Text.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
+                }
+            }
+        } else {
+            original.call(instance, shouldKeepTicking);
         }
     }
 }

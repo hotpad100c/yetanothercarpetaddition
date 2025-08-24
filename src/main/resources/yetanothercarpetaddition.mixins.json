@@ -16,6 +16,8 @@
     "features.EnchantCommandMixin",
     "features.ServerWorldMixin",
     "features.SlimeBlockMixin",
+    "features.allowBadBlockEntity.BlockEntityMixin",
+    "features.allowBadBlockEntity.WorldChunkMixin",
     "features.autoDust.BlockMixin",
     "features.bedRecordHeadRotation.BedBlockEntityMixin",
     "features.bedRecordHeadRotation.BedBlockMixin",

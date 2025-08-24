@@ -50,7 +50,6 @@ public class AutoDustPlacer {
 
             player.getWorld().setBlockState(dustPos, Blocks.REDSTONE_WIRE.getPlacementState(context));
             player.getWorld().getBlockState(dustPos).onBlockAdded(world, dustPos, Blocks.REDSTONE_WIRE.getPlacementState(context), true);
-            world.setBlockState(dustPos, Blocks.REDSTONE_WIRE.getDefaultState());
         }
     }
 }

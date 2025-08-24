@@ -290,4 +290,8 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean RconOutputFix = true;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean allowIllegalBlockEntities = true;
 }

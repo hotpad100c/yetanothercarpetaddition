@@ -21,6 +21,7 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
+import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.DisplayEntity;
@@ -96,12 +97,14 @@ public class TreeGrowthObstacleVisualzing extends AbstractVisualizingManager<Blo
     protected DisplayEntity.BlockDisplayEntity createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
         DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
         entity.setNoGravity(true);
-        NbtCompound nbt = entity.writeNbt(new NbtCompound());
+
+        NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
         nbt.put("block_state", NbtHelper.fromBlockState(Blocks.RED_STAINED_GLASS.getDefaultState()));
         float scale = 0.9f;
         nbt = EntityHelper.scaleEntity(nbt, scale);
         nbt.putInt("glow_color_override", 0xFF0000);
-        entity.readNbt(nbt);
+        //entity.readNbt(nbt);
+        NBTDataManager.writeToEntity(entity, nbt);
         entity.setInvisible(true);
         entity.setInvulnerable(true);
         entity.setGlowing(true);

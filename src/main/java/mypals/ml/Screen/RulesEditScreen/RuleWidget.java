@@ -112,7 +112,7 @@ public class RuleWidget {
                             //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
-                            this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                            this.textures.get(this.isToggled(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
@@ -123,11 +123,24 @@ public class RuleWidget {
                                    //$$, int button
                                    //#endif
             ) {
+                //#if MC >= 12103
+                //$$if(this.isMouseOver(mouseX, mouseY)) {
+                //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                //$$    this.onClick(mouseX, mouseY);
+                //$$}
+                //#endif
+                return this.isMouseOver(mouseX, mouseY);
+            }
+
+            @Override
+            public boolean isMouseOver(double mouseX, double mouseY) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                return this.active && this.visible && mouseX >= (double) this.getX()
+                this.hovered = mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
                         mouseX < (double) (this.getX() + this.getWidth()) &&
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
+
+                return this.active && this.visible && this.hovered;
             }
 
 
@@ -160,11 +173,6 @@ public class RuleWidget {
         lockRule = new ToggleButtonWidget(x - 15, y + 3, 10, 11, defaultRules.contains(orgName)) {
             @Override
             public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                this.hovered = this.active && this.visible && mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
                 if (this.textures != null) {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
@@ -173,7 +181,7 @@ public class RuleWidget {
                             //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
-                            this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                            this.textures.get(this.isToggled(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
@@ -184,18 +192,31 @@ public class RuleWidget {
                                    //$$, int button
                                    //#endif
             ) {
+                //#if MC >= 12103
+                //$$if(this.isMouseOver(mouseX, mouseY)) {
+                //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                //$$    this.onClick(mouseX, mouseY);
+                //$$}
+                //#endif
+                return this.isMouseOver(mouseX, mouseY);
+            }
+
+            @Override
+            public boolean isMouseOver(double mouseX, double mouseY) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                return this.active && this.visible && mouseX >= (double) this.getX()
+                this.hovered = mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
                         mouseX < (double) (this.getX() + this.getWidth()) &&
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
+
+                return this.active && this.visible && this.hovered;
             }
 
 
             @Override
             public void onClick(double mouseX, double mouseY) {
                 this.toggled = !this.toggled;
-
+                System.out.println("Clicked lock button");
                 String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
                 MinecraftClient.getInstance().getNetworkHandler()
 
@@ -235,7 +256,7 @@ public class RuleWidget {
                             //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
-                            this.textures.get(this.isToggled(), this.isSelected()), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
+                            this.textures.get(this.isToggled(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
                 }
             }
@@ -246,11 +267,24 @@ public class RuleWidget {
                                    //$$, int button
                                    //#endif
             ) {
+                //#if MC >= 12103
+                //$$if(this.isMouseOver(mouseX, mouseY)) {
+                //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                //$$    this.onClick(mouseX, mouseY);
+                //$$}
+                //#endif
+                return this.isMouseOver(mouseX, mouseY);
+            }
+
+            @Override
+            public boolean isMouseOver(double mouseX, double mouseY) {
                 double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                return this.active && this.visible && mouseX >= (double) this.getX()
+                this.hovered = mouseX >= (double) this.getX()
                         && adjustedMouseY >= (double) this.getY() &&
                         mouseX < (double) (this.getX() + this.getWidth()) &&
                         adjustedMouseY < (double) (this.getY() + this.getHeight());
+
+                return this.active && this.visible && this.hovered;
             }
 
 
@@ -331,6 +365,7 @@ public class RuleWidget {
             valueWidget.setSuggestion(clicked || !valueWidget.getText().isEmpty() ? "" : ruleData.value);
             if (clicked && isTrueFalseRule) {
                 trueFalseButton.onClick(mouseX, mouseY);
+                System.out.println("Clicked toggle button");
             } else if (clicked && !isTrueFalseRule) {
                 valueWidget.onClick(mouseX, mouseY);
                 MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));

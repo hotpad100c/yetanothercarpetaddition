@@ -12,6 +12,8 @@ accessible method net/minecraft/entity/decoration/ArmorStandEntity setMarker (Z)
 accessible field net/minecraft/block/entity/HopperBlockEntity transferCooldown I
 accessible field net/minecraft/world/tick/WorldTickScheduler chunkTickSchedulers Lit/unimi/dsi/fastutil/longs/Long2ObjectMap;
 accessible field net/minecraft/server/PlayerManager players Ljava/util/List;
+accessible class net/minecraft/server/MinecraftServer$DebugStart
+accessible method net/minecraft/server/MinecraftServer$DebugStart <init> (JI)V
 accessible method net/minecraft/entity/decoration/DisplayEntity$BlockDisplayEntity setBlockState (Lnet/minecraft/block/BlockState;)V
 accessible field net/minecraft/block/entity/HopperBlockEntity facing Lnet/minecraft/util/math/Direction;
 accessible class net/minecraft/server/command/DataCommand$ModifyOperation

@@ -32,3 +32,5 @@ accessible method net/minecraft/nbt/NbtCompound <init> (Ljava/util/Map;)V
 accessible field net/minecraft/world/gen/trunk/TrunkPlacer baseHeight I
 accessible field net/minecraft/world/gen/trunk/TrunkPlacer firstRandomHeight I
 accessible field net/minecraft/world/gen/trunk/TrunkPlacer secondRandomHeight I
+accessible class net/minecraft/server/MinecraftServer$DebugStart
+accessible method net/minecraft/server/MinecraftServer$DebugStart <init> (JI)V

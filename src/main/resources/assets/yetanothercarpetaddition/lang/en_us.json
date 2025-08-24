@@ -135,6 +135,8 @@
   "carpet.rule.mobAIVisualize.desc": "Visualize mob goals.",
   "carpet.rule.RconOutputFix.name": "Rcon Output Fix",
   "carpet.rule.RconOutputFix.desc": "Rcon output will be separated in  Line now.",
+  "carpet.rule.allowIllegalBlockEntities.name": "Allow Illegal Block Entities",
+  "carpet.rule.allowIllegalBlockEntities.desc": "Allow illegal block entities to be created",
   "class_8716$class_8717": "DebugGoalSelectorCustomPayload$Goal",
   "class_1321$class_9788": "TameableEntity$TameableEscapeDangerGoal",
   "class_1338": "FleeEntityGoal",

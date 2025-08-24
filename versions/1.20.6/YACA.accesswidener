@@ -18,6 +18,8 @@ accessible method net/minecraft/entity/decoration/DisplayEntity$BlockDisplayEnti
 accessible field net/minecraft/block/entity/HopperBlockEntity facing Lnet/minecraft/util/math/Direction;
 accessible class net/minecraft/server/command/DataCommand$ModifyOperation
 accessible field net/minecraft/command/BlockDataObject pos Lnet/minecraft/util/math/BlockPos;
+accessible class net/minecraft/server/MinecraftServer$DebugStart
+accessible method net/minecraft/server/MinecraftServer$DebugStart <init> (JI)V
 accessible field net/minecraft/command/EntityDataObject entity Lnet/minecraft/entity/Entity;
 accessible field net/minecraft/command/StorageDataObject id Lnet/minecraft/util/Identifier;
 accessible field net/minecraft/world/GameRules rules Ljava/util/Map;
