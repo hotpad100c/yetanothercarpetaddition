@@ -35,11 +35,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(net.minecraft.server.command.RideCommand.class)
 public class RideCommandMixin {
-    @Inject(method = "executeMount",cancellable = true, at = @At(value = "FIELD", target = "Lnet/minecraft/server/command/RideCommand;CANT_RIDE_PLAYERS_EXCEPTION:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;"))
-    private static void playerMount(ServerCommandSource source, Entity rider, Entity vehicle, CallbackInfoReturnable<Integer> cir){
-        if (!rider.getWorld().isClient && YetAnotherCarpetAdditionRules.enableMountPlayers){
-            while (rider.getFirstPassenger() != null)
-            {
+    @Inject(method = "executeMount", cancellable = true, at = @At(value = "FIELD", target = "Lnet/minecraft/server/command/RideCommand;CANT_RIDE_PLAYERS_EXCEPTION:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;"))
+    private static void playerMount(ServerCommandSource source, Entity rider, Entity vehicle, CallbackInfoReturnable<Integer> cir) {
+        if (!rider.getWorld().isClient && YetAnotherCarpetAdditionRules.enableMountPlayers && rider != vehicle) {
+            while (rider.getFirstPassenger() != null) {
                 rider = rider.getFirstPassenger();
             }
             rider.startRiding(vehicle);
@@ -52,10 +51,9 @@ public class RideCommandMixin {
 
     }
 
-
-    @ModifyVariable(method = "executeDismount", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;stopRiding()V", shift = At.Shift.AFTER),index = 2)
-    private static Entity playerDismount(Entity entity){
-        if (entity.getType() == EntityType.PLAYER){
+    @ModifyVariable(method = "executeDismount", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;stopRiding()V", shift = At.Shift.AFTER), index = 2)
+    private static Entity playerDismount(Entity entity) {
+        if (entity.getType() == EntityType.PLAYER) {
             ((ServerPlayerEntity) entity).networkHandler.sendPacket(new EntityPassengersSetS2CPacket(entity));
         }
         return null;

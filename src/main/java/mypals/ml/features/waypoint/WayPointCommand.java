@@ -49,14 +49,14 @@ public class WayPointCommand {
     private static final SuggestionProvider<ServerCommandSource> WAYPOINT_SUGGESTIONS =
             (context, builder) -> {
                 Set<String> names = new HashSet<>();
-                for (Waypoint waypoint : waypoints){
+                for (Waypoint waypoint : waypoints) {
                     names.add(waypoint.name);
                 }
                 return CommandSource.suggestMatching(names, builder);
             };
 
     public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
-        dispatcher.register(literal("waypoint")
+        dispatcher.register(literal("waypoint").requires(source -> source.hasPermissionLevel(2))
                 .then(literal("save")
                         .then(argument("name", StringArgumentType.word())
                                 .executes(context -> {
@@ -77,7 +77,7 @@ public class WayPointCommand {
                                             ServerPlayerEntity player = context.getSource().getPlayer();
                                             ServerWorld world = player.getServerWorld();
 
-                                            addWaypoint(name, pos ,world.getRegistryKey().getValue().getPath());
+                                            addWaypoint(name, pos, world.getRegistryKey().getValue().getPath());
 
                                             context.getSource().sendFeedback(() -> Text.literal("Saved waypoint '" + name + "' at " + pos), false);
                                             return 1;
@@ -104,9 +104,11 @@ public class WayPointCommand {
                                             BlockPos pos = waypoint.pos;
                                             ServerWorld world = player.getServer().getWorld(ServerWorld.OVERWORLD);
                                             switch (waypoint.dimension) {
-                                                case "overworld" -> world = player.getServer().getWorld(ServerWorld.OVERWORLD);
-                                                case "the_nether" -> world = player.getServer().getWorld(ServerWorld.NETHER);
-                                                case "the_end" ->  world = player.getServer().getWorld(ServerWorld.END);
+                                                case "overworld" ->
+                                                        world = player.getServer().getWorld(ServerWorld.OVERWORLD);
+                                                case "the_nether" ->
+                                                        world = player.getServer().getWorld(ServerWorld.NETHER);
+                                                case "the_end" -> world = player.getServer().getWorld(ServerWorld.END);
                                             }
                                             player.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
                                                     //#if MC >= 12102
@@ -118,7 +120,7 @@ public class WayPointCommand {
                                                     //#endif
                                             );
                                         }
-                                    }else {
+                                    } else {
                                         context.getSource().sendError(Text.literal("Waypoint '" + name + "' does not exist."));
                                     }
                                     return 1;
@@ -133,8 +135,8 @@ public class WayPointCommand {
                                     Text clickable = Text.literal("• [" + waypoint.name + "]")
                                             .styled(style -> style
                                                     .withColor(Formatting.AQUA)
-                                                    .withClickEvent(ClickEvent.runCommand( "/waypoint tp " + waypoint.name))
-                                                    .withHoverEvent(HoverEvent.showText(( Text.literal("Click to teleport to " + waypoint.name))))
+                                                    .withClickEvent(ClickEvent.runCommand("/waypoint tp " + waypoint.name))
+                                                    .withHoverEvent(HoverEvent.showText((Text.literal("Click to teleport to " + waypoint.name))))
                                             );
                                     ctx.getSource().sendFeedback(() -> clickable, false);
                                 }

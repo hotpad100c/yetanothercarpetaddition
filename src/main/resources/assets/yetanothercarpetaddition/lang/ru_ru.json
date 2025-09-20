@@ -137,6 +137,8 @@
   "carpet.rule.RconOutputFix.desc": "Вывод Rcon теперь будет разделен по строкам.",
   "carpet.rule.allowIllegalBlockEntities.name": "Разрешить незаконные блочные энтити",
   "carpet.rule.allowIllegalBlockEntities.desc": "Разрешить создание незаконных блочных энтити",
+  "carpet.rule.updateCounter.name": "Счётчик обновлений",
+  "carpet.rule.updateCounter.desc": "Подсчитывает обновления NC и PP и выводит их в консоль",
   "class_8716$class_8717": "DebugGoalSelectorCustomPayload$Goal",
   "class_1321$class_9788": "TameableEntity$TameableEscapeDangerGoal",
   "class_1338": "FleeEntityGoal",

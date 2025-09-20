@@ -19,6 +19,11 @@ accessible field net/minecraft/command/BlockDataObject pos Lnet/minecraft/util/m
 accessible field net/minecraft/command/EntityDataObject entity Lnet/minecraft/entity/Entity;
 accessible field net/minecraft/command/StorageDataObject id Lnet/minecraft/util/Identifier;
 accessible field net/minecraft/world/GameRules rules Ljava/util/Map;
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SixWayEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$SimpleEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$StatefulEntry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$Entry
+accessible class net/minecraft/world/block/ChainRestrictedNeighborUpdater$StateReplacementEntry
 accessible class net/minecraft/world/gen/WorldPresets$Registrar
 accessible method net/minecraft/world/storage/SerializingRegionBasedStorage get (J)Ljava/util/Optional;
 accessible field net/minecraft/world/poi/PointOfInterestSet pointsOfInterestByType Ljava/util/Map;

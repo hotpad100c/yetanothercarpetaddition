@@ -86,6 +86,10 @@ public class YetAnotherCarpetAdditionRules {
     @Rule(
             categories = {YACA, FEATURE}
     )
+    public static boolean updateCounter = false;
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
     public static boolean stopTickingSpawners = false;
     @Rule(
             categories = {YACA, FEATURE}
