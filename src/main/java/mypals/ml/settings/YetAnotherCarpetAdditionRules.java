@@ -28,7 +28,7 @@ import static mypals.ml.settings.RuleValidators.MOVING_PISTON_SPEED_VALIDATOR;
 
 public class YetAnotherCarpetAdditionRules {
     public static final String YACA = "YACA";
-    public static final String TREEFORM = "treeform";
+    public static final String TREEFARM = "treefarm";
     @Rule(
             categories = {YACA, FEATURE, CREATIVE}
     )
@@ -224,12 +224,12 @@ public class YetAnotherCarpetAdditionRules {
     public static boolean POIVisualize = false;
 
     @Rule(
-            categories = {YACA, FEATURE,TREEFORM}
+            categories = {YACA, FEATURE,TREEFARM}
     )
     public static boolean treeGrowthObstacleVisualize = false;
 
     @Rule(
-            categories = {YACA, FEATURE,TREEFORM}
+            categories = {YACA, FEATURE,TREEFARM}
     )
     public static boolean foliagePlacerVisualize = false;
 
@@ -276,18 +276,18 @@ public class YetAnotherCarpetAdditionRules {
     )
     public static boolean bouncierSlime = false;
     @Rule(
-            categories = {YACA, FEATURE, TREEFORM},
+            categories = {YACA, FEATURE, TREEFARM},
             validators = Validators.NonNegativeNumber.class,
             options = {"0.45", "1", "0",},
             strict = false
     )
     public static float bonemealSuccessProbability = 0.45F;
     @Rule(
-            categories = {YACA, FEATURE, TREEFORM}
+            categories = {YACA, FEATURE, TREEFARM}
     )
     public static boolean foliageGenerate = true;
     @Rule(
-            categories = {YACA, FEATURE, TREEFORM}
+            categories = {YACA, FEATURE, TREEFARM}
 //            options = {"-1", "1", "0.01",}
     )
     public static float beeDecoratorProbability = -1;
