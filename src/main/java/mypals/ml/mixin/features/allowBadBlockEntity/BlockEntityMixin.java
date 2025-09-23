@@ -36,14 +36,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockEntityMixin {
 
     //#if MC>=12101
-    @Inject(method = "validateSupports", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "validateSupports", at = @At("HEAD"), cancellable = true,require=0)
     private void allowInvalidBlockEntities(BlockState blockState, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.allowIllegalBlockEntities) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "supports", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "supports", at = @At("HEAD"), cancellable = true,require=0)
     private void supportsInvalidBlockEntities(BlockState state, CallbackInfoReturnable<Boolean> cir) {
         if (YetAnotherCarpetAdditionRules.allowIllegalBlockEntities) {
             cir.setReturnValue(true);
