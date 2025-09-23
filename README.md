@@ -167,7 +167,17 @@ Currently supported:
 
 * **Description**: Controls the animation speed of piston movements.
 
----
+### `bonemealSuccessProbability` - Bone Meal Sapling Growth Probability
+
+* **Description**: Changes the probability that bone meal successfully grows a sapling.
+
+### `foliageGenerate` - Foliage Generation
+
+* **Description**: When disabled, saplings will grow into trees without generating leaves.
+
+### `beeDecoratorProbability` - Beehive Decoration Probability
+
+* **Description**: Adjusts the chance of beehives generating on trees. Applies to all tree types capable of generating beehives. Set to **-1** to use the vanilla probability.
 
 ## 🛏 Miscellaneous Functional Enhancements
 
