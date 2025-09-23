@@ -179,6 +179,8 @@ Currently supported:
 
 * **Description**: Adjusts the chance of beehives generating on trees. Applies to all tree types capable of generating beehives. Set to **-1** to use the vanilla probability.
 
+---
+
 ## 🛏 Miscellaneous Functional Enhancements
 
 ### `bedsRecordSleeperFacing` - Beds Record Player Facing
