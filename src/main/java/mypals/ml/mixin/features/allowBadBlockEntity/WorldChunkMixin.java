@@ -31,7 +31,7 @@ public class WorldChunkMixin {
 
     //#if MC>=12101
 
-    @ModifyExpressionValue(method = "setBlockEntity", at = @At(value = "INVOKE",
+    @ModifyExpressionValue(method = "setBlockEntity",require = 0, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/block/entity/BlockEntityType;supports(Lnet/minecraft/block/BlockState;)Z"))
     private boolean allowInvalidBlockEntities(boolean original) {
         if (YetAnotherCarpetAdditionRules.allowIllegalBlockEntities) {
