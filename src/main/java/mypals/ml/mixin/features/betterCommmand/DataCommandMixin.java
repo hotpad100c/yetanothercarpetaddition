@@ -116,7 +116,9 @@ public class DataCommandMixin {
             cancellable = true
     )
     private static void customExecuteGet(ServerCommandSource source, DataCommandObject object, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        if (!YetAnotherCarpetAdditionRules.commandEnhance) return;
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+            return;
+        }
         NbtCompound nbtCompound = object.getNbt();
         String targetStr = getTargetString(object);
         MutableText feedback = Text.literal(getTargetString(object) + ":").formatted(Formatting.GREEN);
@@ -144,7 +146,9 @@ public class DataCommandMixin {
             cancellable = true
     )
     private static void customExecuteGet(ServerCommandSource source, DataCommandObject object, NbtPathArgumentType.NbtPath path, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        if (!YetAnotherCarpetAdditionRules.commandEnhance) return;
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+            return;
+        }
         NbtElement nbtElement = getNbt(path, object);
         int i;
         if (nbtElement instanceof AbstractNbtNumber) {
@@ -177,7 +181,9 @@ public class DataCommandMixin {
             cancellable = true
     )
     private static void customExecuteGet(ServerCommandSource source, DataCommandObject object, NbtPathArgumentType.NbtPath path, double scale, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        if (!YetAnotherCarpetAdditionRules.commandEnhance) return;
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+            return;
+        }
         NbtElement nbtElement = getNbt(path, object);
         if (!(nbtElement instanceof AbstractNbtNumber)) {
             throw GET_INVALID_EXCEPTION.create(path.toString());

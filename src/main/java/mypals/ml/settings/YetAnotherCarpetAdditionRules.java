@@ -226,6 +226,11 @@ public class YetAnotherCarpetAdditionRules {
     )
     public static boolean treeGrowthObstacleVisualize = false;
 
+    @Rule(
+            categories = {YACA, FEATURE}
+    )
+    public static boolean foliagePlacerVisualize = false;
+
     //#if MC < 12102
     @Rule(
             categories = {YACA, FEATURE}
@@ -258,10 +263,13 @@ public class YetAnotherCarpetAdditionRules {
             categories = {YACA, FEATURE}
     )
     public static boolean unicodeArgumentsSupport = false;
+
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            options = {"player", "all", "false",}
     )
-    public static boolean commandEnhance = false;
+    public static String commandEnhance = "false";
+
     @Rule(
             categories = {YACA, FEATURE}
     )

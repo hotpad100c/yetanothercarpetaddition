@@ -59,7 +59,7 @@ public abstract class Carpet$ThrowableProjectileMixinOverride extends Entity {
     public void remove(Entity.RemovalReason arg) {
         super.remove(arg);
         if (LoggerRegistry.__projectiles && YACA$logHelper != null) {
-            if (YetAnotherCarpetAdditionRules.commandEnhance &&
+            if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") &&
                     !(this.getType() == EntityType.ARROW ||
                             this.getType() == EntityType.TRIDENT ||
                             this.getType() == EntityType.FISHING_BOBBER)) {

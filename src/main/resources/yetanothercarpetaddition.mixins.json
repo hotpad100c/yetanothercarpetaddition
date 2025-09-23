@@ -80,6 +80,7 @@
     "features.updateLogger.ChainRestrictedNeighborUpdaterMixin",
     "features.updateLogger.SixWayEntryMixin",
     "features.visualizers.ChainRestrictedNeighborUpdaterMixin",
+    "features.visualizers.FoliagePlacerMixin",
     "features.visualizers.HopperDeleteMarkerMixin",
     "features.visualizers.hopperEntityCooldownMixin",
     "features.visualizers.POIStorageMixin",

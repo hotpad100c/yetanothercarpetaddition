@@ -57,7 +57,7 @@ public class ClearCommandMixin {
             cancellable = true
     )
     private static void onExecute(ServerCommandSource source, Collection<ServerPlayerEntity> targets, Predicate<ItemStack> item, int maxCount, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        if (!YetAnotherCarpetAdditionRules.commandEnhance) {
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
             return;
         }
 

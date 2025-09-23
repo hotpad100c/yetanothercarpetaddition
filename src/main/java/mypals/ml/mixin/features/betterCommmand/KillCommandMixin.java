@@ -47,7 +47,9 @@ public class KillCommandMixin {
             cancellable = true
     )
     private static void onExecute(ServerCommandSource source, Collection<? extends Entity> targets, CallbackInfoReturnable<Integer> cir) {
-        if (!YetAnotherCarpetAdditionRules.commandEnhance) return;
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false")|| (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+            return;
+        }
         Map<String, Integer> typeCounts = new HashMap<>();
 
         for (Entity entity : targets) {

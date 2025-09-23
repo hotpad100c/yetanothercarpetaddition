@@ -45,7 +45,7 @@ import java.util.concurrent.CompletableFuture;
 public class EntityArgumentMixin {
     @Inject(method = "listSuggestions", at = @At("HEAD"), cancellable = true)
     private void onListSuggestions(CommandContext<CommandSource> context, SuggestionsBuilder builder, CallbackInfoReturnable<CompletableFuture<Suggestions>> cir) {
-        if (!YetAnotherCarpetAdditionRules.commandEnhance) return;
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false")) return;
 
         CommandSource source = (CommandSource) context.getSource();
 

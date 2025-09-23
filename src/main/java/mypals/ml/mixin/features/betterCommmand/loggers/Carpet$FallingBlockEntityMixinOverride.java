@@ -52,7 +52,7 @@ public abstract class Carpet$FallingBlockEntityMixinOverride extends Entity {
     public void remove(RemovalReason arg) {
         super.remove(arg);
         if (LoggerRegistry.__fallingBlocks && YACA$logHelper != null) {
-            if (YetAnotherCarpetAdditionRules.commandEnhance)
+            if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false"))
                 ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getPos(), getVelocity());
         }
     }

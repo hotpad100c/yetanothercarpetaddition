@@ -55,7 +55,7 @@ public class HelpCommandMixin {
     private static SimpleCommandExceptionType FAILED_EXCEPTION;
     private static List<String> names = new ArrayList<>();
     private static final SuggestionProvider<ServerCommandSource> commandNameSuggestionProvider = (context, builder) -> {
-        if (!YetAnotherCarpetAdditionRules.commandEnhance) {
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false")) {
             return Suggestions.empty();
         }
         Map<CommandNode<ServerCommandSource>, String> smartUsage = context.getSource()
@@ -81,7 +81,7 @@ public class HelpCommandMixin {
         dispatcher.register(
                 CommandManager.literal("help")
                         .executes(context -> {
-                            if (!YetAnotherCarpetAdditionRules.commandEnhance) {
+                            if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false")) {
                                 Map<CommandNode<ServerCommandSource>, String> map = dispatcher.getSmartUsage(dispatcher.getRoot(), context.getSource());
 
                                 for (String string : map.values()) {

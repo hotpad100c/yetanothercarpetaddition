@@ -141,6 +141,8 @@
   "carpet.rule.updateCounter.desc": "计数 NC 与 PP 更新并输出在聊天栏",
   "class_8716$class_8717": "调试目标选择器自定义负载$目标",
   "class_1321$class_9788": "可驯服实体$可驯服逃避危险目标",
+  "carpet.rule.foliagePlacerVisualize.name": "树叶附着点可视化",
+  "carpet.rule.foliagePlacerVisualize.desc": "可视化树叶附着点所在位置",
   "class_1338": "逃离实体目标",
   "class_1337": "狼乞求目标",
   "class_1339": "破门目标",

@@ -25,10 +25,8 @@ import carpet.CarpetServer;
 import carpet.CarpetSettings;
 import carpet.api.settings.CarpetRule;
 import carpet.logging.LoggerRegistry;
-import carpet.patches.EntityPlayerMPFake;
 import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.commands.YetAnotherCarpetAdditionCommands;
-import mypals.ml.features.GridWorldGen.GridWorldGenerator;
 import mypals.ml.features.fakePlayerControl.FakePlayerControlManager;
 import mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager;
 import mypals.ml.features.log2Chat.LogAppender;
@@ -55,8 +53,6 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
 //#if MC >= 12006
-import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 //#endif
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -66,13 +62,10 @@ import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
 import net.minecraft.util.WorldSavePath;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.poi.PointOfInterestType;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.slf4j.Logger;
@@ -106,6 +99,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static POIVisualizing poiVisualizing = new POIVisualizing();
     public static MobAIVisualizer mobAIVisualizer = new MobAIVisualizer();
     public static TreeGrowthObstacleVisualzing treeGrowthObstacleVisualzing = new TreeGrowthObstacleVisualzing();
+    public static FoliageAttachmentVisualizing foliageAttachment = new FoliageAttachmentVisualizing();
     public static final String MOD_VERSION = "V1.0.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
@@ -122,6 +116,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         allVisualizers.add(poiVisualizing);
         allVisualizers.add(mobAIVisualizer);
         allVisualizers.add(treeGrowthObstacleVisualzing);
+        allVisualizers.add(foliageAttachment);
     }
 
     @Override

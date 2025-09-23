@@ -139,6 +139,8 @@
   "carpet.rule.allowIllegalBlockEntities.desc": "Allow illegal block entities to be created",
   "carpet.rule.updateCounter.name": "Update Counter",
   "carpet.rule.updateCounter.desc": "Counts NC and PP updates and log them to console",
+  "carpet.rule.foliagePlacerVisualize.name": "FoliagePlacer Visualization",
+  "carpet.rule.foliagePlacerVisualize.desc": "Visualize the area where Foliage Place",
   "class_8716$class_8717": "DebugGoalSelectorCustomPayload$Goal",
   "class_1321$class_9788": "TameableEntity$TameableEscapeDangerGoal",
   "class_1338": "FleeEntityGoal",

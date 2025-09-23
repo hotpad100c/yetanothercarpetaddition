@@ -68,7 +68,7 @@ public abstract class Carpet$ArrowMixinOverride extends Entity {
     @Inject(method = "onEntityHit", at = @At("RETURN"))
     private void removeOnEntity(EntityHitResult entityHitResult, CallbackInfo ci) {
         if (LoggerRegistry.__projectiles && YACA$logHelper != null) {
-            if (YetAnotherCarpetAdditionRules.commandEnhance)
+            if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false"))
                 ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getPos(), getVelocity());
             YACA$logHelper = null;
         }
@@ -77,7 +77,7 @@ public abstract class Carpet$ArrowMixinOverride extends Entity {
     @Inject(method = "onBlockHit", at = @At("RETURN"))
     private void removeOnBlock(BlockHitResult blockHitResult, CallbackInfo ci) {
         if (LoggerRegistry.__projectiles && YACA$logHelper != null) {
-            if (YetAnotherCarpetAdditionRules.commandEnhance)
+            if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false"))
                 ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getPos(), getVelocity());
             YACA$logHelper = null;
         }

@@ -63,7 +63,7 @@ public abstract class ProjectileLoggerMixin implements TrajectoryLogHelperExtens
 
     @Override
     public void yetanothercarpetaddition$finish(Entity entity, Vec3d posEnd, Vec3d velocityEnd) {
-        if (!this.doLog || !YetAnotherCarpetAdditionRules.commandEnhance) return;
+        if (!this.doLog || !YetAnotherCarpetAdditionRules.commandEnhance.equals("false")) return;
         this.logger.log((option) -> {
             List<Text> comp = new ArrayList<>();
             MutableText header = Text.literal("--=== ");
