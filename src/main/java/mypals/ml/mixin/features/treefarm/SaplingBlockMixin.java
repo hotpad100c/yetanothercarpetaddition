@@ -18,38 +18,23 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.mixin.features.allowBadBlockEntity;
+package mypals.ml.mixin.features.treefarm;
 
-import me.fallenbreath.conditionalmixin.api.annotation.Condition;
-import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import mypals.ml.utils.ModIds;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.SaplingBlock;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(BlockEntity.class)
-public class BlockEntityMixin {
-
-    //#if MC>=12101
-    @Inject(method = "validateSupports", at = @At("HEAD"), cancellable = true)
-    private void allowInvalidBlockEntities(BlockState blockState, CallbackInfo ci) {
-        if (YetAnotherCarpetAdditionRules.allowIllegalBlockEntities) {
-            ci.cancel();
-        }
+@Mixin(SaplingBlock.class)
+public class SaplingBlockMixin {
+    @Inject(method = "canGrow", at = @At("HEAD"), cancellable = true)
+    public void canGrow(World world, Random random, BlockPos pos, BlockState state, CallbackInfoReturnable<Boolean> cir) {
+        cir.setReturnValue ((double)world.random.nextFloat() < YetAnotherCarpetAdditionRules.bonemealSuccessProbability);
     }
-
-    @Inject(method = "supports", at = @At("HEAD"), cancellable = true)
-    private void supportsInvalidBlockEntities(BlockState state, CallbackInfoReturnable<Boolean> cir) {
-        if (YetAnotherCarpetAdditionRules.allowIllegalBlockEntities) {
-            cir.setReturnValue(true);
-        }
-    }
-    //#else
-    //$$
-    //#endif
 }

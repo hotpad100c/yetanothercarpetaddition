@@ -76,6 +76,7 @@
     "features.slienceTP.TeleportCommandMixin",
     "features.stepCounter.TickCommandMixin",
     "features.subscribeRules.PlayerManagerMixin",
+    "features.treefarm.FoliagePlacerMixin",
     "features.updateLogger.AbstractBlockMixin",
     "features.updateLogger.ChainRestrictedNeighborUpdaterMixin",
     "features.updateLogger.SixWayEntryMixin",
@@ -90,7 +91,9 @@
     "features.visualizers.TickBlockEntitiesRecordOrderMixin",
     "features.visualizers.TreeGrowthObstacleUpdaterMixin",
     "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
-    "features.visualizers.WorldUpdateComparatorsMixin"
+    "features.visualizers.WorldUpdateComparatorsMixin",
+    "features.treefarm.SaplingBlockMixin",
+    "features.treefarm.BeehiveTreeDecoratorMixin"
   ],
   "injectors": {
     "defaultRequire": 1
