@@ -72,7 +72,7 @@ public class AbstractBlockMixin {
                              //#endif
                              CallbackInfoReturnable<BlockState> cir) {
         if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || world.isClient()) return;
-        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) world, pos, BlockUpdateVisualizing.UpdateType.PP);
+        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) world, pos.toImmutable(), BlockUpdateVisualizing.UpdateType.PP);
 
     }
 
