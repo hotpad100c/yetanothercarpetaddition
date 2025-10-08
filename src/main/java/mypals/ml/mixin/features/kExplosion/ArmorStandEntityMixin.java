@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
+//@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
 @Mixin(ArmorStandEntity.class)
 public abstract class ArmorStandEntityMixin extends Entity {
     @Shadow private boolean invisible;

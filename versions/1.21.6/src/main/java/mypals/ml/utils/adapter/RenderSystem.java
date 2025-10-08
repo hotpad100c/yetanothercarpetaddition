@@ -18,15 +18,30 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.mixin.features.kExplosion;
+package mypals.ml.utils.adapter;
 
-import me.fallenbreath.conditionalmixin.api.annotation.Condition;
-import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
-import mypals.ml.utils.DummyClass;
-import mypals.ml.utils.ModIds;
-import org.spongepowered.asm.mixin.Mixin;
+import com.mojang.blaze3d.opengl.GlStateManager;
 
-@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
-@Mixin(DummyClass.class)
-public abstract class ArmorStandEntityMixin{
+import static com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread;
+import static com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread;
+
+public class RenderSystem {
+    public static void disableDepthTest() {
+        assertOnRenderThread();
+        GlStateManager._disableDepthTest();
+    }
+
+    private static IllegalStateException constructThreadException() {
+        return new IllegalStateException("Rendersystem called from wrong thread");
+    }
+
+    public static void assertOnRenderThread() {
+        if (!isOnRenderThread()) {
+            throw constructThreadException();
+        }
+    }
+
+    public static void enableDepthTest() {
+        GlStateManager._enableDepthTest();
+    }
 }

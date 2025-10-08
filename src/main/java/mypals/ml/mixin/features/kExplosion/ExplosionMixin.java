@@ -36,7 +36,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
+//@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
 @Mixin(Explosion.class)
 public class ExplosionMixin implements ExplosionExtension {
     @Shadow @Final private World world;

@@ -32,7 +32,7 @@ import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
+//@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
 @Mixin(ItemEntity.class)
 public abstract class ItemEntityMixin extends Entity{
     public ItemEntityMixin(EntityType<?> type, World world) {

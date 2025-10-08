@@ -18,30 +18,14 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package java.mypals.ml.utils.adapter;
+package mypals.ml.mixin.features.kExplosion;
 
-import com.mojang.blaze3d.opengl.GlStateManager;
+import mypals.ml.utils.DummyClass;
+import org.spongepowered.asm.mixin.Mixin;
 
-import static com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread;
-import static com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread;
-
-public class RenderSystem {
-    public static void disableDepthTest() {
-        assertOnRenderThread();
-        GlStateManager._disableDepthTest();
-    }
-
-    private static IllegalStateException constructThreadException() {
-        return new IllegalStateException("Rendersystem called from wrong thread");
-    }
-
-    public static void assertOnRenderThread() {
-        if (!isOnRenderThread()) {
-            throw constructThreadException();
-        }
-    }
-
-    public static void enableDepthTest() {
-        GlStateManager._enableDepthTest();
-    }
+/**
+ * the real mixin code is on version 1.21.6
+ */
+@Mixin(DummyClass.class)
+public class ExplosionImplMixin {
 }

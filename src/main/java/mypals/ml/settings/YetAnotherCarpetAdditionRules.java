@@ -233,7 +233,7 @@ public class YetAnotherCarpetAdditionRules {
     )
     public static boolean foliagePlacerVisualize = false;
 
-    //#if MC < 12102
+    //#if MC < 12102 || MC > 12105
     @Rule(
             categories = {YACA, FEATURE}
     )
