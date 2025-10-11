@@ -43,6 +43,11 @@ import static mypals.ml.YetAnotherCarpetAdditionClient.defaultRules;
 import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
+//#if MC >= 12109
+//$$ import net.minecraft.client.gui.Click;
+//$$ import net.minecraft.client.input.MouseInput;
+//#endif
+
 //#if MC >= 12106
 //$$ import net.minecraft.client.gl.RenderPipelines;
 //#elseif MC >= 12102
@@ -118,15 +123,29 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY
-                                   //#if MC >= 12103
-                                   //$$, int button
-                                   //#endif
+            public boolean clicked(
+                    //#if MC < 12109
+                    double mouseX, double mouseY
+                    //#if MC >= 12103
+                    //$$, int button
+                    //#endif
+                    //#else
+                    //$$ Click click, boolean doubled
+                    //#endif
             ) {
+                //#if MC >= 12109
+                //$$ double mouseX = click.x();
+                //$$ double mouseY = click.y();
+                //#endif
+
                 //#if MC >= 12103
                 //$$if(this.isMouseOver(mouseX, mouseY)) {
                 //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                //#if MC >= 12109
+                //$$    this.onClick(click, doubled);
+                //#else
                 //$$    this.onClick(mouseX, mouseY);
+                //#endif
                 //$$}
                 //#endif
                 return this.isMouseOver(mouseX, mouseY);
@@ -145,7 +164,13 @@ public class RuleWidget {
 
 
             @Override
-            public void onClick(double mouseX, double mouseY) {
+            public void onClick(
+                    //#if MC >= 12109
+                    //$$ Click click, boolean doubled
+                    //#else
+                    double mouseX, double mouseY
+                    //#endif
+            ) {
                 this.toggled = !this.toggled;
                 this.playDownSound(MinecraftClient.getInstance().getSoundManager());
                 String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
@@ -187,15 +212,29 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY
-                                   //#if MC >= 12103
-                                   //$$, int button
-                                   //#endif
+            public boolean clicked(
+                    //#if MC < 12109
+                    double mouseX, double mouseY
+                    //#if MC >= 12103
+                    //$$, int button
+                    //#endif
+                    //#else
+                    //$$ Click click, boolean doubled
+                    //#endif
             ) {
+                //#if MC >= 12109
+                //$$ double mouseX = click.x();
+                //$$ double mouseY = click.y();
+                //#endif
+
                 //#if MC >= 12103
                 //$$if(this.isMouseOver(mouseX, mouseY)) {
                 //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                //#if MC >= 12109
+                //$$    this.onClick(click, doubled);
+                //#else
                 //$$    this.onClick(mouseX, mouseY);
+                //#endif
                 //$$}
                 //#endif
                 return this.isMouseOver(mouseX, mouseY);
@@ -214,7 +253,13 @@ public class RuleWidget {
 
 
             @Override
-            public void onClick(double mouseX, double mouseY) {
+            public void onClick(
+                    //#if MC >= 12109
+                    //$$ Click click, boolean doubled
+                    //#else
+                    double mouseX, double mouseY
+                    //#endif
+            ) {
                 this.toggled = !this.toggled;
                 System.out.println("Clicked lock button");
                 String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
@@ -262,15 +307,29 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(double mouseX, double mouseY
-                                   //#if MC >= 12103
-                                   //$$, int button
-                                   //#endif
+            public boolean clicked(
+                    //#if MC < 12109
+                    double mouseX, double mouseY
+                    //#if MC >= 12103
+                    //$$, int button
+                    //#endif
+                    //#else
+                    //$$ Click click, boolean doubled
+                    //#endif
             ) {
+                //#if MC >= 12109
+                //$$ double mouseX = click.x();
+                //$$ double mouseY = click.y();
+                //#endif
+
                 //#if MC >= 12103
                 //$$if(this.isMouseOver(mouseX, mouseY)) {
                 //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                //#if MC >= 12109
+                //$$    this.onClick(click, doubled);
+                //#else
                 //$$    this.onClick(mouseX, mouseY);
+                //#endif
                 //$$}
                 //#endif
                 return this.isMouseOver(mouseX, mouseY);
@@ -289,7 +348,13 @@ public class RuleWidget {
 
 
             @Override
-            public void onClick(double mouseX, double mouseY) {
+            public void onClick(
+                    //#if MC >= 12109
+                    //$$ Click click, boolean doubled
+                    //#else
+                    double mouseX, double mouseY
+                    //#endif
+            ) {
                 this.toggled = !this.toggled;
 
                 String orgName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
@@ -360,14 +425,41 @@ public class RuleWidget {
     }
 
     public void onClicked(double mouseX, double mouseY, boolean clicked, int button) {
-        if (!lockRule.mouseClicked(mouseX, mouseY, button) && !favoriteRule.mouseClicked(mouseX, mouseY, button)) {
+        //#if MC >= 12109
+        //$$ Click click = new Click(mouseX, mouseY, new MouseInput(button, 0));
+        //#endif
+        if (!lockRule.mouseClicked(
+                //#if MC >= 12109
+                //$$ click, false
+                //#else
+                mouseX, mouseY, button
+                //#endif
+        ) && !favoriteRule.mouseClicked(
+                //#if MC >= 12109
+                //$$ click, false
+                //#else
+                mouseX, mouseY, button
+                //#endif
+        )) {
             valueWidget.setFocused(clicked && !isTrueFalseRule);
             valueWidget.setSuggestion(clicked || !valueWidget.getText().isEmpty() ? "" : ruleData.value);
             if (clicked && isTrueFalseRule) {
-                trueFalseButton.onClick(mouseX, mouseY);
+                trueFalseButton.onClick(
+                        //#if MC >= 12109
+                        //$$ click, false
+                        //#else
+                        mouseX, mouseY
+                        //#endif
+                );
                 System.out.println("Clicked toggle button");
             } else if (clicked && !isTrueFalseRule) {
-                valueWidget.onClick(mouseX, mouseY);
+                valueWidget.onClick(
+                        //#if MC >= 12109
+                        //$$ click, false
+                        //#else
+                        mouseX, mouseY
+                        //#endif
+                );
                 MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             } else {
                 if (!valueWidget.getText().isEmpty() && !isTrueFalseRule) {

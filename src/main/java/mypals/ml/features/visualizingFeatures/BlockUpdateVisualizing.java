@@ -117,7 +117,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
     @Override
     protected void updateVisualizerEntity(BlockUpdateObject marker, Object data) {
-        if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.getWorld().isClient) {
+        if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.getWorld().isClient()) {
             marker.posMarker.age = 0;
             NbtCompound nbt = NBTDataManager.readFromEntity(marker.posMarker, new NbtCompound());
             float scale = 0.9f;

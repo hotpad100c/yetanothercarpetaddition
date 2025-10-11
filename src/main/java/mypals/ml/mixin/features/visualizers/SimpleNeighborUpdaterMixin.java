@@ -63,7 +63,7 @@ public class SimpleNeighborUpdaterMixin {
                                    //$$ WireOrientation orientation,
                                    //#endif
                                    CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient) return;
+        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient()) return;
         YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.NC);
     }
 
@@ -82,7 +82,7 @@ public class SimpleNeighborUpdaterMixin {
                                      //$$ WireOrientation orientation,
                                      //#endif
                                      boolean notify, CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient) return;
+        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient()) return;
         YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.PP);
     }
     
@@ -92,7 +92,7 @@ public class SimpleNeighborUpdaterMixin {
             at = @At("HEAD")
     )
     private void AddNCMarker(Direction direction, BlockState neighborState, BlockPos pos, BlockPos neighborPos, int flags, int maxUpdateDepth, CallbackInfo ci) {
-        //if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient) return;
+        //if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient()) return;
         //YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.PP);
 
     }

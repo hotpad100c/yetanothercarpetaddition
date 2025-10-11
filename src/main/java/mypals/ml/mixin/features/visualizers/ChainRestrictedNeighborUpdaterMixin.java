@@ -62,7 +62,7 @@ public class ChainRestrictedNeighborUpdaterMixin {
                                    //$$ WireOrientation orientation,
                                    //#endif
                                    CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient) return;
+        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient()) return;
         YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.NC);
     }
 
@@ -81,7 +81,7 @@ public class ChainRestrictedNeighborUpdaterMixin {
                                      //$$ WireOrientation orientation,
                                      //#endif
                                      boolean notify, CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient) return;
+        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient()) return;
         YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.PP);
     }
 
@@ -98,7 +98,7 @@ public class ChainRestrictedNeighborUpdaterMixin {
                                         //$$ WireOrientation orientation,
                                         //#endif
                                         CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient) return;
+        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient()) return;
         for (Direction dir : NeighborUpdater.UPDATE_ORDER) {
             if (!(except != null && dir == except)) {
                 YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos.offset(dir), BlockUpdateVisualizing.UpdateType.NC);

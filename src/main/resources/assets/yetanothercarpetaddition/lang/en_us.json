@@ -1,5 +1,5 @@
 {
-  "category.MAIN": "YACA",
+  "key.category.yaca.name": "YACA",
   "category.YACACommand": "YACACommand",
   "gui.screen.configure": "Carpet Rule Config Screen",
   "gui.screen.tooltip.defaultValue": "DefaultValue",

@@ -76,6 +76,7 @@ public abstract class ClientWorldFreezeMixin extends World {
         }
     }
 
+    //#if MC < 12109
     @WrapOperation(method = "tickEntities",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;tickBlockEntities()V"))
     private void blockTickClientChunkManager(ClientWorld instance, Operation<Void> original) {
@@ -83,6 +84,7 @@ public abstract class ClientWorldFreezeMixin extends World {
             original.call(instance);
         }
     }
+    //#endif
 
     @WrapOperation(method = "tick",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientChunkManager;tick(Ljava/util/function/BooleanSupplier;Z)V"))

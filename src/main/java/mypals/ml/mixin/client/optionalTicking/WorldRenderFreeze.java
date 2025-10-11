@@ -38,6 +38,12 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArgs;
+import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
+
+//#if MC >= 12109
+//$$ import net.minecraft.client.render.Camera;
+//#endif
 
 import java.util.Iterator;
 
@@ -57,6 +63,7 @@ public abstract class WorldRenderFreeze {
     @Shadow
     protected abstract void removeBlockBreakingInfo(BlockBreakingInfo info);
 
+    //#if MC < 12109
     @WrapOperation(
             //#if MC < 12102
             method = "render",
@@ -73,9 +80,31 @@ public abstract class WorldRenderFreeze {
                 .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;
         original.call(instance, entity, cameraX, cameraY, cameraZ, tickDelta, matrices, vertexConsumers);
     }
+    //#else
+    //$$ @ModifyArgs(
+    //$$         method = "getAndUpdateRenderState",
+    //$$         at = @At(
+    //$$                 value = "INVOKE",
+    //$$                 target = "Lnet/minecraft/client/render/entity/EntityRenderManager;getAndUpdateRenderState(Lnet/minecraft/entity/Entity;F)Lnet/minecraft/client/render/entity/state/EntityRenderState;"
+    //$$         )
+    //$$ )
+    //$$ public void blockTickEntityRender(Args args) {
+    //$$     Entity entity = args.get(0);
+    //$$     float tickDelta = args.get(1);
+    //$$     tickDelta = (YetAnotherCarpetAdditionRules.stopTickingEntities
+    //$$             || YetAnotherCarpetAdditionClient.selectiveFreezeManager
+    //$$             .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;
+    //$$     args.set(1, tickDelta);
+    //$$ }
+    //#endif
 
     @WrapMethod(method = "tick")
-    private void blockTick(Operation<Void> original) {
+    private void blockTick(
+            //#if MC >= 12109
+            //$$ Camera camera,
+            //#endif
+            Operation<Void> original
+    ) {
         if (this.world.getTickManager().shouldTick() &&
                 !YetAnotherCarpetAdditionRules.stopTickingBlockEntities &&
                 !YetAnotherCarpetAdditionRules.stopTickingWeather &&

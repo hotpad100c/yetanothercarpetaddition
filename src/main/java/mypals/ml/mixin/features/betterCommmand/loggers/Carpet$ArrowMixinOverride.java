@@ -61,7 +61,7 @@ public abstract class Carpet$ArrowMixinOverride extends Entity {
     //#else
     //$$ private void addLogger(EntityType type, World world_1, ItemStack stack, CallbackInfo ci) {
     //#endif
-        if (LoggerRegistry.__projectiles && !world_1.isClient)
+        if (LoggerRegistry.__projectiles && !world_1.isClient())
             YACA$logHelper = new TrajectoryLogHelper("projectiles");
     }
 
