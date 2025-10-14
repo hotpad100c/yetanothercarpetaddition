@@ -83,8 +83,16 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
             world.spawnEntity(entity);
             NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt = configureCommonNbt(nbt);
+            //#if MC < 12105
             String textJson = "{\"text\":\"" + "#" + order + "\",\"color\":\"" + "white" + "\"}";
             nbt.putString("text", textJson);
+            //#else
+            //$$ HashMap<String, NbtElement> textNbt = new HashMap<>();
+            //$$ textNbt.put("text", NbtString.of("#" + order));
+            //$$ textNbt.put("color", NbtString.of("white"));
+            //$$ NbtCompound textComponent = new NbtCompound(textNbt);
+            //$$ nbt.put("text", textComponent);
+            //#endif
             NBTDataManager.writeToEntity(entity, nbt);
             return entity;
         }

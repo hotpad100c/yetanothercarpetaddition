@@ -21,23 +21,20 @@
 package mypals.ml.mixin.features.visualizers;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.features.visualizingFeatures.HopperCooldownVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.HopperBlockEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HopperBlockEntity.class)
-public class hopperEntityCooldownMixin {
+public class HopperEntityCooldownMixin {
     @Inject(
             method = "serverTick",
             at = @At("TAIL")
