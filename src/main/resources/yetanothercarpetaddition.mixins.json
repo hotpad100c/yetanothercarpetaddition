@@ -4,7 +4,6 @@
   "compatibilityLevel": "{{COMPATIBILITY_LEVEL}}",
   "plugin": "mypals.ml.utils.YACAMixinPlugin",
   "mixins": [
-    "CommandManagerCommandExecutionMixin",
     "EntityDataObjectMixin",
     "carpet.SettingsManagerAccessor",
     "carpet.SettingsManagerMixin",

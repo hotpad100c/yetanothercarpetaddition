@@ -262,7 +262,7 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
 
     @Override
     public String getVisualizerTag() {
-        return "scheduledTickVisualizer";
+        return "scheduledTickVisualize";
     }
 
     @Override

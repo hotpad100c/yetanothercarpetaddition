@@ -137,7 +137,7 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
 
     @Override
     public String getVisualizerTag() {
-        return "POIVisualizer";
+        return "POIVisualize";
     }
 
 

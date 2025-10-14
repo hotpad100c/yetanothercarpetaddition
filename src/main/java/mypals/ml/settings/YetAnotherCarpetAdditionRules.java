@@ -182,54 +182,66 @@ public class YetAnotherCarpetAdditionRules {
     )
     public static boolean disableLightUpdate = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean scheduledTickVisualize = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean hopperCooldownVisualize = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean randomTickVisualize = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean gameEventVisualize = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean blockEventVisualize = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean blockUpdateVisualize = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean stateUpdateVisualize = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean comparatorUpdateVisualize = false;
 
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean blockEntityOrderVisualize = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean POIVisualize = false;
 
     @Rule(
-            categories = {YACA, FEATURE,TREEFARM}
+            categories = {YACA, FEATURE,TREEFARM},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean treeGrowthObstacleVisualize = false;
 
     @Rule(
-            categories = {YACA, FEATURE,TREEFARM}
+            categories = {YACA, FEATURE,TREEFARM},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean foliagePlacerVisualize = false;
 
@@ -302,7 +314,8 @@ public class YetAnotherCarpetAdditionRules {
     )
     public static boolean copyBlockState = false;
     @Rule(
-            categories = {YACA, FEATURE}
+            categories = {YACA, FEATURE},
+            validators = RuleValidators.CLEAR_VISUALIZER.class
     )
     public static boolean mobAIVisualize = false;
     @Rule(

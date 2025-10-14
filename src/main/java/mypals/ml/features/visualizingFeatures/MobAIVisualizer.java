@@ -102,7 +102,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
 
     @Override
     public String getVisualizerTag() {
-        return "MobAIVisualizer";
+        return "mobAIVisualize";
     }
 
     @Override

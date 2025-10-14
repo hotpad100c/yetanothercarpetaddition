@@ -127,7 +127,7 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
 
     @Override
     public String getVisualizerTag() {
-        return "blockEntityOrderVisualizer";
+        return "blockEntityOrderVisualize";
     }
 
 

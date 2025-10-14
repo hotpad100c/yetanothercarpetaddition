@@ -97,6 +97,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
             entity.setYaw(0);
             entity.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
             entity.addCommandTag(tag);
+            entity.addCommandTag("blockUpdateVisualize");
             entity.addCommandTag("DoNotTick");
             addMarkerToTeam(world, updateType.tagName, entity);
             world.spawnEntity(entity);
@@ -156,7 +157,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
     @Override
     public String getVisualizerTag() {
-        return "";
+        return "blockUpdateVisualize";
     }
 
     @Override

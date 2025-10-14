@@ -20,15 +20,19 @@
 
 package mypals.ml.settings;
 
+import carpet.CarpetServer;
 import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Validator;
+import mypals.ml.features.visualizingFeatures.AbstractVisualizingManager;
 import net.minecraft.registry.Registries;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+
+import static mypals.ml.YetAnotherCarpetAdditionServer.allVisualizers;
 
 public class RuleValidators {
 
@@ -74,4 +78,20 @@ public class RuleValidators {
             }
         }
     }
+
+    public static class CLEAR_VISUALIZER extends Validator<Boolean> {
+        @Override
+        public Boolean validate(@Nullable ServerCommandSource serverCommandSource, CarpetRule<Boolean> carpetRule, Boolean newValue, String s) {
+            if (!newValue) {
+                String visualizeName = carpetRule.name();
+                for (AbstractVisualizingManager abstractVisualizingManager : allVisualizers){
+                    if (Objects.equals(abstractVisualizingManager.getVisualizerTag(), visualizeName)){
+                        abstractVisualizingManager.clearVisualizers(CarpetServer.minecraft_server);
+                    }
+                }
+            }
+                return newValue;
+        }
+    }
+
 }
