@@ -260,7 +260,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
     }
 
     @Override
-    protected String getVisualizerTag() {
+    public String getVisualizerTag() {
         return "blockEventVisualizer";
     }
 

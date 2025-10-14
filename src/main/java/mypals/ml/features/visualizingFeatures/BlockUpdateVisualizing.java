@@ -155,7 +155,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     }
 
     @Override
-    protected String getVisualizerTag() {
+    public String getVisualizerTag() {
         return "";
     }
 

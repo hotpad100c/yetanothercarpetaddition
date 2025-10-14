@@ -235,7 +235,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
     }
 
     @Override
-    protected String getVisualizerTag() {
+    public String getVisualizerTag() {
         return "gameEventVisualizer";
     }
 

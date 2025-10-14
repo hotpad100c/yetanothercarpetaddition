@@ -127,7 +127,7 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
     }
 
     @Override
-    protected String getVisualizerTag() {
+    public String getVisualizerTag() {
         return "hopperCooldownVisualizer";
     }
 

@@ -137,7 +137,7 @@ public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<Blo
     }
 
     @Override
-    protected String getVisualizerTag() {
+    public String getVisualizerTag() {
         return "foliageAttachmentVisualizer";
     }
 

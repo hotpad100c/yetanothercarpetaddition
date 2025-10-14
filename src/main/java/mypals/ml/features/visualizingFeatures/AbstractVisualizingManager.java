@@ -74,7 +74,7 @@ public abstract class AbstractVisualizingManager<T, E> {
     protected abstract E getVisualizer(T key);
 
 
-    protected abstract String getVisualizerTag();
+    public abstract String getVisualizerTag();
 
 
     protected NbtCompound configureCommonNbt(NbtCompound nbt) {

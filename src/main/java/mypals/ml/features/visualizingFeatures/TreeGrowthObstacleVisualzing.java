@@ -140,7 +140,7 @@ public class TreeGrowthObstacleVisualzing extends AbstractVisualizingManager<Blo
     }
 
     @Override
-    protected String getVisualizerTag() {
+    public String getVisualizerTag() {
         return "treeGrowthObstacleVisualizer";
     }
 

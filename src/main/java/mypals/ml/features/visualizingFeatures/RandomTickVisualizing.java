@@ -164,7 +164,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
     }
 
     @Override
-    protected String getVisualizerTag() {
+    public String getVisualizerTag() {
         return "randomTickVisualizer";
     }
 

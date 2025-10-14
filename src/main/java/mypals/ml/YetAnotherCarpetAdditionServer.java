@@ -88,7 +88,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static final String MOD_NAME = "YetAnotherCarpetAddition";
     public static final String MOD_ID = MOD_NAME.toLowerCase();
     public static SelectiveFreezeManager selectiveFreezeManager = new SelectiveFreezeManager();
-    private static final List<AbstractVisualizingManager> allVisualizers = new ArrayList<>();
+    public static final List<AbstractVisualizingManager> allVisualizers = new ArrayList<>();
     public static GameEventVisualizing gameEventVisualizing = new GameEventVisualizing();
     public static HopperCooldownVisualizing hopperCooldownVisualizing = new HopperCooldownVisualizing();
     public static BlockEventVisualizing blockEventVisualizing = new BlockEventVisualizing();
@@ -102,6 +102,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static FoliageAttachmentVisualizing foliageAttachment = new FoliageAttachmentVisualizing();
     public static final String MOD_VERSION = "V1.0.0";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+    public static final Set<String> VisualizerTags = new HashSet<>();
 
     public static ServerWorld serverWorld = null;
 
@@ -117,6 +118,9 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         allVisualizers.add(mobAIVisualizer);
         allVisualizers.add(treeGrowthObstacleVisualzing);
         allVisualizers.add(foliageAttachment);
+        for(AbstractVisualizingManager visualizer : allVisualizers ) {
+            VisualizerTags.add(visualizer.getVisualizerTag());
+        }
     }
 
     @Override
