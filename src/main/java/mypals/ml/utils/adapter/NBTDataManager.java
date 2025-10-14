@@ -52,10 +52,10 @@ public class NBTDataManager {
         //$$ ErrorReporter.Logging logging = new ErrorReporter.Logging(entity.getErrorReporterContext(), YetAnotherCarpetAdditionServer.LOGGER);
         //$$ NbtWriteView nbtWriteView2 = NbtWriteView.create(logging, entity.getRegistryManager());
         //$$ nbtWriteView2.getNbt().copyFrom(nbtCompound);
-        //$$ entity.saveData(nbtWriteView2);
+        //$$ entity.writeData(nbtWriteView2);
         //$$ nbtCompound = nbtWriteView2.getNbt();
         //#else
-        entity.saveNbt(nbtCompound);
+        entity.writeNbt(nbtCompound);
         //#endif
         return nbtCompound;
     }
