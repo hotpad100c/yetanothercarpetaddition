@@ -20,19 +20,21 @@
 
 package mypals.ml.mixin.features.visualizers;
 
-import mypals.ml.features.visualizingFeatures.AbstractVisualizingManager;
 import mypals.ml.interfaces.ISelf;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.nbt.NbtCompound;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Set;
 import static mypals.ml.YetAnotherCarpetAdditionServer.VisualizerTags;
+
+//#if MC >= 12106
+//$$ import net.minecraft.storage.WriteView;
+//#endif
 
 @Mixin(Entity.class)
 public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
@@ -41,7 +43,13 @@ public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
     public abstract Set<String> getCommandTags();
 
     @Inject(method = "saveSelfNbt", at = @At("HEAD"), cancellable = true)
-    public void saveSelfNbt(NbtCompound nbt, CallbackInfoReturnable<Boolean> cir) {
+    public void saveSelfNbt(
+            //#if MC >= 12106
+            //WriteView view,
+            //#else
+            NbtCompound nbt,
+            //#endif
+            CallbackInfoReturnable<Boolean> cir) {
         if (yetanothercarpetaddition$self() instanceof DisplayEntity) {
             Set<String> tags = this.getCommandTags();
             for (String tag : VisualizerTags) {
