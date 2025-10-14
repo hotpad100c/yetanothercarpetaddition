@@ -51,7 +51,7 @@ public abstract class Carpet$ThrowableProjectileMixinOverride extends Entity {
     private void addLogger(EntityType<? extends ProjectileEntity> entityType_1, World world_1,
                           
                            CallbackInfo ci) {
-        if (LoggerRegistry.__projectiles && !world_1.isClient)
+        if (LoggerRegistry.__projectiles && !world_1.isClient())
             YACA$logHelper = new TrajectoryLogHelper("projectiles");
     }
 

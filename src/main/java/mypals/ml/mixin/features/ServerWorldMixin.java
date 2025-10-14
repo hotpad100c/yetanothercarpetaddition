@@ -293,7 +293,11 @@ public abstract class ServerWorldMixin extends World {
     )
     private void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.globalOrder = 0;
-        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks || YetAnotherCarpetAdditionRules.stopTickingBlocks) {
+        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick
+                || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks
+                || YetAnotherCarpetAdditionRules.stopTickingBlocks
+                && blockTickScheduler.chunkTickSchedulers.values() != null
+        ) {
             blockTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
                 Queue<OrderedTick<Block>> queuedTick = chunkTickScheduler.tickQueue;
                 Queue<OrderedTick<Block>> newQueuedTick = new PriorityQueue(OrderedTick.TRIGGER_TICK_COMPARATOR);
@@ -313,7 +317,11 @@ public abstract class ServerWorldMixin extends World {
 
             });
         }
-        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids || YetAnotherCarpetAdditionRules.stopTickingFluids) {
+        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick
+                || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids
+                || YetAnotherCarpetAdditionRules.stopTickingFluids
+                && blockTickScheduler.chunkTickSchedulers.values() != null
+        ) {
             fluidTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
                 Queue<OrderedTick<Fluid>> queuedTick = chunkTickScheduler.tickQueue;
                 Queue<OrderedTick<Fluid>> newQueuedTick = new PriorityQueue(OrderedTick.TRIGGER_TICK_COMPARATOR);

@@ -21,17 +21,25 @@
 package mypals.ml.mixin.features.visualizers;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import net.minecraft.server.network.DebugInfoSender;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+//#if MC >= 12109
+//$$ import net.minecraft.server.debug.SubscriptionTracker;
+//#else
+import net.minecraft.server.network.DebugInfoSender;
+//#endif
 
-import java.util.function.Function;
-
-@Mixin(DebugInfoSender.class)
+@Mixin(
+        //#if MC >= 12109
+        //$$ SubscriptionTracker.class
+        //#else
+        DebugInfoSender.class
+        //#endif
+)
 public abstract class POIStorageMixin {
 
     /*@Inject(
@@ -49,10 +57,19 @@ public abstract class POIStorageMixin {
     }*/
 
     @Inject(
+            //#if MC >= 12109
+            //$$ method = "onPoiRemoved",
+            //#else
             method = "sendPoiRemoval",
+            //#endif
             at = @At("HEAD")
     )
-    private static void remove(ServerWorld world, BlockPos pos, CallbackInfo ci) {
+    private static void remove(
+            //#if MC < 12109
+            ServerWorld world,
+            //#endif
+            BlockPos pos, CallbackInfo ci
+    ) {
         YetAnotherCarpetAdditionServer.poiVisualizing.removeVisualizer(pos);
     }
 

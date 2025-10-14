@@ -40,6 +40,9 @@ import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
+//#if MC >= 12109
+//$$ import net.minecraft.util.Identifier;
+//#endif
 //#if MC < 12006
 //$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 //$$ import net.minecraft.network.PacketByteBuf;
@@ -58,6 +61,9 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static CopyOnWriteArrayList<String> favoriteRules = new CopyOnWriteArrayList<>();
     public static SelectiveFreezeManager selectiveFreezeManager = new SelectiveFreezeManager();
     public boolean requesting = false;
+    //#if MC >= 12109
+    //$$ private static final KeyBinding.Category YACA_CATEGORY = KeyBinding.Category.create(Identifier.of("yaca", "name"));
+    //#endif
 
     @Override
     public void onInitializeClient() {
@@ -66,7 +72,11 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 "key.carpetRulesKeyBind",
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F8,
-                "category.MAIN"
+                //#if MC >= 12109
+                //$$ YACA_CATEGORY
+                //#else
+                "key.category.yaca.name"
+                //#endif
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (carpetRulesKeyBind.wasPressed()) {

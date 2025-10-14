@@ -27,6 +27,11 @@ import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import net.minecraft.world.block.NeighborUpdater;
+
+//#if MC >= 12109
+//$$ import java.util.function.Consumer;
+//#endif
+
 //#if MC>12102
 //$$ import net.minecraft.world.block.WireOrientation;
 //#endif
@@ -86,6 +91,12 @@ public class FakeEntries {
         //$$ public WireOrientation wireOrientation() {return this.wireOrientation;}
         //#endif
 
+        //#if MC >= 12109
+        //$$ @Override
+        //$$ public void runCallback(Consumer<BlockPos> callback) {
+        //$$     callback.accept(this.pos);
+        //$$ }
+        //#endif
     }
 
     public static record StateReplacementEntryFake(Direction direction, BlockState neighborState, BlockPos pos,
@@ -136,6 +147,13 @@ public class FakeEntries {
         public int updateLimit() {
             return this.updateLimit;
         }
+
+        //#if MC >= 12109
+        //$$ @Override
+        //$$ public void runCallback(Consumer<BlockPos> callback) {
+        //$$     callback.accept(this.pos);
+        //$$ }
+        //#endif
     }
 
     public static record StatefulEntryFake(BlockState state, BlockPos pos, Block sourceBlock,
@@ -201,5 +219,12 @@ public class FakeEntries {
         public boolean movedByPiston() {
             return this.movedByPiston;
         }
+
+        //#if MC >= 12109
+        //$$ @Override
+        //$$ public void runCallback(Consumer<BlockPos> callback) {
+        //$$     callback.accept(this.pos);
+        //$$ }
+        //#endif
     }
 }

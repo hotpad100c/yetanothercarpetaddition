@@ -44,7 +44,7 @@ public abstract class Carpet$FallingBlockEntityMixinOverride extends Entity {
 
     @Inject(method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V", at = @At("RETURN"))
     private void addLogger(EntityType<? extends ProjectileEntity> entityType_1, World world_1, CallbackInfo ci) {
-        if (LoggerRegistry.__fallingBlocks && !world_1.isClient)
+        if (LoggerRegistry.__fallingBlocks && !world_1.isClient())
             YACA$logHelper = new TrajectoryLogHelper("fallingBlocks");
     }
 

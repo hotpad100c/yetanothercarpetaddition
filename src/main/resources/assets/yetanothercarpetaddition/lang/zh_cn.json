@@ -1,5 +1,5 @@
 {
-  "category.MAIN": "YACA-毯上添花",
+  "key.category.yaca.name": "YACA-毯上添花",
   "category.YACACommand": "YACA指令",
   "gui.screen.configure": "地毯规则配置界面",
   "gui.screen.tooltip.defaultValue": "默认值",
