@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = ">1.21.8"))
+@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = ">1.21.5"))
 @Mixin(WorldChunk.class)
 public class RemoveTickBlockEntitiesRecordOrderMixin {
     @Inject(method = "removeBlockEntity", at = @At("HEAD"))
