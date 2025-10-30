@@ -83,6 +83,7 @@ public class RuleValidators {
         @Override
         public Boolean validate(@Nullable ServerCommandSource serverCommandSource, CarpetRule<Boolean> carpetRule, Boolean newValue, String s) {
             if (!newValue) {
+                if(CarpetServer.minecraft_server == null) return newValue;
                 String visualizeName = carpetRule.name();
                 for (AbstractVisualizingManager abstractVisualizingManager : allVisualizers){
                     if (Objects.equals(abstractVisualizingManager.getVisualizerTag(), visualizeName)){
@@ -90,7 +91,7 @@ public class RuleValidators {
                     }
                 }
             }
-                return newValue;
+            return newValue;
         }
     }
 
