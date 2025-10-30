@@ -83,11 +83,11 @@ public class RuleValidators {
         @Override
         public Boolean validate(@Nullable ServerCommandSource serverCommandSource, CarpetRule<Boolean> carpetRule, Boolean newValue, String s) {
             if (!newValue) {
-                if(serverCommandSource == null || CarpetServer.minecraft_server == null) return newValue;
+                if(serverCommandSource == null) return newValue;
                 String visualizeName = carpetRule.name();
                 for (AbstractVisualizingManager abstractVisualizingManager : allVisualizers){
                     if (Objects.equals(abstractVisualizingManager.getVisualizerTag(), visualizeName)){
-                        abstractVisualizingManager.clearVisualizers(CarpetServer.minecraft_server);
+                        abstractVisualizingManager.clearVisualizers(serverCommandSource.getServer());
                     }
                 }
             }
