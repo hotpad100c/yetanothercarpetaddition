@@ -77,56 +77,54 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
             at = @At("HEAD")
     )
     private void ServerTickAddScheduledTickMarker(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
-        Map<Long, Integer> blockTickCounter = new HashMap<>();
-        Map<Long, Integer> fluidTickCounter = new HashMap<>();
-
-
-        blockTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
-            chunkTickScheduler.getQueueAsStream().forEach(orderedTick -> {
-                if (YetAnotherCarpetAdditionRules.scheduledTickVisualize) {
-                    long triggerTick = orderedTick.triggerTick();
-                    int subOrder = blockTickCounter.compute(triggerTick, (k, v) -> (v == null ? 1 : v + 1));
-
-                    YetAnotherCarpetAdditionServer.scheduledTickVisualizing.setVisualizer(
-                            (ServerWorld) (Object) this,
-                            orderedTick.pos(),
-                            triggerTick,
-                            orderedTick.priority().getIndex(),
-                            subOrder,
-                            Text.translatable(orderedTick.type().getTranslationKey()).getString(),
-                            false
-                    );
-                }
-            });
-        });
-
-        // Fluid Ticks 可视化
-        fluidTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
-            chunkTickScheduler.getQueueAsStream().forEach(orderedTick -> {
-                if (YetAnotherCarpetAdditionRules.scheduledTickVisualize) {
-                    long triggerTick = orderedTick.triggerTick();
-                    int subOrder = fluidTickCounter.compute(triggerTick, (k, v) -> (v == null ? 1 : v + 1));
-
-                    YetAnotherCarpetAdditionServer.scheduledTickVisualizing.setVisualizer(
-                            (ServerWorld) (Object) this,
-                            orderedTick.pos(),
-                            triggerTick,
-                            orderedTick.priority().getIndex(),
-                            subOrder,
-                            Text.translatable(
-                                    orderedTick.type()
-                                            .getStateManager()
-                                            .getDefaultState()
-                                            .getBlockState()
-                                            .getBlock()
-                                            .getTranslationKey()
-                            ).getString(),
-                            true
-                    );
-                }
-            });
-        });
+        if (!YetAnotherCarpetAdditionRules.scheduledTickVisualize) return;
+        
+        List<OrderedTick<?>> allBlockTicks = blockTickScheduler.chunkTickSchedulers.values().stream()
+                .flatMap(chunkTickScheduler -> chunkTickScheduler.getQueueAsStream())
+                .sorted(Comparator.comparingLong(OrderedTick::subTickOrder))
+                .toList();
+    
+        int blockIndex = 1;
+        for (OrderedTick<?> orderedTick : allBlockTicks) {
+            long triggerTick = orderedTick.triggerTick();
+            YetAnotherCarpetAdditionServer.scheduledTickVisualizing.setVisualizer(
+                    (ServerWorld) (Object) this,
+                    orderedTick.pos(),
+                    triggerTick,
+                    orderedTick.priority().getIndex(),
+                    blockIndex++,
+                    Text.translatable(orderedTick.type().getTranslationKey()).getString(),
+                    false
+            );
+        }
+        List<OrderedTick<?>> allFluidTicks = fluidTickScheduler.chunkTickSchedulers.values().stream()
+                .flatMap(chunkTickScheduler -> chunkTickScheduler.getQueueAsStream())
+                .sorted(Comparator.comparingLong(OrderedTick::subTickOrder))
+                .toList();
+    
+        int fluidIndex = 1;
+        for (OrderedTick<?> orderedTick : allFluidTicks) {
+            long triggerTick = orderedTick.triggerTick();
+            YetAnotherCarpetAdditionServer.scheduledTickVisualizing.setVisualizer(
+                    (ServerWorld) (Object) this,
+                    orderedTick.pos(),
+                    triggerTick,
+                    orderedTick.priority().getIndex(),
+                    fluidIndex++,
+                    Text.translatable(
+                            orderedTick.type()
+                                    .getStateManager()
+                                    .getDefaultState()
+                                    .getBlockState()
+                                    .getBlock()
+                                    .getTranslationKey()
+                    ).getString(),
+                    true
+            );
+        }
     }
+
+
 
     @Inject(
             method = "tickChunk",
