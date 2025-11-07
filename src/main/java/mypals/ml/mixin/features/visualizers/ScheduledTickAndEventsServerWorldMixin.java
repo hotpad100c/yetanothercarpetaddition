@@ -79,13 +79,13 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
     private void ServerTickAddScheduledTickMarker(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         if (!YetAnotherCarpetAdditionRules.scheduledTickVisualize) return;
         
-        List<OrderedTick<?>> allBlockTicks = blockTickScheduler.chunkTickSchedulers.values().stream()
+        List<OrderedTick<Block>> allBlockTicks = blockTickScheduler.chunkTickSchedulers.values().stream()
                 .flatMap(chunkTickScheduler -> chunkTickScheduler.getQueueAsStream())
                 .sorted(Comparator.comparingLong(OrderedTick::subTickOrder))
                 .toList();
     
         int blockIndex = 1;
-        for (OrderedTick<?> orderedTick : allBlockTicks) {
+        for (OrderedTick<Block> orderedTick : allBlockTicks) {
             long triggerTick = orderedTick.triggerTick();
             YetAnotherCarpetAdditionServer.scheduledTickVisualizing.setVisualizer(
                     (ServerWorld) (Object) this,
@@ -97,13 +97,13 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
                     false
             );
         }
-        List<OrderedTick<?>> allFluidTicks = fluidTickScheduler.chunkTickSchedulers.values().stream()
+        List<OrderedTick<Fluid>> allFluidTicks = fluidTickScheduler.chunkTickSchedulers.values().stream()
                 .flatMap(chunkTickScheduler -> chunkTickScheduler.getQueueAsStream())
                 .sorted(Comparator.comparingLong(OrderedTick::subTickOrder))
                 .toList();
     
         int fluidIndex = 1;
-        for (OrderedTick<?> orderedTick : allFluidTicks) {
+        for (OrderedTick<Fluid> orderedTick : allFluidTicks) {
             long triggerTick = orderedTick.triggerTick();
             YetAnotherCarpetAdditionServer.scheduledTickVisualizing.setVisualizer(
                     (ServerWorld) (Object) this,
