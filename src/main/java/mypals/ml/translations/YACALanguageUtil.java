@@ -55,13 +55,13 @@ public class YACALanguageUtil {
         }
         String translation = translations.get(key);
         if (translation != null) {
-            return originalName == null ? translation : translation + "|" + originalName;
+            return originalName == null ? translation : translation + "```" + originalName;
         }
         if (!lang.equals("en_us") && !noTranslations) {
             translations = getTranslations("en_us");
             translation = translations.get(key);
             if (translation != null) {
-                return translation + "|";
+                return translation + "```";
             }
         }
 

@@ -26,7 +26,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.ParentElement;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.ScrollableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.render.RenderLayer;
@@ -75,8 +74,8 @@ public class RulesEditScreen extends Screen implements ParentElement {
     public String lastCategoryBeforeSearching = currentCategory;
     private static CopyOnWriteArrayList<RuleWidget> rulesInCurrentCategory = new CopyOnWriteArrayList<>();
     private static List<CategoryEntry> categoriesInScreen = new ArrayList<>();
-    public ScrollableWidget rulesScrollableWidget;
-    public ScrollableWidget categoriesScrollableWidget;
+    public ConstantScrollableWidget rulesScrollableWidget;
+    public ConstantScrollableWidget categoriesScrollableWidget;
     public List<Text> currentToolTips = new ArrayList<>();
     public TextFieldWidget searchFieldWidget;
     public boolean searching = false;
@@ -85,6 +84,34 @@ public class RulesEditScreen extends Screen implements ParentElement {
     public RulesEditScreen(Text title) {
         super(title);
     }
+
+    //Im sorry.
+
+    //#if MC >= 12109
+    //$$public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+    //$$    return super.mouseDragged(click,deltaX,deltaY) || this.rulesScrollableWidget.mouseDragged(click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(click,deltaX,deltaY);
+    //$$}
+    //$$@Override
+    //$$public boolean keyPressed(KeyInput keyInput) {
+    //$$    return super.keyPressed(keyInput) || this.rulesScrollableWidget.keyPressed(keyInput) || this.categoriesScrollableWidget.keyPressed(keyInput) || searchFieldWidget.keyPressed(keyInput);
+    //$$}
+    //$$@Override
+    //$$public boolean charTyped(CharInput charInput){
+    //$$    return super.charTyped(charInput) || this.rulesScrollableWidget.charTyped(charInput) || this.categoriesScrollableWidget.charTyped(charInput) || searchFieldWidget.charTyped(charInput);
+    //$$}
+    //#elseif MC >= 12106
+    //$$public boolean mouseDragged(double x,double y,int click, double deltaX, double deltaY) {
+    //$$    return super.mouseDragged(x,y,click,deltaX,deltaY) || this.rulesScrollableWidget.mouseDragged(x,y,click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(x,y,click,deltaX,deltaY);
+    //$$}
+    //$$@Override
+    //$$public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    //$$    return super.keyPressed(keyCode,scanCode,modifiers) || this.rulesScrollableWidget.keyPressed(keyCode,scanCode,modifiers) || this.categoriesScrollableWidget.keyPressed(keyCode,scanCode,modifiers) || searchFieldWidget.keyPressed(keyCode,scanCode,modifiers);
+    //$$}
+    //$$@Override
+    //$$public boolean charTyped(char chr, int modifiers){
+    //$$    return super.charTyped(chr,modifiers) || this.rulesScrollableWidget.charTyped(chr,modifiers) || this.categoriesScrollableWidget.charTyped(chr,modifiers) || searchFieldWidget.charTyped(chr,modifiers);
+    //$$}
+    //#endif
 
     public void setCurrentCategory(String category) {
         this.currentCategory = category;
@@ -98,7 +125,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
         chachedRules.stream().filter(r -> r.categories.contains(currentCategory))
                 .sorted(Comparator.comparing(
                         rule -> {
-                            String englishName = rule.name.split("\\|", 2)[0].trim();
+                            String englishName = rule.name.split("```", 2)[0].trim();
                             return englishName.isEmpty() ? "" : englishName.toLowerCase().substring(0, 1);
                         }
                 )).toList().forEach(r -> {
@@ -108,11 +135,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
             rulesInCurrentCategory.clear();
 
             chachedRules.stream().filter(r -> {
-                String orgName = r.name.split("\\|").length > 1 ? r.name.split("\\|")[1] : r.name.split("\\|")[0];
+                String orgName = r.name.split("```").length > 1 ? r.name.split("```")[1] : r.name.split("```")[0];
                 return defaultRules.contains(orgName);
             }).sorted(Comparator.comparing(
                     rule -> {
-                        String englishName = rule.name.split("\\|", 2)[0].trim();
+                        String englishName = rule.name.split("```", 2)[0].trim();
                         return englishName.isEmpty() ? "" : englishName.toLowerCase().substring(0, 1);
                     }
             )).toList().forEach(r -> {
@@ -123,11 +150,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
             rulesInCurrentCategory.clear();
 
             chachedRules.stream().filter(r -> {
-                        String orgName = r.name.split("\\|").length > 1 ? r.name.split("\\|")[1] : r.name.split("\\|")[0];
+                        String orgName = r.name.split("```").length > 1 ? r.name.split("```")[1] : r.name.split("```")[0];
                         return favoriteRules.contains(orgName);
                     }).sorted(Comparator.comparing(
                             rule -> {
-                                String englishName = rule.name.split("\\|", 2)[0].trim();
+                                String englishName = rule.name.split("```", 2)[0].trim();
                                 return englishName.isEmpty() ? "" : englishName.toLowerCase().substring(0, 1);
                             }
                     ))
@@ -147,7 +174,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
             return parts;
         }
 
-        String[] sections = ruleName.split("\\|", 2);
+        String[] sections = ruleName.split("```", 2);
         String englishPart = sections[0].trim();
         String otherLangPart = sections.length > 1 ? sections[1].trim() : "";
 
@@ -231,7 +258,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             return matchesRule(splitRuleName, newText);
                         }).sorted(Comparator.comparing(
                                 rule -> {
-                                    String englishName = rule.name.split("\\|", 2)[0].trim();
+                                    String englishName = rule.name.split("```", 2)[0].trim();
                                     return englishName.isEmpty() ? "" : englishName.toLowerCase().substring(0, 1);
                                 }
                         ))
@@ -245,18 +272,21 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
         this.addDrawableChild(
                 rulesScrollableWidget = new
-                        //#if MC >= 12104
-                        //$$ ScrollableTextFieldWidget
-                        //#else
-                        ScrollableWidget
-                                //#endif
+
+                        ConstantScrollableWidget
                                 (0, 30, this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
                             int boxWidth = this.width - 10;
                             int boxHeight = 30;
                             int spacing = 5;
 
                             @Override
-                            protected int getContentsHeight() {
+                            protected int
+                            //if MC < 12104
+                            getContentsHeight
+                            //else
+                            //getContentsHeightWithPadding
+                            //endif
+                            () {
                                 return (boxHeight + spacing) * rulesInCurrentCategory.size() - spacing;
                             }
 
@@ -266,7 +296,15 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             }
 
                             @Override
-                            protected void renderContents(DrawContext context, int mouseX, int mouseY, float delta) {
+                            protected void
+                            //if MC < 12104
+                            renderContents
+                            //else
+                            //renderWidget
+                            //endif
+                            (DrawContext context, int mouseX, int mouseY, float delta) {
+
+
                                 int index = 0;
                                 double adjustedMouseY = mouseY + this.getScrollY();
 
@@ -388,33 +426,32 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
                             }
 
-                            //#if MC < 12104
                             @Override
                             protected void drawBox(DrawContext context, int x, int y, int width, int height) {
                                 context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(),
                                         0x19000000
                                 );
-                                //context.fill(x, y, width, height, 0x19000000);
                             }
-                            //#endif
                         });
         //#if MC >= 12106
         //$$ rulesScrollableWidget.setAlpha(0.7f);
         //#endif
         this.addDrawableChild(categoriesScrollableWidget = new
-                //#if MC < 12104
-                ScrollableWidget
-                        //#else
-                        //$$ ScrollableTextFieldWidget
-                        //#endif
 
+                ConstantScrollableWidget
                         (this.width - (this.width / 3) + 30, 30, 120, this.height - 30, ScreenTexts.EMPTY) {
                     int boxWidth = this.width - 10;
                     int boxHeight = 20;
                     int spacing = 5;
 
                     @Override
-                    protected int getContentsHeight() {
+                    protected int
+                    //if MC < 12104
+                    getContentsHeight
+                    //else
+                    //getContentsHeightWithPadding
+                    //endif
+                    () {
                         return (boxHeight + spacing) * categoriesInScreen.size() - spacing;
                     }
 
@@ -424,20 +461,27 @@ public class RulesEditScreen extends Screen implements ParentElement {
                     }
 
                     @Override
-                    protected void renderContents(DrawContext context, int mouseX, int mouseY, float delta) {
+                    protected void
+                    //if MC < 12104
+                    renderContents
+                    //else
+                    //renderWidget
+                    //endif
+                    (DrawContext context, int mouseX, int mouseY, float delta) {
                         int index = 0;
                         double adjustedMouseY = mouseY + this.getScrollY();
 
                         for (CategoryEntry categoryEntry : categoriesInScreen) {
                             int x = this.getX() + 5;
-                            int y = this.getY() + boxHeight / 4 + (boxHeight + spacing) * index;
+                            int y = (this.getY() + boxHeight / 4 + (boxHeight + spacing) * index);
 
                             boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight;
-                            context.fill(x, y, x + boxWidth, y + boxHeight, categoryEntry.selected ? 0x2F060606 : 0x50060606);
-                            int borderColor = isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB();
-                            context.drawBorder(x, y, boxWidth, boxHeight, borderColor);
+                            context.fillGradient(x, y, x + boxWidth, y + boxHeight, categoryEntry.selected ? 0x2F060606 : 0x50060606, categoryEntry.selected ? 0x50060606 : 0x20060606);
                             context.drawText(MinecraftClient.getInstance().textRenderer,
                                     categoryEntry.name, x + 5, y + 5, 0xFFFFFFFF, true);
+
+                            context.fill(x, y+boxHeight-2, x + boxWidth,  y+boxHeight,  isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB());
+
                             index++;
                         }
                     }
@@ -489,12 +533,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
                     }
 
-                    //#if MC < 12104
                     @Override
                     protected void drawBox(DrawContext context, int x, int y, int width, int height) {
                         context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
                     }
-                    //#endif
+
                 });
     }
 
@@ -530,7 +573,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
             //$$ if (blur != null) {
 
             //#if MC >= 12106
-            //$$ this.blur();
+            //$$ context.applyBlur();
             //#elseif MC >= 12105
             //$$ blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
             //#else

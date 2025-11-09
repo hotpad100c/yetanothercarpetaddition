@@ -173,7 +173,7 @@ public class RuleWidget {
             ) {
                 this.toggled = !this.toggled;
                 this.playDownSound(MinecraftClient.getInstance().getSoundManager());
-                String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
+                String commandName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
                 MinecraftClient.getInstance().getNetworkHandler()
                         //#if MC >= 12106
                         //$$ .sendChatCommand(
@@ -194,7 +194,7 @@ public class RuleWidget {
                         (ruleData.suggestions.getFirst().toLowerCase().equals("true")
                                 && ruleData.suggestions.getLast().toLowerCase().equals("false")));
 
-        String orgName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
+        String orgName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
         lockRule = new ToggleButtonWidget(x - 15, y + 3, 10, 11, defaultRules.contains(orgName)) {
             @Override
             public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -262,7 +262,7 @@ public class RuleWidget {
             ) {
                 this.toggled = !this.toggled;
                 System.out.println("Clicked lock button");
-                String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
+                String commandName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
                 MinecraftClient.getInstance().getNetworkHandler()
 
                         //#if MC >= 12106
@@ -357,7 +357,7 @@ public class RuleWidget {
             ) {
                 this.toggled = !this.toggled;
 
-                String orgName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
+                String orgName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
 
                 if (toggled) {
                     YACAConfigManager.addFavoriteRule(orgName);
@@ -383,13 +383,13 @@ public class RuleWidget {
 
         context.fill(x, y, x + boxWidth, y + boxHeight, 0x50060606);
 
-        int borderColor = isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB();
-        context.drawBorder(x, y, boxWidth, boxHeight, borderColor);
+        context.fill(x, y+boxHeight-1, x + boxWidth,  y+boxHeight,  isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB());
+
         StringBuilder categories = new StringBuilder();
         for (String c : ruleData.categories) {
             categories.append(c).append(" | ");
         }
-        String name = ruleData.name.split("\\|")[0];
+        String name = ruleData.name.split("```")[0];
 
         lockRule.setPosition(boxWidth - 15, y + 4);
         lockRule.render(context, mouseX, mouseY, delta);
@@ -463,7 +463,7 @@ public class RuleWidget {
                 MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             } else {
                 if (!valueWidget.getText().isEmpty() && !isTrueFalseRule) {
-                    String commandName = ruleData.name.split("\\|").length > 1 ? ruleData.name.split("\\|")[1] : ruleData.name.split("\\|")[0];
+                    String commandName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
                     MinecraftClient.getInstance().getNetworkHandler()
                             //#if MC >= 12106
                             //$$.sendChatCommand(
