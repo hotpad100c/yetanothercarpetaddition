@@ -20,18 +20,14 @@
 
 package mypals.ml.network;
 
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-//#if MC >= 12006
-import net.minecraft.network.codec.PacketCodec;
-//#else
-//$$ import net.minecraft.util.Identifier;
-//#endif
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record OptionalFreezePayload(String phase, boolean freeze) implements CustomPayload {
+public record OptionalFreezePayload(String phase, boolean freeze) implements CustomPacketPayload {
     //#if MC >= 12006
-    public static final CustomPayload.Id<OptionalFreezePayload> ID = new Id<>(PacketIDs.FREEZE_PACKET_ID);
-    public static final PacketCodec<PacketByteBuf, OptionalFreezePayload> CODEC = PacketCodec.of(
+    public static final Type<OptionalFreezePayload> ID = new Type<>(PacketIDs.FREEZE_PACKET_ID);
+    public static final StreamCodec<FriendlyByteBuf, OptionalFreezePayload> CODEC = StreamCodec.ofMember(
             OptionalFreezePayload::write,
             OptionalFreezePayload::new
     );
@@ -39,21 +35,21 @@ public record OptionalFreezePayload(String phase, boolean freeze) implements Cus
     //$$ public static final Identifier ID = PacketIDs.FREEZE_PACKET_ID;
     //#endif
 
-    public OptionalFreezePayload(PacketByteBuf buf) {
-        this(buf.readString(), buf.readBoolean());
+    public OptionalFreezePayload(FriendlyByteBuf buf) {
+        this(buf.readUtf(), buf.readBoolean());
     }
 
     //#if MC < 12006
     //$$ @Override
     //#endif
-    public void write(PacketByteBuf buf) {
-        buf.writeString(phase);
+    public void write(FriendlyByteBuf buf) {
+        buf.writeUtf(phase);
         buf.writeBoolean(freeze);
     }
 
     //#if MC >= 12006
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
     //#else

@@ -23,14 +23,12 @@ package mypals.ml.mixin.features.forceMaxLight;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.light.ChunkLightProvider;
-import net.minecraft.world.chunk.light.LightStorage;
+import net.minecraft.world.level.lighting.LayerLightSectionStorage;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(LightStorage.class)
+@Mixin(LayerLightSectionStorage.class)
 public class forceMaxLightStorageMixin {
-    @WrapMethod(method = "set")
+    @WrapMethod(method = "setStoredLevel")
     public void set(long blockPos, int value, Operation<Void> original) {
         original.call(blockPos, YetAnotherCarpetAdditionRules.forceMaxLightLevel ? 0 : value);
     }

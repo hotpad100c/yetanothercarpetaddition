@@ -23,29 +23,26 @@ package mypals.ml.mixin.features.visualizers;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.HopperCooldownVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.BlockWithEntity;
-import net.minecraft.block.HopperBlock;
-import net.minecraft.entity.mob.PiglinBrain;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.HopperBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.Inject;
 
 @Mixin(HopperBlock.class)
-public abstract class HopperDeleteMarkerMixin extends BlockWithEntity {
-    protected HopperDeleteMarkerMixin(Settings settings) {
+public abstract class HopperDeleteMarkerMixin extends BaseEntityBlock {
+    protected HopperDeleteMarkerMixin(Properties settings) {
         super(settings);
     }
 
     @Override
-    public BlockState onBreak(World world, BlockPos pos, BlockState state, PlayerEntity player) {
+    public BlockState playerWillDestroy(Level world, BlockPos pos, BlockState state, Player player) {
         if (YetAnotherCarpetAdditionRules.hopperCooldownVisualize) {
             YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.removeVisualizer(pos);
         }
-        return super.onBreak(world, pos, state, player);
+        return super.playerWillDestroy(world, pos, state, player);
     }
 }

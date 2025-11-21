@@ -22,17 +22,17 @@ package mypals.ml.mixin.features.allowBadBlockEntity;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.world.chunk.WorldChunk;
+import net.minecraft.world.level.chunk.LevelChunk;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
-@Mixin(WorldChunk.class)
+@Mixin(LevelChunk.class)
 public class WorldChunkMixin {
 
     //#if MC>=12101
 
     @ModifyExpressionValue(method = "setBlockEntity",require = 0, at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/block/entity/BlockEntityType;supports(Lnet/minecraft/block/BlockState;)Z"))
+            target = "Lnet/minecraft/world/level/block/entity/BlockEntityType;isValid(Lnet/minecraft/world/level/block/state/BlockState;)Z"))
     private boolean allowInvalidBlockEntities(boolean original) {
         if (YetAnotherCarpetAdditionRules.allowIllegalBlockEntities) {
             return true;

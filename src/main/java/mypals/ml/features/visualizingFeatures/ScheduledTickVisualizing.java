@@ -23,18 +23,18 @@ package mypals.ml.features.visualizingFeatures;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 //#if MC >= 12105
 import org.jetbrains.annotations.NotNull;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import java.util.HashMap;
 //#endif
 import java.util.Map;
@@ -49,10 +49,10 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
         public int priority;
         public long subTickOrder;
         public String type;
-        public DisplayEntity.TextDisplayEntity tickMarker;
+        public Display.TextDisplay tickMarker;
         public String tag;
 
-        public ScheduledTickObject(ServerWorld world, BlockPos pos, long triggerTick, int priority, long subTickOrder, String type, boolean isFluid, String tag) {
+        public ScheduledTickObject(ServerLevel world, BlockPos pos, long triggerTick, int priority, long subTickOrder, String type, boolean isFluid, String tag) {
             this.triggerTick = triggerTick;
             this.priority = priority;
             this.subTickOrder = subTickOrder;
@@ -61,8 +61,8 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             setVisualizer(world, pos, triggerTick, priority, subTickOrder);
         }
 
-        public void setVisualizer(ServerWorld world, BlockPos pos, long triggerTick, int priority, long subTickOrder) {
-            long time = world.getTime();
+        public void setVisualizer(ServerLevel world, BlockPos pos, long triggerTick, int priority, long subTickOrder) {
+            long time = world.getGameTime();
             int trigger = (int) (triggerTick - time) - 1;
 
             if (tickMarker != null && !tickMarker.isRemoved()) {
@@ -86,10 +86,10 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
                 //$$ subTickPart.addProperty("color", "blue");
                 //$$ extra.add(subTickPart);
                 //#else
-                NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+                ListTag nbtList = getNbtElements(trigger, priority, subTickOrder);
                 //#endif
 
-                NbtCompound nbt = NBTDataManager.readFromEntity(tickMarker, new NbtCompound());
+                CompoundTag nbt = NBTDataManager.readFromEntity(tickMarker, new CompoundTag());
                 //#if MC < 12105
                 //$$ nbt.putString("text", textJson.toString());
                 //#else
@@ -97,7 +97,7 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
                 //#endif
                 NBTDataManager.writeToEntity(tickMarker, nbt);
             } else {
-                tickMarker = summonText(world, pos.toCenterPos().add(0, -0.4, 0), trigger, priority, subTickOrder);
+                tickMarker = summonText(world, pos.getCenter().add(0, -0.4, 0), trigger, priority, subTickOrder);
             }
         }
 
@@ -107,8 +107,8 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             }
         }
 
-        private DisplayEntity.TextDisplayEntity summonText(ServerWorld world, Vec3d pos, int trigger, int priority, long subTickOrder) {
-            DisplayEntity.TextDisplayEntity entity = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
+        private Display.TextDisplay summonText(ServerLevel world, Vec3 pos, int trigger, int priority, long subTickOrder) {
+            Display.TextDisplay entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
@@ -135,10 +135,10 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             //$$
             //$$ textJson.add("extra", extra);
             //#else
-            NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+            ListTag nbtList = getNbtElements(trigger, priority, subTickOrder);
             //#endif
 
-            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
+            CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
             nbt.putString("billboard", "center");
             //#if MC < 12105
             //$$ nbt.putString("text", textJson.toString());
@@ -149,17 +149,17 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             //nbt.putInt("background", 0x00000000);
             NBTDataManager.writeToEntity(entity, nbt);
 
-            entity.setPos(pos.getX(), pos.getY(), pos.getZ());
-            entity.addCommandTag(tag);
-            entity.addCommandTag("DoNotTick");
-            world.spawnEntity(entity);
+            entity.setPosRaw(pos.x(), pos.y(), pos.z());
+            entity.addTag(tag);
+            entity.addTag("DoNotTick");
+            world.addFreshEntity(entity);
             return entity;
         }
     }
 
     @Override
     protected void storeVisualizer(BlockPos key, ScheduledTickObject entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.tickMarker.getEntityWorld())));
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerLevel) entity.tickMarker.level())));
     }
 
     @Override
@@ -169,7 +169,7 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             int priority = (int) tickData[1];
             long subTickOrder = (long) tickData[2];
 
-            long time = marker.tickMarker.getEntityWorld().getTime();
+            long time = marker.tickMarker.level().getGameTime();
             int trigger = (int) (triggerTick - time) - 1;
 
             //#if MC < 12105
@@ -193,10 +193,10 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             //$$ extra.add(subTickPart);
             //$$ textJson.add("extra", extra);
             //#else
-            NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+            ListTag nbtList = getNbtElements(trigger, priority, subTickOrder);
             //#endif
 
-            NbtCompound nbt = NBTDataManager.readFromEntity(marker.tickMarker, new NbtCompound());
+            CompoundTag nbt = NBTDataManager.readFromEntity(marker.tickMarker, new CompoundTag());
             //#if MC < 12105
             //$$ nbt.putString("text", textJson.toString());
             //#else
@@ -207,39 +207,39 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
     }
 
     //#if MC >= 12105
-    public static @NotNull NbtList getNbtElements(int trigger, int priority, long subTickOrder) {
-        NbtList nbtList = new NbtList();
+    public static @NotNull ListTag getNbtElements(int trigger, int priority, long subTickOrder) {
+        ListTag nbtList = new ListTag();
 
-        HashMap<String, NbtElement> triggerPart = new HashMap<>();
-        triggerPart.put("text", NbtString.of("T:" + trigger));
-        triggerPart.put("color", NbtString.of("red"));
-        NbtCompound textComponent = new NbtCompound(triggerPart);
+        HashMap<String, Tag> triggerPart = new HashMap<>();
+        triggerPart.put("text", StringTag.valueOf("T:" + trigger));
+        triggerPart.put("color", StringTag.valueOf("red"));
+        CompoundTag textComponent = new CompoundTag(triggerPart);
         nbtList.add(textComponent);
 
-        HashMap<String, NbtElement> priorityPart = new HashMap<>();
-        priorityPart.put("text", NbtString.of("\nP:" + priority ));
-        priorityPart.put("color", NbtString.of("green"));
-        textComponent = new NbtCompound(priorityPart);
+        HashMap<String, Tag> priorityPart = new HashMap<>();
+        priorityPart.put("text", StringTag.valueOf("\nP:" + priority ));
+        priorityPart.put("color", StringTag.valueOf("green"));
+        textComponent = new CompoundTag(priorityPart);
         nbtList.add(textComponent);
 
-        HashMap<String, NbtElement> subTickPart = new HashMap<>();
-        subTickPart.put("text", NbtString.of("\nS:" + subTickOrder));
-        subTickPart.put("color", NbtString.of("blue"));
-        textComponent = new NbtCompound(subTickPart);
+        HashMap<String, Tag> subTickPart = new HashMap<>();
+        subTickPart.put("text", StringTag.valueOf("\nS:" + subTickOrder));
+        subTickPart.put("color", StringTag.valueOf("blue"));
+        textComponent = new CompoundTag(subTickPart);
         nbtList.add(textComponent);
         return nbtList;
     }
     //#endif
 
     @Override
-    protected ScheduledTickObject createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
+    protected ScheduledTickObject createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
         if (data instanceof Object[] tickData) {
             long triggerTick = (long) tickData[0];
             int priority = (int) tickData[1];
             long subTickOrder = (long) tickData[2];
             String type = (String) tickData[3];
             boolean isFluid = (boolean) tickData[4];
-            BlockPos blockPos = BlockPos.ofFloored(pos);
+            BlockPos blockPos = BlockPos.containing(pos);
             return new ScheduledTickObject(world, blockPos, triggerTick, priority, subTickOrder, type, isFluid, getVisualizerTag());
         }
         return null;
@@ -276,8 +276,8 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
 
     }
 
-    public void setVisualizer(ServerWorld world, BlockPos pos, long triggerTick, int priority, long subTickOrder, String content, boolean isFluid) {
+    public void setVisualizer(ServerLevel world, BlockPos pos, long triggerTick, int priority, long subTickOrder, String content, boolean isFluid) {
         Object[] data = new Object[]{triggerTick, priority, subTickOrder, content, isFluid};
-        setVisualizer(world, pos, pos.toCenterPos(), data);
+        setVisualizer(world, pos, pos.getCenter(), data);
     }
 }

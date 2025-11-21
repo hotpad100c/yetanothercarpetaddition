@@ -21,21 +21,21 @@
 package mypals.ml.mixin.features.treefarm;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.gen.treedecorator.BeehiveTreeDecorator;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.levelgen.feature.treedecorators.BeehiveDecorator;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-@Mixin(BeehiveTreeDecorator.class)
+@Mixin(BeehiveDecorator.class)
 public class BeehiveTreeDecoratorMixin {
 
-    @Redirect(method = "generate",at = @At(value = "INVOKE", target = "Lnet/minecraft/util/math/random/Random;nextFloat()F"))
-    private float generate(Random instance) {
+    @Redirect(method = "place",at = @At(value = "INVOKE", target = "Lnet/minecraft/util/RandomSource;nextFloat()F"))
+    private float generate(RandomSource instance) {
         if(YetAnotherCarpetAdditionRules.beeDecoratorProbability == -1 ) {
-            return Random.create().nextFloat();
+            return RandomSource.create().nextFloat();
         }
-        else if(Random.create().nextFloat() > YetAnotherCarpetAdditionRules.beeDecoratorProbability){
+        else if(RandomSource.create().nextFloat() > YetAnotherCarpetAdditionRules.beeDecoratorProbability){
             return 1;
         }
         return 0;

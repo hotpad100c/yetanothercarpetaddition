@@ -20,11 +20,11 @@
 
 package mypals.ml.mixin.features.visualizers;
 
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.TestableWorld;
-import net.minecraft.world.World;
-import net.minecraft.world.gen.feature.TreeFeatureConfig;
-import net.minecraft.world.gen.foliage.FoliagePlacer;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelSimulatedReader;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,10 +33,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(FoliagePlacer.class)
 public class FoliagePlacerMixin {
 
-    @Inject(method = "Lnet/minecraft/world/gen/foliage/FoliagePlacer;generate(Lnet/minecraft/world/TestableWorld;Lnet/minecraft/world/gen/foliage/FoliagePlacer$BlockPlacer;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/world/gen/feature/TreeFeatureConfig;ILnet/minecraft/world/gen/foliage/FoliagePlacer$TreeNode;II)V",at = @At("HEAD"))
-    private void generate(TestableWorld world, FoliagePlacer.BlockPlacer placer, Random random, TreeFeatureConfig config, int trunkHeight, FoliagePlacer.TreeNode treeNode, int foliageHeight, int radius, CallbackInfo ci) {
+    @Inject(method = "createFoliage(Lnet/minecraft/world/level/LevelSimulatedReader;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;ILnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageAttachment;II)V",at = @At("HEAD"))
+    private void generate(LevelSimulatedReader world, FoliagePlacer.FoliageSetter placer, RandomSource random, TreeConfiguration config, int trunkHeight, FoliagePlacer.FoliageAttachment treeNode, int foliageHeight, int radius, CallbackInfo ci) {
         if(mypals.ml.settings.YetAnotherCarpetAdditionRules.foliagePlacerVisualize) {
-            mypals.ml.YetAnotherCarpetAdditionServer.foliageAttachment.setVisualizer((World)world, treeNode.getCenter());
+            mypals.ml.YetAnotherCarpetAdditionServer.foliageAttachment.setVisualizer((Level)world, treeNode.pos());
         }
     }
 

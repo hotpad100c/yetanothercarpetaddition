@@ -24,20 +24,20 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.features.GridWorldGen.GridWorldGenerator;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.Blender;
-import net.minecraft.world.gen.chunk.FlatChunkGenerator;
-import net.minecraft.world.gen.chunk.FlatChunkGeneratorConfig;
-import net.minecraft.world.gen.noise.NoiseConfig;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,28 +51,28 @@ import java.util.concurrent.CompletableFuture;
 //$$ import java.util.concurrent.Executor;
 //#endif
 
-@Mixin(FlatChunkGenerator.class)
+@Mixin(FlatLevelSource.class)
 public class FlatChunkGeneratorMixin {
     @Shadow
     @Final
-    private FlatChunkGeneratorConfig config;
+    private FlatLevelGeneratorSettings settings;
 
     @Unique
-    private static BlockState getChunkBlockState(Chunk chunk, GridWorldGenerator.ChessboardSuperFlatSettings settings) {
+    private static BlockState getChunkBlockState(ChunkAccess chunk, GridWorldGenerator.ChessboardSuperFlatSettings settings) {
         ChunkPos chunkPos = chunk.getPos();
         int size = settings.size;
         int groupX = Math.floorDiv(chunkPos.x, size);
         int groupZ = Math.floorDiv(chunkPos.z, size);
         boolean isBlack = (groupX + groupZ) % 2 == 0;
-        return isBlack ? settings.black.getDefaultState() : settings.white.getDefaultState();
+        return isBlack ? settings.black.defaultBlockState() : settings.white.defaultBlockState();
     }
 
-    @WrapMethod(method = "populateNoise")
-    public CompletableFuture<Chunk> populateNoise(
+    @WrapMethod(method = "fillFromNoise")
+    public CompletableFuture<ChunkAccess> populateNoise(
             //#if MC <= 12006
             //$$ Executor executor,
             //#endif
-            Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk, Operation<CompletableFuture<Chunk>> original
+            Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk, Operation<CompletableFuture<ChunkAccess>> original
     ) {
         if (!Objects.equals(YetAnotherCarpetAdditionRules.chessboardSuperFlatSettings, "off")) {
 
@@ -80,13 +80,13 @@ public class FlatChunkGeneratorMixin {
 
             BlockState blockState = getChunkBlockState(chunk, settings);
 
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
-            Heightmap heightmapOcean = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
-            Heightmap heightmapSurface = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-            List<BlockState> list = this.config.getLayerBlocks();
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+            Heightmap heightmapOcean = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+            Heightmap heightmapSurface = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+            List<BlockState> list = this.settings.getLayers();
             for (int y = 0; y < Math.min(chunk.getHeight(), list.size()); ++y) {
                 if (blockState != null) {
-                    int ytop = chunk.getBottomY() + y;
+                    int ytop = chunk.getMinY() + y;
 
                     for (int x = 0; x < 16; ++x) {
                         for (int z = 0; z < 16; ++z) {
@@ -95,8 +95,8 @@ public class FlatChunkGeneratorMixin {
                                     //$$ , false
                                     //#endif
                             );
-                            heightmapOcean.trackUpdate(x, ytop, z, blockState);
-                            heightmapSurface.trackUpdate(x, ytop, z, blockState);
+                            heightmapOcean.update(x, ytop, z, blockState);
+                            heightmapSurface.update(x, ytop, z, blockState);
                         }
                     }
                 }
@@ -116,7 +116,7 @@ public class FlatChunkGeneratorMixin {
     @Unique
     private static GridWorldGenerator.ChessboardSuperFlatSettings parseSettings(String settings) {
         String[] parts = settings.split(";");
-        Identifier blockId1 = Identifier.tryParse(parts[0]);
+        ResourceLocation blockId1 = ResourceLocation.tryParse(parts[0]);
         if (blockId1 == null) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     Blocks.WHITE_STAINED_GLASS,
@@ -124,7 +124,7 @@ public class FlatChunkGeneratorMixin {
                     1
             );
         }
-        Optional<Block> block1 = Registries.BLOCK.getOptionalValue(blockId1);
+        Optional<Block> block1 = BuiltInRegistries.BLOCK.getOptional(blockId1);
         if (block1.isEmpty()) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     Blocks.WHITE_STAINED_GLASS,
@@ -133,7 +133,7 @@ public class FlatChunkGeneratorMixin {
             );
         }
 
-        Identifier blockId2 = Identifier.tryParse(parts[1]);
+        ResourceLocation blockId2 = ResourceLocation.tryParse(parts[1]);
         if (blockId2 == null) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     block1.get(),
@@ -141,7 +141,7 @@ public class FlatChunkGeneratorMixin {
                     1
             );
         }
-        Optional<Block> block2 = Registries.BLOCK.getOptionalValue(blockId2);
+        Optional<Block> block2 = BuiltInRegistries.BLOCK.getOptional(blockId2);
         if (block2.isEmpty()) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     block1.get(),

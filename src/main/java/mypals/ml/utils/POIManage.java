@@ -20,41 +20,41 @@
 
 package mypals.ml.utils;
 
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.ChunkSectionPos;
-import net.minecraft.world.poi.PointOfInterest;
-import net.minecraft.world.poi.PointOfInterestSet;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import net.minecraft.core.SectionPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.ai.village.poi.PoiSection;
+import net.minecraft.world.level.ChunkPos;
 
 public class POIManage {
     @Unique
-    public static Stream<PointOfInterest> getPOIsWithinRange(ServerPlayerEntity player, ServerWorld world, int range) {
-        ChunkPos playerChunkPos = new ChunkPos(player.getBlockPos());
+    public static Stream<PoiRecord> getPOIsWithinRange(ServerPlayer player, ServerLevel world, int range) {
+        ChunkPos playerChunkPos = new ChunkPos(player.blockPosition());
         int chunkRadius = (int) Math.ceil(range / 16.0);
-        return ChunkPos.stream(playerChunkPos, chunkRadius)
+        return ChunkPos.rangeClosed(playerChunkPos, chunkRadius)
                 .flatMap(chunkPos -> getAllInChunk(chunkPos, world))
-                .filter(poi -> poi.getPos().getManhattanDistance(player.getBlockPos()) <= 50);
+                .filter(poi -> poi.getPos().distManhattan(player.blockPosition()) <= 50);
     }
 
     @Unique
-    private static Stream<PointOfInterest> getAllInChunk(ChunkPos chunkPos, ServerWorld world) {
-        return IntStream.range(world.getBottomSectionCoord(), world.getTopSectionCoord())
+    private static Stream<PoiRecord> getAllInChunk(ChunkPos chunkPos, ServerLevel world) {
+        return IntStream.range(world.getMinSectionY(), world.getMaxSectionY())
                 .boxed()
-                .map(integer -> world.getPointOfInterestStorage().get(ChunkSectionPos.from(chunkPos, integer).asLong()))
+                .map(integer -> world.getPoiManager().getOrLoad(SectionPos.of(chunkPos, integer).asLong()))
                 .filter(Optional::isPresent)
                 .flatMap(optional -> getAll(optional.get()));
     }
 
     @Unique
-    private static Stream<PointOfInterest> getAll(PointOfInterestSet pointsOfInterestSet) {
-        return pointsOfInterestSet.pointsOfInterestByType.values().stream()
+    private static Stream<PoiRecord> getAll(PoiSection pointsOfInterestSet) {
+        return pointsOfInterestSet.byType.values().stream()
                 .flatMap(Set::stream);
     }
 }

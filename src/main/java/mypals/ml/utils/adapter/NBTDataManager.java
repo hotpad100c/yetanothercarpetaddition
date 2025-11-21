@@ -21,39 +21,35 @@
 package mypals.ml.utils.adapter;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import net.minecraft.block.entity.BeehiveBlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.util.ErrorReporter;
-
-//#if MC >= 12106
-import net.minecraft.storage.NbtWriteView;
-import net.minecraft.storage.NbtReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.storage.ReadView;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 //#endif
 public class NBTDataManager {
 
-    public static void writeToEntity(Entity entity, NbtCompound data) {
+    public static void writeToEntity(Entity entity, CompoundTag data) {
 
         //#if MC >= 12106
 
-        ErrorReporter.Logging logging = new ErrorReporter.Logging(entity.getErrorReporterContext(), YetAnotherCarpetAdditionServer.LOGGER);
-        ReadView nbtReadView = NbtReadView.create(logging, entity.getRegistryManager(), data);
-        entity.readData(nbtReadView);
+        ProblemReporter.ScopedCollector logging = new ProblemReporter.ScopedCollector(entity.problemPath(), YetAnotherCarpetAdditionServer.LOGGER);
+        ValueInput nbtReadView = TagValueInput.create(logging, entity.registryAccess(), data);
+        entity.load(nbtReadView);
         //#else
         //$$
         //$$ entity.readNbt(data);
         //#endif
     }
 
-    public static NbtCompound readFromEntity(Entity entity, NbtCompound nbtCompound) {
+    public static CompoundTag readFromEntity(Entity entity, CompoundTag nbtCompound) {
         //#if MC >= 12106
-        ErrorReporter.Logging logging = new ErrorReporter.Logging(entity.getErrorReporterContext(), YetAnotherCarpetAdditionServer.LOGGER);
-        NbtWriteView nbtWriteView2 = NbtWriteView.create(logging, entity.getRegistryManager());
-        nbtWriteView2.getNbt().copyFrom(nbtCompound);
-        entity.writeData(nbtWriteView2);
-        nbtCompound = nbtWriteView2.getNbt();
+        ProblemReporter.ScopedCollector logging = new ProblemReporter.ScopedCollector(entity.problemPath(), YetAnotherCarpetAdditionServer.LOGGER);
+        TagValueOutput nbtWriteView2 = TagValueOutput.createWithContext(logging, entity.registryAccess());
+        nbtWriteView2.buildResult().merge(nbtCompound);
+        entity.saveWithoutId(nbtWriteView2);
+        nbtCompound = nbtWriteView2.buildResult();
         //#else
         //$$ entity.writeNbt(nbtCompound);
         //#endif

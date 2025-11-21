@@ -24,18 +24,16 @@ import mypals.ml.YetAnotherCarpetAdditionClient;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(World.class)
+@Mixin(Level.class)
 public abstract class WorldMixin {
-    @Shadow public abstract boolean isClient();
+    @Shadow public abstract boolean isClientSide();
 
     @Inject(
             method = "tickBlockEntities",
@@ -43,7 +41,7 @@ public abstract class WorldMixin {
             cancellable = true
     )
     private void tickBlockEntities(CallbackInfo ci) {
-        if (this.isClient()) {
+        if (this.isClientSide()) {
             if (YetAnotherCarpetAdditionRules.stopTickingBlockEntities || YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingBlockEntities) {
                 ci.cancel();
             }

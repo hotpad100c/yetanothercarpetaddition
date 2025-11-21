@@ -20,36 +20,34 @@
 
 package mypals.ml.features.autoRedstoneDust;
 
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 public class AutoDustPlacer {
-    public static void tryPlaceOnTop(PlayerEntity player, BlockPos blockpos, World world) {
-        BlockPos dustPos = blockpos.up();
+    public static void tryPlaceOnTop(Player player, BlockPos blockpos, Level world) {
+        BlockPos dustPos = blockpos.above();
         BlockState floor = world.getBlockState(blockpos);
-        if (world.getBlockState(dustPos).isAir() && (floor.isSideSolidFullSquare(world, blockpos, Direction.UP) || floor.isOf(Blocks.HOPPER))) {
+        if (world.getBlockState(dustPos).isAir() && (floor.isFaceSturdy(world, blockpos, Direction.UP) || floor.is(Blocks.HOPPER))) {
 
-            ItemPlacementContext context = new ItemPlacementContext(player, Hand.MAIN_HAND,
+            BlockPlaceContext context = new BlockPlaceContext(player, InteractionHand.MAIN_HAND,
                     new ItemStack(Items.REDSTONE),
                     new BlockHitResult(
-                            new Vec3d(dustPos.getX(), dustPos.getY(), dustPos.getZ())
+                            new Vec3(dustPos.getX(), dustPos.getY(), dustPos.getZ())
                             , Direction.UP, dustPos, false)
             );
 
-            player.getEntityWorld().setBlockState(dustPos, Blocks.REDSTONE_WIRE.getPlacementState(context));
-            player.getEntityWorld().getBlockState(dustPos).onBlockAdded(world, dustPos, Blocks.REDSTONE_WIRE.getPlacementState(context), true);
+            player.level().setBlockAndUpdate(dustPos, Blocks.REDSTONE_WIRE.getStateForPlacement(context));
+            player.level().getBlockState(dustPos).onPlace(world, dustPos, Blocks.REDSTONE_WIRE.getStateForPlacement(context), true);
         }
     }
 }

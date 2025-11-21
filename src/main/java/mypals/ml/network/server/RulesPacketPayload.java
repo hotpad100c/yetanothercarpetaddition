@@ -22,39 +22,34 @@ package mypals.ml.network.server;
 
 import mypals.ml.network.PacketIDs;
 import mypals.ml.network.RuleData;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-//#if MC >= 12006
-import net.minecraft.network.codec.PacketCodec;
-//#else
-//$$ import net.minecraft.util.Identifier;
-//#endif
-
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import java.util.List;
 
-public record RulesPacketPayload(List<RuleData> rules, String defaults) implements CustomPayload {
+public record RulesPacketPayload(List<RuleData> rules, String defaults) implements CustomPacketPayload {
     //#if MC >= 12006
-    public static final CustomPayload.Id<RulesPacketPayload> ID = new CustomPayload.Id<>(PacketIDs.SYNC_RULES_ID);
-    public static final PacketCodec<PacketByteBuf, RulesPacketPayload> CODEC = PacketCodec.of(RulesPacketPayload::write, RulesPacketPayload::new);
+    public static final Type<RulesPacketPayload> ID = new Type<>(PacketIDs.SYNC_RULES_ID);
+    public static final StreamCodec<FriendlyByteBuf, RulesPacketPayload> CODEC = StreamCodec.ofMember(RulesPacketPayload::write, RulesPacketPayload::new);
     //#else
     //$$ public static final Identifier ID = PacketIDs.SYNC_RULES_ID;
     //#endif
 
-    public RulesPacketPayload(PacketByteBuf buf) {
-        this(buf.readList(RuleData::new), buf.readString());
+    public RulesPacketPayload(FriendlyByteBuf buf) {
+        this(buf.readList(RuleData::new), buf.readUtf());
     }
 
     //#if MC < 12006
     //$$ @Override
     //#endif
-    public void write(PacketByteBuf buf) {
+    public void write(FriendlyByteBuf buf) {
         buf.writeCollection(this.rules(), ((buf1, value) -> value.write(buf1)));
-        buf.writeString(this.defaults);
+        buf.writeUtf(this.defaults);
     }
 
     //#if MC >= 12006
     @Override
-    public CustomPayload.Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
     //#else

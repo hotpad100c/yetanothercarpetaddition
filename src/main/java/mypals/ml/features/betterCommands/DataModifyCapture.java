@@ -21,16 +21,16 @@
 package mypals.ml.features.betterCommands;
 
 
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 
 public class DataModifyCapture {
-    private static final ThreadLocal<NbtCompound> originalNbt = new ThreadLocal<>();
+    private static final ThreadLocal<CompoundTag> originalNbt = new ThreadLocal<>();
 
-    public static void setOriginalNbt(NbtCompound nbt) {
+    public static void setOriginalNbt(CompoundTag nbt) {
         originalNbt.set(nbt);
     }
 
-    public static NbtCompound getOriginalNbt() {
+    public static CompoundTag getOriginalNbt() {
         return originalNbt.get();
     }
 }

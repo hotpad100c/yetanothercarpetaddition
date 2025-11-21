@@ -24,42 +24,41 @@ import carpet.CarpetServer;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-//#if MC >= 12105
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtString;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import java.util.HashMap;
 //#endif
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, GameEventVisualizing.GameEventObject> {
-    private static final ConcurrentHashMap<Vec3d, Map.Entry<GameEventObject, Long>> visualizers = new ConcurrentHashMap<>();
+public class GameEventVisualizing extends AbstractVisualizingManager<Vec3, GameEventVisualizing.GameEventObject> {
+    private static final ConcurrentHashMap<Vec3, Map.Entry<GameEventObject, Long>> visualizers = new ConcurrentHashMap<>();
     private static final int SURVIVE_TIME = 30;
 
     public static class GameEventObject {
         public String type;
         public String tag;
-        public DisplayEntity.TextDisplayEntity textMarker;
-        public DisplayEntity.BlockDisplayEntity posMarker;
+        public Display.TextDisplay textMarker;
+        public Display.BlockDisplay posMarker;
 
-        public GameEventObject(ServerWorld world, Vec3d pos, String emitter, String type, String tag) {
+        public GameEventObject(ServerLevel world, Vec3 pos, String emitter, String type, String tag) {
             this.tag = tag;
             setVisualizer(world, pos, emitter, type);
         }
 
-        public void setVisualizer(ServerWorld world, Vec3d pos, String trigger, String type) {
+        public void setVisualizer(ServerLevel world, Vec3 pos, String trigger, String type) {
             if (textMarker != null && !textMarker.isRemoved()) {
                 //#if MC < 12105
                 //$$ JsonObject textJson = new JsonObject();
@@ -78,20 +77,20 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
                 //$$
                 //$$ textJson.add("extra", extra);
                 //#else
-                NbtList nbtList = new NbtList();
-                HashMap<String, NbtElement> triggerPart = new HashMap<>();
-                triggerPart.put("text", NbtString.of(String.valueOf(trigger)));
-                triggerPart.put("color", NbtString.of("blue"));
-                NbtCompound textComponent = new NbtCompound(triggerPart);
+                ListTag nbtList = new ListTag();
+                HashMap<String, Tag> triggerPart = new HashMap<>();
+                triggerPart.put("text", StringTag.valueOf(String.valueOf(trigger)));
+                triggerPart.put("color", StringTag.valueOf("blue"));
+                CompoundTag textComponent = new CompoundTag(triggerPart);
                 nbtList.add(textComponent);
-                HashMap<String, NbtElement> typePart = new HashMap<>();
-                typePart.put("text", NbtString.of("\n" + type));
-                typePart.put("color", NbtString.of("blue"));
-                textComponent = new NbtCompound(typePart);
+                HashMap<String, Tag> typePart = new HashMap<>();
+                typePart.put("text", StringTag.valueOf("\n" + type));
+                typePart.put("color", StringTag.valueOf("blue"));
+                textComponent = new CompoundTag(typePart);
                 nbtList.add(textComponent);
                 //#endif
 
-                NbtCompound nbt = NBTDataManager.readFromEntity(textMarker, new NbtCompound());
+                CompoundTag nbt = NBTDataManager.readFromEntity(textMarker, new CompoundTag());
                 //#if MC < 12105
                 //$$ nbt.putString("text", textJson.toString());
                 //#else
@@ -116,8 +115,8 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             }
         }
 
-        private DisplayEntity.TextDisplayEntity summonText(ServerWorld world, Vec3d pos, String trigger, String type) {
-            DisplayEntity.TextDisplayEntity entity = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
+        private Display.TextDisplay summonText(ServerLevel world, Vec3 pos, String trigger, String type) {
+            Display.TextDisplay entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
@@ -139,20 +138,20 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             //$$
             //$$ textJson.add("extra", extra);
             //#else
-            NbtList nbtList = new NbtList();
-            HashMap<String, NbtElement> triggerPart = new HashMap<>();
-            triggerPart.put("text", NbtString.of(trigger));
-            triggerPart.put("color", NbtString.of("blue"));
-            NbtCompound textComponent = new NbtCompound(triggerPart);
+            ListTag nbtList = new ListTag();
+            HashMap<String, Tag> triggerPart = new HashMap<>();
+            triggerPart.put("text", StringTag.valueOf(trigger));
+            triggerPart.put("color", StringTag.valueOf("blue"));
+            CompoundTag textComponent = new CompoundTag(triggerPart);
             nbtList.add(textComponent);
-            HashMap<String, NbtElement> typePart = new HashMap<>();
-            typePart.put("text", NbtString.of("\n" + type));
-            typePart.put("color", NbtString.of("blue"));
-            textComponent = new NbtCompound(typePart);
+            HashMap<String, Tag> typePart = new HashMap<>();
+            typePart.put("text", StringTag.valueOf("\n" + type));
+            typePart.put("color", StringTag.valueOf("blue"));
+            textComponent = new CompoundTag(typePart);
             nbtList.add(textComponent);
             //#endif
 
-            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
+            CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
             nbt.putString("billboard", "center");
             //#if MC < 12105
             //$$ nbt.putString("text", textJson.toString());
@@ -162,32 +161,32 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
             NBTDataManager.writeToEntity(entity, nbt);
-            entity.setPos(pos.getX(), pos.getY(), pos.getZ());
-            entity.addCommandTag(tag);
-            entity.addCommandTag("DoNotTick");
-            world.spawnEntity(entity);
+            entity.setPosRaw(pos.x(), pos.y(), pos.z());
+            entity.addTag(tag);
+            entity.addTag("DoNotTick");
+            world.addFreshEntity(entity);
             return entity;
         }
 
-        private DisplayEntity.BlockDisplayEntity summonMarker(World world, Vec3d pos) {
-            DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
+        private Display.BlockDisplay summonMarker(Level world, Vec3 pos) {
+            Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, world);
             float scale = 0.3f;
-            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
-            nbt.put("block_state", NbtHelper.fromBlockState(Blocks.BLUE_STAINED_GLASS_PANE.getDefaultState()));
+            CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
+            nbt.put("block_state", NbtUtils.writeBlockState(Blocks.BLUE_STAINED_GLASS_PANE.defaultBlockState()));
             nbt = EntityHelper.scaleEntity(nbt, scale);
             nbt.putInt("glow_color_override", 0xAAAAFF);
             
             NBTDataManager.writeToEntity(entity, nbt);
-            entity.noClip = true;
-            entity.setGlowing(true);
-            entity.setPos(pos.getX() - (scale / 2), pos.getY() - (scale / 2) - 0.1f, pos.getZ() - (scale / 2));
-            entity.addCommandTag(tag);
-            entity.addCommandTag("DoNotTick");
-            if (world instanceof ServerWorld serverWorld) {
+            entity.noPhysics = true;
+            entity.setGlowingTag(true);
+            entity.setPosRaw(pos.x() - (scale / 2), pos.y() - (scale / 2) - 0.1f, pos.z() - (scale / 2));
+            entity.addTag(tag);
+            entity.addTag("DoNotTick");
+            if (world instanceof ServerLevel serverWorld) {
                 addMarkerToTeam(serverWorld, "gameEventTeam", entity);
             }
             entity.setInvisible(true);
-            world.spawnEntity(entity);
+            world.addFreshEntity(entity);
             return entity;
         }
     }
@@ -204,12 +203,12 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
     }
 
     @Override
-    protected void storeVisualizer(Vec3d key, GameEventObject entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.textMarker.getEntityWorld())));
+    protected void storeVisualizer(Vec3 key, GameEventObject entity) {
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerLevel) entity.textMarker.level())));
     }
 
     @Override
-    protected GameEventObject createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
+    protected GameEventObject createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
         if (data instanceof String[] eventData) {
             String emitter = eventData[0];
             String type = eventData[1];
@@ -220,7 +219,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
     }
 
     @Override
-    protected void removeVisualizerEntity(Vec3d key) {
+    protected void removeVisualizerEntity(Vec3 key) {
         Map.Entry<GameEventObject, Long> entry = visualizers.get(key);
         if (entry != null) {
             entry.getKey().removeVisualizer();
@@ -229,7 +228,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
     }
 
     @Override
-    protected GameEventObject getVisualizer(Vec3d key) {
+    protected GameEventObject getVisualizer(Vec3 key) {
         Map.Entry<GameEventObject, Long> entry = visualizers.get(key);
         return entry == null ? null : entry.getKey();
     }
@@ -242,27 +241,27 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
 
     @Override
     public void updateVisualizer() {
-        if (!CarpetServer.minecraft_server.getTickManager().shouldTick()) {
+        if (!CarpetServer.minecraft_server.tickRateManager().runsNormally()) {
             return;
         }
         visualizers.forEach((pos, entry) -> {
             GameEventObject object = entry.getKey();
             long time = entry.getValue();
-            if (time < object.textMarker.getEntityWorld().getTime()) {
+            if (time < object.textMarker.level().getGameTime()) {
                 object.removeVisualizer();
                 visualizers.remove(pos);
             }
         });
     }
 
-    private static void addMarkerToTeam(ServerWorld world, String teamName, DisplayEntity.BlockDisplayEntity marker) {
+    private static void addMarkerToTeam(ServerLevel world, String teamName, Display.BlockDisplay marker) {
         Scoreboard scoreboard = world.getScoreboard();
-        Team team = scoreboard.getTeam(teamName);
+        PlayerTeam team = scoreboard.getPlayerTeam(teamName);
         if (team == null) {
-            team = scoreboard.addTeam(teamName);
-            team.setColor(Formatting.AQUA);
+            team = scoreboard.addPlayerTeam(teamName);
+            team.setColor(ChatFormatting.AQUA);
         }
-        String entityName = marker.getUuidAsString();
-        scoreboard.addScoreHolderToTeam(entityName, team);
+        String entityName = marker.getStringUUID();
+        scoreboard.addPlayerToTeam(entityName, team);
     }
 }

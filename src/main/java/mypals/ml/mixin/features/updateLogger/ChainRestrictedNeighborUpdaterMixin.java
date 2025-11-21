@@ -27,29 +27,27 @@ import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.updateAnylizer.FakeEntries;
 import mypals.ml.features.updateAnylizer.UpdateLoggerHelper;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
-import net.minecraft.world.block.NeighborUpdater;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
+import net.minecraft.world.level.redstone.NeighborUpdater;
+import net.minecraft.world.level.redstone.Orientation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-//#if MC > 12102
-import net.minecraft.world.block.WireOrientation;
-//#endif
 
-@Mixin(ChainRestrictedNeighborUpdater.class)
+@Mixin(CollectingNeighborUpdater.class)
 public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpdater {
 
     @Shadow
-    protected abstract void enqueue(BlockPos pos, ChainRestrictedNeighborUpdater.Entry entry);
+    protected abstract void addAndRun(BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry);
 
-    @WrapMethod(method = "updateNeighbors")
+    @WrapMethod(method = "updateNeighborsAtExceptFromFacing")
     public void updateNeighbors(BlockPos pos, Block sourceBlock, Direction except,
                                 //#if MC > 12102
-                                WireOrientation wireOruentation,
+                                Orientation wireOruentation,
                                 //#endif
                                 Operation<Void> original) {
 
@@ -73,16 +71,10 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     }
 
 
-    @WrapMethod(method = "updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;" +
-            //#if MC > 12102
-            "Lnet/minecraft/world/block/WireOrientation;"
-            //#else
-            //$$ "Lnet/minecraft/util/math/BlockPos;"
-            //#endif
-            + ")V")
+    @WrapMethod(method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;)V")
     public void updateNeighborA(BlockPos pos, Block sourceBlock,
                                 //#if MC > 12102
-                                WireOrientation orientation,
+                                Orientation orientation,
                                 //#else
                                 //$$ BlockPos sourcePos,
                                 //#endif
@@ -111,16 +103,10 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     }
 
 
-    @WrapMethod(method = "updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;" +
-            //#if MC > 12102
-            "Lnet/minecraft/world/block/WireOrientation;"
-            //#else
-            //$$ "Lnet/minecraft/util/math/BlockPos;"
-            //#endif
-            + "Z)V")
+    @WrapMethod(method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V")
     public void updateNeighborB(BlockState state, BlockPos pos, Block sourceBlock,
                                 //#if MC > 12102
-                                WireOrientation orientation
+                                Orientation orientation
                                 //#else
                                 //$$ BlockPos sourcePos
                                 //#endif
@@ -149,18 +135,12 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
 
 
     @WrapOperation(
-            method = "updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;" +
-                    //#if MC > 12102
-                    "Lnet/minecraft/world/block/WireOrientation;"
-                    //#else
-                    //$$ "Lnet/minecraft/util/math/BlockPos;"
-                    //#endif
-                    + ")V"
+            method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;)V"
 
-            , at = @At(value = "INVOKE", target = "Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater;enqueue(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater$Entry;)V"))
-    public void updateNeighbor(ChainRestrictedNeighborUpdater instance, BlockPos pos, ChainRestrictedNeighborUpdater.Entry entry, Operation<Void> original) {
-        if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof ChainRestrictedNeighborUpdater.SimpleEntry simpleEntry) {
-            this.enqueue(pos, new FakeEntries.SimpleEntryFake(pos, simpleEntry.sourceBlock(),
+            , at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater;addAndRun(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater$NeighborUpdates;)V"))
+    public void updateNeighbor(CollectingNeighborUpdater instance, BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry, Operation<Void> original) {
+        if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof CollectingNeighborUpdater.SimpleNeighborUpdate simpleEntry) {
+            this.addAndRun(pos, new FakeEntries.SimpleEntryFake(pos, simpleEntry.sourceBlock(),
                     simpleEntry
                             //#if MC <= 12102
                             //$$ .sourcePos()
@@ -175,10 +155,10 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     }
 
     @WrapOperation(method = "replaceWithStateForNeighborUpdate",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater;enqueue(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater$Entry;)V"))
-    public void updateNeighborPP(ChainRestrictedNeighborUpdater instance, BlockPos pos, ChainRestrictedNeighborUpdater.Entry entry, Operation<Void> original) {
-        if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof ChainRestrictedNeighborUpdater.StateReplacementEntry stateReplacementEntry) {
-            this.enqueue(pos, new FakeEntries.StateReplacementEntryFake(stateReplacementEntry.direction(), stateReplacementEntry.neighborState(),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater;addAndRun(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater$NeighborUpdates;)V"))
+    public void updateNeighborPP(CollectingNeighborUpdater instance, BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry, Operation<Void> original) {
+        if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof CollectingNeighborUpdater.ShapeUpdate stateReplacementEntry) {
+            this.addAndRun(pos, new FakeEntries.StateReplacementEntryFake(stateReplacementEntry.direction(), stateReplacementEntry.neighborState(),
                     stateReplacementEntry.pos(), stateReplacementEntry.neighborPos(), stateReplacementEntry.updateFlags(), stateReplacementEntry.updateLimit()));
         } else {
             original.call(instance, pos, entry);
@@ -187,18 +167,12 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     }
 
     @WrapOperation(
-            method = "updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;" +
-                    //#if MC > 12102
-                    "Lnet/minecraft/world/block/WireOrientation;"
-                    //#else
-                    //$$ "Lnet/minecraft/util/math/BlockPos;"
-                    //#endif
-                    + "Z)V",
+            method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
 
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater;enqueue(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater$Entry;)V"))
-    public void updateNeighbor2(ChainRestrictedNeighborUpdater instance, BlockPos pos, ChainRestrictedNeighborUpdater.Entry entry, Operation<Void> original) {
-        if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof ChainRestrictedNeighborUpdater.StatefulEntry statefulEntry) {
-            this.enqueue(pos, new FakeEntries.StatefulEntryFake(statefulEntry.state(), statefulEntry.pos(), statefulEntry.sourceBlock(), statefulEntry
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater;addAndRun(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater$NeighborUpdates;)V"))
+    public void updateNeighbor2(CollectingNeighborUpdater instance, BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry, Operation<Void> original) {
+        if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof CollectingNeighborUpdater.FullNeighborUpdate statefulEntry) {
+            this.addAndRun(pos, new FakeEntries.StatefulEntryFake(statefulEntry.state(), statefulEntry.pos(), statefulEntry.sourceBlock(), statefulEntry
                     //#if MC <= 12102
                     //$$ .sourcePos()
                     //#else

@@ -23,64 +23,61 @@ package mypals.ml.mixin.features.morphMovingPiston;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import net.minecraft.block.*;
-import net.minecraft.block.entity.PistonBlockEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.piston.MovingPistonBlock;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-//#if MC >= 12004
-import net.minecraft.util.Hand;
-//#endif
-
 //#if MC >= 12102
 import org.spongepowered.asm.mixin.Unique;
 //#endif
 
-//#if MC >= 12105
-import net.minecraft.entity.EntityCollisionHandler;
-//#endif
-
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.morphMovingPiston;
 
-@Mixin(PistonExtensionBlock.class)
-public abstract class MovingPistionBlockMixin extends BlockWithEntity {
-    protected MovingPistionBlockMixin(Settings settings) {
+@Mixin(MovingPistonBlock.class)
+public abstract class MovingPistionBlockMixin extends BaseEntityBlock {
+    protected MovingPistionBlockMixin(Properties settings) {
         super(settings);
     }
 
     //#if MC >= 12102
     @Unique
-    PistonBlockEntity pistonBlockEntity;
+    PistonMovingBlockEntity pistonBlockEntity;
     //#endif
 
     @Shadow
     @Nullable
-    protected abstract PistonBlockEntity getPistonBlockEntity(BlockView world, BlockPos pos);
+    protected abstract PistonMovingBlockEntity getBlockEntity(BlockGetter world, BlockPos pos);
 
-    @WrapMethod(method = "onUse")
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player,
+    @WrapMethod(method = "useWithoutItem")
+    public InteractionResult onUse(BlockState state, Level world, BlockPos pos, Player player,
                               //#if MC <= 12004
                               //$$ Hand hand,
                               //#endif
-                              BlockHitResult hit, Operation<ActionResult> original) {
+                              BlockHitResult hit, Operation<InteractionResult> original) {
         if (morphMovingPiston) {
             //#if MC < 12102
             //$$ PistonBlockEntity
             //#endif
-                pistonBlockEntity = this.getPistonBlockEntity(world, pos);
-            return pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null ?
-                    pistonBlockEntity.getPushedBlock().getBlock().onUse(pistonBlockEntity.getPushedBlock(), world, pos, player,
+                pistonBlockEntity = this.getBlockEntity(world, pos);
+            return pistonBlockEntity != null && pistonBlockEntity.getMovedState() != null ?
+                    pistonBlockEntity.getMovedState().getBlock().useWithoutItem(pistonBlockEntity.getMovedState(), world, pos, player,
                             //#if MC <= 12004
                             //$$ hand,
                             //#endif
@@ -94,7 +91,7 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     }
 
     @Override
-    public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity,
+    public void fallOn(Level world, BlockState state, BlockPos pos, Entity entity,
                              //#if MC < 12105
                              //$$ float fallDistance
                              //#else
@@ -104,28 +101,28 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
         //#if MC < 12102
         //$$ PistonBlockEntity
         //#endif
-            pistonBlockEntity = this.getPistonBlockEntity(world, pos);
-        if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
-            pistonBlockEntity.getPushedBlock().getBlock().onLandedUpon(world, pistonBlockEntity.getPushedBlock(), pos, entity, fallDistance);
+            pistonBlockEntity = this.getBlockEntity(world, pos);
+        if (pistonBlockEntity != null && pistonBlockEntity.getMovedState() != null && morphMovingPiston)
+            pistonBlockEntity.getMovedState().getBlock().fallOn(world, pistonBlockEntity.getMovedState(), pos, entity, fallDistance);
         else {
-            super.onLandedUpon(world, state, pos, entity, fallDistance);
+            super.fallOn(world, state, pos, entity, fallDistance);
         }
     }
 
     @Override
-    public void onEntityCollision(
-            BlockState state, World world, BlockPos pos, Entity entity
+    public void entityInside(
+            BlockState state, Level world, BlockPos pos, Entity entity
             //#if MC >= 12105
-            , EntityCollisionHandler entityCollisionHandler
+            , InsideBlockEffectApplier entityCollisionHandler
             //#endif
     ) {
         //#if MC < 12102
         //$$ PistonBlockEntity
         //#endif
-            pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
-        if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
-            pistonBlockEntity.getPushedBlock().getBlock().onEntityCollision(
-                    pistonBlockEntity.getPushedBlock(), world, pos, entity
+            pistonBlockEntity = this.getBlockEntity(world, entity.getOnPos());
+        if (pistonBlockEntity != null && pistonBlockEntity.getMovedState() != null && morphMovingPiston)
+            pistonBlockEntity.getMovedState().getBlock().entityInside(
+                    pistonBlockEntity.getMovedState(), world, pos, entity
                     //#if MC >= 12105
                     , entityCollisionHandler
                     //#endif
@@ -133,38 +130,38 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     }
 
     @Override
-    public void onEntityLand(BlockView world, Entity entity) {
+    public void updateEntityMovementAfterFallOn(BlockGetter world, Entity entity) {
         //#if MC < 12102
         //$$ PistonBlockEntity
         //#endif
-            pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
-        if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
-            pistonBlockEntity.getPushedBlock().getBlock().onEntityLand(world, entity);
+            pistonBlockEntity = this.getBlockEntity(world, entity.getOnPos());
+        if (pistonBlockEntity != null && pistonBlockEntity.getMovedState() != null && morphMovingPiston)
+            pistonBlockEntity.getMovedState().getBlock().updateEntityMovementAfterFallOn(world, entity);
         else {
-            super.onEntityLand(world, entity);
+            super.updateEntityMovementAfterFallOn(world, entity);
         }
 
     }
 
     @Override
-    public int getStrongRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+    public int getDirectSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
 
-        PistonBlockEntity pistonBlockEntity = this.getPistonBlockEntity(world, pos);
-        if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
-            return pistonBlockEntity.getPushedBlock().getBlock().getStrongRedstonePower(pistonBlockEntity.getPushedBlock(), world, pos, direction);
+        PistonMovingBlockEntity pistonBlockEntity = this.getBlockEntity(world, pos);
+        if (pistonBlockEntity != null && pistonBlockEntity.getMovedState() != null && morphMovingPiston)
+            return pistonBlockEntity.getMovedState().getBlock().getDirectSignal(pistonBlockEntity.getMovedState(), world, pos, direction);
         else
             return 0;
     }
 
     @Override
-    public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+    public int getSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {
 
         //#if MC < 12102
         //$$ PistonBlockEntity
         //#endif
-            pistonBlockEntity = this.getPistonBlockEntity(world, pos);
-        if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
-            return pistonBlockEntity.getPushedBlock().getBlock().getWeakRedstonePower(pistonBlockEntity.getPushedBlock(), world, pos, direction);
+            pistonBlockEntity = this.getBlockEntity(world, pos);
+        if (pistonBlockEntity != null && pistonBlockEntity.getMovedState() != null && morphMovingPiston)
+            return pistonBlockEntity.getMovedState().getBlock().getSignal(pistonBlockEntity.getMovedState(), world, pos, direction);
         else
             return 0;
     }
@@ -189,28 +186,28 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     //$$ }
     //#endif
 
-    @WrapMethod(method = "getOutlineShape")
-    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, Operation<VoxelShape> original) {
+    @WrapMethod(method = "getShape")
+    public VoxelShape getOutlineShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context, Operation<VoxelShape> original) {
         if (morphMovingPiston) {
             //#if MC < 12102
             //$$ PistonBlockEntity
             //#endif
-                pistonBlockEntity = this.getPistonBlockEntity(world, pos);
-            return pistonBlockEntity.getCollisionShape(world, pos) != null ? pistonBlockEntity.getCollisionShape(world, pos) : VoxelShapes.empty();
+                pistonBlockEntity = this.getBlockEntity(world, pos);
+            return pistonBlockEntity.getCollisionShape(world, pos) != null ? pistonBlockEntity.getCollisionShape(world, pos) : Shapes.empty();
         }
-        return VoxelShapes.empty();
+        return Shapes.empty();
     }
 
 
-    @WrapMethod(method = "getPickStack")
-    public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state,
+    @WrapMethod(method = "getCloneItemStack")
+    public ItemStack getPickStack(LevelReader world, BlockPos pos, BlockState state,
                                   //#if MC >= 12104
                                   boolean includeData,
                                   //#endif
                                   Operation<ItemStack> original) {
         if (morphMovingPiston) {
-            if (getPistonBlockEntity(world, pos) != null && getPistonBlockEntity(world, pos).getPushedBlock() != null)
-                return getPistonBlockEntity(world, pos).getPushedBlock().getBlock().getPickStack(world, pos, getPistonBlockEntity(world, pos).getPushedBlock()
+            if (getBlockEntity(world, pos) != null && getBlockEntity(world, pos).getMovedState() != null)
+                return getBlockEntity(world, pos).getMovedState().getBlock().getCloneItemStack(world, pos, getBlockEntity(world, pos).getMovedState()
                         //#if MC >= 12104
                         , includeData
                         //#endif

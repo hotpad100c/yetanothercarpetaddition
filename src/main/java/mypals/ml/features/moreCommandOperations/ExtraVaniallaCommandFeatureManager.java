@@ -21,19 +21,19 @@
 package mypals.ml.features.moreCommandOperations;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 //#if MC < 12006
 //$$ import net.minecraft.registry.RegistryKey;
@@ -42,17 +42,17 @@ import org.jetbrains.annotations.Nullable;
 import static mypals.ml.features.moreCommandOperations.WorldEventMapper.WORLD_EVENT_MAP;
 
 public class ExtraVaniallaCommandFeatureManager {
-    public static void addBlockEvent(ServerCommandSource source, BlockPos pos, Block block, int type, int data) {
-        source.getWorld().addSyncedBlockEvent(pos, block, type, data);
-        source.sendFeedback(() -> Text.literal("BlockEvent for [" + Text.translatable(block.getTranslationKey()).getString() + "] was emitted at [" + pos.getX() + "," +
+    public static void addBlockEvent(CommandSourceStack source, BlockPos pos, Block block, int type, int data) {
+        source.getLevel().blockEvent(pos, block, type, data);
+        source.sendSuccess(() -> Component.literal("BlockEvent for [" + Component.translatable(block.getDescriptionId()).getString() + "] was emitted at [" + pos.getX() + "," +
                 pos.getY() + "," + pos.getZ() + "] with type [" + type + "] and data[" + data + "]."), true);
 
     }
 
-    public static int addGameEvent(ServerCommandSource source, Vec3d pos, String reason, @Nullable Entity entity, @Nullable BlockState blockState) {
-        RegistryEntry<GameEvent> event = Registries.GAME_EVENT.getEntry(
+    public static int addGameEvent(CommandSourceStack source, Vec3 pos, String reason, @Nullable Entity entity, @Nullable BlockState blockState) {
+        Holder<GameEvent> event = BuiltInRegistries.GAME_EVENT.get(
                 //#if MC >= 12101
-                Identifier.of("minecraft:" + reason)
+                ResourceLocation.parse("minecraft:" + reason)
                 //#elseif MC >= 12006
                 //$$ new Identifier("minecraft", reason)
                 //#else
@@ -60,19 +60,19 @@ public class ExtraVaniallaCommandFeatureManager {
                 //#endif
         ).orElse(null);
         if (event == null) {
-            source.sendError(Text.literal("Unknown GameEvent: " + reason));
+            source.sendFailure(Component.literal("Unknown GameEvent: " + reason));
             return 0;
         }
-        source.getWorld().emitGameEvent(
+        source.getLevel().gameEvent(
                 //#if MC >= 12006
                 event,
                 //#else
                 //$$ event.value(),
                 //#endif
-                pos, new GameEvent.Emitter(entity, blockState));
-        source.sendFeedback(() -> Text.literal("GameEvent <" + reason + "> was emitted at [" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + "]" +
+                pos, new GameEvent.Context(entity, blockState));
+        source.sendSuccess(() -> Component.literal("GameEvent <" + reason + "> was emitted at [" + pos.x() + "," + pos.y() + "," + pos.z() + "]" +
                 (entity == null ? " " : (" by entity <" + entity.getName() + ">")) + (blockState == null ? " " : (" with block [" +
-                Text.translatable(blockState.getBlock().getTranslationKey()).getString() + "]"))), true);
+                Component.translatable(blockState.getBlock().getDescriptionId()).getString() + "]"))), true);
 
         return 1;
     }
@@ -81,32 +81,32 @@ public class ExtraVaniallaCommandFeatureManager {
         return WORLD_EVENT_MAP.get(eventName);
     }
 
-    public static void addRandomTick(ServerCommandSource source, BlockPos pos) {
-        ServerWorld serverWorld = source.getWorld();
+    public static void addRandomTick(CommandSourceStack source, BlockPos pos) {
+        ServerLevel serverWorld = source.getLevel();
         serverWorld.getBlockState(pos).randomTick(serverWorld, pos, serverWorld.getRandom());
-        YetAnotherCarpetAdditionServer.randomTickVisualizing.setVisualizer(serverWorld, pos, pos.toCenterPos(), "-");
-        source.sendFeedback(() -> Text.literal("Simulated a RandomTick event at [" + pos.getX() + "," +
+        YetAnotherCarpetAdditionServer.randomTickVisualizing.setVisualizer(serverWorld, pos, pos.getCenter(), "-");
+        source.sendSuccess(() -> Component.literal("Simulated a RandomTick event at [" + pos.getX() + "," +
                 pos.getY() + "," + pos.getZ() + "]."), true);
 
 
     }
 
-    public static void addWorldEvent(ServerCommandSource source, BlockPos pos, String id, @Nullable PlayerEntity player, int data) {
+    public static void addWorldEvent(CommandSourceStack source, BlockPos pos, String id, @Nullable Player player, int data) {
         int eventId = 1000;
         try {
             eventId = getEventId(id);
         } catch (Exception e) {
-            source.sendError(Text.literal("Unknown WorldEvent: " + id));
+            source.sendFailure(Component.literal("Unknown WorldEvent: " + id));
         }
         boolean global = eventId == 1023 || eventId == 1028 || eventId == 1038;
         if (global) {
-            source.getWorld().syncGlobalEvent(eventId, pos, data);
-            source.sendFeedback(() -> Text.literal("<GLOBAL>WorldEvent <" + id + "> was emitted at [" + pos.getX() + "," + pos.getY() + "," + pos.getZ() +
+            source.getLevel().globalLevelEvent(eventId, pos, data);
+            source.sendSuccess(() -> Component.literal("<GLOBAL>WorldEvent <" + id + "> was emitted at [" + pos.getX() + "," + pos.getY() + "," + pos.getZ() +
                     "]　with data of　[" + data + "]　." + (player == null ? " " : ("But will not notify the player:" + player.getName() + "..."))), true);
 
         } else {
-            source.getWorld().syncWorldEvent(player, eventId, pos, data);
-            source.sendFeedback(() -> Text.literal("WorldEvent <" + id + "> was emitted at [" + pos.getX() + "," + pos.getY() + "," + pos.getZ() +
+            source.getLevel().levelEvent(player, eventId, pos, data);
+            source.sendSuccess(() -> Component.literal("WorldEvent <" + id + "> was emitted at [" + pos.getX() + "," + pos.getY() + "," + pos.getZ() +
                     "]　with data of　[" + data + "]　." + (player == null ? " " : ("But will not notify the player:" + player.getName() + "..."))), true);
 
         }

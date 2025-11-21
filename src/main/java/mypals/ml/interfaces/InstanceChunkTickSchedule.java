@@ -20,8 +20,8 @@
 
 package mypals.ml.interfaces;
 
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
 
 public interface InstanceChunkTickSchedule {
-    void setServerWorld(ServerWorld serverWorld);
+    void setServerWorld(ServerLevel serverWorld);
 }

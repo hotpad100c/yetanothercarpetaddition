@@ -26,24 +26,23 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 
 import static mypals.ml.features.subscribeRules.RuleSubscribeManager.subscribeRule;
 
 public class SubscribeRuleCommand {
-    private static SuggestionProvider<ServerCommandSource> suggestionProvider = (context, builder) -> {
+    private static SuggestionProvider<CommandSourceStack> suggestionProvider = (context, builder) -> {
         CarpetServer.settingsManager.getCarpetRules().stream()
                 .map(rule -> rule.name())
                 .forEach(builder::suggest);
         return builder.buildFuture();
     };
 
-    public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
-        dispatcher.register(CommandManager.literal("subscribeRule")
-                .then(CommandManager.argument("name", StringArgumentType.string())
+    public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
+        dispatcher.register(Commands.literal("subscribeRule")
+                .then(Commands.argument("name", StringArgumentType.string())
                         .suggests(suggestionProvider)
                         .executes(context -> execute(
                                 context.getSource(),
@@ -51,7 +50,7 @@ public class SubscribeRuleCommand {
                         ))));
     }
 
-    public static int execute(ServerCommandSource source, String ruleName) {
+    public static int execute(CommandSourceStack source, String ruleName) {
         subscribeRule(ruleName, source);
         return 1;
     }

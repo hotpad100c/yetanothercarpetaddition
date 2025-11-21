@@ -22,9 +22,9 @@ package mypals.ml.mixin.features.mobAIVisualize;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.MobAIVisualizer;
-import net.minecraft.entity.ai.goal.GoalSelector;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.GoalSelector;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,7 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.mobAIVisualize;
 
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public class MobAIMixin {
     @Shadow
     @Final
@@ -45,14 +45,14 @@ public class MobAIMixin {
     @Final
     protected GoalSelector targetSelector;
 
-    @Inject(method = "tickNewAi", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/EntityNavigation;tick()V"))
+    @Inject(method = "serverAiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/navigation/PathNavigation;tick()V"))
     private void displayTargetAboveHead(CallbackInfo ci) {
-        MobEntity mob = (MobEntity) (Object) this;
-        if (mob.getEntityWorld().isClient() || !mobAIVisualize) return;
+        Mob mob = (Mob) (Object) this;
+        if (mob.level().isClientSide() || !mobAIVisualize) return;
         YetAnotherCarpetAdditionServer.mobAIVisualizer.setVisualizer(
-                (ServerWorld) mob.getEntityWorld(),
+                (ServerLevel) mob.level(),
                 mob,
-                mob.getEntityPos().add(0, mob.getHeight() + 0.5, 0),
+                mob.position().add(0, mob.getBbHeight() + 0.5, 0),
                 new MobAIVisualizer.MobAIData(
                         mob,
                         this.goalSelector,

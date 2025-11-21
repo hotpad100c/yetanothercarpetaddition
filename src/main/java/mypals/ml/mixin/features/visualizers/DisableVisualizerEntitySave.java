@@ -21,9 +21,8 @@
 package mypals.ml.mixin.features.visualizers;
 
 import mypals.ml.interfaces.ISelf;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,17 +31,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.Set;
 import static mypals.ml.YetAnotherCarpetAdditionServer.VisualizerTags;
 
-//#if MC >= 12106
-import net.minecraft.storage.WriteView;
-//#endif
-
 @Mixin(Entity.class)
 public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
 
     @Shadow
-    public abstract Set<String> getCommandTags();
+    public abstract Set<String> getTags();
 
-    @Inject(method = "saveSelfData", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "saveAsPassenger", at = @At("HEAD"), cancellable = true)
     public void saveSelfNbt(
             //#if MC >= 12106
             //WriteView view,
@@ -50,8 +45,8 @@ public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
             //$$ NbtCompound nbt,
             //#endif
             CallbackInfoReturnable<Boolean> cir) {
-        if (yetanothercarpetaddition$self() instanceof DisplayEntity) {
-            Set<String> tags = this.getCommandTags();
+        if (yetanothercarpetaddition$self() instanceof Display) {
+            Set<String> tags = this.getTags();
             for (String tag : VisualizerTags) {
                 if (tags.contains(tag)) {
                     cir.setReturnValue(false);

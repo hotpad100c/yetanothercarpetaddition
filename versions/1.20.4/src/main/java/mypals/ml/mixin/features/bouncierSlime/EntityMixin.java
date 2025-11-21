@@ -21,15 +21,15 @@
 package mypals.ml.mixin.features.bouncierSlime;
 
 import mypals.ml.interfaces.BlockBehaviorExtension;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.crash.CrashException;
-import net.minecraft.util.crash.CrashReport;
-import net.minecraft.util.crash.CrashReportSection;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.world.World;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,12 +40,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Entity.class)
 public abstract class EntityMixin {
     @Shadow
-    public abstract World getWorld();
+    public abstract Level level();
 
     @Shadow
-    private World world;
+    private Level level;
 
-    @Inject(method = "checkBlockCollision", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "checkInsideBlocks", at = @At("HEAD"), cancellable = true)
     protected void checkBlockCollision(CallbackInfo ci) {
         checkSurfaceCollision((Entity) (Object) this);
     }
@@ -56,17 +56,17 @@ public abstract class EntityMixin {
             return;
         }
 
-        World world = entity.getWorld();
-        Box entityBox = entity.getBoundingBox();
-        BlockPos minPos = BlockPos.ofFloored(entityBox.minX - 1, entityBox.minY - 1, entityBox.minZ - 1);
-        BlockPos maxPos = BlockPos.ofFloored(entityBox.maxX + 1, entityBox.maxY + 1, entityBox.maxZ + 1);
+        Level world = entity.level();
+        AABB entityBox = entity.getBoundingBox();
+        BlockPos minPos = BlockPos.containing(entityBox.minX - 1, entityBox.minY - 1, entityBox.minZ - 1);
+        BlockPos maxPos = BlockPos.containing(entityBox.maxX + 1, entityBox.maxY + 1, entityBox.maxZ + 1);
 
-        BlockPos.Mutable mutable = new BlockPos.Mutable();
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
         for (int x = minPos.getX(); x <= maxPos.getX(); x++) {
             for (int y = minPos.getY(); y <= maxPos.getY(); y++) {
                 for (int z = minPos.getZ(); z <= maxPos.getZ(); z++) {
                     mutable.set(x, y, z);
-                    if (!world.isRegionLoaded(minPos, maxPos)) {
+                    if (!world.hasChunksAt(minPos, maxPos)) {
                         continue;
                     }
 
@@ -76,10 +76,10 @@ public abstract class EntityMixin {
                     try {
                         ((BlockBehaviorExtension) blockState.getBlock()).yaca$onEntityTouch(world, mutable, entity);
                     } catch (Throwable throwable) {
-                        CrashReport crashReport = CrashReport.create(throwable, "Colliding entity with block");
-                        CrashReportSection crashReportSection = crashReport.addElement("Block being collided with");
-                        CrashReportSection.addBlockInfo(crashReportSection, this.world, mutable, blockState);
-                        throw new CrashException(crashReport);
+                        CrashReport crashReport = CrashReport.forThrowable(throwable, "Colliding entity with block");
+                        CrashReportCategory crashReportSection = crashReport.addCategory("Block being collided with");
+                        CrashReportCategory.populateBlockDetails(crashReportSection, this.level, mutable, blockState);
+                        throw new ReportedException(crashReport);
                     }
                     /*if (!blockShape.isEmpty() && VoxelShapes.matchesAnywhere(
                             VoxelShapes.cuboid(entityBox),

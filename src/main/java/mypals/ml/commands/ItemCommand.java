@@ -25,41 +25,39 @@ import carpet.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.command.CommandRegistryAccess;
-//#if MC >= 12006
-import net.minecraft.component.DataComponentTypes;
-//#endif
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 
 public class ItemCommand {
-    public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
-        dispatcher.register(CommandManager.literal("rename")
+    public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
+        dispatcher.register(Commands.literal("rename")
                 .requires((player) -> CommandHelper.canUseCommand(player, YetAnotherCarpetAdditionRules.commandRenameItem))
-                .then(CommandManager.argument("name", StringArgumentType.string())
+                .then(Commands.argument("name", StringArgumentType.string())
                         .executes(context -> execute(
                                 context.getSource(),
                                 StringArgumentType.getString(context, "name")
                         )))
                 .executes(context -> execute(context.getSource())));
-        dispatcher.register(CommandManager.literal("itemshadowing")
+        dispatcher.register(Commands.literal("itemshadowing")
                 .requires((player) -> CommandHelper.canUseCommand(player, YetAnotherCarpetAdditionRules.commandEasyItemShadowing))
                 .executes(context -> itemShadowing(context.getSource())));
     }
 
-    public static int execute(ServerCommandSource source, String name) {
+    public static int execute(CommandSourceStack source, String name) {
         Entity entity = source.getEntity();
-        if(!(entity instanceof ServerPlayerEntity)) return 0;
+        if(!(entity instanceof ServerPlayer)) return 0;
 
-        ItemStack itemStack = ((ServerPlayerEntity) entity).getMainHandStack();
+        ItemStack itemStack = ((ServerPlayer) entity).getMainHandItem();
 
         //#if MC >= 12006
-        itemStack.set(DataComponentTypes.CUSTOM_NAME, Text.literal(name));
+        itemStack.set(DataComponents.CUSTOM_NAME, Component.literal(name));
         //#else
         //$$ itemStack.setCustomName(Text.literal(name));
         //#endif
@@ -67,14 +65,14 @@ public class ItemCommand {
         return 1;
     }
 
-    public static int execute(ServerCommandSource source) {
+    public static int execute(CommandSourceStack source) {
         Entity entity = source.getEntity();
-        if(!(entity instanceof ServerPlayerEntity)) return 0;
+        if(!(entity instanceof ServerPlayer)) return 0;
 
-        ItemStack itemStack = ((ServerPlayerEntity) entity).getMainHandStack();
+        ItemStack itemStack = ((ServerPlayer) entity).getMainHandItem();
 
         //#if MC >= 12006
-        itemStack.remove(DataComponentTypes.CUSTOM_NAME);
+        itemStack.remove(DataComponents.CUSTOM_NAME);
         //#else
         //$$ itemStack.removeCustomName();
         //#endif
@@ -83,11 +81,11 @@ public class ItemCommand {
         return 1;
     }
 
-    public static int itemShadowing(ServerCommandSource source) {
+    public static int itemShadowing(CommandSourceStack source) {
         Entity entity = source.getEntity();
-        if(!(entity instanceof ServerPlayerEntity)) return 0;
+        if(!(entity instanceof ServerPlayer)) return 0;
 
-        ((ServerPlayerEntity) entity).equipStack(EquipmentSlot.OFFHAND, ((ServerPlayerEntity) entity).getEquippedStack(EquipmentSlot.MAINHAND));
+        ((ServerPlayer) entity).setItemSlot(EquipmentSlot.OFFHAND, ((ServerPlayer) entity).getItemBySlot(EquipmentSlot.MAINHAND));
 
         return 1;
     }

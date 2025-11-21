@@ -22,7 +22,7 @@ package mypals.ml.mixin.features;
 
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.server.command.EnchantCommand;
+import net.minecraft.server.commands.EnchantCommand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -31,10 +31,10 @@ public class EnchantCommandMixin {
 
 
     @ModifyExpressionValue(
-            method = "execute",
+            method = "enchant",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/enchantment/Enchantment;getMaxLevel()I",
+                    target = "Lnet/minecraft/world/item/enchantment/Enchantment;getMaxLevel()I",
                     ordinal = 0
             )
     )
@@ -44,21 +44,18 @@ public class EnchantCommandMixin {
 
 
     @ModifyExpressionValue(
-            method = "execute", at = @At(value = "INVOKE", target = "Lnet/minecraft/enchantment/Enchantment;isAcceptableItem(Lnet/minecraft/item/ItemStack;)Z")
+            method = "enchant", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/Enchantment;canEnchant(Lnet/minecraft/world/item/ItemStack;)Z")
     )
     private static boolean isAcceptableItem(boolean original) {
         return YetAnotherCarpetAdditionRules.enchantCommandBypassItemType || original;
     }
 
     @ModifyExpressionValue(
-            method = "execute",
+            method = "enchant",
             at = @At(
                     value = "INVOKE",
                     //#if MC >= 12101
-                    target = "Lnet/minecraft/enchantment/EnchantmentHelper;isCompatible(Ljava/util/Collection;Lnet/minecraft/registry/entry/RegistryEntry;)Z"
-                    //#else
-                    //$$ target = "Lnet/minecraft/enchantment/EnchantmentHelper;isCompatible(Ljava/util/Collection;Lnet/minecraft/enchantment/Enchantment;)Z"
-                    //#endif
+                    target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;isEnchantmentCompatible(Ljava/util/Collection;Lnet/minecraft/core/Holder;)Z"
             )
     )
     private static boolean isCompatible(boolean original) {

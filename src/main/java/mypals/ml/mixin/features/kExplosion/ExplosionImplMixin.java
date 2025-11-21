@@ -24,8 +24,8 @@ import me.fallenbreath.conditionalmixin.api.annotation.Condition;
 import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.ModIds;
-import net.minecraft.entity.Entity;
-import net.minecraft.world.explosion.ExplosionImpl;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ServerExplosion;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,20 +34,20 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = ">1.21.5"))
-@Mixin(ExplosionImpl.class)
+@Mixin(ServerExplosion.class)
 public class ExplosionImplMixin {
 
-    @Shadow @Final private @Nullable Entity entity;
+    @Shadow @Final private @Nullable Entity source;
 
     @ModifyVariable(
-            method = "preservesDecorativeEntities",
+            method = "shouldAffectBlocklikeEntities",
             at = @At(
                     value = "STORE"
             ),
             ordinal = 1
     )
     public boolean preservesDecorativeEntities(boolean bl3) {
-        boolean bl2 = this.entity == null || !this.entity.isTouchingWater();
+        boolean bl2 = this.source == null || !this.source.isInWater();
         return YetAnotherCarpetAdditionRules.waterTNT? bl2 && bl3 : bl3;
     }
 

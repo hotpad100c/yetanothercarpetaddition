@@ -23,11 +23,11 @@ package mypals.ml.mixin.features.visualizers;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,20 +36,20 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(Block.class)
 public class PostProcessStateBlockMixin {
     @Inject(
-            method = "postProcessState",
+            method = "updateFromNeighbourShapes",
             at = @At(
                     //#if MC < 12102
                     //$$ target = "Lnet/minecraft/block/BlockState;getStateForNeighborUpdate(Lnet/minecraft/util/math/Direction;Lnet/minecraft/block/BlockState;Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/BlockPos;)Lnet/minecraft/block/BlockState;",
                     //#else
-                    target = "Lnet/minecraft/block/BlockState;getStateForNeighborUpdate(Lnet/minecraft/world/WorldView;Lnet/minecraft/world/tick/ScheduledTickView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/Direction;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/random/Random;)Lnet/minecraft/block/BlockState;",
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;getStateForNeighborUpdate(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/world/level/ScheduledTickAccess;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/util/RandomSource;)Lnet/minecraft/world/level/block/state/BlockState;",
                     //#endif
                     ordinal = 0, value = "INVOKE"
             )
     )
-    private static void AddPPMarker(BlockState state, WorldAccess world, BlockPos pos, CallbackInfoReturnable<BlockState> cir) {
-        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || world.isClient()) return;
-        BlockPos sourcePos = pos.toImmutable();
-        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) world, sourcePos, BlockUpdateVisualizing.UpdateType.PP);
+    private static void AddPPMarker(BlockState state, LevelAccessor world, BlockPos pos, CallbackInfoReturnable<BlockState> cir) {
+        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || world.isClientSide()) return;
+        BlockPos sourcePos = pos.immutable();
+        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerLevel) (Object) world, sourcePos, BlockUpdateVisualizing.UpdateType.PP);
 
     }
 

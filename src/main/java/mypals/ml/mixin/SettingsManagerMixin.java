@@ -25,7 +25,6 @@ import carpet.api.settings.SettingsManager;
 import carpet.script.external.Carpet;
 import carpet.utils.Messenger;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

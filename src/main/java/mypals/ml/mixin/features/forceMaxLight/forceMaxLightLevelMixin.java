@@ -25,8 +25,8 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.chunk.light.ChunkLightProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.lighting.LightEngine;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -35,24 +35,24 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ChunkLightProvider.class)
+@Mixin(LightEngine.class)
 public abstract class forceMaxLightLevelMixin {
     @Shadow
     @Final
-    private LongOpenHashSet blockPositionsToCheck;
+    private LongOpenHashSet blockNodesToCheck;
 
     @Shadow
     @Final
-    private LongArrayFIFOQueue field_44734;
+    private LongArrayFIFOQueue decreaseQueue;
 
     @Shadow
     @Final
-    private LongArrayFIFOQueue field_44735;
+    private LongArrayFIFOQueue increaseQueue;
 
     @Shadow
     protected abstract void clearChunkCache();
 
-    @WrapMethod(method = "getLightLevel")
+    @WrapMethod(method = "getLightValue")
     private int getLightLevel(BlockPos pos, Operation<Integer> original) {
         return YetAnotherCarpetAdditionRules.forceMaxLightLevel ? 15 : original.call(pos);
     }

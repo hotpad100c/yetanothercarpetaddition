@@ -22,39 +22,28 @@ package mypals.ml.Screen.RulesEditScreen;
 
 //#if MC >= 12105
 import com.mojang.blaze3d.opengl.GlStateManager;
-//#else
-//$$ import com.mojang.blaze3d.platform.GlStateManager;
-//#endif
-import net.minecraft.client.gui.widget.ClickableWidget;
-
 import mypals.ml.utils.adapter.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.screen.ButtonTextures;
-import net.minecraft.client.gui.widget.ScrollableWidget;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.MathHelper;
-
-//#if MC >= 12109
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.input.MouseInput;
-import net.minecraft.client.input.KeyInput;
-//#endif
-
-//#if MC >= 12106
-import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.WidgetSprites;
+import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 //#elseif MC >= 12102
 //$$ import net.minecraft.client.render.RenderLayer;
 //#endif
 @Environment(EnvType.CLIENT)
-public abstract class ConstantScrollableWidget extends ClickableWidget implements Drawable, Element {
+public abstract class ConstantScrollableWidget extends AbstractWidget implements Renderable, GuiEventListener {
     //#if MC >= 12106
-    private static final ButtonTextures TEXT_FIELD_TEXTURES = new ButtonTextures(Identifier.ofVanilla("widget/text_field"), Identifier.ofVanilla("widget/text_field_highlighted"));
-    private static final Identifier SCROLLER_TEXTURE = Identifier.ofVanilla("widget/scroller");
+    private static final WidgetSprites TEXT_FIELD_TEXTURES = new WidgetSprites(ResourceLocation.withDefaultNamespace("widget/text_field"), ResourceLocation.withDefaultNamespace("widget/text_field_highlighted"));
+    private static final ResourceLocation SCROLLER_TEXTURE = ResourceLocation.withDefaultNamespace("widget/scroller");
     //#else
     //$$ private static final ButtonTextures TEXT_FIELD_TEXTURES = new ButtonTextures(Identifier.of("minecraft","widget/text_field"), Identifier.of("minecraft","widget/text_field_highlighted"));
     //$$ private static final Identifier SCROLLER_TEXTURE = Identifier.of("minecraft","widget/scroller");
@@ -64,12 +53,12 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
     private double scrollY;
     private boolean scrollbarDragged;
 
-    public ConstantScrollableWidget(int i, int j, int k, int l, Text text) {
+    public ConstantScrollableWidget(int i, int j, int k, int l, Component text) {
         super(i, j, k, l, text);
     }
 
     //#if MC >= 12109
-    public boolean mouseClicked(Click click, boolean doubled){
+    public boolean mouseClicked(MouseButtonEvent click, boolean doubled){
     //#else
     //$$ public boolean mouseClicked(double mouseX, double mouseY, int button) {
     //#endif
@@ -96,7 +85,7 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
 
     public boolean mouseReleased(
             //#if MC >= 12109
-            Click click
+            MouseButtonEvent click
             //#else
             //$$ double mouseX, double mouseY, int button
             //#endif
@@ -122,7 +111,7 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
 
     public boolean mouseDragged(
             //#if MC >= 12109
-            Click click,
+            MouseButtonEvent click,
             //#else
             //$$ double mouseX, double mouseY
             //#endif
@@ -168,7 +157,7 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
 
     public boolean keyPressed(
             //#if MC >= 12109
-            KeyInput keyInput
+            KeyEvent keyInput
             //#else
             //$$ int keyCode, int scanCode, int modifiers
             //#endif
@@ -200,26 +189,26 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
         );
     }
 
-    public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
         if (this.visible) {
             this.drawBox(context);
             context.enableScissor(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1);
 
             //#if MC >= 12106
-            context.getMatrices().pushMatrix();
+            context.pose().pushMatrix();
             //#else
             //$$ context.getMatrices().push();
             //#endif
 
             //#if MC >= 12106
-            context.getMatrices().translate(0.0F, (float) -this.scrollY);
+            context.pose().translate(0.0F, (float) -this.scrollY);
             //#else
             //$$ context.getMatrices().translate((double)0.0F, -this.scrollY, (double)0.0F);
             //#endif
 
             this.renderContents(context, mouseX, mouseY, delta);
             //#if MC >= 12106
-            context.getMatrices().popMatrix();
+            context.pose().popMatrix();
             //#else
             //$$ context.getMatrices().pop();
             //#endif
@@ -229,10 +218,10 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
     }
 
     private int getScrollbarThumbHeight() {
-        return MathHelper.clamp((int)((float)(this.height * this.height) / (float)this.getContentsHeightWithPadding()), 32, this.height);
+        return Mth.clamp((int)((float)(this.height * this.height) / (float)this.getContentsHeightWithPadding()), 32, this.height);
     }
 
-    protected void renderOverlay(DrawContext context) {
+    protected void renderOverlay(GuiGraphics context) {
         if (this.overflows()) {
             this.drawScrollbar(context);
         }
@@ -252,7 +241,7 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
     }
 
     public void setScrollY(double scrollY) {
-        this.scrollY = MathHelper.clamp(scrollY, (double)0.0F, (double)this.getMaxScrollY());
+        this.scrollY = Mth.clamp(scrollY, (double)0.0F, (double)this.getMaxScrollY());
     }
 
     protected int getMaxScrollY() {
@@ -263,19 +252,19 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
         return this.getContentsHeight() + 4;
     }
 
-    protected void drawBox(DrawContext context) {
+    protected void drawBox(GuiGraphics context) {
         this.drawBox(context, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
-    protected void drawBox(DrawContext context, int x, int y, int width, int height) {
+    protected void drawBox(GuiGraphics context, int x, int y, int width, int height) {
     }
 
-    private void drawScrollbar(DrawContext context) {
+    private void drawScrollbar(GuiGraphics context) {
         int i = this.getScrollbarThumbHeight();
         int j = this.getX() + this.width;
         int k = Math.max(this.getY(), (int)this.scrollY * (this.height - i) / this.getMaxScrollY() + this.getY());
         GlStateManager._enableBlend();
-        context.drawGuiTexture(
+        context.blitSprite(
                 //#if MC >= 12106
                 RenderPipelines.GUI_TEXTURED,
                 //#elseif MC >= 12102
@@ -305,5 +294,5 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
 
     protected abstract double getDeltaYPerScroll();
 
-    protected abstract void renderContents(DrawContext context, int mouseX, int mouseY, float delta);
+    protected abstract void renderContents(GuiGraphics context, int mouseX, int mouseY, float delta);
 }

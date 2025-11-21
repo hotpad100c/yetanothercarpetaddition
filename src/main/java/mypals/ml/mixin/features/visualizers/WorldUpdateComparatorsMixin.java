@@ -25,11 +25,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.Orientation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,35 +38,32 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.BooleanSupplier;
-//#if MC >= 12102
-import net.minecraft.world.block.WireOrientation;
-//#endif
 
-@Mixin(World.class)
+@Mixin(Level.class)
 public abstract class WorldUpdateComparatorsMixin {
     @Shadow
-    public abstract boolean isClient();
+    public abstract boolean isClientSide();
 
     @WrapOperation(
-            method = "updateComparators",
+            method = "updateNeighbourForOutputSignal",
             at = @At(
                     //#if MC < 12102
                     //$$ target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
                     //#else
-                    target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
+                    target = "Lnet/minecraft/world/level/Level;neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
                     //#endif
                     ordinal = 0, value = "INVOKE"
             )
     )
-    private void AddCPMarkerSimple(World instance, BlockState state, BlockPos pos, Block sourceBlock,
+    private void AddCPMarkerSimple(Level instance, BlockState state, BlockPos pos, Block sourceBlock,
                                    //#if MC < 12102
                                    //$$ BlockPos sourcePos,
                                    //#else
-                                   WireOrientation orientation,
+                                   Orientation orientation,
                                    //#endif
                                    boolean notify, Operation<Void> original) {
-        if (YetAnotherCarpetAdditionRules.comparatorUpdateVisualize && !this.isClient())
-            YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) this, pos, BlockUpdateVisualizing.UpdateType.CP);
+        if (YetAnotherCarpetAdditionRules.comparatorUpdateVisualize && !this.isClientSide())
+            YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerLevel) (Object) this, pos, BlockUpdateVisualizing.UpdateType.CP);
         original.call(
                 instance, state, pos, sourceBlock,
                 //#if MC < 12102
@@ -78,25 +76,25 @@ public abstract class WorldUpdateComparatorsMixin {
     }
 
     @WrapOperation(
-            method = "updateComparators",
+            method = "updateNeighbourForOutputSignal",
             at = @At(
                     //#if MC < 12102
                     //$$ target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
                     //#else
-                    target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
+                    target = "Lnet/minecraft/world/level/Level;neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
                     //#endif
                     ordinal = 1, value = "INVOKE"
             )
     )
-    private void AddCPMarkerThroughBlocks(World instance, BlockState state, BlockPos pos, Block sourceBlock,
+    private void AddCPMarkerThroughBlocks(Level instance, BlockState state, BlockPos pos, Block sourceBlock,
                                           //#if MC < 12102
                                           //$$ BlockPos sourcePos,
                                           //#else
-                                          WireOrientation orientation,
+                                          Orientation orientation,
                                           //#endif
                                           boolean notify, Operation<Void> original) {
-        if (YetAnotherCarpetAdditionRules.comparatorUpdateVisualize && !this.isClient())
-            YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) this, pos, BlockUpdateVisualizing.UpdateType.CP);
+        if (YetAnotherCarpetAdditionRules.comparatorUpdateVisualize && !this.isClientSide())
+            YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerLevel) (Object) this, pos, BlockUpdateVisualizing.UpdateType.CP);
         original.call(instance, state, pos, sourceBlock,
                 //#if MC < 12102
                 //$$ sourcePos,

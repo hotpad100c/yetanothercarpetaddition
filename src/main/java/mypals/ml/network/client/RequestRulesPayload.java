@@ -21,36 +21,32 @@
 package mypals.ml.network.client;
 
 import mypals.ml.network.PacketIDs;
-import net.minecraft.network.PacketByteBuf;
-import net.minecraft.network.packet.CustomPayload;
-//#if MC >= 12006
-import net.minecraft.network.codec.PacketCodec;
-//#else
-//$$ import net.minecraft.util.Identifier;
-//#endif
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public record  RequestRulesPayload(String lang) implements CustomPayload {
+public record  RequestRulesPayload(String lang) implements CustomPacketPayload {
     //#if MC >= 12006
-    public static final Id<RequestRulesPayload> ID = new CustomPayload.Id<>(PacketIDs.REQUEST_RULES_ID);
-    public static final PacketCodec<PacketByteBuf, RequestRulesPayload> CODEC = PacketCodec.of(RequestRulesPayload::write, RequestRulesPayload::new);
+    public static final Type<RequestRulesPayload> ID = new Type<>(PacketIDs.REQUEST_RULES_ID);
+    public static final StreamCodec<FriendlyByteBuf, RequestRulesPayload> CODEC = StreamCodec.ofMember(RequestRulesPayload::write, RequestRulesPayload::new);
     //#else
     //$$ public static final Identifier ID = PacketIDs.REQUEST_RULES_ID;
     //#endif
 
-    public RequestRulesPayload(PacketByteBuf buf) {
-        this(buf.readString());
+    public RequestRulesPayload(FriendlyByteBuf buf) {
+        this(buf.readUtf());
     }
 
     //#if MC < 12006
     //$$ @Override
     //#endif
-    public void write(PacketByteBuf buf) {
-         buf.writeString(this.lang);
+    public void write(FriendlyByteBuf buf) {
+         buf.writeUtf(this.lang);
     }
 
     //#if MC >= 12006
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
     //#else

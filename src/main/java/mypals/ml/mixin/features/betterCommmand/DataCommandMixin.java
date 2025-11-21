@@ -30,18 +30,18 @@ import mypals.ml.features.betterCommands.DataModifyCapture;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.ClickEvent;
 import mypals.ml.utils.adapter.HoverEvent;
-import net.minecraft.command.BlockDataObject;
-import net.minecraft.command.DataCommandObject;
-import net.minecraft.command.EntityDataObject;
-import net.minecraft.command.StorageDataObject;
-import net.minecraft.command.argument.NbtPathArgumentType;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.*;
-import net.minecraft.server.command.DataCommand;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.commands.data.BlockDataAccessor;
+import net.minecraft.server.commands.data.DataAccessor;
+import net.minecraft.server.commands.data.DataCommands;
+import net.minecraft.server.commands.data.EntityDataAccessor;
+import net.minecraft.server.commands.data.StorageDataAccessor;
+import net.minecraft.util.Mth;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -54,56 +54,56 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import static net.minecraft.server.command.DataCommand.getNbt;
+import static net.minecraft.server.commands.data.DataCommands.getSingleTag;
 
-@Mixin(DataCommand.class)
+@Mixin(DataCommands.class)
 public class DataCommandMixin {
     @Shadow
     @Final
-    private static DynamicCommandExceptionType GET_INVALID_EXCEPTION;
+    private static DynamicCommandExceptionType ERROR_GET_NOT_NUMBER;
 
     @Shadow
     @Final
-    private static DynamicCommandExceptionType GET_UNKNOWN_EXCEPTION;
+    private static DynamicCommandExceptionType ERROR_GET_NON_EXISTENT;
 
     @Inject(
-            method = "executeModify",
+            method = "manipulateData",
             at = @At("HEAD")
     )
-    private static void beforeModify(CommandContext<ServerCommandSource> context, DataCommand.ObjectType objectType, DataCommand.ModifyOperation modifier, List<NbtElement> elements, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException, CommandSyntaxException {
-        DataCommandObject dataObject = objectType.getObject(context);
-        NbtCompound originalNbt = dataObject.getNbt().copy();
+    private static void beforeModify(CommandContext<CommandSourceStack> context, DataCommands.DataProvider objectType, DataCommands.DataManipulator modifier, List<Tag> elements, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException, CommandSyntaxException {
+        DataAccessor dataObject = objectType.access(context);
+        CompoundTag originalNbt = dataObject.getData().copy();
         DataModifyCapture.setOriginalNbt(originalNbt);
     }
 
     @WrapOperation(
-            method = "executeModify",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/ServerCommandSource;sendFeedback(Ljava/util/function/Supplier;Z)V")
+            method = "manipulateData",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/commands/CommandSourceStack;sendSuccess(Ljava/util/function/Supplier;Z)V")
     )
-    private static void onAfterModify(ServerCommandSource instance, Supplier<Text> feedbackSupplier,
-                                      boolean broadcastToOps, Operation<Void> original, @Local DataCommandObject dataCommandObject) throws CommandSyntaxException {
-        NbtCompound after = dataCommandObject.getNbt();
-        NbtCompound before = DataModifyCapture.getOriginalNbt();
+    private static void onAfterModify(CommandSourceStack instance, Supplier<Component> feedbackSupplier,
+                                      boolean broadcastToOps, Operation<Void> original, @Local DataAccessor dataCommandObject) throws CommandSyntaxException {
+        CompoundTag after = dataCommandObject.getData();
+        CompoundTag before = DataModifyCapture.getOriginalNbt();
 
-        List<Text> diffs = new ArrayList<>();
-        for (String key : after.getKeys()) {
-            NbtElement newVal = after.get(key);
-            NbtElement oldVal = before.get(key);
+        List<Component> diffs = new ArrayList<>();
+        for (String key : after.keySet()) {
+            Tag newVal = after.get(key);
+            Tag oldVal = before.get(key);
             if (oldVal == null || !oldVal.equals(newVal)) {
-                diffs.add(Text.literal("§e" + key + "§r: ")
-                        .append(Text.literal(oldVal == null ? "null" : oldVal.toString()).formatted(Formatting.RED))
+                diffs.add(Component.literal("§e" + key + "§r: ")
+                        .append(Component.literal(oldVal == null ? "null" : oldVal.toString()).withStyle(ChatFormatting.RED))
                         .append(" -> ")
-                        .append(Text.literal(newVal.toString()).formatted(Formatting.GREEN)));
+                        .append(Component.literal(newVal.toString()).withStyle(ChatFormatting.GREEN)));
             }
         }
 
         if (!diffs.isEmpty()) {
-            MutableText hoverText = Text.literal("§aModified:").append("\n");
-            for (Text line : diffs) {
+            MutableComponent hoverText = Component.literal("§aModified:").append("\n");
+            for (Component line : diffs) {
                 hoverText.append(line).append("\n");
             }
-            Text feedBack = feedbackSupplier.get();
-            Supplier<Text> st = () -> feedBack.copy().styled(style -> style.withHoverEvent(
+            Component feedBack = feedbackSupplier.get();
+            Supplier<Component> st = () -> feedBack.copy().withStyle(style -> style.withHoverEvent(
                     HoverEvent.showText(hoverText)
             ));
             original.call(instance, st, broadcastToOps);
@@ -111,138 +111,138 @@ public class DataCommandMixin {
     }
 
     @Inject(
-            method = "executeGet(Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/command/DataCommandObject;)I",
+            method = "getData(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/commands/data/DataAccessor;)I",
             at = @At("HEAD"),
             cancellable = true
     )
-    private static void customExecuteGet(ServerCommandSource source, DataCommandObject object, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+    private static void customExecuteGet(CommandSourceStack source, DataAccessor object, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isPlayer())) {
             return;
         }
-        NbtCompound nbtCompound = object.getNbt();
+        CompoundTag nbtCompound = object.getData();
         String targetStr = getTargetString(object);
-        MutableText feedback = Text.literal(getTargetString(object) + ":").formatted(Formatting.GREEN);
+        MutableComponent feedback = Component.literal(getTargetString(object) + ":").withStyle(ChatFormatting.GREEN);
 
         appendNbtWithClickablePaths(feedback, nbtCompound, "", targetStr);
-        source.sendFeedback(() -> feedback, false);
+        source.sendSuccess(() -> feedback, false);
         cir.setReturnValue(1);
     }
 
-    private static String getTargetString(DataCommandObject object) {
+    private static String getTargetString(DataAccessor object) {
 
-        if (object instanceof EntityDataObject entityDataObject) {
+        if (object instanceof EntityDataAccessor entityDataObject) {
             return "entity " + entityDataObject.entity.getUuidAsString();
-        } else if (object instanceof BlockDataObject blockDataObject) {
+        } else if (object instanceof BlockDataAccessor blockDataObject) {
             return "block " + blockDataObject.pos.getX() + " " + blockDataObject.pos.getY() + " " + blockDataObject.pos.getZ();
-        } else if (object instanceof StorageDataObject storageDataObject) {
+        } else if (object instanceof StorageDataAccessor storageDataObject) {
             return "storage " + storageDataObject.id;
         }
         return "unknown";
     }
 
     @Inject(
-            method = "executeGet(Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/command/DataCommandObject;Lnet/minecraft/command/argument/NbtPathArgumentType$NbtPath;)I",
+            method = "getData(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;)I",
             at = @At("HEAD"),
             cancellable = true
     )
-    private static void customExecuteGet(ServerCommandSource source, DataCommandObject object, NbtPathArgumentType.NbtPath path, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+    private static void customExecuteGet(CommandSourceStack source, DataAccessor object, NbtPathArgument.NbtPath path, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isPlayer())) {
             return;
         }
-        NbtElement nbtElement = getNbt(path, object);
+        Tag nbtElement = getSingleTag(path, object);
         int i;
-        if (nbtElement instanceof AbstractNbtNumber) {
-            i = MathHelper.floor(((AbstractNbtNumber) nbtElement).doubleValue());
-        } else if (nbtElement instanceof AbstractNbtList) {
-            i = ((AbstractNbtList
+        if (nbtElement instanceof NumericTag) {
+            i = Mth.floor(((NumericTag) nbtElement).doubleValue());
+        } else if (nbtElement instanceof CollectionTag) {
+            i = ((CollectionTag
                     //#if MC < 12105
                     //$$ <?>
                     //#endif
                     )
                     nbtElement).size();
-        } else if (nbtElement instanceof NbtCompound) {
-            i = ((NbtCompound) nbtElement).getSize();
-        } else if (nbtElement instanceof NbtString) {
+        } else if (nbtElement instanceof CompoundTag) {
+            i = ((CompoundTag) nbtElement).size();
+        } else if (nbtElement instanceof StringTag) {
             i = nbtElement.toString().length();
         } else {
-            throw GET_UNKNOWN_EXCEPTION.create(path.toString());
+            throw ERROR_GET_NON_EXISTENT.create(path.toString());
         }
 
         String targetStr = getTargetString(object) + " ";
-        MutableText feedback = Text.literal(getTargetString(object) + ":").formatted(Formatting.GREEN);
+        MutableComponent feedback = Component.literal(getTargetString(object) + ":").withStyle(ChatFormatting.GREEN);
         appendNbtWithClickablePaths(feedback, nbtElement, path.toString(), targetStr);
-        source.sendFeedback(() -> feedback, false);
+        source.sendSuccess(() -> feedback, false);
         cir.setReturnValue(i);
     }
 
     @Inject(
-            method = "executeGet(Lnet/minecraft/server/command/ServerCommandSource;Lnet/minecraft/command/DataCommandObject;Lnet/minecraft/command/argument/NbtPathArgumentType$NbtPath;D)I",
+            method = "getNumeric(Lnet/minecraft/commands/CommandSourceStack;Lnet/minecraft/server/commands/data/DataAccessor;Lnet/minecraft/commands/arguments/NbtPathArgument$NbtPath;D)I",
             at = @At("HEAD"),
             cancellable = true
     )
-    private static void customExecuteGet(ServerCommandSource source, DataCommandObject object, NbtPathArgumentType.NbtPath path, double scale, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+    private static void customExecuteGet(CommandSourceStack source, DataAccessor object, NbtPathArgument.NbtPath path, double scale, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isPlayer())) {
             return;
         }
-        NbtElement nbtElement = getNbt(path, object);
-        if (!(nbtElement instanceof AbstractNbtNumber)) {
-            throw GET_INVALID_EXCEPTION.create(path.toString());
+        Tag nbtElement = getSingleTag(path, object);
+        if (!(nbtElement instanceof NumericTag)) {
+            throw ERROR_GET_NOT_NUMBER.create(path.toString());
         }
-        int i = MathHelper.floor(((AbstractNbtNumber) nbtElement).doubleValue() * scale);
+        int i = Mth.floor(((NumericTag) nbtElement).doubleValue() * scale);
 
         String targetStr = getTargetString(object) + " " + path.toString() + " " + scale;
-        MutableText feedback = Text.literal(getTargetString(object) + ":").formatted(Formatting.GREEN);
+        MutableComponent feedback = Component.literal(getTargetString(object) + ":").withStyle(ChatFormatting.GREEN);
         appendNbtWithClickablePaths(
                 feedback,
                 nbtElement,
                 path.toString(),
                 targetStr
         );
-        source.sendFeedback(() -> feedback, false);
+        source.sendSuccess(() -> feedback, false);
         cir.setReturnValue(i);
     }
 
-    private static void appendNbtWithClickablePaths(MutableText text, NbtElement element, String currentPath, String targetStr) {
-        if (element instanceof NbtCompound compound) {
-            text.append(Text.literal("{\n"));
-            for (String key : compound.getKeys()) {
-                NbtElement child = compound.get(key);
+    private static void appendNbtWithClickablePaths(MutableComponent text, Tag element, String currentPath, String targetStr) {
+        if (element instanceof CompoundTag compound) {
+            text.append(Component.literal("{\n"));
+            for (String key : compound.keySet()) {
+                Tag child = compound.get(key);
                 String path = currentPath + key;
 
-                MutableText line = Text.literal("  " + key + ": ")
+                MutableComponent line = Component.literal("  " + key + ": ")
                         .append(renderNbtAsClickable(child, path, targetStr))
-                        .append(Text.literal("\n"));
+                        .append(Component.literal("\n"));
 
                 text.append(line);
             }
-            text.append(Text.literal("}"));
-        } else if (element instanceof AbstractNbtList
+            text.append(Component.literal("}"));
+        } else if (element instanceof CollectionTag
                 //#if MC < 12105
                 //$$ <?>
                 //#endif
                 list) {
-            text.append(Text.literal("[\n"));
+            text.append(Component.literal("[\n"));
             int i = 0;
-            for (NbtElement child : list) {
+            for (Tag child : list) {
                 ++i;
                 String path = currentPath + "[" + i + "]";
                 text.append(renderNbtAsClickable(child, path, targetStr));
             }
-            text.append(Text.literal("]"));
+            text.append(Component.literal("]"));
         } else {
             text.append(renderNbtAsClickable(element, currentPath, targetStr));
         }
     }
 
     @Unique
-    private static MutableText renderNbtAsClickable(NbtElement element, String path, String targetStr) {
+    private static MutableComponent renderNbtAsClickable(Tag element, String path, String targetStr) {
         String cmd = "/data modify " + targetStr + " " + path + " set value ...";
-        return Text.literal(element.toString())
-                .styled(style -> style
-                        .withColor(Formatting.YELLOW)
+        return Component.literal(element.toString())
+                .withStyle(style -> style
+                        .withColor(ChatFormatting.YELLOW)
                         .withClickEvent(ClickEvent.suggestCommand(cmd))
 
-                        .withHoverEvent(HoverEvent.showText(Text.literal(cmd)))
+                        .withHoverEvent(HoverEvent.showText(Component.literal(cmd)))
                 );
     }
 }

@@ -24,13 +24,13 @@ import carpet.logging.LoggerRegistry;
 import carpet.logging.logHelpers.TrajectoryLogHelper;
 import mypals.ml.features.betterCommands.TrajectoryLogHelperExtension;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,45 +40,45 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //$$ import net.minecraft.item.ItemStack;
 //#endif
 
-@Mixin(value = PersistentProjectileEntity.class, priority = 1)
+@Mixin(value = AbstractArrow.class, priority = 1)
 public abstract class Carpet$ArrowMixinOverride extends Entity {
     @Unique
     private TrajectoryLogHelper YACA$logHelper;
 
-    public Carpet$ArrowMixinOverride(EntityType<? extends ProjectileEntity> entityType, World world) {
+    public ArrowMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
     }
 
     @Inject(
             //#if MC > 12004
-            method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V",
+            method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V",
             //#else
             //$$ method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;)V",
             //#endif
             at = @At("RETURN"))
     //#if MC > 12004
-    private void addLogger(EntityType<? extends ProjectileEntity> entityType_1, World world_1, CallbackInfo ci) {
+    private void addLogger(EntityType<? extends Projectile> entityType_1, Level world_1, CallbackInfo ci) {
     //#else
     //$$ private void addLogger(EntityType type, World world_1, ItemStack stack, CallbackInfo ci) {
     //#endif
-        if (LoggerRegistry.__projectiles && !world_1.isClient())
+        if (LoggerRegistry.__projectiles && !world_1.isClientSide())
             YACA$logHelper = new TrajectoryLogHelper("projectiles");
     }
 
-    @Inject(method = "onEntityHit", at = @At("RETURN"))
+    @Inject(method = "onHitEntity", at = @At("RETURN"))
     private void removeOnEntity(EntityHitResult entityHitResult, CallbackInfo ci) {
         if (LoggerRegistry.__projectiles && YACA$logHelper != null) {
             if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false"))
-                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getEntityPos(), getVelocity());
+                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, position(), getDeltaMovement());
             YACA$logHelper = null;
         }
     }
 
-    @Inject(method = "onBlockHit", at = @At("RETURN"))
+    @Inject(method = "onHitBlock", at = @At("RETURN"))
     private void removeOnBlock(BlockHitResult blockHitResult, CallbackInfo ci) {
         if (LoggerRegistry.__projectiles && YACA$logHelper != null) {
             if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false"))
-                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getEntityPos(), getVelocity());
+                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, position(), getDeltaMovement());
             YACA$logHelper = null;
         }
     }

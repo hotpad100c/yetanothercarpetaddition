@@ -22,12 +22,12 @@ package mypals.ml.mixin.features.visualizers;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.HopperBlockEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.HopperBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,27 +36,27 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(HopperBlockEntity.class)
 public class HopperEntityCooldownMixin {
     @Inject(
-            method = "serverTick",
+            method = "pushItemsTick",
             at = @At("TAIL")
     )
-    private static void ServerTickAddMarker(World world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, CallbackInfo ci) {
-        if (world instanceof ServerWorld serverWorld && YetAnotherCarpetAdditionRules.hopperCooldownVisualize) {
-            YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld, pos, pos.toCenterPos(), blockEntity.transferCooldown);
+    private static void ServerTickAddMarker(Level world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, CallbackInfo ci) {
+        if (world instanceof ServerLevel serverWorld && YetAnotherCarpetAdditionRules.hopperCooldownVisualize) {
+            YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld, pos, pos.getCenter(), blockEntity.cooldownTime);
             BlockEntity blockEntity1 = world.getBlockEntity(pos
                     //#if MC >= 12006
-                    .offset(blockEntity.facing)
+                    .relative(blockEntity.facing)
                     //#endif
             );
             if (blockEntity1 instanceof HopperBlockEntity hopperblockentity) {
                 YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld
                         //#if MC >= 12006
-                        , pos.offset(blockEntity.facing)
-                        , pos.offset(blockEntity.facing)
+                        , pos.relative(blockEntity.facing)
+                        , pos.relative(blockEntity.facing)
                         //#else
                         //$$ , pos
                         //$$ , pos
                         //#endif
-                                .toCenterPos(), hopperblockentity.transferCooldown);
+                                .toCenterPos(), hopperblockentity.cooldownTime);
             }
         }
     }

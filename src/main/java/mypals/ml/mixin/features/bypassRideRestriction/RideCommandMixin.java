@@ -21,40 +21,40 @@
 package mypals.ml.mixin.features.bypassRideRestriction;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.network.packet.s2c.play.EntityPassengersSetS2CPacket;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(net.minecraft.server.command.RideCommand.class)
+@Mixin(net.minecraft.server.commands.RideCommand.class)
 public class RideCommandMixin {
-    @Inject(method = "executeMount", cancellable = true, at = @At(value = "FIELD", target = "Lnet/minecraft/server/command/RideCommand;CANT_RIDE_PLAYERS_EXCEPTION:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;"))
-    private static void playerMount(ServerCommandSource source, Entity rider, Entity vehicle, CallbackInfoReturnable<Integer> cir) {
-        if (!rider.getEntityWorld().isClient() && YetAnotherCarpetAdditionRules.enableMountPlayers && rider != vehicle) {
+    @Inject(method = "mount", cancellable = true, at = @At(value = "FIELD", target = "Lnet/minecraft/server/commands/RideCommand;ERROR_MOUNTING_PLAYER:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;"))
+    private static void playerMount(CommandSourceStack source, Entity rider, Entity vehicle, CallbackInfoReturnable<Integer> cir) {
+        if (!rider.level().isClientSide() && YetAnotherCarpetAdditionRules.enableMountPlayers && rider != vehicle) {
             while (rider.getFirstPassenger() != null) {
                 rider = rider.getFirstPassenger();
             }
             rider.startRiding(vehicle);
 
-            ((ServerPlayerEntity) vehicle).networkHandler.sendPacket(new EntityPassengersSetS2CPacket(vehicle));
+            ((ServerPlayer) vehicle).connection.send(new ClientboundSetPassengersPacket(vehicle));
             Entity finalRider = rider;
-            source.sendFeedback(() -> Text.translatable("commands.ride.mount.success", finalRider.getDisplayName(), vehicle.getDisplayName()), true);
+            source.sendSuccess(() -> Component.translatable("commands.ride.mount.success", finalRider.getDisplayName(), vehicle.getDisplayName()), true);
             cir.setReturnValue(1);
         }
 
     }
 
-    @ModifyVariable(method = "executeDismount", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;stopRiding()V", shift = At.Shift.AFTER), index = 2)
+    @ModifyVariable(method = "dismount", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;stopRiding()V", shift = At.Shift.AFTER), index = 2)
     private static Entity playerDismount(Entity entity) {
         if (entity.getType() == EntityType.PLAYER) {
-            ((ServerPlayerEntity) entity).networkHandler.sendPacket(new EntityPassengersSetS2CPacket(entity));
+            ((ServerPlayer) entity).connection.send(new ClientboundSetPassengersPacket(entity));
         }
         return null;
     }

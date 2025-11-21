@@ -22,19 +22,16 @@ package mypals.ml.mixin.features.betterCommmand;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.HoverEvent;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.command.KillCommand;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.commands.KillCommand;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-//#if MC >= 12102
-import net.minecraft.server.world.ServerWorld;
-//#endif
-
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,12 +39,12 @@ import java.util.Map;
 @Mixin(KillCommand.class)
 public class KillCommandMixin {
     @Inject(
-            method = "execute",
+            method = "kill",
             at = @At("HEAD"),
             cancellable = true
     )
-    private static void onExecute(ServerCommandSource source, Collection<? extends Entity> targets, CallbackInfoReturnable<Integer> cir) {
-        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false")|| (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+    private static void onExecute(CommandSourceStack source, Collection<? extends Entity> targets, CallbackInfoReturnable<Integer> cir) {
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false")|| (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isPlayer())) {
             return;
         }
         Map<String, Integer> typeCounts = new HashMap<>();
@@ -55,7 +52,7 @@ public class KillCommandMixin {
         for (Entity entity : targets) {
             entity.kill(
                     //#if MC >= 12102
-                    (ServerWorld) entity.getEntityWorld()
+                    (ServerLevel) entity.level()
                     //#endif
             );
 
@@ -64,11 +61,11 @@ public class KillCommandMixin {
         }
 
         int total = targets.size();
-        MutableText baseMessage;
+        MutableComponent baseMessage;
         if (total == 1) {
-            baseMessage = Text.translatable("commands.kill.success.single", targets.iterator().next().getDisplayName());
+            baseMessage = Component.translatable("commands.kill.success.single", targets.iterator().next().getDisplayName());
         } else {
-            baseMessage = Text.translatable("commands.kill.success.multiple", total);
+            baseMessage = Component.translatable("commands.kill.success.multiple", total);
         }
 
         StringBuilder tooltipBuilder = new StringBuilder("");
@@ -76,11 +73,11 @@ public class KillCommandMixin {
             tooltipBuilder.append("• %s x%d\n".formatted(entry.getKey(), entry.getValue()));
         }
 
-        baseMessage.styled(style -> style.withHoverEvent(
-                HoverEvent.showText(Text.literal(tooltipBuilder.toString()))
+        baseMessage.withStyle(style -> style.withHoverEvent(
+                HoverEvent.showText(Component.literal(tooltipBuilder.toString()))
         ));
 
-        source.sendFeedback(() -> baseMessage, true);
+        source.sendSuccess(() -> baseMessage, true);
         cir.setReturnValue(total);
     }
 }

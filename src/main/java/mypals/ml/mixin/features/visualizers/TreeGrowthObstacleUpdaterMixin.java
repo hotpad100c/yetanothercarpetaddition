@@ -22,14 +22,14 @@ package mypals.ml.mixin.features.visualizers;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.StructureWorldAccess;
-import net.minecraft.world.TestableWorld;
-import net.minecraft.world.gen.feature.TreeFeature;
-import net.minecraft.world.gen.feature.TreeFeatureConfig;
-import net.minecraft.world.gen.foliage.FoliagePlacer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelSimulatedReader;
+import net.minecraft.world.level.WorldGenLevel;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.TreeFeature;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -44,25 +44,25 @@ import java.util.function.BiConsumer;
 public abstract class TreeGrowthObstacleUpdaterMixin {
 
     @Shadow
-    private static boolean isVine(TestableWorld world, BlockPos pos) {return false;}
+    private static boolean isVine(LevelSimulatedReader world, BlockPos pos) {return false;}
 
     @Unique
     private BlockPos pos;
 
-    @Inject(method = "generate(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/gen/foliage/FoliagePlacer$BlockPlacer;Lnet/minecraft/world/gen/feature/TreeFeatureConfig;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/feature/TreeFeature;getTopPosition(Lnet/minecraft/world/TestableWorld;ILnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/gen/feature/TreeFeatureConfig;)I" , shift = At.Shift.AFTER))
-    private void getObstacle(StructureWorldAccess world, Random random, BlockPos pos, BiConsumer<BlockPos, BlockState> rootPlacerReplacer, BiConsumer<BlockPos, BlockState> trunkPlacerReplacer, FoliagePlacer.BlockPlacer blockPlacer, TreeFeatureConfig config, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "doPlace(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/LevelSimulatedReader;ILnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)I" , shift = At.Shift.AFTER))
+    private void getObstacle(WorldGenLevel world, RandomSource random, BlockPos pos, BiConsumer<BlockPos, BlockState> rootPlacerReplacer, BiConsumer<BlockPos, BlockState> trunkPlacerReplacer, FoliagePlacer.FoliageSetter blockPlacer, TreeConfiguration config, CallbackInfoReturnable<Boolean> cir) {
         if(YetAnotherCarpetAdditionRules.treeGrowthObstacleVisualize) {
-            int height = config.trunkPlacer.baseHeight + config.trunkPlacer.firstRandomHeight + config.trunkPlacer.secondRandomHeight;
-            BlockPos.Mutable mutable = new BlockPos.Mutable();
+            int height = config.trunkPlacer.baseHeight + config.trunkPlacer.heightRandA + config.trunkPlacer.heightRandB;
+            BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
             for (int i = 0; i <= height + 1; i++) {
-                int j = config.minimumSize.getRadius(height, i);
+                int j = config.minimumSize.getSizeAtHeight(height, i);
 
                 for (int k = -j; k <= j; k++) {
                     for (int l = -j; l <= j; l++) {
-                        mutable.set(this.pos, k, i, l);
-                        if (!config.trunkPlacer.canReplaceOrIsLog(world, mutable) || !config.ignoreVines && this.isVine(world, mutable)) {
-                            YetAnotherCarpetAdditionServer.treeGrowthObstacleVisualzing.setVisualizer(world.toServerWorld(), mutable.toImmutable());
+                        mutable.setWithOffset(this.pos, k, i, l);
+                        if (!config.trunkPlacer.isFree(world, mutable) || !config.ignoreVines && this.isVine(world, mutable)) {
+                            YetAnotherCarpetAdditionServer.treeGrowthObstacleVisualzing.setVisualizer(world.getLevel(), mutable.immutable());
                         }
                     }
                 }
@@ -70,7 +70,7 @@ public abstract class TreeGrowthObstacleUpdaterMixin {
         }
     }
 
-    @ModifyArg(method = "generate(Lnet/minecraft/world/StructureWorldAccess;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/util/math/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/gen/foliage/FoliagePlacer$BlockPlacer;Lnet/minecraft/world/gen/feature/TreeFeatureConfig;)Z", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/gen/feature/TreeFeature;getTopPosition(Lnet/minecraft/world/TestableWorld;ILnet/minecraft/util/math/BlockPos;Lnet/minecraft/world/gen/feature/TreeFeatureConfig;)I"),index = 2)
+    @ModifyArg(method = "doPlace(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)Z", at= @At(value = "INVOKE", target = "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/LevelSimulatedReader;ILnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)I"),index = 2)
     private BlockPos getpos(BlockPos pos) {
         this.pos = pos;
         return pos;

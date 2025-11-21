@@ -23,10 +23,6 @@ package mypals.ml.features.visualizingFeatures;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.MappingResolver;
 import net.minecraft.entity.ai.goal.*;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.passive.FishEntity;
-import net.minecraft.entity.passive.PufferfishEntity;
-
 import java.util.Arrays;
 
 import static mypals.ml.utils.AIGoalsMap.GOALS_MAP_REVERSED;

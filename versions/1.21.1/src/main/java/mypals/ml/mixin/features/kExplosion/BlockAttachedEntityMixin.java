@@ -24,24 +24,24 @@ import me.fallenbreath.conditionalmixin.api.annotation.Condition;
 import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.interfaces.ExplosionExtension;
 import mypals.ml.utils.ModIds;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.BlockAttachedEntity;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.BlockAttachedEntity;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 //@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
 @Mixin(BlockAttachedEntity.class)
 public abstract class BlockAttachedEntityMixin extends Entity{
-    public BlockAttachedEntityMixin(EntityType<?> type, World world) {
+    public BlockAttachedEntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
     @Unique
     @Override
-    public boolean isImmuneToExplosion(Explosion explosion) {
-        return ((ExplosionExtension)explosion).preservesDecorativeEntities() ? super.isImmuneToExplosion(explosion) : true;
+    public boolean ignoreExplosion(Explosion explosion) {
+        return ((ExplosionExtension)explosion).preservesDecorativeEntities() ? super.ignoreExplosion(explosion) : true;
     }
 }

@@ -25,37 +25,37 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.ClickEvent;
 import mypals.ml.utils.adapter.HoverEvent;
-import net.minecraft.network.message.SignedMessage;
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.PlayerChatMessage;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
-@Mixin(ServerPlayNetworkHandler.class)
+@Mixin(ServerGamePacketListenerImpl.class)
 public abstract class ServerPlayNetworkHandlerMixinForCopyableChatMessage {
     @Shadow
-    public ServerPlayerEntity player;
+    public ServerPlayer player;
 
     @WrapMethod(
-            method = "handleDecoratedMessage"
+            method = "broadcastChatMessage"
     )
-    private void modifyDecoratedMessage(SignedMessage message, Operation<Void> original) {
+    private void modifyDecoratedMessage(PlayerChatMessage message, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.copyablePlayerMessages) {
 
             Style hoverStyle = Style.EMPTY
-                    .withFormatting(Formatting.UNDERLINE)
-                    .withColor(Formatting.LIGHT_PURPLE);
-            Text hoverText = Text.literal("Click to copy").formatted(Formatting.ITALIC).setStyle(hoverStyle);
+                    .applyFormat(ChatFormatting.UNDERLINE)
+                    .withColor(ChatFormatting.LIGHT_PURPLE);
+            Component hoverText = Component.literal("Click to copy").withStyle(ChatFormatting.ITALIC).setStyle(hoverStyle);
 
-            Text modifiedMessage = Text.of(message.getSignedContent()).copy().setStyle(Style.EMPTY
-                    .withClickEvent(ClickEvent.copyToClipboard(message.getSignedContent()))
+            Component modifiedMessage = Component.nullToEmpty(message.signedContent()).copy().setStyle(Style.EMPTY
+                    .withClickEvent(ClickEvent.copyToClipboard(message.signedContent()))
                     .withHoverEvent(HoverEvent.showText(hoverText))
             );
 
-            SignedMessage copyableSignedMessage = new SignedMessage(
+            PlayerChatMessage copyableSignedMessage = new PlayerChatMessage(
                     message.link(),
                     message.signature(),
                     message.signedBody(),

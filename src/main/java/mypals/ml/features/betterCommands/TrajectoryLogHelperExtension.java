@@ -20,9 +20,9 @@
 
 package mypals.ml.features.betterCommands;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 
 public interface TrajectoryLogHelperExtension {
-    void yetanothercarpetaddition$finish(Entity entity, Vec3d pos, Vec3d velocity);
+    void yetanothercarpetaddition$finish(Entity entity, Vec3 pos, Vec3 velocity);
 }

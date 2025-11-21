@@ -25,11 +25,11 @@ import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.interfaces.ExplosionExtension;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.ModIds;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
-import net.minecraft.world.explosion.Explosion;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Explosion;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -39,11 +39,11 @@ import org.spongepowered.asm.mixin.Unique;
 //@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
 @Mixin(Explosion.class)
 public class ExplosionMixin implements ExplosionExtension {
-    @Shadow @Final private World world;
+    @Shadow @Final private Level level;
 
-    @Shadow @Final private @Nullable Entity entity;
+    @Shadow @Final private @Nullable Entity source;
 
-    @Shadow @Final private Explosion.DestructionType destructionType;
+    @Shadow @Final private Explosion.BlockInteraction blockInteraction;
 
     @Unique
     @Override
@@ -52,17 +52,17 @@ public class ExplosionMixin implements ExplosionExtension {
         if(!YetAnotherCarpetAdditionRules.waterTNT)
             return true;
 
-        boolean bl = this.world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING);
-        boolean bl2 = this.entity == null || !this.entity.isTouchingWater();
-        boolean bl3 = this.entity == null ||
+        boolean bl = this.level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING);
+        boolean bl2 = this.source == null || !this.source.isInWater();
+        boolean bl3 = this.source == null ||
                 //#if MC >= 12006
-                this.entity.getType() != EntityType.BREEZE_WIND_CHARGE &&
+                this.source.getType() != EntityType.BREEZE_WIND_CHARGE &&
                 //#endif
-                this.entity.getType() != EntityType.WIND_CHARGE;
+                this.source.getType() != EntityType.WIND_CHARGE;
         if (bl) {
             return bl2 && bl3;
         } else {
-            return !(this.destructionType == Explosion.DestructionType.TRIGGER_BLOCK) && bl2 && bl3;
+            return !(this.blockInteraction == Explosion.BlockInteraction.TRIGGER_BLOCK) && bl2 && bl3;
         }
     }
 }

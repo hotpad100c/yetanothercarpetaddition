@@ -23,18 +23,14 @@ package mypals.ml.mixin.features.visualizers;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-//#if MC >= 12102
-import net.minecraft.world.block.WireOrientation;
-//#endif
-import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
-import net.minecraft.world.block.NeighborUpdater;
-import net.minecraft.world.block.SimpleNeighborUpdater;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.InstantNeighborUpdater;
+import net.minecraft.world.level.redstone.Orientation;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,17 +38,17 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(SimpleNeighborUpdater.class)
+@Mixin(InstantNeighborUpdater.class)
 public class SimpleNeighborUpdaterMixin {
     @Shadow
     @Final
-    private World world;
+    private Level level;
 
     @Inject(
             //#if MC < 12102
             //$$ method = "Lnet/minecraft/world/block/SimpleNeighborUpdater;updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;)V",
             //#else
-            method = "updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;)V",
+            method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;)V",
             //#endif
             at = @At("HEAD")
     )
@@ -60,18 +56,18 @@ public class SimpleNeighborUpdaterMixin {
                                    //#if MC < 12102
                                    //$$ BlockPos sourcePos,
                                    //#else
-                                   WireOrientation orientation,
+                                   Orientation orientation,
                                    //#endif
                                    CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient()) return;
-        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.NC);
+        if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.level.isClientSide()) return;
+        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerLevel) this.level, pos, BlockUpdateVisualizing.UpdateType.NC);
     }
 
     @Inject(
             //#if MC < 12102
             //$$ method = "Lnet/minecraft/world/block/SimpleNeighborUpdater;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
             //#else
-            method = "updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
+            method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
             //#endif
             at = @At("HEAD")
     )
@@ -79,16 +75,16 @@ public class SimpleNeighborUpdaterMixin {
                                      //#if MC < 12102
                                      //$$ BlockPos sourcePos,
                                      //#else
-                                     WireOrientation orientation,
+                                     Orientation orientation,
                                      //#endif
                                      boolean notify, CallbackInfo ci) {
-        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient()) return;
-        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) this.world, pos, BlockUpdateVisualizing.UpdateType.PP);
+        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.level.isClientSide()) return;
+        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerLevel) this.level, pos, BlockUpdateVisualizing.UpdateType.PP);
     }
     
 
     @Inject(
-            method = "replaceWithStateForNeighborUpdate",
+            method = "shapeUpdate",
             at = @At("HEAD")
     )
     private void AddNCMarker(Direction direction, BlockState neighborState, BlockPos pos, BlockPos neighborPos, int flags, int maxUpdateDepth, CallbackInfo ci) {

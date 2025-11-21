@@ -22,6 +22,7 @@ package mypals.ml.settings;
 
 import carpet.api.settings.Rule;
 import carpet.api.settings.Validators;
+import mypals.ml.settings.RuleValidators.MOVING_PISTON_SPEED_VALIDATOR;
 
 import static carpet.api.settings.RuleCategory.*;
 import static mypals.ml.settings.RuleValidators.MOVING_PISTON_SPEED_VALIDATOR;

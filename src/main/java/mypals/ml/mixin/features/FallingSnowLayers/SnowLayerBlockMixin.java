@@ -23,32 +23,29 @@ package mypals.ml.mixin.features.FallingSnowLayers;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.SnowBlock;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SnowLayerBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
-//#if MC >= 12102
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
-//#endif
 
-@Mixin(SnowBlock.class)
+@Mixin(SnowLayerBlock.class)
 public abstract class SnowLayerBlockMixin extends Block {
-    public SnowLayerBlockMixin(Settings settings) {
+    public SnowLayerBlockMixin(Properties settings) {
         super(settings);
     }
 
-    @WrapMethod(method = "getStateForNeighborUpdate")
+    @WrapMethod(method = "updateShape")
     protected BlockState getStateForNeighborUpdate(BlockState state,
                                                    //#if MC >= 12102
-                                                   WorldView world, ScheduledTickView tickView, BlockPos pos,
+                                                   LevelReader world, ScheduledTickAccess tickView, BlockPos pos,
                                                    Direction direction,
                                                    //#else
                                                    //$$ Direction direction, BlockState neighborState,
@@ -56,32 +53,32 @@ public abstract class SnowLayerBlockMixin extends Block {
                                                    //#endif
                                                    BlockPos neighborPos,
                                                    //#if MC >= 12102
-                                                   BlockState neighborState, Random random,
+                                                   BlockState neighborState, RandomSource random,
                                                    //#endif
                                                    Operation<BlockState> original) {
         if (YetAnotherCarpetAdditionRules.fallingSnowLayers
         ) {
-            if (!state.canPlaceAt(world, pos)) {
+            if (!state.canSurvive(world, pos)) {
                 //#if MC < 12102
                 //$$ world
                 //#else
                 tickView
                 //#endif
-                        .scheduleBlockTick(pos, world.getBlockState(pos).getBlock(), 2);
+                        .scheduleTick(pos, world.getBlockState(pos).getBlock(), 2);
             }
             return
                     super
                     //#if MC < 12102
                     //$$         .getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
                     //#else
-                       .getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+                       .updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
                     //#endif
         } else {
-            return !state.canPlaceAt(world, pos) ? Blocks.AIR.getDefaultState() : super
+            return !state.canSurvive(world, pos) ? Blocks.AIR.defaultBlockState() : super
                     //#if MC < 12102
                     //$$         .getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
                     //#else
-                       .getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+                       .updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
                     //#endif
 
         }
@@ -93,11 +90,11 @@ public abstract class SnowLayerBlockMixin extends Block {
     //#else
     //$$ public
     //#endif
-    void scheduledTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
+    void tick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
         if (YetAnotherCarpetAdditionRules.fallingSnowLayers
         ) {
-            world.setBlockState(pos, Blocks.AIR.getDefaultState(), Block.NOTIFY_ALL);
-            FallingBlockEntity fallingBlockEntity = FallingBlockEntity.spawnFromBlock(world, pos, state);
+            world.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+            FallingBlockEntity fallingBlockEntity = FallingBlockEntity.fall(world, pos, state);
 
         }
     }

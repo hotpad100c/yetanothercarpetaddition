@@ -25,23 +25,23 @@ import java.net.URI;
 //#endif
 
 public class ClickEvent {
-    public static net.minecraft.text.ClickEvent runCommand(String value) {
+    public static net.minecraft.network.chat.ClickEvent runCommand(String value) {
         //#if MC < 12105
         //$$ return new net.minecraft.text.ClickEvent(net.minecraft.text.ClickEvent.Action.RUN_COMMAND, value);
         //#else
-        return new net.minecraft.text.ClickEvent.RunCommand(value);
+        return new net.minecraft.network.chat.ClickEvent.RunCommand(value);
         //#endif
     }
 
-    public static net.minecraft.text.ClickEvent suggestCommand(String value) {
+    public static net.minecraft.network.chat.ClickEvent suggestCommand(String value) {
         //#if MC < 12105
         //$$ return new net.minecraft.text.ClickEvent(net.minecraft.text.ClickEvent.Action.SUGGEST_COMMAND, value);
         //#else
-        return new net.minecraft.text.ClickEvent.SuggestCommand(value);
+        return new net.minecraft.network.chat.ClickEvent.SuggestCommand(value);
         //#endif
     }
 
-    public static net.minecraft.text.ClickEvent openURL(String value)
+    public static net.minecraft.network.chat.ClickEvent openURL(String value)
             //#if MC >= 12105
             throws URISyntaxException
             //#endif
@@ -49,31 +49,31 @@ public class ClickEvent {
         //#if MC < 12105
         //$$ return new net.minecraft.text.ClickEvent(net.minecraft.text.ClickEvent.Action.OPEN_URL, value);
         //#else
-        return new net.minecraft.text.ClickEvent.OpenUrl(new URI(value));
+        return new net.minecraft.network.chat.ClickEvent.OpenUrl(new URI(value));
         //#endif
     }
 
-    public static net.minecraft.text.ClickEvent openFile(String value) {
+    public static net.minecraft.network.chat.ClickEvent openFile(String value) {
         //#if MC < 12105
         //$$ return new net.minecraft.text.ClickEvent(net.minecraft.text.ClickEvent.Action.OPEN_FILE, value);
         //#else
-        return new net.minecraft.text.ClickEvent.OpenFile(value);
+        return new net.minecraft.network.chat.ClickEvent.OpenFile(value);
         //#endif
     }
 
-    public static net.minecraft.text.ClickEvent changePage(int value) {
+    public static net.minecraft.network.chat.ClickEvent changePage(int value) {
         //#if MC < 12105
         //$$ return new net.minecraft.text.ClickEvent(net.minecraft.text.ClickEvent.Action.CHANGE_PAGE, String.valueOf(value));
         //#else
-        return new net.minecraft.text.ClickEvent.ChangePage(value);
+        return new net.minecraft.network.chat.ClickEvent.ChangePage(value);
         //#endif
     }
 
-    public static net.minecraft.text.ClickEvent copyToClipboard(String value) {
+    public static net.minecraft.network.chat.ClickEvent copyToClipboard(String value) {
         //#if MC < 12105
         //$$ return new net.minecraft.text.ClickEvent(net.minecraft.text.ClickEvent.Action.COPY_TO_CLIPBOARD, value);
         //#else
-        return new net.minecraft.text.ClickEvent.CopyToClipboard(value);
+        return new net.minecraft.network.chat.ClickEvent.CopyToClipboard(value);
         //#endif
     }
 }

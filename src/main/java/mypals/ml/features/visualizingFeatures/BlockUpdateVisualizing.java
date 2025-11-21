@@ -23,23 +23,21 @@ package mypals.ml.features.visualizingFeatures;
 import carpet.CarpetServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,16 +52,16 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     private static final int RANGE = 40;
 
     public enum UpdateType {
-        NC("NCVisualizer", 0xff4f00, Formatting.RED, Blocks.RED_STAINED_GLASS.getDefaultState()),
-        PP("PPVisualizer", 0x00ffff, Formatting.AQUA, Blocks.CYAN_STAINED_GLASS.getDefaultState()),
-        CP("CPVisualizer", 0xffffed, Formatting.YELLOW, Blocks.YELLOW_STAINED_GLASS.getDefaultState());
+        NC("NCVisualizer", 0xff4f00, ChatFormatting.RED, Blocks.RED_STAINED_GLASS.defaultBlockState()),
+        PP("PPVisualizer", 0x00ffff, ChatFormatting.AQUA, Blocks.CYAN_STAINED_GLASS.defaultBlockState()),
+        CP("CPVisualizer", 0xffffed, ChatFormatting.YELLOW, Blocks.YELLOW_STAINED_GLASS.defaultBlockState());
 
         public final String tagName;
         public final int color;
-        public final Formatting teamColor;
+        public final ChatFormatting teamColor;
         public final BlockState defaultState;
 
-        UpdateType(String tagName, int color, Formatting teamColor, BlockState defaultState) {
+        UpdateType(String tagName, int color, ChatFormatting teamColor, BlockState defaultState) {
             this.tagName = tagName;
             this.color = color;
             this.teamColor = teamColor;
@@ -72,35 +70,35 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     }
 
     public static class BlockUpdateObject {
-        public final DisplayEntity.BlockDisplayEntity posMarker;
+        public final Display.BlockDisplay posMarker;
         public final UpdateType updateType;
         public final String tag;
 
-        public BlockUpdateObject(ServerWorld world, BlockPos pos, UpdateType updateType, String tag) {
+        public BlockUpdateObject(ServerLevel world, BlockPos pos, UpdateType updateType, String tag) {
             this.updateType = updateType;
             this.tag = tag;
             this.posMarker = summonMarker(world, pos);
         }
 
-        private DisplayEntity.BlockDisplayEntity summonMarker(ServerWorld world, BlockPos pos) {
-            DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
+        private Display.BlockDisplay summonMarker(ServerLevel world, BlockPos pos) {
+            Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, world);
             float scale = 0.9f;
-            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
-            nbt.put("block_state", NbtHelper.fromBlockState(updateType.defaultState));
+            CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
+            nbt.put("block_state", NbtUtils.writeBlockState(updateType.defaultState));
             nbt = EntityHelper.scaleEntity(nbt, scale);
             nbt.putInt("glow_color_override", updateType.color);
             NBTDataManager.writeToEntity(entity, nbt);
             entity.setInvisible(true);
             entity.setInvulnerable(true);
-            entity.setGlowing(true);
-            entity.noClip = true;
-            entity.setYaw(0);
-            entity.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
-            entity.addCommandTag(tag);
-            entity.addCommandTag("blockUpdateVisualize");
-            entity.addCommandTag("DoNotTick");
+            entity.setGlowingTag(true);
+            entity.noPhysics = true;
+            entity.setYRot(0);
+            entity.setPosRaw(pos.getCenter().x() - (scale / 2), pos.getCenter().y() - (scale / 2), pos.getCenter().z() - (scale / 2));
+            entity.addTag(tag);
+            entity.addTag("blockUpdateVisualize");
+            entity.addTag("DoNotTick");
             addMarkerToTeam(world, updateType.tagName, entity);
-            world.spawnEntity(entity);
+            world.addFreshEntity(entity);
             return entity;
         }
 
@@ -113,28 +111,28 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
     @Override
     protected void storeVisualizer(BlockPos key, BlockUpdateObject entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.posMarker.getEntityWorld())));
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerLevel) entity.posMarker.level())));
     }
 
     @Override
     protected void updateVisualizerEntity(BlockUpdateObject marker, Object data) {
-        if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.getEntityWorld().isClient()) {
-            marker.posMarker.age = 0;
-            NbtCompound nbt = NBTDataManager.readFromEntity(marker.posMarker, new NbtCompound());
+        if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.level().isClientSide()) {
+            marker.posMarker.tickCount = 0;
+            CompoundTag nbt = NBTDataManager.readFromEntity(marker.posMarker, new CompoundTag());
             float scale = 0.9f;
             nbt = EntityHelper.scaleEntity(nbt, scale);
 
             NBTDataManager.writeToEntity(marker.posMarker, nbt);
-            BlockPos pos = BlockPos.ofFloored(marker.posMarker.getEntityPos());
-            marker.posMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
-            visualizers.put(pos, Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.posMarker.getEntityWorld())));
+            BlockPos pos = BlockPos.containing(marker.posMarker.position());
+            marker.posMarker.setPosRaw(pos.getCenter().x() - (scale / 2), pos.getCenter().y() - (scale / 2), pos.getCenter().z() - (scale / 2));
+            visualizers.put(pos, Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerLevel) marker.posMarker.level())));
         }
     }
 
     @Override
-    protected BlockUpdateObject createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
+    protected BlockUpdateObject createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
         if (data instanceof UpdateType updateType) {
-            BlockPos blockPos = BlockPos.ofFloored(pos);
+            BlockPos blockPos = BlockPos.containing(pos);
             return new BlockUpdateObject(world, blockPos, updateType, updateType.tagName);
         }
         return null;
@@ -162,7 +160,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
     @Override
     public void clearVisualizers(MinecraftServer server) {
-        for (ServerWorld world : server.getWorlds()) {
+        for (ServerLevel world : server.getAllLevels()) {
             clearWorldVisualizers(world, "NCVisualizer");
             clearWorldVisualizers(world, "PPVisualizer");
             clearWorldVisualizers(world, "CPVisualizer");
@@ -177,39 +175,39 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
     @Override
     public void updateVisualizer() {
-        if (!CarpetServer.minecraft_server.getTickManager().shouldTick()) {
+        if (!CarpetServer.minecraft_server.tickRateManager().runsNormally()) {
             return;
         }
         visualizers.forEach((pos, entry) -> {
             BlockUpdateObject object = entry.getKey();
             long deleteTick = entry.getValue();
-            if (deleteTick < object.posMarker.getEntityWorld().getTime()) {
+            if (deleteTick < object.posMarker.level().getGameTime()) {
                 object.removeVisualizer();
                 visualizers.remove(pos);
             }
 
-            NbtCompound nbt = NBTDataManager.readFromEntity(object.posMarker, new NbtCompound());
-            float scale = mapSize((int) (deleteTick - CarpetServer.minecraft_server.getOverworld().getTime()), SURVIVE_TIME, 0.9f);
+            CompoundTag nbt = NBTDataManager.readFromEntity(object.posMarker, new CompoundTag());
+            float scale = mapSize((int) (deleteTick - CarpetServer.minecraft_server.overworld().getGameTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
             NBTDataManager.writeToEntity(object.posMarker, nbt);
-            object.posMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
+            object.posMarker.setPosRaw(pos.getCenter().x() - (scale / 2), pos.getCenter().y() - (scale / 2), pos.getCenter().z() - (scale / 2));
 
         });
     }
 
-    public void setVisualizer(ServerWorld world, BlockPos pos, UpdateType updateType) {
+    public void setVisualizer(ServerLevel world, BlockPos pos, UpdateType updateType) {
         boolean playersNearBy = false;
-        for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().getPlayerList()) {
-            if (player.getEntityPos().distanceTo(pos.toCenterPos()) < RANGE) {
+        for (Player player : CarpetServer.minecraft_server.getPlayerList().getPlayers()) {
+            if (player.position().distanceTo(pos.getCenter()) < RANGE) {
                 playersNearBy = true;
                 break;
             }
         }
         if (!playersNearBy) return;
-        setVisualizer(world, pos, pos.toCenterPos(), updateType);
+        setVisualizer(world, pos, pos.getCenter(), updateType);
     }
 
-    public void clearVisualizers(ServerCommandSource source, UpdateType updateType) {
+    public void clearVisualizers(CommandSourceStack source, UpdateType updateType) {
         visualizers.entrySet().removeIf(entry -> {
             if (entry.getValue().getKey().updateType == updateType) {
                 entry.getValue().getKey().removeVisualizer();
@@ -227,20 +225,20 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
                 .collect(Collectors.toList());
     }
 
-    private static void addMarkerToTeam(ServerWorld world, String teamName, DisplayEntity.BlockDisplayEntity marker) {
+    private static void addMarkerToTeam(ServerLevel world, String teamName, Display.BlockDisplay marker) {
         Scoreboard scoreboard = world.getScoreboard();
-        Team team = scoreboard.getTeam(teamName);
+        PlayerTeam team = scoreboard.getPlayerTeam(teamName);
         if (team == null) {
-            team = scoreboard.addTeam(teamName);
+            team = scoreboard.addPlayerTeam(teamName);
             UpdateType updateType = getUpdateTypeByTag(teamName);
             if (updateType != null) {
                 team.setColor(updateType.teamColor);
             } else {
-                team.setColor(Formatting.WHITE);
+                team.setColor(ChatFormatting.WHITE);
             }
         }
-        String entityName = marker.getUuidAsString();
-        scoreboard.addScoreHolderToTeam(entityName, team);
+        String entityName = marker.getStringUUID();
+        scoreboard.addPlayerToTeam(entityName, team);
     }
 
     private static UpdateType getUpdateTypeByTag(String tagName) {

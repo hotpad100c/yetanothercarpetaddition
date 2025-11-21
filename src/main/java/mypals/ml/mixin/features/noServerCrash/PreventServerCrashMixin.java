@@ -25,10 +25,11 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.HoverEvent;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.players.PlayerList;
 import net.minecraft.util.*;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,14 +43,14 @@ import java.util.function.BooleanSupplier;
 public abstract class PreventServerCrashMixin {
 
     @Shadow
-    public abstract PlayerManager getPlayerManager();
+    public abstract PlayerList getPlayerList();
 
 
     @Shadow
-    public abstract void tick(BooleanSupplier shouldKeepTicking);
+    public abstract void tickServer(BooleanSupplier shouldKeepTicking);
 
     @WrapOperation(method = "runServer", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/server/MinecraftServer;runTasksTillTickEnd()V"))
+            target = "Lnet/minecraft/server/MinecraftServer;waitUntilNextTick()V"))
     private void preventServerCrashRunServer(MinecraftServer instance, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {
             try {
@@ -58,9 +59,9 @@ public abstract class PreventServerCrashMixin {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 t.printStackTrace(pw);
-                if (this != null && this.getPlayerManager() != null) {
-                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + t)
-                            .formatted(Formatting.RED).styled(s -> s.withHoverEvent(HoverEvent.showText(Text.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
+                if (this != null && this.getPlayerList() != null) {
+                    this.getPlayerList().broadcastSystemMessage(Component.literal("[CrashPrevented] " + t)
+                            .withStyle(ChatFormatting.RED).withStyle(s -> s.withHoverEvent(HoverEvent.showText(Component.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
                 }
             }
         } else {
@@ -68,7 +69,7 @@ public abstract class PreventServerCrashMixin {
         }
     }
 
-    @WrapMethod(method = "tick")
+    @WrapMethod(method = "tickServer")
     private void preventServerCrashAll(BooleanSupplier shouldKeepTicking, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {
             try {
@@ -77,9 +78,9 @@ public abstract class PreventServerCrashMixin {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 t.printStackTrace(pw);
-                if (this != null && this.getPlayerManager() != null) {
-                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + t)
-                            .formatted(Formatting.RED).styled(s -> s.withHoverEvent(HoverEvent.showText(Text.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
+                if (this != null && this.getPlayerList() != null) {
+                    this.getPlayerList().broadcastSystemMessage(Component.literal("[CrashPrevented] " + t)
+                            .withStyle(ChatFormatting.RED).withStyle(s -> s.withHoverEvent(HoverEvent.showText(Component.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
                 }
             }
         } else {
@@ -87,8 +88,8 @@ public abstract class PreventServerCrashMixin {
         }
     }
 
-    @WrapOperation(method = "tickWorlds", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/world/ServerWorld;tick(Ljava/util/function/BooleanSupplier;)V"))
-    private void preventServerCrashWorld(ServerWorld instance, BooleanSupplier shouldKeepTicking, Operation<Void> original) {
+    @WrapOperation(method = "tickChildren", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;tick(Ljava/util/function/BooleanSupplier;)V"))
+    private void preventServerCrashWorld(ServerLevel instance, BooleanSupplier shouldKeepTicking, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {
             try {
                 original.call(instance, shouldKeepTicking);
@@ -96,9 +97,9 @@ public abstract class PreventServerCrashMixin {
                 StringWriter sw = new StringWriter();
                 PrintWriter pw = new PrintWriter(sw);
                 t.printStackTrace(pw);
-                if (this != null && this.getPlayerManager() != null) {
-                    this.getPlayerManager().broadcast(Text.literal("[CrashPrevented] " + t)
-                            .formatted(Formatting.RED).styled(s -> s.withHoverEvent(HoverEvent.showText(Text.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
+                if (this != null && this.getPlayerList() != null) {
+                    this.getPlayerList().broadcastSystemMessage(Component.literal("[CrashPrevented] " + t)
+                            .withStyle(ChatFormatting.RED).withStyle(s -> s.withHoverEvent(HoverEvent.showText(Component.literal(t.getLocalizedMessage() == null ? "" : t.getLocalizedMessage())))), false);
                 }
             }
         } else {

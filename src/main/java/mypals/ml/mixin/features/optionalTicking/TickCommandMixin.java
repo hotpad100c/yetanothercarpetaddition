@@ -26,11 +26,11 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.network.OptionalFreezePayload;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.command.CommandSource;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.command.TickCommand;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.commands.TickCommand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -49,7 +49,7 @@ import java.util.Arrays;
 @Mixin(TickCommand.class)
 public abstract class TickCommandMixin {
     @Unique
-    private static LiteralArgumentBuilder<ServerCommandSource> freezeNode$YACA = null;
+    private static LiteralArgumentBuilder<CommandSourceStack> freezeNode$YACA = null;
 
 
     @Unique
@@ -60,7 +60,7 @@ public abstract class TickCommandMixin {
     };
     @Shadow
     @Final
-    private static String DEFAULT_TICK_RATE_STRING;
+    private static String DEFAULT_TICKRATE;
 
     @ModifyExpressionValue(
             method = "register",
@@ -72,11 +72,11 @@ public abstract class TickCommandMixin {
             ),
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/command/CommandManager;literal(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;",
+                    target = "Lnet/minecraft/commands/Commands;literal(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;",
                     ordinal = 0
             )
     )
-    private static LiteralArgumentBuilder<ServerCommandSource> storeFreezeNode(LiteralArgumentBuilder<ServerCommandSource> freezeNode) {
+    private static LiteralArgumentBuilder<CommandSourceStack> storeFreezeNode(LiteralArgumentBuilder<CommandSourceStack> freezeNode) {
         freezeNode$YACA = freezeNode;
         return freezeNode;
     }
@@ -90,19 +90,19 @@ public abstract class TickCommandMixin {
                     remap = false
             )
     )
-    private static LiteralArgumentBuilder<ServerCommandSource> enhanceFreezeAndUnfreeze(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
+    private static LiteralArgumentBuilder<CommandSourceStack> enhanceFreezeAndUnfreeze(LiteralArgumentBuilder<CommandSourceStack> rootNode) {
         enhanceFreezeNode(rootNode);
         return rootNode;
     }
 
     @Unique
-    private static void enhanceFreezeNode(LiteralArgumentBuilder<ServerCommandSource> rootNode) {
+    private static void enhanceFreezeNode(LiteralArgumentBuilder<CommandSourceStack> rootNode) {
         rootNode.then(
-                CommandManager.literal("freezePhase")
+                Commands.literal("freezePhase")
                         .executes(freezeNode$YACA.build().getCommand())
                         .then(
-                                CommandManager.argument("phase", StringArgumentType.word())
-                                        .suggests((context, suggestionsBuilder) -> CommandSource.suggestMatching(PHASE_SUGGESTIONS, suggestionsBuilder))
+                                Commands.argument("phase", StringArgumentType.word())
+                                        .suggests((context, suggestionsBuilder) -> SharedSuggestionProvider.suggest(PHASE_SUGGESTIONS, suggestionsBuilder))
                                         .executes(context -> executePhaseFreeze(context.getSource(), StringArgumentType.getString(context, "phase")))
                         )
         );
@@ -110,7 +110,7 @@ public abstract class TickCommandMixin {
 
 
     @Unique
-    private static int executePhaseFreeze(ServerCommandSource source, String phase) {
+    private static int executePhaseFreeze(CommandSourceStack source, String phase) {
         boolean newFreezeState;
 
         switch (phase.toLowerCase()) {
@@ -175,7 +175,7 @@ public abstract class TickCommandMixin {
         }
 
         // 发送状态给所有玩家
-        source.getServer().getPlayerManager().players.forEach(
+        source.getServer().getPlayerList().players.forEach(
                 //#if MC >= 12006
                 p -> ServerPlayNetworking.send(p, new OptionalFreezePayload(phase, newFreezeState))
                 //#else
@@ -188,7 +188,7 @@ public abstract class TickCommandMixin {
                 //#endif
         );
 
-        source.sendFeedback(() -> Text.translatable(newFreezeState ? "Froze" : "Unfroze").append(" [" + phase + "]"), true);
+        source.sendSuccess(() -> Component.translatable(newFreezeState ? "Froze" : "Unfroze").append(" [" + phase + "]"), true);
         return 1;
     }
 }

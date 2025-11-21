@@ -20,36 +20,36 @@
 
 package mypals.ml.utils.adapter;
 
-import net.minecraft.text.Text;
+import net.minecraft.network.chat.Component;
 
 public class HoverEvent {
-    public static net.minecraft.text.HoverEvent showText(Text text) {
+    public static net.minecraft.network.chat.HoverEvent showText(Component text) {
         //#if MC < 12105
         //$$ return new net.minecraft.text.HoverEvent(net.minecraft.text.HoverEvent.Action.SHOW_TEXT, text);
         //#else
-        return new net.minecraft.text.HoverEvent.ShowText(text);
+        return new net.minecraft.network.chat.HoverEvent.ShowText(text);
         //#endif
     }
 
-    public static net.minecraft.text.HoverEvent showEntity(net.minecraft.text.HoverEvent.EntityContent entityContent) {
+    public static net.minecraft.network.chat.HoverEvent showEntity(net.minecraft.network.chat.HoverEvent.EntityTooltipInfo entityContent) {
         //#if MC < 12105
         //$$ return new net.minecraft.text.HoverEvent(net.minecraft.text.HoverEvent.Action.SHOW_ENTITY, entityContent);
         //#else
-        return new net.minecraft.text.HoverEvent.ShowEntity(entityContent);
+        return new net.minecraft.network.chat.HoverEvent.ShowEntity(entityContent);
         //#endif
     }
 
-    public static net.minecraft.text.HoverEvent showItem(
+    public static net.minecraft.network.chat.HoverEvent showItem(
             //#if MC < 12105
             //$$ net.minecraft.text.HoverEvent.ItemStackContent itemContent
             //#else
-            net.minecraft.item.ItemStack itemContent
+            net.minecraft.world.item.ItemStack itemContent
             //#endif
     ) {
         //#if MC < 12105
         //$$ return new net.minecraft.text.HoverEvent(net.minecraft.text.HoverEvent.Action.SHOW_ITEM, itemContent);
         //#else
-        return new net.minecraft.text.HoverEvent.ShowItem(itemContent);
+        return new net.minecraft.network.chat.HoverEvent.ShowItem(itemContent);
         //#endif
     }
 }

@@ -25,10 +25,9 @@ import mypals.ml.YetAnotherCarpetAdditionServer;
 
 import mypals.ml.utils.adapter.ClickEvent;
 import mypals.ml.utils.adapter.HoverEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.profiler.Profiler;
 
 public class UpdateLoggerHelper {
     public static int NCUpdateCounter = 0;
@@ -79,20 +78,20 @@ public class UpdateLoggerHelper {
         long elapsed = System.nanoTime() - startTime;
         boolean hasPrev = false;
 
-        Text ncText = Text.empty();
-        Text ppText = Text.empty();
+        Component ncText = Component.empty();
+        Component ppText = Component.empty();
 
         if (NCUpdateCounter > 0) {
-            ncText = Text.literal(NCUpdateCounter + " x NC").setStyle(Style.EMPTY.withColor(0xFF5555));
+            ncText = Component.literal(NCUpdateCounter + " x NC").setStyle(Style.EMPTY.withColor(0xFF5555));
             hasPrev = true;
         }
         if (PPUpdateCounter > 0) {
-            ppText = Text.literal(hasPrev ? " & " : "").append(Text.literal(PPUpdateCounter + " x PP")
+            ppText = Component.literal(hasPrev ? " & " : "").append(Component.literal(PPUpdateCounter + " x PP")
                     .setStyle(Style.EMPTY.withColor(0x5555FF)));
             hasPrev = true;
         }
         double ms = elapsed / 1_000_000.0;
-        Text body = Text.literal(hasPrev ? "" : "no")
+        Component body = Component.literal(hasPrev ? "" : "no")
                 .append(" updates in ").append(String.valueOf(ms)).append("ms");
 
         StringBuilder sb = new StringBuilder();
@@ -102,13 +101,13 @@ public class UpdateLoggerHelper {
             }
         }
 
-        Text hoverText = Text.literal("[@]").styled(style ->
-                style.withHoverEvent(HoverEvent.showText(Text.literal(sb.toString())))
+        Component hoverText = Component.literal("[@]").withStyle(style ->
+                style.withHoverEvent(HoverEvent.showText(Component.literal(sb.toString())))
                         .withColor(0xAAAAAA)
-                        .withUnderline(true)
+                        .withUnderlined(true)
                         .withClickEvent(ClickEvent.copyToClipboard(sb.toString())));
 
-        Text fullMessage = Text.literal("[UpdateCounter]")
+        Component fullMessage = Component.literal("[UpdateCounter]")
                 .append(ncText)
                 .append(ppText)
                 .append(body)
@@ -117,7 +116,7 @@ public class UpdateLoggerHelper {
 
         MinecraftServer server = YetAnotherCarpetAdditionServer.serverWorld.getServer();
 
-        server.getPlayerManager().broadcast(fullMessage, false);
+        server.getPlayerList().broadcastSystemMessage(fullMessage, false);
 
         reset();
     }

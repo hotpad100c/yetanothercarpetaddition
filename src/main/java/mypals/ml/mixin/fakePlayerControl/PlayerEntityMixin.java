@@ -21,19 +21,19 @@
 package mypals.ml.mixin.fakePlayerControl;
 
 import mypals.ml.features.fakePlayerControl.FakePlayerControlManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Hand;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(ServerPlayerEntity.class)
+@Mixin(ServerPlayer.class)
 public class PlayerEntityMixin {
-    @Inject(method = "swingHand", at = @At("HEAD"), cancellable = true)
-    public void swingHand(Hand hand, CallbackInfo ci) {
-        if (FakePlayerControlManager.binds.containsKey((ServerPlayerEntity) (Object) this)) {
-            FakePlayerControlManager.binds.get((ServerPlayerEntity) (Object) this).getValue().swingHand(hand);
+    @Inject(method = "swing", at = @At("HEAD"), cancellable = true)
+    public void swingHand(InteractionHand hand, CallbackInfo ci) {
+        if (FakePlayerControlManager.binds.containsKey((ServerPlayer) (Object) this)) {
+            FakePlayerControlManager.binds.get((ServerPlayer) (Object) this).getValue().swing(hand);
         }
     }
 }

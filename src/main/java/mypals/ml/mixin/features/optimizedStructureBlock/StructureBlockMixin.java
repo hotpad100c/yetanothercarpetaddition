@@ -23,17 +23,17 @@ package mypals.ml.mixin.features.optimizedStructureBlock;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.StructureBlockBlockEntity;
-import net.minecraft.block.enums.StructureBlockMode;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockBox;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.util.math.Vec3i;
-import net.minecraft.world.chunk.Chunk;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.StructureBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.StructureMode;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -42,44 +42,44 @@ import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-@Mixin(StructureBlockBlockEntity.class)
+@Mixin(StructureBlockEntity.class)
 
 public class StructureBlockMixin extends BlockEntity {
     @Shadow
-    private StructureBlockMode mode;
+    private StructureMode mode;
 
     @Shadow
-    private BlockPos offset;
+    private BlockPos structurePos;
 
     @Shadow
-    private Vec3i size;
+    private Vec3i structureSize;
 
-    @Shadow private Identifier templateName;
+    @Shadow private ResourceLocation structureName;
 
     public StructureBlockMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
-    @WrapMethod(method = "detectStructureSize")
+    @WrapMethod(method = "detectSize")
     public boolean detectStructureSize(Operation<Boolean> original) {
         if (!YetAnotherCarpetAdditionRules.optimizedStructureBlock) {
             return original.call();
         } else {
-            if (this.mode != StructureBlockMode.SAVE) {
+            if (this.mode != StructureMode.SAVE) {
                 return false;
             }
 
-            BlockBox blockBox = new BlockBox(this.getPos());
+            BoundingBox blockBox = new BoundingBox(this.getBlockPos());
             int radius = 80;
             AtomicBoolean foundValidStructure = new AtomicBoolean(false);
 
-            forEachChunkInCube(this.pos, radius, chunkPos -> {
+            forEachChunkInCube(this.worldPosition, radius, chunkPos -> {
 
-                Chunk chunk = this.world.getChunk(chunkPos.x, chunkPos.z);
-                chunk.getBlockEntityPositions().forEach(pos -> {
+                ChunkAccess chunk = this.level.getChunk(chunkPos.x, chunkPos.z);
+                chunk.getBlockEntitiesPos().forEach(pos -> {
                     BlockEntity be = chunk.getBlockEntity(pos);
-                    if (be instanceof StructureBlockBlockEntity sb && sb.getMode() == StructureBlockMode.CORNER && Objects.equals(this.templateName.toString(), sb.getTemplateName())) {
-                        blockBox.encompass(pos);
+                    if (be instanceof StructureBlockEntity sb && sb.getMode() == StructureMode.CORNER && Objects.equals(this.structureName.toString(), sb.getStructureName())) {
+                        blockBox.encapsulate(pos);
                         foundValidStructure.set(true);
                     }
                 });
@@ -88,22 +88,22 @@ public class StructureBlockMixin extends BlockEntity {
                 }
             });
 
-            int dx = blockBox.getMaxX() - blockBox.getMinX();
-            int dy = blockBox.getMaxY() - blockBox.getMinY();
-            int dz = blockBox.getMaxZ() - blockBox.getMinZ();
+            int dx = blockBox.maxX() - blockBox.minX();
+            int dy = blockBox.maxY() - blockBox.minY();
+            int dz = blockBox.maxZ() - blockBox.minZ();
 
             if (dx > 0 && dy > 0 && dz > 0) {
-                this.offset = new BlockPos(
-                        blockBox.getMinX() - this.getPos().getX()+1,
-                        blockBox.getMinY() - this.getPos().getY()+1,
-                        blockBox.getMinZ() - this.getPos().getZ()+1
+                this.structurePos = new BlockPos(
+                        blockBox.minX() - this.getBlockPos().getX()+1,
+                        blockBox.minY() - this.getBlockPos().getY()+1,
+                        blockBox.minZ() - this.getBlockPos().getZ()+1
                 );
-                this.size = new Vec3i(dx-1, dy-1, dz-1);
+                this.structureSize = new Vec3i(dx-1, dy-1, dz-1);
 
 
-                this.markDirty();
-                BlockState blockState = this.world.getBlockState(this.getPos());
-                this.world.updateListeners(this.getPos(), blockState, blockState, 3);
+                this.setChanged();
+                BlockState blockState = this.level.getBlockState(this.getBlockPos());
+                this.level.sendBlockUpdated(this.getBlockPos(), blockState, blockState, 3);
 
                 return true;
             }

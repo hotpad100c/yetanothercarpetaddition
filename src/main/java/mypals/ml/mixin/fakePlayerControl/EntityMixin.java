@@ -23,10 +23,10 @@ package mypals.ml.mixin.fakePlayerControl;
 import carpet.patches.EntityPlayerMPFake;
 import mypals.ml.features.fakePlayerControl.FakePlayerControlManager;
 import net.minecraft.entity.*;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -38,7 +38,7 @@ import java.util.Objects;
 @Mixin(LivingEntity.class)
 public abstract class EntityMixin extends Entity {
 
-    public EntityMixin(EntityType<?> type, World world) {
+    public EntityMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 

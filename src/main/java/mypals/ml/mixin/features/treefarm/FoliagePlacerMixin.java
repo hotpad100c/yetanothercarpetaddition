@@ -21,15 +21,15 @@
 package mypals.ml.mixin.features.treefarm;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.world.gen.foliage.FoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 
 @Mixin(FoliagePlacer.class)
 public class FoliagePlacerMixin {
-    @Inject(method = "Lnet/minecraft/world/gen/foliage/FoliagePlacer;generate(Lnet/minecraft/world/TestableWorld;Lnet/minecraft/world/gen/foliage/FoliagePlacer$BlockPlacer;Lnet/minecraft/util/math/random/Random;Lnet/minecraft/world/gen/feature/TreeFeatureConfig;ILnet/minecraft/world/gen/foliage/FoliagePlacer$TreeNode;II)V", at = @At("HEAD"), cancellable = true)
-    private void generate(net.minecraft.world.TestableWorld world, FoliagePlacer.BlockPlacer placer, net.minecraft.util.math.random.Random random, net.minecraft.world.gen.feature.TreeFeatureConfig config, int trunkHeight, FoliagePlacer.TreeNode treeNode, int foliageHeight, int radius, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+    @Inject(method = "createFoliage(Lnet/minecraft/world/level/LevelSimulatedReader;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;ILnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageAttachment;II)V", at = @At("HEAD"), cancellable = true)
+    private void generate(net.minecraft.world.level.LevelSimulatedReader world, FoliagePlacer.FoliageSetter placer, net.minecraft.util.RandomSource random, net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration config, int trunkHeight, FoliagePlacer.FoliageAttachment treeNode, int foliageHeight, int radius, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
        if(!YetAnotherCarpetAdditionRules.foliageGenerate){
            ci.cancel();
        }

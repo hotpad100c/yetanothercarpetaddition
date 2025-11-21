@@ -20,16 +20,6 @@
 
 package mypals.ml.Screen.CountersViewer;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.ParentElement;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.CyclingButtonWidget;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.item.Item;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 //#if MC >= 12106
@@ -39,17 +29,25 @@ import org.joml.Matrix3x2fStack;
 import java.awt.*;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.CycleButton;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.Item;
 
-public class CounterViewerScreen extends Screen implements ParentElement {
+public class CounterViewerScreen extends Screen implements ContainerEventHandler {
     private final Map<String, Map<String, String>> data;
     private final List<String> timestamps;
     private final List<String> counterNames;
     private ConcurrentHashMap<String, List<Point>> counterPoints;
     private static Map<String, Integer> COLORS = new HashMap<>();
-    private CyclingButtonWidget viewModeButton;
+    private CycleButton viewModeButton;
     public static ViewMode viewMode = ViewMode.TOTAL;
     public int maxCountedValue = 0;
     public int finalMaxCount = 0;
@@ -109,7 +107,7 @@ public class CounterViewerScreen extends Screen implements ParentElement {
                 //#else
                 //$$ MatrixStack poseStack
                 //#endif
-                , DrawContext drawContext
+                , GuiGraphics drawContext
         ) {
 
             //#if MC >= 12106
@@ -156,27 +154,27 @@ public class CounterViewerScreen extends Screen implements ParentElement {
             this.time = time;
         }
 
-        public boolean hovered(int mouseX, int mouseY, int size, DrawContext drawContext, int color) {
+        public boolean hovered(int mouseX, int mouseY, int size, GuiGraphics drawContext, int color) {
             return (mouseX < (x + size + 1) && mouseY < (y + size + 1) && mouseX > (x - size - 1) && mouseY > (y - size - 1));
         }
 
-        public boolean render(int size, DrawContext drawContext, int color, int mouseX, int mouseY, boolean alreadyShowingTooltip) {
+        public boolean render(int size, GuiGraphics drawContext, int color, int mouseX, int mouseY, boolean alreadyShowingTooltip) {
             drawContext.fill(x + size + 1, y + size + 1, x - size - 1, y - size - 1, new Color(color).darker().getRGB());
             drawContext.fill(x + size, y + size, x - size, y - size, color);
             if (hovered(mouseX, mouseY, size, drawContext, color)) {
                 if (alreadyShowingTooltip) return alreadyShowingTooltip;
-                List<Text> tooltip = new ArrayList<>();
+                List<Component> tooltip = new ArrayList<>();
                 List<Map.Entry<Item, Integer>> items = new ArrayList<>();
-                tooltip.add(Text.literal(Text.translatable(viewMode.getKey()).getString() + ": " + data.split("\\^\\^\\^")[0]));
-                tooltip.add(Text.literal("Time: " + time.substring(11, 22)));
+                tooltip.add(Component.literal(Component.translatable(viewMode.getKey()).getString() + ": " + data.split("\\^\\^\\^")[0]));
+                tooltip.add(Component.literal("Time: " + time.substring(11, 22)));
                 Arrays.stream(data.split("\\^\\^\\^")[1].split("@@")).forEach(s -> {
                     if (!s.isEmpty()) {
 
-                        tooltip.add(Text.literal(s.split(" t")[0]));
+                        tooltip.add(Component.literal(s.split(" t")[0]));
                     }
                 });
 
-                drawContext.drawTooltip(MinecraftClient.getInstance().textRenderer, tooltip, mouseX, mouseY);
+                drawContext.setComponentTooltipForNextFrame(Minecraft.getInstance().font, tooltip, mouseX, mouseY);
 
                 //PieChartRenderer.drawPieChart(drawContext, 100, 100, Float.parseFloat(data.split("\\^\\^\\^")[0]), items);
 
@@ -189,7 +187,7 @@ public class CounterViewerScreen extends Screen implements ParentElement {
 
 
     public CounterViewerScreen(Map<String, Map<String, String>> data) {
-        super(Text.literal("Hopper Counter Data Viwer"));
+        super(Component.literal("Hopper Counter Data Viwer"));
         this.data = data;
         this.timestamps = new ArrayList<>(data.keySet()).stream()
                 .sorted()
@@ -283,35 +281,35 @@ public class CounterViewerScreen extends Screen implements ParentElement {
     @Override
     protected void init() {
         Arrays.stream(DyeColor.values()).forEach(color -> {
-            int colorValue = color.getSignColor();
-            COLORS.put(color.getId(), colorValue);
+            int colorValue = color.getTextColor();
+            COLORS.put(color.getName(), colorValue);
         });
-        viewModeButton = this.addDrawableChild(CyclingButtonWidget.<ViewMode>builder(
-                        viewMode -> Text.translatable(viewMode.getKey())
+        viewModeButton = this.addRenderableWidget(CycleButton.<ViewMode>builder(
+                        viewMode -> Component.translatable(viewMode.getKey())
                 )
-                .values(ViewMode.values())
-                .initially(viewMode)
-                .build(
+                .withValues(ViewMode.values())
+                .withInitialValue(viewMode)
+                .create(
                         this.width / 2 - 100, this.height - 30, 100, 20,
-                        Text.literal("Mode"),
+                        Component.literal("Mode"),
                         (button, newViewMode) -> {
                             this.viewMode = newViewMode;
                             this.counterPoints = computeCounterPoints();
                         }
                 ));
-        this.addDrawableChild(ButtonWidget.builder(
-                Text.literal("Close"),
-                button -> this.close()
-        ).dimensions(this.width / 2, this.height - 30, 100, 20).build());
+        this.addRenderableWidget(Button.builder(
+                Component.literal("Close"),
+                button -> this.onClose()
+        ).bounds(this.width / 2, this.height - 30, 100, 20).build());
 
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
         //#if MC >= 12106
-        Matrix3x2fStack poseStack = context.getMatrices();
+        Matrix3x2fStack poseStack = context.pose();
         //#else
         //$$ MatrixStack poseStack = context.getMatrices();
         //#endif
@@ -340,16 +338,16 @@ public class CounterViewerScreen extends Screen implements ParentElement {
                 context.fill(x1 - 1, y1 - 1, x1 + 1, y1 + 1, color);
             }
 
-            context.drawText(this.textRenderer, counter, chartWidth + chartX + 5, chartHeight - 20 - i * 7, color, true);
+            context.drawString(this.font, counter, chartWidth + chartX + 5, chartHeight - 20 - i * 7, color, true);
         }
         if (!timestamps.isEmpty()) {
-            context.drawText(this.textRenderer, timestamps.getFirst().substring(11, 16), chartX, chartY + chartHeight + 10, axisColor, true);
-            context.drawText(this.textRenderer, timestamps.getLast().substring(11, 16), chartX + chartWidth, chartY + chartHeight + 10, axisColor, true);
+            context.drawString(this.font, timestamps.getFirst().substring(11, 16), chartX, chartY + chartHeight + 10, axisColor, true);
+            context.drawString(this.font, timestamps.getLast().substring(11, 16), chartX + chartWidth, chartY + chartHeight + 10, axisColor, true);
         }
         for (int i = 0; i <= 5; i++) {
             int value = (int) ((double) i / 5 * finalMaxCount);
             int y = chartY + chartHeight - (i * chartHeight / 5);
-            context.drawText(this.textRenderer, String.valueOf(value), chartX - 30, y - 5, axisColor, false);
+            context.drawString(this.font, String.valueOf(value), chartX - 30, y - 5, axisColor, false);
         }
         context.fill(chartX, chartY + chartHeight - 1, chartX + chartWidth, chartY + chartHeight, axisColor);
         context.fill(chartX, chartY, chartX + 1, chartY + chartHeight, axisColor);
@@ -359,12 +357,12 @@ public class CounterViewerScreen extends Screen implements ParentElement {
 
         context.fill(chartX, my - 1, chartX + chartWidth, my + 1, 0x0FFFFFFF);
         context.fill(mx - 1, chartY, mx + 1, chartY + chartHeight, 0x0FFFFFFF);
-        context.drawCenteredTextWithShadow(this.textRenderer, this.title, this.width / 2, 20, 0xFFFFFFFF);
+        context.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
 
     }
 
     @Override
-    public boolean shouldPause() {
+    public boolean isPauseScreen() {
         return false;
     }
 }

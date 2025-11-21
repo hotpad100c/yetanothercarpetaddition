@@ -23,28 +23,28 @@ package mypals.ml.mixin.features.visualizers;
 import com.llamalad7.mixinextras.sugar.Local;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
-import net.minecraft.world.chunk.BlockEntityTickInvoker;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.TickingBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(World.class)
+@Mixin(Level.class)
 public class TickBlockEntitiesRecordOrderMixin {
     @Inject(
             method = "tickBlockEntities",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/chunk/BlockEntityTickInvoker;tick()V"),
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/entity/TickingBlockEntity;tick()V"),
             cancellable = true
     )
-    private void blockTickBlockEntities(CallbackInfo ci, @Local BlockEntityTickInvoker blockEntityTickInvoker) {
-        if ((World) (Object) this instanceof ServerWorld serverWorld && YetAnotherCarpetAdditionRules.blockEntityOrderVisualize) {
+    private void blockTickBlockEntities(CallbackInfo ci, @Local TickingBlockEntity blockEntityTickInvoker) {
+        if ((Level) (Object) this instanceof ServerLevel serverWorld && YetAnotherCarpetAdditionRules.blockEntityOrderVisualize) {
             YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.globalOrder++;
             YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.setVisualizer(serverWorld,
                     blockEntityTickInvoker.getPos(),
-                    blockEntityTickInvoker.getPos().toCenterPos(),
+                    blockEntityTickInvoker.getPos().getCenter(),
                     YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.globalOrder);
         }
     }
@@ -54,7 +54,7 @@ public class TickBlockEntitiesRecordOrderMixin {
             at = @At("HEAD")
     )
     private void ServerTickAddScheduledTickMarker(BlockPos pos, CallbackInfo ci) {
-        if ((World) (Object) this instanceof ServerWorld && YetAnotherCarpetAdditionRules.blockEntityOrderVisualize) {
+        if ((Level) (Object) this instanceof ServerLevel && YetAnotherCarpetAdditionRules.blockEntityOrderVisualize) {
             YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.removeVisualizer(pos);
         }
     }

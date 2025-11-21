@@ -21,29 +21,28 @@
 package mypals.ml.mixin.features.gridWorldPreset;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.data.DataOutput;
-import net.minecraft.data.tag.TagProvider;
-import net.minecraft.data.tag.vanilla.VanillaWorldPresetTagProvider;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.WorldPresetTags;
-import net.minecraft.world.gen.WorldPreset;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.concurrent.CompletableFuture;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
+import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.TagsProvider;
+import net.minecraft.data.tags.WorldPresetTagsProvider;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
 
 
-@Mixin(VanillaWorldPresetTagProvider.class)
-public abstract class VanillaWorldPresetTagProviderMixin extends TagProvider<WorldPreset> {
-    protected VanillaWorldPresetTagProviderMixin(DataOutput output, RegistryKey<? extends Registry<WorldPreset>> registryRef, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookupFuture) {
+@Mixin(WorldPresetTagsProvider.class)
+public abstract class VanillaWorldPresetTagProviderMixin extends TagsProvider<WorldPreset> {
+    protected VanillaWorldPresetTagProviderMixin(PackOutput output, ResourceKey<? extends Registry<WorldPreset>> registryRef, CompletableFuture<HolderLookup.Provider> registryLookupFuture) {
         super(output, registryRef, registryLookupFuture);
     }
 
-    @Inject(method = "configure", at = @At("RETURN"))
+    @Inject(method = "addTags", at = @At("RETURN"))
     private void addCustomPresetsToTag(CallbackInfo ci) {
         //this.getOrCreateTagBuilder(WorldPresetTags.EXTENDED).add(GRID);
     }

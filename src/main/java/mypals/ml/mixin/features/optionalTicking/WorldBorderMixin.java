@@ -22,10 +22,7 @@ package mypals.ml.mixin.features.optionalTicking;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.network.message.MessageChain;
-import net.minecraft.network.message.SignedMessage;
-import net.minecraft.text.Text;
-import net.minecraft.world.border.WorldBorder;
+import net.minecraft.world.level.border.WorldBorder;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;

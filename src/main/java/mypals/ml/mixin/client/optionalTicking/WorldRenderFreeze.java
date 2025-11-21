@@ -26,13 +26,12 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import mypals.ml.YetAnotherCarpetAdditionClient;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.BlockBreakingInfo;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.server.level.BlockDestructionProgress;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,28 +39,23 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
-
-//#if MC >= 12109
-import net.minecraft.client.render.Camera;
-//#endif
-
 import java.util.Iterator;
 
-@Mixin(WorldRenderer.class)
+@Mixin(LevelRenderer.class)
 public abstract class WorldRenderFreeze {
     @Shadow
     private int ticks;
 
     @Shadow
     @Nullable
-    private ClientWorld world;
+    private ClientLevel level;
 
     @Shadow
     @Final
-    private Int2ObjectMap<BlockBreakingInfo> blockBreakingInfos;
+    private Int2ObjectMap<BlockDestructionProgress> destroyingBlocks;
 
     @Shadow
-    protected abstract void removeBlockBreakingInfo(BlockBreakingInfo info);
+    protected abstract void removeProgress(BlockDestructionProgress info);
 
     //#if MC < 12109
     //$$ @WrapOperation(
@@ -93,7 +87,7 @@ public abstract class WorldRenderFreeze {
         float tickDelta = args.get(1);
         tickDelta = (YetAnotherCarpetAdditionRules.stopTickingEntities
                 || YetAnotherCarpetAdditionClient.selectiveFreezeManager
-                .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;
+                .stopTickingEntities) && !(entity instanceof Player) ? 1.0F : tickDelta;
         args.set(1, tickDelta);
     }
     //#endif
@@ -105,7 +99,7 @@ public abstract class WorldRenderFreeze {
             //#endif
             Operation<Void> original
     ) {
-        if (this.world.getTickManager().shouldTick() &&
+        if (this.level.tickRateManager().runsNormally() &&
                 !YetAnotherCarpetAdditionRules.stopTickingBlockEntities &&
                 !YetAnotherCarpetAdditionRules.stopTickingWeather &&
                 !YetAnotherCarpetAdditionRules.stopTickingBlocks &&
@@ -119,14 +113,14 @@ public abstract class WorldRenderFreeze {
         }
 
         if (this.ticks % 20 == 0) {
-            Iterator<BlockBreakingInfo> iterator = this.blockBreakingInfos.values().iterator();
+            Iterator<BlockDestructionProgress> iterator = this.destroyingBlocks.values().iterator();
 
             while (iterator.hasNext()) {
-                BlockBreakingInfo blockBreakingInfo = (BlockBreakingInfo) iterator.next();
-                int i = blockBreakingInfo.getLastUpdateTick();
+                BlockDestructionProgress blockBreakingInfo = (BlockDestructionProgress) iterator.next();
+                int i = blockBreakingInfo.getUpdatedRenderTick();
                 if (this.ticks - i > 400) {
                     iterator.remove();
-                    this.removeBlockBreakingInfo(blockBreakingInfo);
+                    this.removeProgress(blockBreakingInfo);
                 }
             }
 

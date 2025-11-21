@@ -22,29 +22,24 @@ package mypals.ml.features.fakePlayerControl;
 
 import carpet.patches.EntityPlayerMPFake;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.s2c.play.EntityPositionS2CPacket;
-import net.minecraft.scoreboard.AbstractTeam;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.server.command.TeamCommand;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Arm;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.GameMode;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Team;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 public class FakePlayerControlManager {
-    public static Map<ServerPlayerEntity, Map.Entry<Team, EntityPlayerMPFake>> binds = new HashMap<>();
-    public static Map<ServerPlayerEntity, NbtCompound> bindTempData = new HashMap<>();
+    public static Map<ServerPlayer, Map.Entry<PlayerTeam, EntityPlayerMPFake>> binds = new HashMap<>();
+    public static Map<ServerPlayer, CompoundTag> bindTempData = new HashMap<>();
 
-    public static boolean tryBind(ServerPlayerEntity player, EntityPlayerMPFake fakePlayer) {
+    public static boolean tryBind(ServerPlayer player, EntityPlayerMPFake fakePlayer) {
         if (binds.containsKey(player)) {
-            if (fakePlayer.getUuid() != binds.get(player).getValue().getUuid()) {
+            if (fakePlayer.getUUID() != binds.get(player).getValue().getUUID()) {
                 unbindPlayer(player, binds.get(player).getValue());
                 bindPlayer(player, fakePlayer);
                 return true;
@@ -58,120 +53,120 @@ public class FakePlayerControlManager {
         }
     }
 
-    public static void bindPlayer(ServerPlayerEntity player, EntityPlayerMPFake fakePlayer) {
-        NbtCompound playerData = new NbtCompound();
+    public static void bindPlayer(ServerPlayer player, EntityPlayerMPFake fakePlayer) {
+        CompoundTag playerData = new CompoundTag();
         NBTDataManager.readFromEntity(player, playerData);
-        playerData.putString("GameMode", player.interactionManager.getGameMode().getId());
+        playerData.putString("GameMode", player.gameMode.getGameModeForPlayer().getName());
         playerData.putString("MainArm", player.getMainArm().toString());
         bindTempData.put(player, playerData);
 
         binds.put(player,
-                Map.entry(addBindTeam(player, fakePlayer, player.getEntityWorld()), fakePlayer));
+                Map.entry(addBindTeam(player, fakePlayer, player.level()), fakePlayer));
 
 
-        NbtCompound fakePlayerData = new NbtCompound();
+        CompoundTag fakePlayerData = new CompoundTag();
 
         NBTDataManager.writeToEntity(player, NBTDataManager.readFromEntity(fakePlayer, fakePlayerData));
 
-        player.setPosition(fakePlayer.getX(), fakePlayer.getY(), fakePlayer.getZ());
-        player.setYaw(fakePlayer.getYaw());
-        player.setPitch(fakePlayer.getPitch());
+        player.setPos(fakePlayer.getX(), fakePlayer.getY(), fakePlayer.getZ());
+        player.setYRot(fakePlayer.getYRot());
+        player.setXRot(fakePlayer.getXRot());
         player.setMainArm(fakePlayer.getMainArm());
         player.setHealth(fakePlayer.getHealth());
-        player.changeGameMode(fakePlayer.interactionManager.getGameMode());
+        player.setGameMode(fakePlayer.gameMode.getGameModeForPlayer());
         player.setInvisible(true);
-        fakePlayer.noClip = true;
+        fakePlayer.noPhysics = true;
     }
 
-    public static Team addBindTeam(ServerPlayerEntity player, EntityPlayerMPFake fakePlayer, ServerWorld serverWorld) {
+    public static PlayerTeam addBindTeam(ServerPlayer player, EntityPlayerMPFake fakePlayer, ServerLevel serverWorld) {
         System.out.println("Binding player: " + player.getName().getString() + " to fake player: " + fakePlayer.getName().getString());
-        Team team = serverWorld.getServer().getScoreboard().addTeam(player.getName().getString() + "+" + fakePlayer.getName().getString());
-        team.setShowFriendlyInvisibles(false);
-        team.setCollisionRule(AbstractTeam.CollisionRule.NEVER);
-        team.setFriendlyFireAllowed(false);
-        team.setNameTagVisibilityRule(AbstractTeam.VisibilityRule.HIDE_FOR_OWN_TEAM);
-        serverWorld.getServer().getScoreboard().addScoreHolderToTeam(player.getNameForScoreboard(), team);
-        serverWorld.getServer().getScoreboard().addScoreHolderToTeam(fakePlayer.getNameForScoreboard(), team);
+        PlayerTeam team = serverWorld.getServer().getScoreboard().addPlayerTeam(player.getName().getString() + "+" + fakePlayer.getName().getString());
+        team.setSeeFriendlyInvisibles(false);
+        team.setCollisionRule(Team.CollisionRule.NEVER);
+        team.setAllowFriendlyFire(false);
+        team.setNameTagVisibility(Team.Visibility.HIDE_FOR_OWN_TEAM);
+        serverWorld.getServer().getScoreboard().addPlayerToTeam(player.getScoreboardName(), team);
+        serverWorld.getServer().getScoreboard().addPlayerToTeam(fakePlayer.getScoreboardName(), team);
         return team;
     }
 
-    public static void tickBinds(ServerWorld serverWorld) {
-        for (Map.Entry<ServerPlayerEntity, Map.Entry<Team, EntityPlayerMPFake>> entry : binds.entrySet()) {
-            ServerPlayerEntity player = entry.getKey();
+    public static void tickBinds(ServerLevel serverWorld) {
+        for (Map.Entry<ServerPlayer, Map.Entry<PlayerTeam, EntityPlayerMPFake>> entry : binds.entrySet()) {
+            ServerPlayer player = entry.getKey();
             EntityPlayerMPFake fakePlayer = entry.getValue().getValue();
 
-            if (!fakePlayer.isAlive() || !player.isAlive() || player.isDisconnected()) {
+            if (!fakePlayer.isAlive() || !player.isAlive() || player.hasDisconnected()) {
                 unbindPlayer(player, fakePlayer);
                 continue;
             }
             if (!player.isInvisible()) {
                 player.setInvisible(true);
             }
-            fakePlayer.getInventory().clone(player.getInventory());
-            player.getInventory().clone(fakePlayer.getInventory());
+            fakePlayer.getInventory().replaceWith(player.getInventory());
+            player.getInventory().replaceWith(fakePlayer.getInventory());
 
             player.setHealth(fakePlayer.getHealth());
             fakePlayer.setHealth(player.getHealth());
             fakePlayer.setAbsorptionAmount(player.getAbsorptionAmount());
 
-            if (player.isGliding() && !fakePlayer.isGliding())
-                fakePlayer.startGliding();
-            else if (!player.isGliding() && fakePlayer.isGliding())
-                fakePlayer.stopGliding();
-            if (player.isSleeping() && !fakePlayer.isSleeping() && player.getSleepingPosition().isPresent())
-                fakePlayer.setSleepingPosition(player.getSleepingPosition().get());
-            else if (!player.isSleeping() && fakePlayer.isGliding())
-                fakePlayer.wakeUp();
+            if (player.isFallFlying() && !fakePlayer.isFallFlying())
+                fakePlayer.startFallFlying();
+            else if (!player.isFallFlying() && fakePlayer.isFallFlying())
+                fakePlayer.stopFallFlying();
+            if (player.isSleeping() && !fakePlayer.isSleeping() && player.getSleepingPos().isPresent())
+                fakePlayer.setSleepingPos(player.getSleepingPos().get());
+            else if (!player.isSleeping() && fakePlayer.isFallFlying())
+                fakePlayer.stopSleeping();
 
-            fakePlayer.setOnGround(player.isOnGround());
-            fakePlayer.setVelocity(player.getVelocity());
-            fakePlayer.setPosition(player.getX(), player.getY(), player.getZ());
-            fakePlayer.setYaw(player.getYaw());
+            fakePlayer.setOnGround(player.onGround());
+            fakePlayer.setDeltaMovement(player.getDeltaMovement());
+            fakePlayer.setPos(player.getX(), player.getY(), player.getZ());
+            fakePlayer.setYRot(player.getYRot());
             fakePlayer.setPose(player.getPose());
-            fakePlayer.setPitch(player.getPitch());
-            fakePlayer.setSneaking(player.isSneaking());
+            fakePlayer.setXRot(player.getXRot());
+            fakePlayer.setShiftKeyDown(player.isShiftKeyDown());
             fakePlayer.setSprinting(player.isSprinting());
             fakePlayer.setSwimming(player.isSwimming());
 
             fakePlayer.setInvulnerable(player.isInvulnerable());
-            if (fakePlayer.isGlowing() != player.isGlowing())
-                fakePlayer.setGlowing(player.isGlowing());
+            if (fakePlayer.isCurrentlyGlowing() != player.isCurrentlyGlowing())
+                fakePlayer.setGlowingTag(player.isCurrentlyGlowing());
             if (fakePlayer.isOnFire() != player.isOnFire())
-                fakePlayer.setOnFire(player.isOnFire());
+                fakePlayer.setSharedFlagOnFire(player.isOnFire());
             if (fakePlayer.getMainArm() != player.getMainArm())
                 fakePlayer.setMainArm(player.getMainArm());
-            if (fakePlayer.interactionManager.getGameMode() != player.interactionManager.getGameMode())
-                fakePlayer.changeGameMode(player.interactionManager.getGameMode());
+            if (fakePlayer.gameMode.getGameModeForPlayer() != player.gameMode.getGameModeForPlayer())
+                fakePlayer.setGameMode(player.gameMode.getGameModeForPlayer());
 
-            fakePlayer.setFireTicks(player.getFireTicks());
-            fakePlayer.setExperienceLevel(player.experienceLevel);
+            fakePlayer.setRemainingFireTicks(player.getRemainingFireTicks());
+            fakePlayer.setExperienceLevels(player.experienceLevel);
             fakePlayer.fallDistance = player.fallDistance;
-            fakePlayer.setAir(player.getAir());
+            fakePlayer.setAirSupply(player.getAirSupply());
         }
     }
 
-    public static void unbindPlayer(ServerPlayerEntity player, EntityPlayerMPFake fakePlayer) {
-        Team team = binds.get(player).getKey();
-        team.getScoreboard().removeTeam(team);
+    public static void unbindPlayer(ServerPlayer player, EntityPlayerMPFake fakePlayer) {
+        PlayerTeam team = binds.get(player).getKey();
+        team.getScoreboard().removePlayerTeam(team);
         System.out.println("Unbinding player: " + player.getName().getString() + " from fake player: " + fakePlayer.getName().getString());
-        NBTDataManager.writeToEntity(fakePlayer, NBTDataManager.readFromEntity(player, new NbtCompound()));
+        NBTDataManager.writeToEntity(fakePlayer, NBTDataManager.readFromEntity(player, new CompoundTag()));
 
-        NbtCompound playerData = bindTempData.get(player);
+        CompoundTag playerData = bindTempData.get(player);
         NBTDataManager.writeToEntity(player, playerData);
 
         //#if MC>=12105
         String gameModeName = playerData.getString("GameMode").get();
-        Arm arm = Arm.valueOf(playerData.getString("MainArm").get());
+        HumanoidArm arm = HumanoidArm.valueOf(playerData.getString("MainArm").get());
         //#else
         //$$ String gameModeName = playerData.getString("GameMode");
         //$$ Arm arm = Arm.valueOf(playerData.getString("MainArm"));
         //#endif
-        GameMode gameMode = GameMode.byId(gameModeName, GameMode.SURVIVAL);
-        player.changeGameMode(gameMode);
+        GameType gameMode = GameType.byName(gameModeName, GameType.SURVIVAL);
+        player.setGameMode(gameMode);
         player.setMainArm(arm);
         binds.remove(player);
         bindTempData.remove(player);
         player.setInvisible(false);
-        fakePlayer.noClip = false;
+        fakePlayer.noPhysics = false;
     }
 }

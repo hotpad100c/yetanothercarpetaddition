@@ -23,13 +23,13 @@ package mypals.ml.mixin.features.optionalTicking;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.village.raid.RaidManager;
+import net.minecraft.world.entity.raid.Raids;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(RaidManager.class)
+@Mixin(Raids.class)
 public class RaidManagerMixin {
     @Inject(
             method = "tick",

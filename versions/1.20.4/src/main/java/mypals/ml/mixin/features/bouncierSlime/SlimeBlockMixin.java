@@ -22,27 +22,27 @@ package mypals.ml.mixin.features.bouncierSlime;
 
 import mypals.ml.interfaces.BlockBehaviorExtension;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.SlimeBlock;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.SlimeBlock;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(SlimeBlock.class)
 public class SlimeBlockMixin implements BlockBehaviorExtension {
     @Override
-    public void yaca$onEntityTouch(World world, BlockPos pos, Entity entity) {
-        if (!YetAnotherCarpetAdditionRules.bouncierSlime || entity.bypassesLandingEffects()) return;
+    public void yaca$onEntityTouch(Level world, BlockPos pos, Entity entity) {
+        if (!YetAnotherCarpetAdditionRules.bouncierSlime || entity.isSuppressingBounce()) return;
         this.bounceAllSide(entity);
     }
 
     @Unique
     private void bounceAllSide(Entity entity) {
-        Vec3d vec3d = entity.getVelocity();
+        Vec3 vec3d = entity.getDeltaMovement();
         double d = entity instanceof LivingEntity ? 1.0 : 0.8;
-        entity.setVelocity(new Vec3d(-vec3d.x * d, vec3d.y, -vec3d.z * d));
+        entity.setDeltaMovement(new Vec3(-vec3d.x * d, vec3d.y, -vec3d.z * d));
     }
 }

@@ -24,17 +24,16 @@ import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.features.updateAnylizer.UpdateLoggerHelper;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(AbstractBlock.AbstractBlockState.class)
+@Mixin(BlockBehaviour.BlockStateBase.class)
 public class AbstractBlockMixin {
-    @WrapMethod(method = "updateNeighbors(Lnet/minecraft/world/WorldAccess;Lnet/minecraft/util/math/BlockPos;II)V")
-    public void updateNeighbors(WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth, Operation<Void> original) {
-        if (world.isClient() || !YetAnotherCarpetAdditionRules.updateCounter) {
+    @WrapMethod(method = "updateNeighbourShapes(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;II)V")
+    public void updateNeighbors(LevelAccessor world, BlockPos pos, int flags, int maxUpdateDepth, Operation<Void> original) {
+        if (world.isClientSide() || !YetAnotherCarpetAdditionRules.updateCounter) {
             original.call(world, pos, flags, maxUpdateDepth);
 
         } else {

@@ -24,13 +24,13 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,29 +41,29 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-@Mixin(EntityArgumentType.class)
+@Mixin(EntityArgument.class)
 public class EntityArgumentMixin {
     @Inject(method = "listSuggestions", at = @At("HEAD"), cancellable = true)
-    private void onListSuggestions(CommandContext<CommandSource> context, SuggestionsBuilder builder, CallbackInfoReturnable<CompletableFuture<Suggestions>> cir) {
+    private void onListSuggestions(CommandContext<SharedSuggestionProvider> context, SuggestionsBuilder builder, CallbackInfoReturnable<CompletableFuture<Suggestions>> cir) {
         if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false")) return;
 
-        CommandSource source = (CommandSource) context.getSource();
+        SharedSuggestionProvider source = (SharedSuggestionProvider) context.getSource();
 
-        if (!(source instanceof ServerCommandSource serverCommandSource)) return;
+        if (!(source instanceof CommandSourceStack serverCommandSource)) return;
 
         MinecraftServer server = serverCommandSource.getServer();
         List<String> names = new ArrayList<>();
 
-        for (ServerWorld world : server.getWorlds()) {
-            for (Entity entity : world.iterateEntities()) {
-                if (!(entity instanceof PlayerEntity)) {
+        for (ServerLevel world : server.getAllLevels()) {
+            for (Entity entity : world.getAllEntities()) {
+                if (!(entity instanceof Player)) {
                     String name = entity.getDisplayName().getString();
-                    names.add(entity.getUuidAsString() + "(%s)".formatted(name) + "(%s)".formatted(world.getRegistryKey().getValue()));
+                    names.add(entity.getStringUUID() + "(%s)".formatted(name) + "(%s)".formatted(world.dimension().location()));
                 }
             }
         }
 
-        CommandSource.suggestMatching(names, builder);
+        SharedSuggestionProvider.suggest(names, builder);
         cir.setReturnValue(CompletableFuture.completedFuture(builder.build()));
     }
 }

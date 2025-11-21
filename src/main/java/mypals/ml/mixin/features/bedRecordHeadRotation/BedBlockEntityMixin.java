@@ -21,24 +21,17 @@
 package mypals.ml.mixin.features.bedRecordHeadRotation;
 
 import mypals.ml.interfaces.BedBlockEntityExtension;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BedBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BedBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
-//#if MC >= 12106
-import net.minecraft.storage.NbtWriteView;
-import net.minecraft.storage.NbtReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.storage.ReadView;
-//#endif
 
 @Mixin(BedBlockEntity.class)
 @Implements(@Interface(iface = BedBlockEntityExtension.class, prefix = "YACA$"))
@@ -73,7 +66,7 @@ public abstract class BedBlockEntityMixin extends BlockEntity {
 
     //#if MC >= 12106
     @Override
-    protected void writeData(WriteView nbt) {
+    protected void saveAdditional(ValueOutput nbt) {
         nbt.putFloat("SleeperYaw", this.yaw);
         nbt.putFloat("SleeperPitch", this.pitch);
     }
@@ -95,14 +88,14 @@ public abstract class BedBlockEntityMixin extends BlockEntity {
 
     //#if MC >= 12106
     @Override
-    protected void readData(ReadView nbt) {
-        this.yaw = nbt.getFloat(
+    protected void loadAdditional(ValueInput nbt) {
+        this.yaw = nbt.getFloatOr(
                  "SleeperYaw"
                 //#if MC >= 12105
                 , 0F
                  //#endif
         );
-        this.pitch = nbt.getFloat(
+        this.pitch = nbt.getFloatOr(
                 "SleeperPitch"
                 //#if MC >= 12105
                  , 0F

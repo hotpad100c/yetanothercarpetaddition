@@ -25,14 +25,10 @@ import mypals.ml.network.client.RequestCountersPayload;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.command.CommandRegistryAccess;
-//#if MC < 12006
-//$$ import io.netty.buffer.Unpooled;
-//$$ import net.minecraft.network.PacketByteBuf;
-//#endif
+import net.minecraft.commands.CommandBuildContext;
 
 public class HopperCounterRequestCommand {
-    public static void registerCommand(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+    public static void registerCommand(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
         dispatcher.register(ClientCommandManager.literal("counterGUI")
                 .executes(context -> execute(
                         context.getSource()

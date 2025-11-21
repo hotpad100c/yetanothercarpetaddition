@@ -24,10 +24,10 @@ import carpet.CarpetServer;
 import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Validator;
 import mypals.ml.features.visualizingFeatures.AbstractVisualizingManager;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -39,7 +39,7 @@ public class RuleValidators {
     public static class MOVING_PISTON_SPEED_VALIDATOR extends Validator<Float> {
 
         @Override
-        public Float validate(@Nullable ServerCommandSource source, CarpetRule<Float> changingRule, Float newValue, String userInput) {
+        public Float validate(@Nullable CommandSourceStack source, CarpetRule<Float> changingRule, Float newValue, String userInput) {
             return Math.max(0.0f, Math.min(newValue, 1.0f));
         }
     }
@@ -48,7 +48,7 @@ public class RuleValidators {
         static String DEFAULT_PRESET = "minecraft:white_stained_glass;minecraft:black_stained_glass;1";
 
         @Override
-        public String validate(@Nullable ServerCommandSource source, CarpetRule<String> changingRule, String newValue, String userInput) {
+        public String validate(@Nullable CommandSourceStack source, CarpetRule<String> changingRule, String newValue, String userInput) {
             String[] parts = newValue.split(";");
             if (newValue.equals("off")) {
                 return "off";
@@ -58,13 +58,13 @@ public class RuleValidators {
             //$$        || !Registries.BLOCK.containsId(Identifier.of("minecraft", parts[1].replace("minecraft:", ""))
             //$$ ))
             //#else
-            if (!Registries.BLOCK.containsId(Identifier.ofVanilla(parts[0].replace("minecraft:", "")))
-                    || !Registries.BLOCK.containsId(Identifier.ofVanilla(parts[1].replace("minecraft:", ""))
+            if (!BuiltInRegistries.BLOCK.containsKey(ResourceLocation.withDefaultNamespace(parts[0].replace("minecraft:", "")))
+                    || !BuiltInRegistries.BLOCK.containsKey(ResourceLocation.withDefaultNamespace(parts[1].replace("minecraft:", ""))
             ))
             //#endif
             {
                 if (source != null)
-                    source.sendError(Text.of("Invalid block IDs: " + parts[0] + " or " + parts[1]));
+                    source.sendFailure(Component.nullToEmpty("Invalid block IDs: " + parts[0] + " or " + parts[1]));
                 return DEFAULT_PRESET;
             }
 
@@ -73,7 +73,7 @@ public class RuleValidators {
                 return parts[0].replace("minecraft:", "") + ";" + parts[1].replace("minecraft:", "") + ";" + Math.max(1, value);
             } catch (NumberFormatException e) {
                 if (source != null)
-                    source.sendError(Text.of("Invalid size value: " + parts[2] + " using default(1)."));
+                    source.sendFailure(Component.nullToEmpty("Invalid size value: " + parts[2] + " using default(1)."));
                 return parts[0] + ";" + parts[1] + ";1";
             }
         }
@@ -81,7 +81,7 @@ public class RuleValidators {
 
     public static class CLEAR_VISUALIZER extends Validator<Boolean> {
         @Override
-        public Boolean validate(@Nullable ServerCommandSource serverCommandSource, CarpetRule<Boolean> carpetRule, Boolean newValue, String s) {
+        public Boolean validate(@Nullable CommandSourceStack serverCommandSource, CarpetRule<Boolean> carpetRule, Boolean newValue, String s) {
             if (!newValue) {
                 if(serverCommandSource == null) return newValue;
                 String visualizeName = carpetRule.name();

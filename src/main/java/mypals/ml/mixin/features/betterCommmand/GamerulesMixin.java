@@ -21,31 +21,27 @@
 package mypals.ml.mixin.features.betterCommmand;
 
 import mypals.ml.features.betterCommands.GamerulesDefaultValueSorter;
-import net.minecraft.world.GameRules;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.level.GameRules;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-//#if MC >= 12102
-import net.minecraft.resource.featuretoggle.FeatureSet;
-//#endif
-
 import java.util.Map;
 
 @Mixin(GameRules.class)
 public class GamerulesMixin {
     @Shadow
     @Final
-    public Map<GameRules.Key<?>, GameRules.Rule<?>> rules;
+    public Map<GameRules.Key<?>, GameRules.Value<?>> rules;
 
     @Inject(
             //#if MC < 12102
             //$$ method = "<init>()V",
             //#else
-            method = "<init>(Lnet/minecraft/resource/featuretoggle/FeatureSet;)V",
+            method = "<init>(Lnet/minecraft/world/flag/FeatureFlagSet;)V",
             //#endif
             at = @At(
                     "RETURN"
@@ -64,7 +60,7 @@ public class GamerulesMixin {
             //#if MC < 12102
             //$$ method = "<init>(Ljava/util/Map;)V",
             //#else
-            method = "<init>(Ljava/util/Map;Lnet/minecraft/resource/featuretoggle/FeatureSet;)V",
+            method = "<init>(Ljava/util/Map;Lnet/minecraft/world/flag/FeatureFlagSet;)V",
             //#endif
             at = @At(
                     "RETURN"
@@ -72,7 +68,7 @@ public class GamerulesMixin {
     )
     public void createGameRules2(Map rules,
                                  //#if MC >= 12102
-                                 FeatureSet enabledFeatures,
+                                 FeatureFlagSet enabledFeatures,
                                  //#endif
                                  CallbackInfo ci) {
         GamerulesDefaultValueSorter.gamerulesDefaultValues.clear();

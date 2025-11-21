@@ -24,11 +24,10 @@ import carpet.CarpetServer;
 import carpet.helpers.HopperCounter;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.WorldSavePath;
-
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.storage.LevelResource;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,10 +43,10 @@ public class HopperCounterDataManager {
     public static void initCounterManager() throws IOException {
         allCounters.clear();
         for (DyeColor color : DyeColor.values()) {
-            allCounters.put(color.getId(), HopperCounter.getCounter(color));
+            allCounters.put(color.getName(), HopperCounter.getCounter(color));
         }
-        ServerWorld overworld = CarpetServer.minecraft_server.getOverworld();
-        Path worldSavePath = overworld.getServer().getSavePath(WorldSavePath.ROOT).normalize();
+        ServerLevel overworld = CarpetServer.minecraft_server.overworld();
+        Path worldSavePath = overworld.getServer().getWorldPath(LevelResource.ROOT).normalize();
         Path countersDir = worldSavePath.resolve("counters");
         String csvFilePath = countersDir.resolve("counters.csv").toString();
         if (counterLogger == null) {
@@ -64,8 +63,8 @@ public class HopperCounterDataManager {
         if (tickCounter >= Integer.parseInt(YetAnotherCarpetAdditionRules.hopperCounterDataRecorder)) {
             tickCounter = 0;
 
-            ServerWorld overworld = CarpetServer.minecraft_server.getOverworld();
-            Path worldSavePath = overworld.getServer().getSavePath(WorldSavePath.ROOT).normalize();
+            ServerLevel overworld = CarpetServer.minecraft_server.overworld();
+            Path worldSavePath = overworld.getServer().getWorldPath(LevelResource.ROOT).normalize();
             Path countersDir = worldSavePath.resolve("counters");
             Path csvFilePath = countersDir.resolve("counters.csv");
 
@@ -80,7 +79,7 @@ public class HopperCounterDataManager {
                 allCounters.forEach((name, counter) -> {
                     if (counter != null) {
                         String counterValue = counter.getTotalItems() + "^^^";
-                        for (Text text : counter.format(CarpetServer.minecraft_server, false, false)) {
+                        for (Component text : counter.format(CarpetServer.minecraft_server, false, false)) {
                             counterValue += text.getString() + "@@";
                         }
                         counters.put(name, counterValue);

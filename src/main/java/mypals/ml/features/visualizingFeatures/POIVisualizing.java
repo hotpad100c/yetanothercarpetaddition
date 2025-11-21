@@ -22,40 +22,36 @@ package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-//#if MC >= 12105
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtString;
-//#endif
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.poi.PointOfInterest;
-import net.minecraft.world.poi.PointOfInterestType;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Map;
 
-public class POIVisualizing extends AbstractVisualizingManager<BlockPos, DisplayEntity.TextDisplayEntity> {
-    private static final Map<BlockPos, DisplayEntity.TextDisplayEntity> visualizers = new HashMap<>();
+public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display.TextDisplay> {
+    private static final Map<BlockPos, Display.TextDisplay> visualizers = new HashMap<>();
 
     @Override
-    protected void storeVisualizer(BlockPos key, DisplayEntity.TextDisplayEntity entity) {
+    protected void storeVisualizer(BlockPos key, Display.TextDisplay entity) {
         visualizers.put(key, entity);
     }
 
     @Override
-    protected void updateVisualizerEntity(DisplayEntity.TextDisplayEntity entity, Object data) {
+    protected void updateVisualizerEntity(Display.TextDisplay entity, Object data) {
         if (entity.isRemoved()) {
             entity.discard();
-            visualizers.remove(entity.getBlockPos());
+            visualizers.remove(entity.blockPosition());
             return;
         }
-        if (data instanceof PointOfInterest poi) {
-            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
+        if (data instanceof PoiRecord poi) {
+            CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
 
             //#if MC < 12105
             //$$
@@ -65,11 +61,11 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
             //$$ nbt.remove("text");
             //$$ nbt.putString("text", textJson);
             //#else
-            HashMap<String, NbtElement> textNbt = new HashMap<>();
-            textNbt.put("text", NbtString.of("[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
-                   poi.getType().value().ticketCount() + "]"));
-            textNbt.put("color", NbtString.of((poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white"))));
-            NbtCompound textComponent = new NbtCompound(textNbt);
+            HashMap<String, Tag> textNbt = new HashMap<>();
+            textNbt.put("text", StringTag.valueOf("[" + (poi.getPoiType().value().maxTickets() - poi.getFreeTickets()) + "/" +
+                   poi.getPoiType().value().maxTickets() + "]"));
+            textNbt.put("color", StringTag.valueOf((poi.getFreeTickets() <= 0 && poi.getPoiType().value().maxTickets() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white"))));
+            CompoundTag textComponent = new CompoundTag(textNbt);
             nbt.put("text", textComponent);
             //#endif
             NBTDataManager.writeToEntity(entity, nbt);
@@ -78,21 +74,21 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
     }
 
     @Override
-    protected DisplayEntity.TextDisplayEntity createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
-        if (data instanceof PointOfInterest poi) {
-            DisplayEntity.TextDisplayEntity entity = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
+    protected Display.TextDisplay createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
+        if (data instanceof PoiRecord poi) {
+            Display.TextDisplay entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
-            entity.setPos(pos.getX(), pos.getY() + 0.1f, pos.getZ());
-            entity.addCommandTag(getVisualizerTag());
-            entity.addCommandTag("DoNotTick");
-            world.spawnEntity(entity);
-            NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
+            entity.setPosRaw(pos.x(), pos.y() + 0.1f, pos.z());
+            entity.addTag(getVisualizerTag());
+            entity.addTag("DoNotTick");
+            world.addFreshEntity(entity);
+            CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
             nbt = configureCommonNbt(nbt);
-            String textJson = "{\"text\":\"" + "[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
-                    poi.getType().value().ticketCount() + "]"
-                    + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
+            String textJson = "{\"text\":\"" + "[" + (poi.getPoiType().value().maxTickets() - poi.getFreeTickets()) + "/" +
+                    poi.getPoiType().value().maxTickets() + "]"
+                    + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getPoiType().value().maxTickets() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
             nbt.putString("text", textJson);
             NBTDataManager.writeToEntity(entity, nbt);
 
@@ -103,22 +99,22 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
 
     public static int RANGE = 50;
 
-    public void setVisualizer(ServerWorld world, BlockPos key, Vec3d pos, Object data) {
+    public void setVisualizer(ServerLevel world, BlockPos key, Vec3 pos, Object data) {
         boolean playersNearBy = false;
-        for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
-            if (player.getEntityPos().distanceTo(pos) < RANGE) {
+        for (Player player : CarpetServer.minecraft_server.getPlayerList().players) {
+            if (player.position().distanceTo(pos) < RANGE) {
                 playersNearBy = true;
                 break;
             }
         }
 
         if (!playersNearBy) return;
-        super.setVisualizer((ServerWorld) world, key, pos, data);
+        super.setVisualizer((ServerLevel) world, key, pos, data);
     }
 
     @Override
     protected void removeVisualizerEntity(BlockPos key) {
-        DisplayEntity.TextDisplayEntity entity = visualizers.get(key);
+        Display.TextDisplay entity = visualizers.get(key);
         if (entity != null) {
             entity.discard();
             visualizers.remove(key);
@@ -131,7 +127,7 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
     }
 
     @Override
-    protected DisplayEntity.TextDisplayEntity getVisualizer(BlockPos key) {
+    protected Display.TextDisplay getVisualizer(BlockPos key) {
         return visualizers.get(key) == null ? null : visualizers.get(key);
     }
 

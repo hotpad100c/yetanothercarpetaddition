@@ -21,41 +21,24 @@
 package mypals.ml.Screen.RulesEditScreen;
 
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.ParentElement;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.render.GameRenderer;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-
-//#if MC >= 12109
-import net.minecraft.client.gui.Click;
-import net.minecraft.client.input.CharInput;
-import net.minecraft.client.input.KeyInput;
-//#endif
-
-//#if MC >= 12102
-import net.minecraft.client.gl.PostEffectProcessor;
-import net.minecraft.client.render.DefaultFramebufferSet;
-//#if MC >= 12104
-import net.minecraft.client.gui.widget.ScrollableTextFieldWidget;
-//#endif
-//#endif
-
-//#if MC >= 12106
-import net.minecraft.client.gl.RenderPipelines;
-//#elseif MC >= 12102
-//$$ import static net.minecraft.client.render.RenderLayer.getGui;
-//#endif
-
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.events.ContainerEventHandler;
+import net.minecraft.client.gui.narration.NarrationElementOutput;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.LevelTargetBundle;
+import net.minecraft.client.renderer.PostChain;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -67,36 +50,36 @@ import java.util.regex.Pattern;
 import static mypals.ml.YetAnotherCarpetAdditionClient.*;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
-public class RulesEditScreen extends Screen implements ParentElement {
-    private static final Text CONFIGURE_TEXT = Text.translatable("gui.screen.configure");
-    private static final Identifier CONFIGURE_TEXTURE = Identifier.of(MOD_ID, "textures/gui/configure.png");
+public class RulesEditScreen extends Screen implements ContainerEventHandler {
+    private static final Component CONFIGURE_TEXT = Component.translatable("gui.screen.configure");
+    private static final ResourceLocation CONFIGURE_TEXTURE = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/configure.png");
     public String currentCategory = "unknown";
     public String lastCategoryBeforeSearching = currentCategory;
     private static CopyOnWriteArrayList<RuleWidget> rulesInCurrentCategory = new CopyOnWriteArrayList<>();
     private static List<CategoryEntry> categoriesInScreen = new ArrayList<>();
     public ConstantScrollableWidget rulesScrollableWidget;
     public ConstantScrollableWidget categoriesScrollableWidget;
-    public List<Text> currentToolTips = new ArrayList<>();
-    public TextFieldWidget searchFieldWidget;
+    public List<Component> currentToolTips = new ArrayList<>();
+    public EditBox searchFieldWidget;
     public boolean searching = false;
     private static Pattern searchRulePattern = Pattern.compile("(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])");
 
-    public RulesEditScreen(Text title) {
+    public RulesEditScreen(Component title) {
         super(title);
     }
 
     //Im sorry.
 
     //#if MC >= 12109
-    public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+    public boolean mouseDragged(MouseButtonEvent click, double deltaX, double deltaY) {
        return super.mouseDragged(click,deltaX,deltaY) || this.rulesScrollableWidget.mouseDragged(click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(click,deltaX,deltaY);
     }
     @Override
-    public boolean keyPressed(KeyInput keyInput) {
+    public boolean keyPressed(KeyEvent keyInput) {
        return super.keyPressed(keyInput) || this.rulesScrollableWidget.keyPressed(keyInput) || this.categoriesScrollableWidget.keyPressed(keyInput) || searchFieldWidget.keyPressed(keyInput);
     }
     @Override
-    public boolean charTyped(CharInput charInput){
+    public boolean charTyped(CharacterEvent charInput){
        return super.charTyped(charInput) || this.rulesScrollableWidget.charTyped(charInput) || this.categoriesScrollableWidget.charTyped(charInput) || searchFieldWidget.charTyped(charInput);
     }
     //#elseif MC >= 12106
@@ -217,13 +200,13 @@ public class RulesEditScreen extends Screen implements ParentElement {
     protected void init() {
         setCurrentCategory(chachedCategories.get(2));
 
-        this.addDrawableChild(
+        this.addRenderableWidget(
 
                 searchFieldWidget =
-                        new TextFieldWidget(MinecraftClient.getInstance().textRenderer,
+                        new EditBox(Minecraft.getInstance().font,
                                 15, 10, this.width - (this.width / 3) - 7, 15, CONFIGURE_TEXT) {
                             @Override
-                            public void renderWidget(DrawContext context, int mouseX, int mouseY, float delta) {
+                            public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
                                 if (this.isVisible()) {
                                     context.fill(
                                             //#if MC < 12106
@@ -242,8 +225,8 @@ public class RulesEditScreen extends Screen implements ParentElement {
                                 }
                             }
                         });
-        searchFieldWidget.setDrawsBackground(false);
-        searchFieldWidget.setChangedListener(newText -> {
+        searchFieldWidget.setBordered(false);
+        searchFieldWidget.setResponder(newText -> {
             if (newText.isEmpty()) {
                 searching = false;
                 setCurrentCategory(lastCategoryBeforeSearching);
@@ -270,11 +253,11 @@ public class RulesEditScreen extends Screen implements ParentElement {
         searchFieldWidget.setMaxLength(100);
 
 
-        this.addDrawableChild(
+        this.addRenderableWidget(
                 rulesScrollableWidget = new
 
                         ConstantScrollableWidget
-                                (0, 30, this.width - (this.width / 3), this.height - 30, ScreenTexts.EMPTY) {
+                                (0, 30, this.width - (this.width / 3), this.height - 30, CommonComponents.EMPTY) {
                             int boxWidth = this.width - 10;
                             int boxHeight = 30;
                             int spacing = 5;
@@ -302,7 +285,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             //else
                             //renderWidget
                             //endif
-                            (DrawContext context, int mouseX, int mouseY, float delta) {
+                            (GuiGraphics context, int mouseX, int mouseY, float delta) {
 
 
                                 int index = 0;
@@ -316,7 +299,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                                     boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y &&
                                             adjustedMouseY <= y + boxHeight && mouseY >= this.getY();
 
-                                    List<Text> tooltips = entry.renderContents(context, mouseX, mouseY, delta, isMouseOver,
+                                    List<Component> tooltips = entry.renderContents(context, mouseX, mouseY, delta, isMouseOver,
                                             index, spacing, boxHeight, boxWidth);
 
                                     currentToolTips = currentToolTips.isEmpty() && !(tooltips == null) ? tooltips
@@ -329,7 +312,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             @Override
                             public boolean mouseClicked(
                                     //#if MC >= 12109
-                                    Click click, boolean doubled
+                                    MouseButtonEvent click, boolean doubled
                                     //#else
                                     //$$ double mouseX, double mouseY, int button
                                     //#endif
@@ -365,7 +348,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             @Override
                             public boolean charTyped(
                                     //#if MC >= 12109
-                                    CharInput charInput
+                                    CharacterEvent charInput
                                     //#else
                                     //$$ char chr, int modifiers
                                     //#endif
@@ -394,7 +377,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             @Override
                             public boolean keyPressed(
                                     //#if MC >= 12109
-                                    KeyInput keyInput
+                                    KeyEvent keyInput
                                     //#else
                                     //$$ int keyCode, int scanCode, int modifiers
                                     //#endif
@@ -422,12 +405,12 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             }
 
                             @Override
-                            protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+                            protected void updateWidgetNarration(NarrationElementOutput builder) {
 
                             }
 
                             @Override
-                            protected void drawBox(DrawContext context, int x, int y, int width, int height) {
+                            protected void drawBox(GuiGraphics context, int x, int y, int width, int height) {
                                 context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(),
                                         0x19000000
                                 );
@@ -436,10 +419,10 @@ public class RulesEditScreen extends Screen implements ParentElement {
         //#if MC >= 12106
         rulesScrollableWidget.setAlpha(0.7f);
         //#endif
-        this.addDrawableChild(categoriesScrollableWidget = new
+        this.addRenderableWidget(categoriesScrollableWidget = new
 
                 ConstantScrollableWidget
-                        (this.width - (this.width / 3) + 30, 30, 120, this.height - 30, ScreenTexts.EMPTY) {
+                        (this.width - (this.width / 3) + 30, 30, 120, this.height - 30, CommonComponents.EMPTY) {
                     int boxWidth = this.width - 10;
                     int boxHeight = 20;
                     int spacing = 5;
@@ -467,7 +450,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                     //else
                     //renderWidget
                     //endif
-                    (DrawContext context, int mouseX, int mouseY, float delta) {
+                    (GuiGraphics context, int mouseX, int mouseY, float delta) {
                         int index = 0;
                         double adjustedMouseY = mouseY + this.getScrollY();
 
@@ -477,7 +460,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
                             boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight;
                             context.fillGradient(x, y, x + boxWidth, y + boxHeight, categoryEntry.selected ? 0x2F060606 : 0x50060606, categoryEntry.selected ? 0x50060606 : 0x20060606);
-                            context.drawText(MinecraftClient.getInstance().textRenderer,
+                            context.drawString(Minecraft.getInstance().font,
                                     categoryEntry.name, x + 5, y + 5, 0xFFFFFFFF, true);
 
                             context.fill(x, y+boxHeight-2, x + boxWidth,  y+boxHeight,  isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB());
@@ -490,7 +473,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                     @Override
                     public boolean mouseClicked(
                             //#if MC >= 12109
-                            Click click, boolean doubled
+                            MouseButtonEvent click, boolean doubled
                             //#else
                             //$$ double mouseX, double mouseY, int button
                             //#endif
@@ -510,7 +493,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                                 setCurrentCategory(entry.getName());
                                 entry.setSelected(true);
                                 categoriesInScreen.get(index).setSelected(true);
-                                MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                                 //rulesScrollableWidget.setScrollY()
                                 return true;
                             } else {
@@ -529,12 +512,12 @@ public class RulesEditScreen extends Screen implements ParentElement {
                     }
 
                     @Override
-                    protected void appendClickableNarrations(NarrationMessageBuilder builder) {
+                    protected void updateWidgetNarration(NarrationElementOutput builder) {
 
                     }
 
                     @Override
-                    protected void drawBox(DrawContext context, int x, int y, int width, int height) {
+                    protected void drawBox(GuiGraphics context, int x, int y, int width, int height) {
                         context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
                     }
 
@@ -543,37 +526,37 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
-        context.drawTexture(
+        context.blit(
                 //#if MC >= 12106
                 RenderPipelines.GUI_TEXTURED,
                 //#elseif MC >= 12102
                 //$$ RenderLayer::getGuiTextured,
                 //#endif
-                searching ? Identifier.of(MOD_ID, "ui/search_s.png") : Identifier.of(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
+                searching ? ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/search_s.png") : ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
-            context.drawTooltip(MinecraftClient.getInstance().textRenderer, currentToolTips, mouseX, mouseY);
+            context.setComponentTooltipForNextFrame(Minecraft.getInstance().font, currentToolTips, mouseX, mouseY);
     }
 
     @Override
-    public void renderBackground(DrawContext context, int mouseX, int mouseY, float delta) {
-        renderBackgroundTexture(context
+    public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        renderMenuBackgroundTexture(context
                 //#if MC > 12004
-                , MENU_BACKGROUND_TEXTURE, 0, 0, 0.0F, 0.0F, width, height
+                , MENU_BACKGROUND, 0, 0, 0.0F, 0.0F, width, height
                 //#endif
         );
-        GameRenderer gameRenderer = MinecraftClient.getInstance().gameRenderer;
+        GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
         if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
             //#if MC >= 12102
-            Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
-            PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
+            ResourceLocation BLUR_SHADER = ResourceLocation.withDefaultNamespace("blur");
+            PostChain blur = minecraft.getShaderManager().getPostChain(BLUR_SHADER, LevelTargetBundle.MAIN_TARGETS);
             if (blur != null) {
 
             //#if MC >= 12106
-            context.applyBlur();
+            context.blurBeforeThisStratum();
             //#elseif MC >= 12105
             //$$ blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
             //#else
@@ -592,7 +575,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
         }
 
 
-        context.drawText(MinecraftClient.getInstance().textRenderer,
+        context.drawString(Minecraft.getInstance().font,
                 currentCategory, this.width - (this.width / 3) + 20, 17, 0xFFFFFFFF, true);
         /*context.fill(this.width - (this.width / 3) + 15, 0, this.width - (this.width / 3) + 20,
                 this.height, 0xAAC0C0C0);

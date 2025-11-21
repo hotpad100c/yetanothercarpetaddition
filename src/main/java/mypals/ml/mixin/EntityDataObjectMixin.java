@@ -24,10 +24,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.minecraft.command.EntityDataObject;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.commands.data.EntityDataAccessor;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -38,22 +37,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.UUID;
 
-import static net.minecraft.command.EntitySelectorReader.INVALID_ENTITY_EXCEPTION;
+import static net.minecraft.commands.arguments.selector.EntitySelectorParser.ERROR_INVALID_NAME_OR_UUID;
 
-@Mixin(EntityDataObject.class)
+@Mixin(EntityDataAccessor.class)
 public class EntityDataObjectMixin {
     @Shadow
     @Final
     private Entity entity;
 
-    @Inject(method = "setNbt",
-            at = @At(value = "FIELD", target = "Lnet/minecraft/command/EntityDataObject;INVALID_ENTITY_EXCEPTION:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;"),
+    @Inject(method = "setData",
+            at = @At(value = "FIELD", target = "Lnet/minecraft/server/commands/data/EntityDataAccessor;ERROR_NO_PLAYERS:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;"),
             cancellable = true)
-    public void setNbt(NbtCompound nbt, CallbackInfo ci) throws CommandSyntaxException {
+    public void setNbt(CompoundTag nbt, CallbackInfo ci) throws CommandSyntaxException {
         if (YetAnotherCarpetAdditionRules.bypassModifyPlayerDataRestriction) {
-            UUID uUID = this.entity.getUuid();
+            UUID uUID = this.entity.getUUID();
             NBTDataManager.writeToEntity(this.entity, nbt);
-            this.entity.setUuid(uUID);
+            this.entity.setUUID(uUID);
             ci.cancel();
         }
     }
