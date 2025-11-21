@@ -34,6 +34,9 @@ dependencies {
 	// dependencies
 	include(modImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
 	include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
+
+    // runtime
+    modRuntimeOnly "me.fallenbreath:mixin-auditor:0.1.0"
 }
 
 String MIXIN_CONFIG_PATH = 'yetanothercarpetaddition.mixins.json'
@@ -60,6 +63,21 @@ loom {
 		runDir '../../run'
 		vmArgs commonVmArgs
 	}
+
+    runs {
+        def auditVmArgs = ['-DmixinAuditor.audit=true', '-Dmixin.debug.export=true']
+        serverMixinAudit {
+            server()
+            vmArgs auditVmArgs
+            ideConfigGenerated false
+        }
+
+        clientMixinAudit {
+            client()
+            vmArgs(*auditVmArgs, '-DmixinAuditor.when=game_init')
+            ideConfigGenerated false
+        }
+    }
 }
 
 String modVersionSuffix = ''
