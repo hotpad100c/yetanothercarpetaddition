@@ -33,7 +33,7 @@ import net.minecraft.util.DyeColor;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 //#if MC >= 12106
-//$$ import org.joml.Matrix3x2fStack;
+import org.joml.Matrix3x2fStack;
 //#endif
 
 import java.awt.*;
@@ -105,21 +105,21 @@ public class CounterViewerScreen extends Screen implements ParentElement {
 
         public void render(
                 //#if MC >= 12106
-                //$$ Matrix3x2fStack poseStack
+                Matrix3x2fStack poseStack
                 //#else
-                MatrixStack poseStack
+                //$$ MatrixStack poseStack
                 //#endif
                 , DrawContext drawContext
         ) {
 
             //#if MC >= 12106
-            //$$ poseStack.pushMatrix();
-            //$$ poseStack.translate(this.startPoint.x, this.startPoint.y);
-            //$$ poseStack.rotate(this.rotationAngleInDeg);
+            poseStack.pushMatrix();
+            poseStack.translate(this.startPoint.x, this.startPoint.y);
+            poseStack.rotate(this.rotationAngleInDeg);
             //#else
-            poseStack.push();
-            poseStack.translate(this.startPoint.x, this.startPoint.y, 0);
-            poseStack.multiply(new Quaternionf().rotationAxis((float) Math.toRadians(this.rotationAngleInDeg), new Vector3f(0, 0, 90)));
+            //$$ poseStack.push();
+            //$$ poseStack.translate(this.startPoint.x, this.startPoint.y, 0);
+            //$$ poseStack.multiply(new Quaternionf().rotationAxis((float) Math.toRadians(this.rotationAngleInDeg), new Vector3f(0, 0, 90)));
             //#endif
             if (this.lineWidth % 2 == 0 || this.lineWidth == 1) {
                 drawContext.fill(0, 0,
@@ -129,9 +129,9 @@ public class CounterViewerScreen extends Screen implements ParentElement {
                         (int) this.lineLength + 1, this.lineWidth / 2, this.color);
             }
             //#if MC >= 12106
-            //$$ poseStack.popMatrix();
+            poseStack.popMatrix();
             //#else
-            poseStack.pop();
+            //$$ poseStack.pop();
             //#endif
         }
 
@@ -284,7 +284,7 @@ public class CounterViewerScreen extends Screen implements ParentElement {
     protected void init() {
         Arrays.stream(DyeColor.values()).forEach(color -> {
             int colorValue = color.getSignColor();
-            COLORS.put(color.getName(), colorValue);
+            COLORS.put(color.getId(), colorValue);
         });
         viewModeButton = this.addDrawableChild(CyclingButtonWidget.<ViewMode>builder(
                         viewMode -> Text.translatable(viewMode.getKey())
@@ -311,9 +311,9 @@ public class CounterViewerScreen extends Screen implements ParentElement {
         super.render(context, mouseX, mouseY, delta);
 
         //#if MC >= 12106
-        //$$ Matrix3x2fStack poseStack = context.getMatrices();
+        Matrix3x2fStack poseStack = context.getMatrices();
         //#else
-        MatrixStack poseStack = context.getMatrices();
+        //$$ MatrixStack poseStack = context.getMatrices();
         //#endif
 
         int chartX = 40;

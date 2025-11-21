@@ -32,7 +32,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 //#if MC >= 12105
-//$$ import net.minecraft.entity.EntityCollisionHandler;
+import net.minecraft.entity.EntityCollisionHandler;
 //#endif
 
 @Mixin(SlimeBlock.class)
@@ -44,7 +44,7 @@ public abstract class SlimeBlockMixin extends TranslucentBlock {
     @Override
     public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity
                                   //#if MC >= 12105
-                                  //$$ , EntityCollisionHandler handler
+                                  , EntityCollisionHandler handler
                                   //#endif
 
     ) {

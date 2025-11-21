@@ -38,7 +38,7 @@ import net.minecraft.world.GameRules;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 //#if MC >= 12102
-//$$ import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.command.CommandRegistryAccess;
 //#endif
 
 import static mypals.ml.features.betterCommands.GamerulesDefaultValueSorter.gamerulesDefaultValues;
@@ -48,7 +48,7 @@ public class GameRuleCommandMixin {
     @WrapMethod(method = "register")
     private static <T> void register(CommandDispatcher<ServerCommandSource> dispatcher,
                                      //#if MC >= 12102
-                                     //$$ CommandRegistryAccess commandRegistryAccess,
+                                     CommandRegistryAccess commandRegistryAccess,
                                      //#endif
                                      Operation<Void> original) {
         final LiteralArgumentBuilder<ServerCommandSource> literalArgumentBuilder = CommandManager.literal("gamerule")
@@ -59,9 +59,9 @@ public class GameRuleCommandMixin {
                     return 1;
                 });
         //#if MC < 12102
-        GameRules
+        //$$ GameRules
         //#else
-        //$$ new GameRules(commandRegistryAccess.getEnabledFeatures())
+        new GameRules(commandRegistryAccess.getEnabledFeatures())
         //#endif
             .accept(new GameRules.Visitor() {
             public <T extends GameRules.Rule<T>> void visit(GameRules.Key<T> key, GameRules.Type<T> type) {

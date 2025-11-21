@@ -156,7 +156,7 @@ public class DataCommandMixin {
         } else if (nbtElement instanceof AbstractNbtList) {
             i = ((AbstractNbtList
                     //#if MC < 12105
-                    <?>
+                    //$$ <?>
                     //#endif
                     )
                     nbtElement).size();
@@ -218,7 +218,7 @@ public class DataCommandMixin {
             text.append(Text.literal("}"));
         } else if (element instanceof AbstractNbtList
                 //#if MC < 12105
-                <?>
+                //$$ <?>
                 //#endif
                 list) {
             text.append(Text.literal("[\n"));

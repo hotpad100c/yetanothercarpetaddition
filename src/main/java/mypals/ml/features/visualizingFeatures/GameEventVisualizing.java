@@ -36,10 +36,10 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 //#if MC >= 12105
-//$$ import net.minecraft.nbt.NbtList;
-//$$ import net.minecraft.nbt.NbtElement;
-//$$ import net.minecraft.nbt.NbtString;
-//$$ import java.util.HashMap;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtString;
+import java.util.HashMap;
 //#endif
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,40 +62,40 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
         public void setVisualizer(ServerWorld world, Vec3d pos, String trigger, String type) {
             if (textMarker != null && !textMarker.isRemoved()) {
                 //#if MC < 12105
-                JsonObject textJson = new JsonObject();
-                textJson.addProperty("text", "");
-                JsonArray extra = new JsonArray();
-
-                JsonObject triggerPart = new JsonObject();
-                triggerPart.addProperty("text", trigger);
-                triggerPart.addProperty("color", "blue");
-                extra.add(triggerPart);
-
-                JsonObject typePart = new JsonObject();
-                typePart.addProperty("text", "\n" + type);
-                typePart.addProperty("color", "blue");
-                extra.add(typePart);
-
-                textJson.add("extra", extra);
+                //$$ JsonObject textJson = new JsonObject();
+                //$$ textJson.addProperty("text", "");
+                //$$ JsonArray extra = new JsonArray();
+                //$$
+                //$$ JsonObject triggerPart = new JsonObject();
+                //$$ triggerPart.addProperty("text", trigger);
+                //$$ triggerPart.addProperty("color", "blue");
+                //$$ extra.add(triggerPart);
+                //$$
+                //$$ JsonObject typePart = new JsonObject();
+                //$$ typePart.addProperty("text", "\n" + type);
+                //$$ typePart.addProperty("color", "blue");
+                //$$ extra.add(typePart);
+                //$$
+                //$$ textJson.add("extra", extra);
                 //#else
-                //$$ NbtList nbtList = new NbtList();
-                //$$ HashMap<String, NbtElement> triggerPart = new HashMap<>();
-                //$$ triggerPart.put("text", NbtString.of(String.valueOf(trigger)));
-                //$$ triggerPart.put("color", NbtString.of("blue"));
-                //$$ NbtCompound textComponent = new NbtCompound(triggerPart);
-                //$$ nbtList.add(textComponent);
-                //$$ HashMap<String, NbtElement> typePart = new HashMap<>();
-                //$$ typePart.put("text", NbtString.of("\n" + type));
-                //$$ typePart.put("color", NbtString.of("blue"));
-                //$$ textComponent = new NbtCompound(typePart);
-                //$$ nbtList.add(textComponent);
+                NbtList nbtList = new NbtList();
+                HashMap<String, NbtElement> triggerPart = new HashMap<>();
+                triggerPart.put("text", NbtString.of(String.valueOf(trigger)));
+                triggerPart.put("color", NbtString.of("blue"));
+                NbtCompound textComponent = new NbtCompound(triggerPart);
+                nbtList.add(textComponent);
+                HashMap<String, NbtElement> typePart = new HashMap<>();
+                typePart.put("text", NbtString.of("\n" + type));
+                typePart.put("color", NbtString.of("blue"));
+                textComponent = new NbtCompound(typePart);
+                nbtList.add(textComponent);
                 //#endif
 
                 NbtCompound nbt = NBTDataManager.readFromEntity(textMarker, new NbtCompound());
                 //#if MC < 12105
-                nbt.putString("text", textJson.toString());
+                //$$ nbt.putString("text", textJson.toString());
                 //#else
-                //$$ nbt.put("text", nbtList);
+                nbt.put("text", nbtList);
                 //#endif
                 NBTDataManager.writeToEntity(textMarker, nbt);
             } else {
@@ -123,41 +123,41 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
             entity.setInvulnerable(true);
 
             //#if MC < 12105
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
-
-            JsonObject triggerPart = new JsonObject();
-            triggerPart.addProperty("text", trigger);
-            triggerPart.addProperty("color", "blue");
-            extra.add(triggerPart);
-
-            JsonObject typePart = new JsonObject();
-            typePart.addProperty("text", "\n" + type);
-            typePart.addProperty("color", "blue");
-            extra.add(typePart);
-
-            textJson.add("extra", extra);
+            //$$ JsonObject textJson = new JsonObject();
+            //$$ textJson.addProperty("text", "");
+            //$$ JsonArray extra = new JsonArray();
+            //$$
+            //$$ JsonObject triggerPart = new JsonObject();
+            //$$ triggerPart.addProperty("text", trigger);
+            //$$ triggerPart.addProperty("color", "blue");
+            //$$ extra.add(triggerPart);
+            //$$
+            //$$ JsonObject typePart = new JsonObject();
+            //$$ typePart.addProperty("text", "\n" + type);
+            //$$ typePart.addProperty("color", "blue");
+            //$$ extra.add(typePart);
+            //$$
+            //$$ textJson.add("extra", extra);
             //#else
-            //$$ NbtList nbtList = new NbtList();
-            //$$ HashMap<String, NbtElement> triggerPart = new HashMap<>();
-            //$$ triggerPart.put("text", NbtString.of(trigger));
-            //$$ triggerPart.put("color", NbtString.of("blue"));
-            //$$ NbtCompound textComponent = new NbtCompound(triggerPart);
-            //$$ nbtList.add(textComponent);
-            //$$ HashMap<String, NbtElement> typePart = new HashMap<>();
-            //$$ typePart.put("text", NbtString.of("\n" + type));
-            //$$ typePart.put("color", NbtString.of("blue"));
-            //$$ textComponent = new NbtCompound(typePart);
-            //$$ nbtList.add(textComponent);
+            NbtList nbtList = new NbtList();
+            HashMap<String, NbtElement> triggerPart = new HashMap<>();
+            triggerPart.put("text", NbtString.of(trigger));
+            triggerPart.put("color", NbtString.of("blue"));
+            NbtCompound textComponent = new NbtCompound(triggerPart);
+            nbtList.add(textComponent);
+            HashMap<String, NbtElement> typePart = new HashMap<>();
+            typePart.put("text", NbtString.of("\n" + type));
+            typePart.put("color", NbtString.of("blue"));
+            textComponent = new NbtCompound(typePart);
+            nbtList.add(textComponent);
             //#endif
 
             NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt.putString("billboard", "center");
             //#if MC < 12105
-            nbt.putString("text", textJson.toString());
+            //$$ nbt.putString("text", textJson.toString());
             //#else
-            //$$ nbt.put("text", nbtList);
+            nbt.put("text", nbtList);
             //#endif
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
@@ -205,7 +205,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
 
     @Override
     protected void storeVisualizer(Vec3d key, GameEventObject entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.textMarker.getWorld())));
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.textMarker.getEntityWorld())));
     }
 
     @Override
@@ -248,7 +248,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3d, Game
         visualizers.forEach((pos, entry) -> {
             GameEventObject object = entry.getKey();
             long time = entry.getValue();
-            if (time < object.textMarker.getWorld().getTime()) {
+            if (time < object.textMarker.getEntityWorld().getTime()) {
                 object.removeVisualizer();
                 visualizers.remove(pos);
             }

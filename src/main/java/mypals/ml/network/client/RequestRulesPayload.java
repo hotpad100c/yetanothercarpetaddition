@@ -26,7 +26,7 @@ import net.minecraft.network.packet.CustomPayload;
 //#if MC >= 12006
 import net.minecraft.network.codec.PacketCodec;
 //#else
-import net.minecraft.util.Identifier;
+//$$ import net.minecraft.util.Identifier;
 //#endif
 
 public record  RequestRulesPayload(String lang) implements CustomPayload {

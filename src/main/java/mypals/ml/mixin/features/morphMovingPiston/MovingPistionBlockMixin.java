@@ -40,15 +40,15 @@ import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 //#if MC >= 12004
-//$$ import net.minecraft.util.Hand;
+import net.minecraft.util.Hand;
 //#endif
 
 //#if MC >= 12102
-//$$ import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.Unique;
 //#endif
 
 //#if MC >= 12105
-//$$ import net.minecraft.entity.EntityCollisionHandler;
+import net.minecraft.entity.EntityCollisionHandler;
 //#endif
 
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.morphMovingPiston;
@@ -60,8 +60,8 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     }
 
     //#if MC >= 12102
-    //$$ @Unique
-    //$$ PistonBlockEntity pistonBlockEntity;
+    @Unique
+    PistonBlockEntity pistonBlockEntity;
     //#endif
 
     @Shadow
@@ -76,7 +76,7 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
                               BlockHitResult hit, Operation<ActionResult> original) {
         if (morphMovingPiston) {
             //#if MC < 12102
-            PistonBlockEntity
+            //$$ PistonBlockEntity
             //#endif
                 pistonBlockEntity = this.getPistonBlockEntity(world, pos);
             return pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null ?
@@ -96,13 +96,13 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     @Override
     public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity,
                              //#if MC < 12105
-                             float fallDistance
+                             //$$ float fallDistance
                              //#else
-                             //$$ double fallDistance
+                             double fallDistance
                              //#endif
     ) {
         //#if MC < 12102
-        PistonBlockEntity
+        //$$ PistonBlockEntity
         //#endif
             pistonBlockEntity = this.getPistonBlockEntity(world, pos);
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
@@ -116,18 +116,18 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     public void onEntityCollision(
             BlockState state, World world, BlockPos pos, Entity entity
             //#if MC >= 12105
-            //$$ , EntityCollisionHandler entityCollisionHandler
+            , EntityCollisionHandler entityCollisionHandler
             //#endif
     ) {
         //#if MC < 12102
-        PistonBlockEntity
+        //$$ PistonBlockEntity
         //#endif
             pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
             pistonBlockEntity.getPushedBlock().getBlock().onEntityCollision(
                     pistonBlockEntity.getPushedBlock(), world, pos, entity
                     //#if MC >= 12105
-                    //$$ , entityCollisionHandler
+                    , entityCollisionHandler
                     //#endif
             );
     }
@@ -135,7 +135,7 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     @Override
     public void onEntityLand(BlockView world, Entity entity) {
         //#if MC < 12102
-        PistonBlockEntity
+        //$$ PistonBlockEntity
         //#endif
             pistonBlockEntity = this.getPistonBlockEntity(world, entity.getSteppingPos());
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
@@ -160,7 +160,7 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
 
         //#if MC < 12102
-        PistonBlockEntity
+        //$$ PistonBlockEntity
         //#endif
             pistonBlockEntity = this.getPistonBlockEntity(world, pos);
         if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston)
@@ -175,25 +175,25 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     }*/
 
     //#if MC < 12102
-    @Override
-    public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
-
+    //$$ @Override
+    //$$ public boolean isTransparent(BlockState state, BlockView world, BlockPos pos) {
+    //$$
         //#if MC < 12102
-        PistonBlockEntity
+        //$$ PistonBlockEntity
         //#endif
-            pistonBlockEntity = this.getPistonBlockEntity(world, pos);
-        if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston) {
-            return pistonBlockEntity.getPushedBlock().getBlock().isTransparent(pistonBlockEntity.getPushedBlock(), world, pos);
-        } else
-            return true;
-    }
+    //$$         pistonBlockEntity = this.getPistonBlockEntity(world, pos);
+    //$$     if (pistonBlockEntity != null && pistonBlockEntity.getPushedBlock() != null && morphMovingPiston) {
+    //$$         return pistonBlockEntity.getPushedBlock().getBlock().isTransparent(pistonBlockEntity.getPushedBlock(), world, pos);
+    //$$     } else
+    //$$         return true;
+    //$$ }
     //#endif
 
     @WrapMethod(method = "getOutlineShape")
     public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context, Operation<VoxelShape> original) {
         if (morphMovingPiston) {
             //#if MC < 12102
-            PistonBlockEntity
+            //$$ PistonBlockEntity
             //#endif
                 pistonBlockEntity = this.getPistonBlockEntity(world, pos);
             return pistonBlockEntity.getCollisionShape(world, pos) != null ? pistonBlockEntity.getCollisionShape(world, pos) : VoxelShapes.empty();
@@ -205,21 +205,21 @@ public abstract class MovingPistionBlockMixin extends BlockWithEntity {
     @WrapMethod(method = "getPickStack")
     public ItemStack getPickStack(WorldView world, BlockPos pos, BlockState state,
                                   //#if MC >= 12104
-                                  //$$ boolean includeData,
+                                  boolean includeData,
                                   //#endif
                                   Operation<ItemStack> original) {
         if (morphMovingPiston) {
             if (getPistonBlockEntity(world, pos) != null && getPistonBlockEntity(world, pos).getPushedBlock() != null)
                 return getPistonBlockEntity(world, pos).getPushedBlock().getBlock().getPickStack(world, pos, getPistonBlockEntity(world, pos).getPushedBlock()
                         //#if MC >= 12104
-                        //$$ , includeData
+                        , includeData
                         //#endif
                 );
             else return ItemStack.EMPTY;
         }
         return original.call(world, pos, state
             //#if MC >= 12104
-            //$$ , includeData
+            , includeData
             //#endif
         );
     }

@@ -92,7 +92,7 @@ public class FlatChunkGeneratorMixin {
                         for (int z = 0; z < 16; ++z) {
                             chunk.setBlockState(mutable.set(x, ytop, z), blockState
                                     //#if MC <= 12104
-                                    , false
+                                    //$$ , false
                                     //#endif
                             );
                             heightmapOcean.trackUpdate(x, ytop, z, blockState);
@@ -124,7 +124,7 @@ public class FlatChunkGeneratorMixin {
                     1
             );
         }
-        Optional<Block> block1 = Registries.BLOCK.getOrEmpty(blockId1);
+        Optional<Block> block1 = Registries.BLOCK.getOptionalValue(blockId1);
         if (block1.isEmpty()) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     Blocks.WHITE_STAINED_GLASS,
@@ -141,7 +141,7 @@ public class FlatChunkGeneratorMixin {
                     1
             );
         }
-        Optional<Block> block2 = Registries.BLOCK.getOrEmpty(blockId2);
+        Optional<Block> block2 = Registries.BLOCK.getOptionalValue(blockId2);
         if (block2.isEmpty()) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     block1.get(),

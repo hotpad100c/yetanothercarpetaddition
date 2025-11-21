@@ -38,7 +38,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.BooleanSupplier;
 //#if MC >= 12102
-//$$ import net.minecraft.world.block.WireOrientation;
+import net.minecraft.world.block.WireOrientation;
 //#endif
 
 @Mixin(World.class)
@@ -50,18 +50,18 @@ public abstract class WorldUpdateComparatorsMixin {
             method = "updateComparators",
             at = @At(
                     //#if MC < 12102
-                    target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
+                    //$$ target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
                     //#else
-                    //$$ target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
+                    target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
                     //#endif
                     ordinal = 0, value = "INVOKE"
             )
     )
     private void AddCPMarkerSimple(World instance, BlockState state, BlockPos pos, Block sourceBlock,
                                    //#if MC < 12102
-                                   BlockPos sourcePos,
+                                   //$$ BlockPos sourcePos,
                                    //#else
-                                   //$$ WireOrientation orientation,
+                                   WireOrientation orientation,
                                    //#endif
                                    boolean notify, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.comparatorUpdateVisualize && !this.isClient())
@@ -69,9 +69,9 @@ public abstract class WorldUpdateComparatorsMixin {
         original.call(
                 instance, state, pos, sourceBlock,
                 //#if MC < 12102
-                sourcePos,
+                //$$ sourcePos,
                 //#else
-                //$$ orientation,
+                orientation,
                 //#endif
                 notify
         );
@@ -81,27 +81,27 @@ public abstract class WorldUpdateComparatorsMixin {
             method = "updateComparators",
             at = @At(
                     //#if MC < 12102
-                    target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
+                    //$$ target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
                     //#else
-                    //$$ target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
+                    target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
                     //#endif
                     ordinal = 1, value = "INVOKE"
             )
     )
     private void AddCPMarkerThroughBlocks(World instance, BlockState state, BlockPos pos, Block sourceBlock,
                                           //#if MC < 12102
-                                          BlockPos sourcePos,
+                                          //$$ BlockPos sourcePos,
                                           //#else
-                                          //$$ WireOrientation orientation,
+                                          WireOrientation orientation,
                                           //#endif
                                           boolean notify, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.comparatorUpdateVisualize && !this.isClient())
             YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) this, pos, BlockUpdateVisualizing.UpdateType.CP);
         original.call(instance, state, pos, sourceBlock,
                 //#if MC < 12102
-                sourcePos,
+                //$$ sourcePos,
                 //#else
-                //$$ orientation,
+                orientation,
                 //#endif
                 notify);
     }

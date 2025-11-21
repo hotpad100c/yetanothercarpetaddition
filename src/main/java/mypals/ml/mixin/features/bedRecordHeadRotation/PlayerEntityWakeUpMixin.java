@@ -57,14 +57,14 @@ public abstract class PlayerEntityWakeUpMixin extends PlayerEntity {
     public ServerPlayNetworkHandler networkHandler;
 
     //#if MC >= 12106
-    //$$ public PlayerEntityWakeUpMixin(World world, GameProfile gameProfile) {
-    //$$     super(world, gameProfile);
-    //$$ }
-    //#else
-    public PlayerEntityWakeUpMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
-
-        super(world, pos, yaw, gameProfile);
+    public PlayerEntityWakeUpMixin(World world, GameProfile gameProfile) {
+        super(world, gameProfile);
     }
+    //#else
+    //$$ public PlayerEntityWakeUpMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
+    //$$
+    //$$     super(world, pos, yaw, gameProfile);
+    //$$ }
     //#endif
 
 
@@ -77,7 +77,7 @@ public abstract class PlayerEntityWakeUpMixin extends PlayerEntity {
             )
     )
     public void wakeUp(CallbackInfo ci) {
-        BedBlockEntityExtension bed = findNearbyBeds(this.getBlockPos(), this.getWorld());
+        BedBlockEntityExtension bed = findNearbyBeds(this.getBlockPos(), this.getEntityWorld());
         if (bed != null && bedsRecordSleeperFacing) {
             this.networkHandler.requestTeleport(this.getX(), this.getY(), this.getZ(),
                     bed.getSleeperYaw(), bed.getSleeperPitch());

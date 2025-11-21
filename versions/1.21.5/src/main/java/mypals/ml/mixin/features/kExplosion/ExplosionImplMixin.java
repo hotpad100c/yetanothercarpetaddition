@@ -20,13 +20,12 @@
 
 package mypals.ml.mixin.features.kExplosion;
 
-import me.fallenbreath.conditionalmixin.api.annotation.Condition;
-import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.utils.DummyClass;
-import mypals.ml.utils.ModIds;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
+/**
+ * the real mixin code is on version 1.21.6
+ */
 @Mixin(DummyClass.class)
-public abstract class ExplosionMixin {
+public class ExplosionImplMixin {
 }

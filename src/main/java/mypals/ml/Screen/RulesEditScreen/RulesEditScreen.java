@@ -36,21 +36,21 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 //#if MC >= 12109
-//$$ import net.minecraft.client.gui.Click;
-//$$ import net.minecraft.client.input.CharInput;
-//$$ import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.gui.Click;
+import net.minecraft.client.input.CharInput;
+import net.minecraft.client.input.KeyInput;
 //#endif
 
 //#if MC >= 12102
-//$$ import net.minecraft.client.gl.PostEffectProcessor;
-//$$ import net.minecraft.client.render.DefaultFramebufferSet;
+import net.minecraft.client.gl.PostEffectProcessor;
+import net.minecraft.client.render.DefaultFramebufferSet;
 //#if MC >= 12104
-//$$ import net.minecraft.client.gui.widget.ScrollableTextFieldWidget;
+import net.minecraft.client.gui.widget.ScrollableTextFieldWidget;
 //#endif
 //#endif
 
 //#if MC >= 12106
-//$$ import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gl.RenderPipelines;
 //#elseif MC >= 12102
 //$$ import static net.minecraft.client.render.RenderLayer.getGui;
 //#endif
@@ -88,29 +88,29 @@ public class RulesEditScreen extends Screen implements ParentElement {
     //Im sorry.
 
     //#if MC >= 12109
-    //$$public boolean mouseDragged(Click click, double deltaX, double deltaY) {
-    //$$    return super.mouseDragged(click,deltaX,deltaY) || this.rulesScrollableWidget.mouseDragged(click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(click,deltaX,deltaY);
-    //$$}
-    //$$@Override
-    //$$public boolean keyPressed(KeyInput keyInput) {
-    //$$    return super.keyPressed(keyInput) || this.rulesScrollableWidget.keyPressed(keyInput) || this.categoriesScrollableWidget.keyPressed(keyInput) || searchFieldWidget.keyPressed(keyInput);
-    //$$}
-    //$$@Override
-    //$$public boolean charTyped(CharInput charInput){
-    //$$    return super.charTyped(charInput) || this.rulesScrollableWidget.charTyped(charInput) || this.categoriesScrollableWidget.charTyped(charInput) || searchFieldWidget.charTyped(charInput);
-    //$$}
+    public boolean mouseDragged(Click click, double deltaX, double deltaY) {
+       return super.mouseDragged(click,deltaX,deltaY) || this.rulesScrollableWidget.mouseDragged(click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(click,deltaX,deltaY);
+    }
+    @Override
+    public boolean keyPressed(KeyInput keyInput) {
+       return super.keyPressed(keyInput) || this.rulesScrollableWidget.keyPressed(keyInput) || this.categoriesScrollableWidget.keyPressed(keyInput) || searchFieldWidget.keyPressed(keyInput);
+    }
+    @Override
+    public boolean charTyped(CharInput charInput){
+       return super.charTyped(charInput) || this.rulesScrollableWidget.charTyped(charInput) || this.categoriesScrollableWidget.charTyped(charInput) || searchFieldWidget.charTyped(charInput);
+    }
     //#elseif MC >= 12106
-    //$$public boolean mouseDragged(double x,double y,int click, double deltaX, double deltaY) {
+    //$$ public boolean mouseDragged(double x,double y,int click, double deltaX, double deltaY) {
     //$$    return super.mouseDragged(x,y,click,deltaX,deltaY) || this.rulesScrollableWidget.mouseDragged(x,y,click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(x,y,click,deltaX,deltaY);
-    //$$}
-    //$$@Override
-    //$$public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+    //$$ }
+    //$$ @Override
+    //$$ public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
     //$$    return super.keyPressed(keyCode,scanCode,modifiers) || this.rulesScrollableWidget.keyPressed(keyCode,scanCode,modifiers) || this.categoriesScrollableWidget.keyPressed(keyCode,scanCode,modifiers) || searchFieldWidget.keyPressed(keyCode,scanCode,modifiers);
-    //$$}
-    //$$@Override
-    //$$public boolean charTyped(char chr, int modifiers){
+    //$$ }
+    //$$ @Override
+    //$$ public boolean charTyped(char chr, int modifiers){
     //$$    return super.charTyped(chr,modifiers) || this.rulesScrollableWidget.charTyped(chr,modifiers) || this.categoriesScrollableWidget.charTyped(chr,modifiers) || searchFieldWidget.charTyped(chr,modifiers);
-    //$$}
+    //$$ }
     //#endif
 
     public void setCurrentCategory(String category) {
@@ -227,14 +227,14 @@ public class RulesEditScreen extends Screen implements ParentElement {
                                 if (this.isVisible()) {
                                     context.fill(
                                             //#if MC < 12106
-                                            RenderLayer.getGuiOverlay(),
+                                            //$$ RenderLayer.getGuiOverlay(),
                                             //#endif
                                             this.getX(), this.getY() - 1,
                                             this.width + 1, this.height + 1 + 9, 0x0AAAAAAA);
 
                                     context.fill(
                                             //#if MC < 12106
-                                            RenderLayer.getGuiOverlay(),
+                                            //$$ RenderLayer.getGuiOverlay(),
                                             //#endif
                                             this.getX(), this.getY() + this.height - 4,
                                             this.width + 1, this.getY() + this.height - 5, 0xAFFFFFFF);
@@ -329,15 +329,15 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             @Override
                             public boolean mouseClicked(
                                     //#if MC >= 12109
-                                    //$$ Click click, boolean doubled
+                                    Click click, boolean doubled
                                     //#else
-                                    double mouseX, double mouseY, int button
+                                    //$$ double mouseX, double mouseY, int button
                                     //#endif
                             ) {
                                 //#if MC >= 12109
-                                //$$ double mouseX = click.x();
-                                //$$ double mouseY = click.y();
-                                //$$ int button = click.button();
+                                double mouseX = click.x();
+                                double mouseY = click.y();
+                                int button = click.button();
                                 //#endif
 
                                 int index = 0;
@@ -355,9 +355,9 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
                                 return super.mouseClicked(
                                         //#if MC >= 12109
-                                        //$$ click, doubled
+                                        click, doubled
                                         //#else
-                                        mouseX, mouseY, button
+                                        //$$ mouseX, mouseY, button
                                         //#endif
                                 );
                             }
@@ -365,18 +365,18 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             @Override
                             public boolean charTyped(
                                     //#if MC >= 12109
-                                    //$$ CharInput charInput
+                                    CharInput charInput
                                     //#else
-                                    char chr, int modifiers
+                                    //$$ char chr, int modifiers
                                     //#endif
                             ) {
                                 for (RuleWidget entry : rulesInCurrentCategory) {
                                     if (entry.valueWidget.isFocused()) {
                                         entry.valueWidget.charTyped(
                                                 //#if MC >= 12109
-                                                //$$ charInput
+                                                charInput
                                                 //#else
-                                                chr, modifiers
+                                                //$$ chr, modifiers
                                                 //#endif
                                         );
                                         return true;
@@ -384,9 +384,9 @@ public class RulesEditScreen extends Screen implements ParentElement {
                                 }
                                 return super.charTyped(
                                         //#if MC >= 12109
-                                        //$$ charInput
+                                        charInput
                                         //#else
-                                        chr, modifiers
+                                        //$$ chr, modifiers
                                         //#endif
                                 );
                             }
@@ -394,9 +394,9 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             @Override
                             public boolean keyPressed(
                                     //#if MC >= 12109
-                                    //$$ KeyInput keyInput
+                                    KeyInput keyInput
                                     //#else
-                                    int keyCode, int scanCode, int modifiers
+                                    //$$ int keyCode, int scanCode, int modifiers
                                     //#endif
                             ) {
 
@@ -404,9 +404,9 @@ public class RulesEditScreen extends Screen implements ParentElement {
                                     if (entry.valueWidget.isFocused()) {
                                         entry.valueWidget.keyPressed(
                                                 //#if MC >= 12109
-                                                //$$ keyInput
+                                                keyInput
                                                 //#else
-                                                keyCode, scanCode, modifiers
+                                                //$$ keyCode, scanCode, modifiers
                                                 //#endif
                                         );
                                         return true;
@@ -414,9 +414,9 @@ public class RulesEditScreen extends Screen implements ParentElement {
                                 }
                                 return super.keyPressed(
                                         //#if MC >= 12109
-                                        //$$ keyInput
+                                        keyInput
                                         //#else
-                                        keyCode, scanCode, modifiers
+                                        //$$ keyCode, scanCode, modifiers
                                         //#endif
                                 );
                             }
@@ -434,7 +434,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
                             }
                         });
         //#if MC >= 12106
-        //$$ rulesScrollableWidget.setAlpha(0.7f);
+        rulesScrollableWidget.setAlpha(0.7f);
         //#endif
         this.addDrawableChild(categoriesScrollableWidget = new
 
@@ -490,15 +490,15 @@ public class RulesEditScreen extends Screen implements ParentElement {
                     @Override
                     public boolean mouseClicked(
                             //#if MC >= 12109
-                            //$$ Click click, boolean doubled
+                            Click click, boolean doubled
                             //#else
-                            double mouseX, double mouseY, int button
+                            //$$ double mouseX, double mouseY, int button
                             //#endif
                     ) {
                         //#if MC >= 12109
-                        //$$ double mouseX = click.x();
-                        //$$ double mouseY = click.y();
-                        //$$ int button = click.button();
+                        double mouseX = click.x();
+                        double mouseY = click.y();
+                        int button = click.button();
                         //#endif
 
                         int index = 0;
@@ -521,9 +521,9 @@ public class RulesEditScreen extends Screen implements ParentElement {
 
                         return super.mouseClicked(
                                 //#if MC >= 12109
-                                //$$ click, doubled
+                                click, doubled
                                 //#else
-                                mouseX, mouseY, button
+                                //$$ mouseX, mouseY, button
                                 //#endif
                         );
                     }
@@ -547,7 +547,7 @@ public class RulesEditScreen extends Screen implements ParentElement {
         super.render(context, mouseX, mouseY, delta);
         context.drawTexture(
                 //#if MC >= 12106
-                //$$ RenderPipelines.GUI_TEXTURED,
+                RenderPipelines.GUI_TEXTURED,
                 //#elseif MC >= 12102
                 //$$ RenderLayer::getGuiTextured,
                 //#endif
@@ -568,26 +568,26 @@ public class RulesEditScreen extends Screen implements ParentElement {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
             //#if MC >= 12102
-            //$$ Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
-            //$$ PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
-            //$$ if (blur != null) {
+            Identifier BLUR_SHADER = Identifier.ofVanilla("blur");
+            PostEffectProcessor blur = client.getShaderLoader().loadPostEffect(BLUR_SHADER, DefaultFramebufferSet.MAIN_ONLY);
+            if (blur != null) {
 
             //#if MC >= 12106
-            //$$ context.applyBlur();
+            context.applyBlur();
             //#elseif MC >= 12105
             //$$ blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
             //#else
             //$$ blur.setUniforms("Radius", 20F);
             //$$ blur.render(client.getFramebuffer(), gameRenderer.pool);
             //#endif
-            //$$ }
+            }
             //#elseif MC > 12004
-            gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
-            gameRenderer.blurPostProcessor.render(delta);
+            //$$ gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
+            //$$ gameRenderer.blurPostProcessor.render(delta);
             //#endif
 
             //#if MC < 12105
-            this.client.getFramebuffer().beginWrite(false);
+            //$$ this.client.getFramebuffer().beginWrite(false);
             //#endif
         }
 

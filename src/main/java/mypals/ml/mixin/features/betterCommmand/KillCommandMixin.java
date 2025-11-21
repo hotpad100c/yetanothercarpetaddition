@@ -32,7 +32,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 //#if MC >= 12102
-//$$ import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.world.ServerWorld;
 //#endif
 
 import java.util.Collection;
@@ -55,7 +55,7 @@ public class KillCommandMixin {
         for (Entity entity : targets) {
             entity.kill(
                     //#if MC >= 12102
-                    //$$ (ServerWorld) entity.getWorld()
+                    (ServerWorld) entity.getEntityWorld()
                     //#endif
             );
 

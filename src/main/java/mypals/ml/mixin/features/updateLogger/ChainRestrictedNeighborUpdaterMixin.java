@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 //#if MC > 12102
-//$$ import net.minecraft.world.block.WireOrientation;
+import net.minecraft.world.block.WireOrientation;
 //#endif
 
 @Mixin(ChainRestrictedNeighborUpdater.class)
@@ -49,7 +49,7 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     @WrapMethod(method = "updateNeighbors")
     public void updateNeighbors(BlockPos pos, Block sourceBlock, Direction except,
                                 //#if MC > 12102
-                                //$$ WireOrientation wireOruentation,
+                                WireOrientation wireOruentation,
                                 //#endif
                                 Operation<Void> original) {
 
@@ -57,7 +57,7 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
             original.call(pos, sourceBlock,
                     except
                     //#if MC > 12102
-                    //$$ ,wireOruentation
+                    ,wireOruentation
                     //#endif
             );
         } else {
@@ -65,7 +65,7 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
             original.call(pos, sourceBlock,
                     except
                     //#if MC > 12102
-                    //$$ ,wireOruentation
+                    ,wireOruentation
                     //#endif
             );
             UpdateLoggerHelper.finish();
@@ -75,24 +75,24 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
 
     @WrapMethod(method = "updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;" +
             //#if MC > 12102
-            //$$ "Lnet/minecraft/world/block/WireOrientation;"
+            "Lnet/minecraft/world/block/WireOrientation;"
             //#else
-            "Lnet/minecraft/util/math/BlockPos;"
+            //$$ "Lnet/minecraft/util/math/BlockPos;"
             //#endif
             + ")V")
     public void updateNeighborA(BlockPos pos, Block sourceBlock,
                                 //#if MC > 12102
-                                //$$ WireOrientation orientation,
+                                WireOrientation orientation,
                                 //#else
-                                BlockPos sourcePos,
+                                //$$ BlockPos sourcePos,
                                 //#endif
                                 Operation<Void> original) {
         if (UpdateLoggerHelper.isUpdating() || !YetAnotherCarpetAdditionRules.updateCounter) {
             original.call(pos, sourceBlock,
                     //#if MC > 12102
-                    //$$ orientation
+                    orientation
                     //#else
-                    sourcePos
+                    //$$ sourcePos
                     //#endif
 
             );
@@ -100,9 +100,9 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
             UpdateLoggerHelper.start();
             original.call(pos, sourceBlock,
                     //#if MC > 12102
-                    //$$ orientation
+                    orientation
                     //#else
-                    sourcePos
+                    //$$ sourcePos
                     //#endif
             );
             UpdateLoggerHelper.finish();
@@ -113,33 +113,33 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
 
     @WrapMethod(method = "updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;" +
             //#if MC > 12102
-            //$$ "Lnet/minecraft/world/block/WireOrientation;"
+            "Lnet/minecraft/world/block/WireOrientation;"
             //#else
-            "Lnet/minecraft/util/math/BlockPos;"
+            //$$ "Lnet/minecraft/util/math/BlockPos;"
             //#endif
             + "Z)V")
     public void updateNeighborB(BlockState state, BlockPos pos, Block sourceBlock,
                                 //#if MC > 12102
-                                //$$ WireOrientation orientation
+                                WireOrientation orientation
                                 //#else
-                                BlockPos sourcePos
+                                //$$ BlockPos sourcePos
                                 //#endif
             , boolean notify, Operation<Void> original) {
         if (UpdateLoggerHelper.isUpdating() || !YetAnotherCarpetAdditionRules.updateCounter) {
             original.call(state, pos, sourceBlock,
                     //#if MC > 12102
-                    //$$ orientation
+                    orientation
                     //#else
-                    sourcePos
+                    //$$ sourcePos
                     //#endif
                     , notify);
         } else {
             UpdateLoggerHelper.start();
             original.call(state, pos, sourceBlock,
                     //#if MC > 12102
-                    //$$ orientation
+                    orientation
                     //#else
-                    sourcePos
+                    //$$ sourcePos
                     //#endif
                     , notify);
             UpdateLoggerHelper.finish();
@@ -151,9 +151,9 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     @WrapOperation(
             method = "updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;" +
                     //#if MC > 12102
-                    //$$ "Lnet/minecraft/world/block/WireOrientation;"
+                    "Lnet/minecraft/world/block/WireOrientation;"
                     //#else
-                    "Lnet/minecraft/util/math/BlockPos;"
+                    //$$ "Lnet/minecraft/util/math/BlockPos;"
                     //#endif
                     + ")V"
 
@@ -163,9 +163,9 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
             this.enqueue(pos, new FakeEntries.SimpleEntryFake(pos, simpleEntry.sourceBlock(),
                     simpleEntry
                             //#if MC <= 12102
-                            .sourcePos()
+                            //$$ .sourcePos()
                     //#else
-                    //$$.orientation()
+                    .orientation()
                     //#endif
             ));
         } else {
@@ -189,9 +189,9 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     @WrapOperation(
             method = "updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;" +
                     //#if MC > 12102
-                    //$$ "Lnet/minecraft/world/block/WireOrientation;"
+                    "Lnet/minecraft/world/block/WireOrientation;"
                     //#else
-                    "Lnet/minecraft/util/math/BlockPos;"
+                    //$$ "Lnet/minecraft/util/math/BlockPos;"
                     //#endif
                     + "Z)V",
 
@@ -200,9 +200,9 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
         if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof ChainRestrictedNeighborUpdater.StatefulEntry statefulEntry) {
             this.enqueue(pos, new FakeEntries.StatefulEntryFake(statefulEntry.state(), statefulEntry.pos(), statefulEntry.sourceBlock(), statefulEntry
                     //#if MC <= 12102
-                    .sourcePos()
+                    //$$ .sourcePos()
                     //#else
-                    //$$.orientation()
+                    .orientation()
                     //#endif
                     , statefulEntry.movedByPiston()));
         } else {

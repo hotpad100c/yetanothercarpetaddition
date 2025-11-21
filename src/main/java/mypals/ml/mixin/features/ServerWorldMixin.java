@@ -58,7 +58,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //#if MC >= 12102
-//$$ import net.minecraft.util.profiler.Profilers;
+import net.minecraft.util.profiler.Profilers;
 //#endif
 
 import java.util.HashSet;
@@ -78,14 +78,14 @@ public abstract class ServerWorldMixin extends World {
     protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry,
                 //#if MC <12102
-                profiler,
+                //$$ profiler,
                 //#endif
                 isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
 
     //#if MC < 12102
-    @Shadow
-    protected abstract boolean shouldCancelSpawn(Entity entity);
+    //$$ @Shadow
+    //$$ protected abstract boolean shouldCancelSpawn(Entity entity);
     //#endif
 
     @Shadow
@@ -216,17 +216,17 @@ public abstract class ServerWorldMixin extends World {
             at = @At(
                     value = "INVOKE",
                     //#if MC < 12102
-                    target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    //$$ target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
                     //#else
-                    //$$ target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
                     //#endif
             )
     )
     private void wrapFluidRandomTick(FluidState instance,
                                      //#if MC < 12102
-                                     World world,
+                                     //$$ World world,
                                      //#else
-                                     //$$ ServerWorld world,
+                                     ServerWorld world,
                                      //#endif
                                      BlockPos pos, Random random, Operation<Void> original) {
         if (!YetAnotherCarpetAdditionRules.stopTickingFluids || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids) {
@@ -248,43 +248,43 @@ public abstract class ServerWorldMixin extends World {
     }
 
     //#if MC >= 12105
-    //$$ @Inject(method = "tickThunder", at = @At("HEAD"), cancellable = true)
-    //$$ private void wrapLightningAndSkeletonHorseEntitySpawn(CallbackInfo ci) {
-    //$$     if (YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionRules.stopTickingWeather) {
-    //$$         ci.cancel();
-    //$$     }
-    //$$ }
+    @Inject(method = "tickThunder", at = @At("HEAD"), cancellable = true)
+    private void wrapLightningAndSkeletonHorseEntitySpawn(CallbackInfo ci) {
+        if (YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionRules.stopTickingWeather) {
+            ci.cancel();
+        }
+    }
     //#else
-    @WrapOperation(
-            method = "tickChunk",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
-                    ordinal = 0
-            )
-    )
-    private boolean wrapLightningSpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingEntities || !YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
-            original.call(instance, entity);
-        }
-        return false;
-    }
-
-    @WrapOperation(
-            method = "tickChunk",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
-                    ordinal = 1
-            )
-    )
-    private boolean wrapSkeletonHorseEntitySpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
-            original.call(instance, entity);
-        }
-        return false;
-    }
-
+    //$$ @WrapOperation(
+    //$$         method = "tickChunk",
+    //$$         at = @At(
+    //$$                 value = "INVOKE",
+    //$$                 target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
+    //$$                 ordinal = 0
+    //$$         )
+    //$$ )
+    //$$ private boolean wrapLightningSpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
+    //$$     if (!YetAnotherCarpetAdditionRules.stopTickingEntities || !YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
+    //$$         original.call(instance, entity);
+    //$$     }
+    //$$     return false;
+    //$$ }
+    //$$
+    //$$ @WrapOperation(
+    //$$         method = "tickChunk",
+    //$$         at = @At(
+    //$$                 value = "INVOKE",
+    //$$                 target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
+    //$$                 ordinal = 1
+    //$$         )
+    //$$ )
+    //$$ private boolean wrapSkeletonHorseEntitySpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
+    //$$     if (!YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
+    //$$         original.call(instance, entity);
+    //$$     }
+    //$$     return false;
+    //$$ }
+    //$$
     //#endif
     @Inject(
             method = "tick",
@@ -409,9 +409,9 @@ public abstract class ServerWorldMixin extends World {
         entity.resetPosition();
         Profiler profiler =
                 //#if MC < 12102
-                this.getProfiler();
+                //$$ this.getProfiler();
         //#else
-        //$$ Profilers.get();
+        Profilers.get();
         //#endif
         entity.age++;
         profiler.push((Supplier<String>) (() -> Registries.ENTITY_TYPE.getId(entity.getType()).toString()));

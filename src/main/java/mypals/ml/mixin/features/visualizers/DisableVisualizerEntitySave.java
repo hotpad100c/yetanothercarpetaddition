@@ -33,7 +33,7 @@ import java.util.Set;
 import static mypals.ml.YetAnotherCarpetAdditionServer.VisualizerTags;
 
 //#if MC >= 12106
-//$$ import net.minecraft.storage.WriteView;
+import net.minecraft.storage.WriteView;
 //#endif
 
 @Mixin(Entity.class)
@@ -42,12 +42,12 @@ public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
     @Shadow
     public abstract Set<String> getCommandTags();
 
-    @Inject(method = "saveSelfNbt", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "saveSelfData", at = @At("HEAD"), cancellable = true)
     public void saveSelfNbt(
             //#if MC >= 12106
             //WriteView view,
             //#else
-            NbtCompound nbt,
+            //$$ NbtCompound nbt,
             //#endif
             CallbackInfoReturnable<Boolean> cir) {
         if (yetanothercarpetaddition$self() instanceof DisplayEntity) {

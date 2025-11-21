@@ -113,21 +113,21 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
     @Override
     protected void storeVisualizer(BlockPos key, BlockUpdateObject entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.posMarker.getWorld())));
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.posMarker.getEntityWorld())));
     }
 
     @Override
     protected void updateVisualizerEntity(BlockUpdateObject marker, Object data) {
-        if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.getWorld().isClient()) {
+        if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.getEntityWorld().isClient()) {
             marker.posMarker.age = 0;
             NbtCompound nbt = NBTDataManager.readFromEntity(marker.posMarker, new NbtCompound());
             float scale = 0.9f;
             nbt = EntityHelper.scaleEntity(nbt, scale);
 
             NBTDataManager.writeToEntity(marker.posMarker, nbt);
-            BlockPos pos = BlockPos.ofFloored(marker.posMarker.getPos());
+            BlockPos pos = BlockPos.ofFloored(marker.posMarker.getEntityPos());
             marker.posMarker.setPos(pos.toCenterPos().getX() - (scale / 2), pos.toCenterPos().getY() - (scale / 2), pos.toCenterPos().getZ() - (scale / 2));
-            visualizers.put(pos, Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.posMarker.getWorld())));
+            visualizers.put(pos, Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.posMarker.getEntityWorld())));
         }
     }
 
@@ -183,7 +183,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
         visualizers.forEach((pos, entry) -> {
             BlockUpdateObject object = entry.getKey();
             long deleteTick = entry.getValue();
-            if (deleteTick < object.posMarker.getWorld().getTime()) {
+            if (deleteTick < object.posMarker.getEntityWorld().getTime()) {
                 object.removeVisualizer();
                 visualizers.remove(pos);
             }
@@ -200,7 +200,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     public void setVisualizer(ServerWorld world, BlockPos pos, UpdateType updateType) {
         boolean playersNearBy = false;
         for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().getPlayerList()) {
-            if (player.getPos().distanceTo(pos.toCenterPos()) < RANGE) {
+            if (player.getEntityPos().distanceTo(pos.toCenterPos()) < RANGE) {
                 playersNearBy = true;
                 break;
             }

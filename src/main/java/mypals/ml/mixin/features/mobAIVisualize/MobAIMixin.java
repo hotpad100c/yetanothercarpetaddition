@@ -48,11 +48,11 @@ public class MobAIMixin {
     @Inject(method = "tickNewAi", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/ai/pathing/EntityNavigation;tick()V"))
     private void displayTargetAboveHead(CallbackInfo ci) {
         MobEntity mob = (MobEntity) (Object) this;
-        if (mob.getWorld().isClient() || !mobAIVisualize) return;
+        if (mob.getEntityWorld().isClient() || !mobAIVisualize) return;
         YetAnotherCarpetAdditionServer.mobAIVisualizer.setVisualizer(
-                (ServerWorld) mob.getWorld(),
+                (ServerWorld) mob.getEntityWorld(),
                 mob,
-                mob.getPos().add(0, mob.getHeight() + 0.5, 0),
+                mob.getEntityPos().add(0, mob.getHeight() + 0.5, 0),
                 new MobAIVisualizer.MobAIData(
                         mob,
                         this.goalSelector,

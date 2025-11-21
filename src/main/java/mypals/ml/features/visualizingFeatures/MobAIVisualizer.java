@@ -30,7 +30,7 @@ import net.minecraft.entity.decoration.DisplayEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
 //#if MC >= 12105
-//$$import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtList;
 //#endif
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
@@ -165,17 +165,17 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         textJson.add("extra", extra);
         NbtCompound nbt = NBTDataManager.readFromEntity(display, new NbtCompound());
         //#if MC >= 12105
-        //$$NbtList nbtList = new NbtList();
-        //$$extra.forEach(element -> {
-        //$$    JsonObject obj = element.getAsJsonObject();
-        //$$    NbtCompound component = new NbtCompound();
-        //$$    component.putString("text", obj.get("text").getAsString());
-        //$$     component.putString("color", obj.get("color").getAsString());
-        //$$    nbtList.add(component);
-        //$$});
-        //$$nbt.put("text", nbtList);
+        NbtList nbtList = new NbtList();
+        extra.forEach(element -> {
+           JsonObject obj = element.getAsJsonObject();
+           NbtCompound component = new NbtCompound();
+           component.putString("text", obj.get("text").getAsString());
+            component.putString("color", obj.get("color").getAsString());
+           nbtList.add(component);
+        });
+        nbt.put("text", nbtList);
         //#else
-        nbt.putString("text", textJson.toString());
+        //$$ nbt.putString("text", textJson.toString());
         //#endif
         nbt = configureCommonNbt(nbt);
         NBTDataManager.writeToEntity(display, nbt);

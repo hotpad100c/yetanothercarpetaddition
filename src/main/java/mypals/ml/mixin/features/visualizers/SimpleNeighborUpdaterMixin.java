@@ -30,7 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 //#if MC >= 12102
-//$$ import net.minecraft.world.block.WireOrientation;
+import net.minecraft.world.block.WireOrientation;
 //#endif
 import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
 import net.minecraft.world.block.NeighborUpdater;
@@ -50,17 +50,17 @@ public class SimpleNeighborUpdaterMixin {
 
     @Inject(
             //#if MC < 12102
-            method = "Lnet/minecraft/world/block/SimpleNeighborUpdater;updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;)V",
+            //$$ method = "Lnet/minecraft/world/block/SimpleNeighborUpdater;updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;)V",
             //#else
-            //$$ method = "updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;)V",
+            method = "updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;)V",
             //#endif
             at = @At("HEAD")
     )
     private void AddNCMarkerSimple(BlockPos pos, Block sourceBlock,
                                    //#if MC < 12102
-                                   BlockPos sourcePos,
+                                   //$$ BlockPos sourcePos,
                                    //#else
-                                   //$$ WireOrientation orientation,
+                                   WireOrientation orientation,
                                    //#endif
                                    CallbackInfo ci) {
         if (!YetAnotherCarpetAdditionRules.blockUpdateVisualize || this.world.isClient()) return;
@@ -69,17 +69,17 @@ public class SimpleNeighborUpdaterMixin {
 
     @Inject(
             //#if MC < 12102
-            method = "Lnet/minecraft/world/block/SimpleNeighborUpdater;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
+            //$$ method = "Lnet/minecraft/world/block/SimpleNeighborUpdater;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
             //#else
-            //$$ method = "updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
+            method = "updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/world/block/WireOrientation;Z)V",
             //#endif
             at = @At("HEAD")
     )
     private void AddNCMarkerStateful(BlockState state, BlockPos pos, Block sourceBlock,
                                      //#if MC < 12102
-                                     BlockPos sourcePos,
+                                     //$$ BlockPos sourcePos,
                                      //#else
-                                     //$$ WireOrientation orientation,
+                                     WireOrientation orientation,
                                      //#endif
                                      boolean notify, CallbackInfo ci) {
         if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || this.world.isClient()) return;

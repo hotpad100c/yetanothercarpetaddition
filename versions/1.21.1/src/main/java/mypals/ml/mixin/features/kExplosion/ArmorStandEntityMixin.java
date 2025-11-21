@@ -22,33 +22,29 @@ package mypals.ml.mixin.features.kExplosion;
 
 import me.fallenbreath.conditionalmixin.api.annotation.Condition;
 import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.interfaces.ExplosionExtension;
 import mypals.ml.utils.ModIds;
 import net.minecraft.entity.Entity;
-import net.minecraft.world.explosion.ExplosionImpl;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.decoration.ArmorStandEntity;
+import net.minecraft.world.World;
+import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.Unique;
 
-@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = ">1.21.5"))
-@Mixin(ExplosionImpl.class)
-public class ExplosionImplMixin {
+//@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
+@Mixin(ArmorStandEntity.class)
+public abstract class ArmorStandEntityMixin extends Entity {
+    @Shadow private boolean invisible;
 
-    @Shadow @Final private @Nullable Entity entity;
-
-    @ModifyVariable(
-            method = "preservesDecorativeEntities",
-            at = @At(
-                    value = "STORE"
-            ),
-            ordinal = 1
-    )
-    public boolean preservesDecorativeEntities(boolean bl3) {
-        boolean bl2 = this.entity == null || !this.entity.isTouchingWater();
-        return YetAnotherCarpetAdditionRules.waterTNT? bl2 && bl3 : bl3;
+    public ArmorStandEntityMixin(EntityType<?> type, World world) {
+        super(type, world);
     }
 
+    @Unique
+    @Override
+    public boolean isImmuneToExplosion(Explosion explosion) {
+        return ((ExplosionExtension)explosion).preservesDecorativeEntities() ? this.invisible : true;
+    }
 }

@@ -40,12 +40,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Entity.class)
 public abstract class EntityMixin {
     @Shadow
-    public abstract World getWorld();
+    public abstract World getEntityWorld();
 
     @Shadow
     private World world;
 
-    @Inject(method = "checkBlockCollision", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "checkBlockCollisions", at = @At("HEAD"), cancellable = true)
     protected void checkBlockCollision(CallbackInfo ci) {
         checkSurfaceCollision((Entity) (Object) this);
     }
@@ -56,7 +56,7 @@ public abstract class EntityMixin {
             return;
         }
 
-        World world = entity.getWorld();
+        World world = entity.getEntityWorld();
         Box entityBox = entity.getBoundingBox();
         BlockPos minPos = BlockPos.ofFloored(entityBox.minX - 1, entityBox.minY - 1, entityBox.minZ - 1);
         BlockPos maxPos = BlockPos.ofFloored(entityBox.maxX + 1, entityBox.maxY + 1, entityBox.maxZ + 1);

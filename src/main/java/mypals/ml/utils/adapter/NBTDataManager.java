@@ -27,10 +27,10 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ErrorReporter;
 
 //#if MC >= 12106
-//$$ import net.minecraft.storage.NbtWriteView;
-//$$ import net.minecraft.storage.NbtReadView;
-//$$ import net.minecraft.storage.WriteView;
-//$$ import net.minecraft.storage.ReadView;
+import net.minecraft.storage.NbtWriteView;
+import net.minecraft.storage.NbtReadView;
+import net.minecraft.storage.WriteView;
+import net.minecraft.storage.ReadView;
 //#endif
 public class NBTDataManager {
 
@@ -38,24 +38,24 @@ public class NBTDataManager {
 
         //#if MC >= 12106
 
-        //$$ ErrorReporter.Logging logging = new ErrorReporter.Logging(entity.getErrorReporterContext(), YetAnotherCarpetAdditionServer.LOGGER);
-        //$$ ReadView nbtReadView = NbtReadView.create(logging, entity.getRegistryManager(), data);
-        //$$ entity.readData(nbtReadView);
+        ErrorReporter.Logging logging = new ErrorReporter.Logging(entity.getErrorReporterContext(), YetAnotherCarpetAdditionServer.LOGGER);
+        ReadView nbtReadView = NbtReadView.create(logging, entity.getRegistryManager(), data);
+        entity.readData(nbtReadView);
         //#else
-
-        entity.readNbt(data);
+        //$$
+        //$$ entity.readNbt(data);
         //#endif
     }
 
     public static NbtCompound readFromEntity(Entity entity, NbtCompound nbtCompound) {
         //#if MC >= 12106
-        //$$ ErrorReporter.Logging logging = new ErrorReporter.Logging(entity.getErrorReporterContext(), YetAnotherCarpetAdditionServer.LOGGER);
-        //$$ NbtWriteView nbtWriteView2 = NbtWriteView.create(logging, entity.getRegistryManager());
-        //$$ nbtWriteView2.getNbt().copyFrom(nbtCompound);
-        //$$ entity.writeData(nbtWriteView2);
-        //$$ nbtCompound = nbtWriteView2.getNbt();
+        ErrorReporter.Logging logging = new ErrorReporter.Logging(entity.getErrorReporterContext(), YetAnotherCarpetAdditionServer.LOGGER);
+        NbtWriteView nbtWriteView2 = NbtWriteView.create(logging, entity.getRegistryManager());
+        nbtWriteView2.getNbt().copyFrom(nbtCompound);
+        entity.writeData(nbtWriteView2);
+        nbtCompound = nbtWriteView2.getNbt();
         //#else
-        entity.writeNbt(nbtCompound);
+        //$$ entity.writeNbt(nbtCompound);
         //#endif
         return nbtCompound;
     }

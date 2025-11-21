@@ -56,7 +56,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
     public void setVisualizer(World world, BlockPos pos) {
         boolean playersNearBy = false;
         for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
-            if (player.getPos().distanceTo(pos.toCenterPos()) < RANGE) {
+            if (player.getEntityPos().distanceTo(pos.toCenterPos()) < RANGE) {
                 playersNearBy = true;
                 break;
             }
@@ -87,7 +87,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
         visualizers.forEach((pos, entry) -> {
             DisplayEntity.BlockDisplayEntity object = entry.getKey();
             long time = entry.getValue();
-            if (time < object.getWorld().getTime()) {
+            if (time < object.getEntityWorld().getTime()) {
                 removeVisualizer(pos);
                 visualizers.remove(pos);
             }
@@ -102,7 +102,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
 
     @Override
     protected void storeVisualizer(BlockPos key, DisplayEntity.BlockDisplayEntity entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.getWorld())));
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.getEntityWorld())));
     }
 
     @Override
@@ -112,7 +112,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
         float scale = 0.9f;
         nbt = EntityHelper.scaleEntity(nbt, scale);
         NBTDataManager.writeToEntity(marker, nbt);
-        BlockPos blockPos = BlockPos.ofFloored(marker.getPos());
+        BlockPos blockPos = BlockPos.ofFloored(marker.getEntityPos());
         marker.setPos(blockPos.toCenterPos().getX() - (scale / 2), blockPos.toCenterPos().getY() - (scale / 2), blockPos.toCenterPos().getZ() - (scale / 2));
         marker.age = 0;
     }

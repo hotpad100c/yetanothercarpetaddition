@@ -152,7 +152,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
 
     @Override
     protected void storeVisualizer(BlockPos key, BlockEventObject blockEventObject) {
-        visualizers.put(key, Map.entry(blockEventObject, getDeleteTick(SURVIVE_TIME, (ServerWorld) blockEventObject.tickMarker.getWorld())));
+        visualizers.put(key, Map.entry(blockEventObject, getDeleteTick(SURVIVE_TIME, (ServerWorld) blockEventObject.tickMarker.getEntityWorld())));
     }
 
     @Override
@@ -167,7 +167,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             NbtCompound nbt = NBTDataManager.readFromEntity(marker.tickMarker, new NbtCompound());
             JsonObject orderPart = new JsonObject();
             JsonObject textJson = new JsonObject();
-            if (marker.tickMarker.getWorld().getTime() != marker.summonTime) {
+            if (marker.tickMarker.getEntityWorld().getTime() != marker.summonTime) {
                 textJson.addProperty("text", "");
                 JsonArray extra = new JsonArray();
                 orderPart.addProperty("text", "[" + String.valueOf(order) + "]");
@@ -178,7 +178,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
                 String existingText = nbt.getString(
                         "text"
                         //#if MC >= 12105
-                        //$$ , ""
+                        , ""
                         //#endif
                 );
                 JsonArray extraArray = new JsonArray();
@@ -231,7 +231,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             marker.tickMarker.age = 0;
             marker.typeMarker.age = 0;
             NBTDataManager.writeToEntity(marker.tickMarker, nbt);
-            visualizers.put(marker.tickMarker.getBlockPos(), Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.tickMarker.getWorld())));
+            visualizers.put(marker.tickMarker.getBlockPos(), Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerWorld) marker.tickMarker.getEntityWorld())));
         }
     }
 
@@ -278,7 +278,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
         visualizers.forEach((pos, entry) -> {
             BlockEventObject object = entry.getKey();
             long deleteTick = entry.getValue();
-            if (deleteTick < object.tickMarker.getWorld().getTime()) {
+            if (deleteTick < object.tickMarker.getEntityWorld().getTime()) {
                 object.removeVisualizer();
                 visualizers.remove(pos);
             }

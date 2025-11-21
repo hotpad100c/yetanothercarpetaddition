@@ -63,7 +63,7 @@ public abstract class Carpet$ThrowableProjectileMixinOverride extends Entity {
                     !(this.getType() == EntityType.ARROW ||
                             this.getType() == EntityType.TRIDENT ||
                             this.getType() == EntityType.FISHING_BOBBER)) {
-                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getPos(), getVelocity());
+                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getEntityPos(), getVelocity());
             }
         }
     }

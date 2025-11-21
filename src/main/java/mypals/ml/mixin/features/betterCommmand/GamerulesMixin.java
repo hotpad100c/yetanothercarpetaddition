@@ -30,7 +30,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 //#if MC >= 12102
-//$$ import net.minecraft.resource.featuretoggle.FeatureSet;
+import net.minecraft.resource.featuretoggle.FeatureSet;
 //#endif
 
 import java.util.Map;
@@ -43,9 +43,9 @@ public class GamerulesMixin {
 
     @Inject(
             //#if MC < 12102
-            method = "<init>()V",
+            //$$ method = "<init>()V",
             //#else
-            //$$ method = "<init>(Lnet/minecraft/resource/featuretoggle/FeatureSet;)V",
+            method = "<init>(Lnet/minecraft/resource/featuretoggle/FeatureSet;)V",
             //#endif
             at = @At(
                     "RETURN"
@@ -62,9 +62,9 @@ public class GamerulesMixin {
 
     @Inject(
             //#if MC < 12102
-            method = "<init>(Ljava/util/Map;)V",
+            //$$ method = "<init>(Ljava/util/Map;)V",
             //#else
-            //$$ method = "<init>(Ljava/util/Map;Lnet/minecraft/resource/featuretoggle/FeatureSet;)V",
+            method = "<init>(Ljava/util/Map;Lnet/minecraft/resource/featuretoggle/FeatureSet;)V",
             //#endif
             at = @At(
                     "RETURN"
@@ -72,7 +72,7 @@ public class GamerulesMixin {
     )
     public void createGameRules2(Map rules,
                                  //#if MC >= 12102
-                                 //$$ FeatureSet enabledFeatures,
+                                 FeatureSet enabledFeatures,
                                  //#endif
                                  CallbackInfo ci) {
         GamerulesDefaultValueSorter.gamerulesDefaultValues.clear();

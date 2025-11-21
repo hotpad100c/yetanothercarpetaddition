@@ -56,15 +56,15 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
         if (data instanceof Integer order) {
             NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             //#if MC < 12105
-            String textJson = "{\"text\":\"" + "#" + order + "\",\"color\":\"" + "white" + "\"}";
-            nbt.remove("text");
-            nbt.putString("text", textJson);
+            //$$ String textJson = "{\"text\":\"" + "#" + order + "\",\"color\":\"" + "white" + "\"}";
+            //$$ nbt.remove("text");
+            //$$ nbt.putString("text", textJson);
             //#else
-            //$$ HashMap<String, NbtElement> textNbt = new HashMap<>();
-            //$$ textNbt.put("text", NbtString.of("#" + order));
-            //$$ textNbt.put("color", NbtString.of("white"));
-            //$$ NbtCompound textComponent = new NbtCompound(textNbt);
-            //$$ nbt.put("text", textComponent);
+            HashMap<String, NbtElement> textNbt = new HashMap<>();
+            textNbt.put("text", NbtString.of("#" + order));
+            textNbt.put("color", NbtString.of("white"));
+            NbtCompound textComponent = new NbtCompound(textNbt);
+            nbt.put("text", textComponent);
             //#endif
             NBTDataManager.writeToEntity(entity, nbt);
         }
@@ -84,14 +84,14 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
             NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt = configureCommonNbt(nbt);
             //#if MC < 12105
-            String textJson = "{\"text\":\"" + "#" + order + "\",\"color\":\"" + "white" + "\"}";
-            nbt.putString("text", textJson);
+            //$$ String textJson = "{\"text\":\"" + "#" + order + "\",\"color\":\"" + "white" + "\"}";
+            //$$ nbt.putString("text", textJson);
             //#else
-            //$$ HashMap<String, NbtElement> textNbt = new HashMap<>();
-            //$$ textNbt.put("text", NbtString.of("#" + order));
-            //$$ textNbt.put("color", NbtString.of("white"));
-            //$$ NbtCompound textComponent = new NbtCompound(textNbt);
-            //$$ nbt.put("text", textComponent);
+            HashMap<String, NbtElement> textNbt = new HashMap<>();
+            textNbt.put("text", NbtString.of("#" + order));
+            textNbt.put("color", NbtString.of("white"));
+            NbtCompound textComponent = new NbtCompound(textNbt);
+            nbt.put("text", textComponent);
             //#endif
             NBTDataManager.writeToEntity(entity, nbt);
             return entity;
@@ -104,7 +104,7 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
     public void setVisualizer(ServerWorld world, BlockPos key, Vec3d pos, Object data) {
         boolean playersNearBy = false;
         for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
-            if (player.getPos().distanceTo(pos) < RANGE) {
+            if (player.getEntityPos().distanceTo(pos) < RANGE) {
                 playersNearBy = true;
                 break;
             }

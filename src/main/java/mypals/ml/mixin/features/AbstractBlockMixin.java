@@ -36,9 +36,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 //#if MC >= 12102
-//$$ import net.minecraft.util.math.random.Random;
-//$$ import net.minecraft.world.WorldView;
-//$$ import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
 //#endif
 
 @Mixin(AbstractBlock.class)
@@ -60,15 +60,15 @@ public class AbstractBlockMixin {
     )
     private void AddPPMarker(BlockState state,
                              //#if MC >= 12102
-                             //$$ WorldView world, ScheduledTickView tickView,
+                             WorldView world, ScheduledTickView tickView,
                              //#else
-                             Direction direction, BlockState neighborState, WorldAccess world,
+                             //$$ Direction direction, BlockState neighborState, WorldAccess world,
                              //#endif
                              BlockPos pos,
                              //#if MC >= 12102
-                             //$$ Direction direction,BlockPos neighborPos,BlockState neighborState, Random random,
+                             Direction direction,BlockPos neighborPos,BlockState neighborState, Random random,
                              //#else
-                             BlockPos neighborPos,
+                             //$$ BlockPos neighborPos,
                              //#endif
                              CallbackInfoReturnable<BlockState> cir) {
         if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || world.isClient()) return;

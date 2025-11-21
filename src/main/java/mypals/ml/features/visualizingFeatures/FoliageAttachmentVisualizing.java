@@ -47,7 +47,7 @@ public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<Blo
     public void setVisualizer(World world, BlockPos pos) {
         boolean playersNearBy = false;
         for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
-            if (player.getPos().distanceTo(pos.toCenterPos()) < RANGE) {
+            if (player.getEntityPos().distanceTo(pos.toCenterPos()) < RANGE) {
                 playersNearBy = true;
                 break;
             }
@@ -75,7 +75,7 @@ public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<Blo
         visualizers.forEach((pos, entry) -> {
             DisplayEntity.BlockDisplayEntity object = entry.getKey();
             long time = entry.getValue();
-            if (time < object.getWorld().getTime()) {
+            if (time < object.getEntityWorld().getTime()) {
                 removeVisualizer(pos);
                 visualizers.remove(pos);
             }
@@ -84,7 +84,7 @@ public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<Blo
 
     @Override
     protected void storeVisualizer(BlockPos key, DisplayEntity.BlockDisplayEntity entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.getWorld())));
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.getEntityWorld())));
     }
 
     @Override

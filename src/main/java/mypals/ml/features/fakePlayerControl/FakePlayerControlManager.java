@@ -61,12 +61,12 @@ public class FakePlayerControlManager {
     public static void bindPlayer(ServerPlayerEntity player, EntityPlayerMPFake fakePlayer) {
         NbtCompound playerData = new NbtCompound();
         NBTDataManager.readFromEntity(player, playerData);
-        playerData.putString("GameMode", player.interactionManager.getGameMode().getName());
+        playerData.putString("GameMode", player.interactionManager.getGameMode().getId());
         playerData.putString("MainArm", player.getMainArm().toString());
         bindTempData.put(player, playerData);
 
         binds.put(player,
-                Map.entry(addBindTeam(player, fakePlayer, player.getServerWorld()), fakePlayer));
+                Map.entry(addBindTeam(player, fakePlayer, player.getEntityWorld()), fakePlayer));
 
 
         NbtCompound fakePlayerData = new NbtCompound();
@@ -114,13 +114,13 @@ public class FakePlayerControlManager {
             fakePlayer.setHealth(player.getHealth());
             fakePlayer.setAbsorptionAmount(player.getAbsorptionAmount());
 
-            if (player.isFallFlying() && !fakePlayer.isFallFlying())
-                fakePlayer.startFallFlying();
-            else if (!player.isFallFlying() && fakePlayer.isFallFlying())
-                fakePlayer.stopFallFlying();
+            if (player.isGliding() && !fakePlayer.isGliding())
+                fakePlayer.startGliding();
+            else if (!player.isGliding() && fakePlayer.isGliding())
+                fakePlayer.stopGliding();
             if (player.isSleeping() && !fakePlayer.isSleeping() && player.getSleepingPosition().isPresent())
                 fakePlayer.setSleepingPosition(player.getSleepingPosition().get());
-            else if (!player.isSleeping() && fakePlayer.isFallFlying())
+            else if (!player.isSleeping() && fakePlayer.isGliding())
                 fakePlayer.wakeUp();
 
             fakePlayer.setOnGround(player.isOnGround());
@@ -160,13 +160,13 @@ public class FakePlayerControlManager {
         NBTDataManager.writeToEntity(player, playerData);
 
         //#if MC>=12105
-        //$$String gameModeName = playerData.getString("GameMode").get();
-        //$$Arm arm = Arm.valueOf(playerData.getString("MainArm").get());
+        String gameModeName = playerData.getString("GameMode").get();
+        Arm arm = Arm.valueOf(playerData.getString("MainArm").get());
         //#else
-        String gameModeName = playerData.getString("GameMode");
-        Arm arm = Arm.valueOf(playerData.getString("MainArm"));
+        //$$ String gameModeName = playerData.getString("GameMode");
+        //$$ Arm arm = Arm.valueOf(playerData.getString("MainArm"));
         //#endif
-        GameMode gameMode = GameMode.byName(gameModeName, GameMode.SURVIVAL);
+        GameMode gameMode = GameMode.byId(gameModeName, GameMode.SURVIVAL);
         player.changeGameMode(gameMode);
         player.setMainArm(arm);
         binds.remove(player);

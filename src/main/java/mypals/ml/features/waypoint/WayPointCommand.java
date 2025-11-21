@@ -35,7 +35,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.BlockPos;
 //#if MC >= 12102
-//$$ import net.minecraft.network.packet.s2c.play.PositionFlag;
+import net.minecraft.network.packet.s2c.play.PositionFlag;
 //#endif
 
 import java.util.HashSet;
@@ -62,7 +62,7 @@ public class WayPointCommand {
                                 .executes(context -> {
                                     String name = StringArgumentType.getString(context, "name");
                                     ServerPlayerEntity player = context.getSource().getPlayer();
-                                    ServerWorld world = player.getServerWorld();
+                                    ServerWorld world = player.getEntityWorld();
                                     BlockPos pos = player.getBlockPos();
 
                                     addWaypoint(name, pos, world.getRegistryKey().getValue().getPath());
@@ -75,7 +75,7 @@ public class WayPointCommand {
                                             BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
                                             String name = StringArgumentType.getString(context, "name");
                                             ServerPlayerEntity player = context.getSource().getPlayer();
-                                            ServerWorld world = player.getServerWorld();
+                                            ServerWorld world = player.getEntityWorld();
 
                                             addWaypoint(name, pos, world.getRegistryKey().getValue().getPath());
 
@@ -102,21 +102,21 @@ public class WayPointCommand {
                                         Waypoint waypoint = getWaypoint(name);
                                         if (waypoint != null) {
                                             BlockPos pos = waypoint.pos;
-                                            ServerWorld world = player.getServer().getWorld(ServerWorld.OVERWORLD);
+                                            ServerWorld world = player.getEntityWorld().getServer().getWorld(ServerWorld.OVERWORLD);
                                             switch (waypoint.dimension) {
                                                 case "overworld" ->
-                                                        world = player.getServer().getWorld(ServerWorld.OVERWORLD);
+                                                        world = player.getEntityWorld().getServer().getWorld(ServerWorld.OVERWORLD);
                                                 case "the_nether" ->
-                                                        world = player.getServer().getWorld(ServerWorld.NETHER);
-                                                case "the_end" -> world = player.getServer().getWorld(ServerWorld.END);
+                                                        world = player.getEntityWorld().getServer().getWorld(ServerWorld.NETHER);
+                                                case "the_end" -> world = player.getEntityWorld().getServer().getWorld(ServerWorld.END);
                                             }
                                             player.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
                                                     //#if MC >= 12102
-                                                    //$$ Set.of(),
+                                                    Set.of(),
                                                     //#endif
                                                     player.getYaw(), player.getPitch()
                                                     //#if MC >= 12102
-                                                    //$$ , false
+                                                    , false
                                                     //#endif
                                             );
                                         }

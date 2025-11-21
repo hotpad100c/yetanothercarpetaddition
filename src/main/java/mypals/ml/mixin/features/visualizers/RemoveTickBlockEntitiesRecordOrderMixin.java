@@ -17,11 +17,30 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
+
 package mypals.ml.mixin.features.visualizers;
 
+import me.fallenbreath.conditionalmixin.api.annotation.Condition;
+import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
+import mypals.ml.YetAnotherCarpetAdditionServer;
+import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.ModIds;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.chunk.WorldChunk;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = ">1.21.5"))
 @Mixin(WorldChunk.class)
 public class RemoveTickBlockEntitiesRecordOrderMixin {
+    @Inject(method = "removeBlockEntity", at = @At("HEAD"))
+    private void removeBlockEntity(BlockPos pos, CallbackInfo ci) {
+        if (YetAnotherCarpetAdditionRules.blockEntityOrderVisualize) {
+            YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.removeVisualizer(pos);
+        }
+   }
+
+
 }

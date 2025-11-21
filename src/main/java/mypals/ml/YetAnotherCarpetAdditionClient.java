@@ -41,7 +41,7 @@ import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 //#if MC >= 12109
-//$$ import net.minecraft.util.Identifier;
+import net.minecraft.util.Identifier;
 //#endif
 //#if MC < 12006
 //$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
@@ -62,7 +62,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static SelectiveFreezeManager selectiveFreezeManager = new SelectiveFreezeManager();
     public boolean requesting = false;
     //#if MC >= 12109
-    //$$ private static final KeyBinding.Category YACA_CATEGORY = KeyBinding.Category.create(Identifier.of("yaca", "name"));
+    private static final KeyBinding.Category YACA_CATEGORY = KeyBinding.Category.create(Identifier.of("yaca", "name"));
     //#endif
 
     @Override
@@ -73,16 +73,16 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 InputUtil.Type.KEYSYM,
                 GLFW.GLFW_KEY_F8,
                 //#if MC >= 12109
-                //$$ YACA_CATEGORY
+                YACA_CATEGORY
                 //#else
-                "key.category.yaca.name"
+                //$$ "key.category.yaca.name"
                 //#endif
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (carpetRulesKeyBind.wasPressed()) {
                 MinecraftClient.getInstance().player.sendMessage(Text.literal("Requesting rules now！")
                         //#if MC >= 12102
-                        //$$ , false
+                        , false
                         //#endif
                 );
                 String lang = client.getLanguageManager().getLanguage();
@@ -168,7 +168,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                             .distinct().toList());
                     client.player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！")
                             //#if MC >= 12102
-                            //$$ , false
+                            , false
                             //#endif
                     );
                     requesting = false;

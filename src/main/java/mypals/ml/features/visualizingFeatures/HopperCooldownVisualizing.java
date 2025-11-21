@@ -30,8 +30,8 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 //#if MC >= 12105
-//$$ import net.minecraft.nbt.NbtElement;
-//$$ import net.minecraft.nbt.NbtString;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtString;
 //#endif
 
 import java.util.HashMap;
@@ -56,15 +56,15 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
             NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             String color = cooldown == 0 ? "green" : "red";
             //#if MC < 12105
-            String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
-            nbt.remove("text");
-            nbt.putString("text", textJson);
+            //$$ String textJson = "{\"text\":\"" + "[" + cooldown + "]" + "\",\"color\":\"" + color + "\"}";
+            //$$ nbt.remove("text");
+            //$$ nbt.putString("text", textJson);
             //#else
-            //$$ HashMap<String, NbtElement> textNbt = new HashMap<>();
-            //$$ textNbt.put("text", NbtString.of("[" + cooldown + "]"));
-            //$$ textNbt.put("color", NbtString.of(color));
-            //$$ NbtCompound textComponent = new NbtCompound(textNbt);
-            //$$ nbt.put("text", textComponent);
+            HashMap<String, NbtElement> textNbt = new HashMap<>();
+            textNbt.put("text", NbtString.of("[" + cooldown + "]"));
+            textNbt.put("color", NbtString.of(color));
+            NbtCompound textComponent = new NbtCompound(textNbt);
+            nbt.put("text", textComponent);
             //#endif
             NBTDataManager.writeToEntity(entity, nbt);
         }
@@ -75,7 +75,7 @@ public class HopperCooldownVisualizing extends AbstractVisualizingManager<BlockP
     public void setVisualizer(ServerWorld world, BlockPos key, Vec3d pos, Object data) {
         boolean playersNearBy = false;
         for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
-            if (player.getPos().distanceTo(pos) < RANGE) {
+            if (player.getEntityPos().distanceTo(pos) < RANGE) {
                 playersNearBy = true;
                 break;
             }

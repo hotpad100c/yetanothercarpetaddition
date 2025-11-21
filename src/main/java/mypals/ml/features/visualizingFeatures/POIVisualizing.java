@@ -58,19 +58,19 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
             NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
 
             //#if MC < 12105
-
-            String textJson = "{\"text\":\"" + "[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
-                    poi.getType().value().ticketCount() + "]"
-                    + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
-            nbt.remove("text");
-            nbt.putString("text", textJson);
+            //$$
+            //$$ String textJson = "{\"text\":\"" + "[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
+            //$$         poi.getType().value().ticketCount() + "]"
+            //$$         + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
+            //$$ nbt.remove("text");
+            //$$ nbt.putString("text", textJson);
             //#else
-            //$$HashMap<String, NbtElement> textNbt = new HashMap<>();
-            //$$textNbt.put("text", NbtString.of("[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
-            //$$        poi.getType().value().ticketCount() + "]"));
-            //$$textNbt.put("color", NbtString.of((poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white"))));
-            //$$NbtCompound textComponent = new NbtCompound(textNbt);
-            //$$ nbt.put("text", textComponent);
+            HashMap<String, NbtElement> textNbt = new HashMap<>();
+            textNbt.put("text", NbtString.of("[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
+                   poi.getType().value().ticketCount() + "]"));
+            textNbt.put("color", NbtString.of((poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white"))));
+            NbtCompound textComponent = new NbtCompound(textNbt);
+            nbt.put("text", textComponent);
             //#endif
             NBTDataManager.writeToEntity(entity, nbt);
 
@@ -106,7 +106,7 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
     public void setVisualizer(ServerWorld world, BlockPos key, Vec3d pos, Object data) {
         boolean playersNearBy = false;
         for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
-            if (player.getPos().distanceTo(pos) < RANGE) {
+            if (player.getEntityPos().distanceTo(pos) < RANGE) {
                 playersNearBy = true;
                 break;
             }

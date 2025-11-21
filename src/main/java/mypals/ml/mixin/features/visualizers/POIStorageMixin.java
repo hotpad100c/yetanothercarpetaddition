@@ -28,16 +28,16 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //#if MC >= 12109
-//$$ import net.minecraft.server.debug.SubscriptionTracker;
+import net.minecraft.server.debug.SubscriptionTracker;
 //#else
-import net.minecraft.server.network.DebugInfoSender;
+//$$ import net.minecraft.server.network.DebugInfoSender;
 //#endif
 
 @Mixin(
         //#if MC >= 12109
-        //$$ SubscriptionTracker.class
+        SubscriptionTracker.class
         //#else
-        DebugInfoSender.class
+        //$$ DebugInfoSender.class
         //#endif
 )
 public abstract class POIStorageMixin {
@@ -58,15 +58,15 @@ public abstract class POIStorageMixin {
 
     @Inject(
             //#if MC >= 12109
-            //$$ method = "onPoiRemoved",
+            method = "onPoiRemoved",
             //#else
-            method = "sendPoiRemoval",
+            //$$ method = "sendPoiRemoval",
             //#endif
             at = @At("HEAD")
     )
     private static void remove(
             //#if MC < 12109
-            ServerWorld world,
+            //$$ ServerWorld world,
             //#endif
             BlockPos pos, CallbackInfo ci
     ) {

@@ -23,6 +23,7 @@ package mypals.ml.mixin.features.kExplosion;
 import me.fallenbreath.conditionalmixin.api.annotation.Condition;
 import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.interfaces.ExplosionExtension;
+import mypals.ml.utils.DummyClass;
 import mypals.ml.utils.ModIds;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -32,16 +33,7 @@ import net.minecraft.world.explosion.Explosion;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-//@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
-@Mixin(ItemEntity.class)
-public abstract class ItemEntityMixin extends Entity{
-    public ItemEntityMixin(EntityType<?> type, World world) {
-        super(type, world);
-    }
-
-    @Unique
-    @Override
-    public boolean isImmuneToExplosion(Explosion explosion) {
-        return ((ExplosionExtension)explosion).preservesDecorativeEntities() ? super.isImmuneToExplosion(explosion) : true;
-    }
+@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
+@Mixin(DummyClass.class)
+public abstract class ItemEntityMixin {
 }

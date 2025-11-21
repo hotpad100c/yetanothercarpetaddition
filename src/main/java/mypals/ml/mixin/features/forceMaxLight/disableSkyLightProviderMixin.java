@@ -33,7 +33,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ChunkSkyLightProvider.class)
 public class disableSkyLightProviderMixin {
     @Inject(
-            method = "method_51529",
+            method = "checkForLightUpdate",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -44,7 +44,7 @@ public class disableSkyLightProviderMixin {
     }
 
     @Inject(
-            method = "method_51530",
+            method = "propagateLightDecrease",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -55,7 +55,7 @@ public class disableSkyLightProviderMixin {
     }
 
     @Inject(
-            method = "method_51531",
+            method = "propagateLightIncrease",
             at = @At("HEAD"),
             cancellable = true
     )

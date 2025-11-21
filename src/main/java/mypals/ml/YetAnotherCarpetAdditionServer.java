@@ -192,7 +192,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                                         PointOfInterestType type = poi.getType().value();
                                         Vec3d pos = poi.getPos().toCenterPos();
                                         YetAnotherCarpetAdditionServer.poiVisualizing.setVisualizer(
-                                                player.getServerWorld(),
+                                                player.getEntityWorld(),
                                                 poi.getPos(),
                                                 pos,
                                                 poi
@@ -225,7 +225,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                     //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
                     //$$ String lang = buf.readString();
                     //#endif
-                    RulesPacketPayload rulesPacketPayload = new RulesPacketPayload(getRules(player.getServerWorld(), lang), getDefaults());
+                    RulesPacketPayload rulesPacketPayload = new RulesPacketPayload(getRules(player.getEntityWorld(), lang), getDefaults());
                     //#if MC >= 12006
                     ServerPlayNetworking.send(player, rulesPacketPayload);
                     //#else

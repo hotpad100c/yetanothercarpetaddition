@@ -48,7 +48,7 @@ public abstract class ClientWorldFreezeMixin extends World {
     protected ClientWorldFreezeMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry,
                 //#if MC < 12102
-                profiler,
+                //$$ profiler,
                 //#endif
                 isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
@@ -77,13 +77,13 @@ public abstract class ClientWorldFreezeMixin extends World {
     }
 
     //#if MC < 12109
-    @WrapOperation(method = "tickEntities",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;tickBlockEntities()V"))
-    private void blockTickClientChunkManager(ClientWorld instance, Operation<Void> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingBlockEntities || !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingBlockEntities) {
-            original.call(instance);
-        }
-    }
+    //$$ @WrapOperation(method = "tickEntities",
+    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;tickBlockEntities()V"))
+    //$$ private void blockTickClientChunkManager(ClientWorld instance, Operation<Void> original) {
+    //$$     if (!YetAnotherCarpetAdditionRules.stopTickingBlockEntities || !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingBlockEntities) {
+    //$$         original.call(instance);
+    //$$     }
+    //$$ }
     //#endif
 
     @WrapOperation(method = "tick",

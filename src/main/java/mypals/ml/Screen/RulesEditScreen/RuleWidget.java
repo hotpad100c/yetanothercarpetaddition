@@ -20,7 +20,7 @@
 
 package mypals.ml.Screen.RulesEditScreen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import mypals.ml.utils.adapter.RenderSystem;
 import mypals.ml.network.RuleData;
 import mypals.ml.settings.YACAConfigManager;
 import net.minecraft.client.MinecraftClient;
@@ -44,12 +44,12 @@ import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
 //#if MC >= 12109
-//$$ import net.minecraft.client.gui.Click;
-//$$ import net.minecraft.client.input.MouseInput;
+import net.minecraft.client.gui.Click;
+import net.minecraft.client.input.MouseInput;
 //#endif
 
 //#if MC >= 12106
-//$$ import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gl.RenderPipelines;
 //#elseif MC >= 12102
 //$$ import static net.minecraft.client.render.RenderLayer.getGui;
 //#endif
@@ -76,17 +76,17 @@ public class RuleWidget {
                 if (this.isVisible()) {
                     context.fill(
                             //#if MC >= 12106
-                            //$$
+
                             //#else
-                            RenderLayer.getGuiOverlay(),
+                            //$$ RenderLayer.getGuiOverlay(),
                             //#endif
 
                             this.getX() + this.width / 2, this.getY() + this.height - 4,
                             this.getX(), this.getY() + this.height - 5,
                             //#if MC >= 12106
-                            //$$ -1072689136
+                            -1072689136
                             //#else
-                            0xAFFFFFFF
+                            //$$ 0xAFFFFFFF
                             //#endif
                     );
                     super.renderWidget(context, mouseX, mouseY, delta);
@@ -113,7 +113,7 @@ public class RuleWidget {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
                             //#if MC >= 12106
-                            //$$ RenderPipelines.GUI_TEXTURED,
+                            RenderPipelines.GUI_TEXTURED,
                             //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
@@ -123,30 +123,30 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(
+            public boolean mouseClicked(
                     //#if MC < 12109
-                    double mouseX, double mouseY
+                    //$$ double mouseX, double mouseY
                     //#if MC >= 12103
-                    //$$, int button
+                    //$$ , int button
                     //#endif
                     //#else
-                    //$$ Click click, boolean doubled
+                    Click click, boolean doubled
                     //#endif
             ) {
                 //#if MC >= 12109
-                //$$ double mouseX = click.x();
-                //$$ double mouseY = click.y();
+                double mouseX = click.x();
+                double mouseY = click.y();
                 //#endif
 
                 //#if MC >= 12103
-                //$$if(this.isMouseOver(mouseX, mouseY)) {
-                //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                if(this.isMouseOver(mouseX, mouseY)) {
+                   this.playDownSound(MinecraftClient.getInstance().getSoundManager());
                 //#if MC >= 12109
-                //$$    this.onClick(click, doubled);
+                   this.onClick(click, doubled);
                 //#else
                 //$$    this.onClick(mouseX, mouseY);
                 //#endif
-                //$$}
+                }
                 //#endif
                 return this.isMouseOver(mouseX, mouseY);
             }
@@ -166,9 +166,9 @@ public class RuleWidget {
             @Override
             public void onClick(
                     //#if MC >= 12109
-                    //$$ Click click, boolean doubled
+                    Click click, boolean doubled
                     //#else
-                    double mouseX, double mouseY
+                    //$$ double mouseX, double mouseY
                     //#endif
             ) {
                 this.toggled = !this.toggled;
@@ -176,9 +176,9 @@ public class RuleWidget {
                 String commandName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
                 MinecraftClient.getInstance().getNetworkHandler()
                         //#if MC >= 12106
-                        //$$ .sendChatCommand(
+                        .sendChatCommand(
                         //#else
-                        .sendCommand(
+                        //$$ .sendCommand(
                                 //#endif
                                 ("carpet " + commandName + " " + this.toggled));
                 ruleData.value = this.toggled ? "true" : "false";
@@ -202,7 +202,7 @@ public class RuleWidget {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
                             //#if MC >= 12106
-                            //$$ RenderPipelines.GUI_TEXTURED,
+                            RenderPipelines.GUI_TEXTURED,
                             //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
@@ -212,30 +212,30 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(
+            public boolean mouseClicked(
                     //#if MC < 12109
-                    double mouseX, double mouseY
+                    //$$ double mouseX, double mouseY
                     //#if MC >= 12103
-                    //$$, int button
+                    //$$ , int button
                     //#endif
                     //#else
-                    //$$ Click click, boolean doubled
+                    Click click, boolean doubled
                     //#endif
             ) {
                 //#if MC >= 12109
-                //$$ double mouseX = click.x();
-                //$$ double mouseY = click.y();
+                double mouseX = click.x();
+                double mouseY = click.y();
                 //#endif
 
                 //#if MC >= 12103
-                //$$if(this.isMouseOver(mouseX, mouseY)) {
-                //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                if(this.isMouseOver(mouseX, mouseY)) {
+                   this.playDownSound(MinecraftClient.getInstance().getSoundManager());
                 //#if MC >= 12109
-                //$$    this.onClick(click, doubled);
+                   this.onClick(click, doubled);
                 //#else
                 //$$    this.onClick(mouseX, mouseY);
                 //#endif
-                //$$}
+                }
                 //#endif
                 return this.isMouseOver(mouseX, mouseY);
             }
@@ -255,9 +255,9 @@ public class RuleWidget {
             @Override
             public void onClick(
                     //#if MC >= 12109
-                    //$$ Click click, boolean doubled
+                    Click click, boolean doubled
                     //#else
-                    double mouseX, double mouseY
+                    //$$ double mouseX, double mouseY
                     //#endif
             ) {
                 this.toggled = !this.toggled;
@@ -266,9 +266,9 @@ public class RuleWidget {
                 MinecraftClient.getInstance().getNetworkHandler()
 
                         //#if MC >= 12106
-                        //$$.sendChatCommand(
+                        .sendChatCommand(
                         //#else
-                        .sendCommand(
+                        //$$ .sendCommand(
                                 //#endif
                                 (toggled ? "carpet setDefault " : "carpet removeDefault ") + commandName + (toggled ? " " + ruleData.value : "")
                         );
@@ -297,7 +297,7 @@ public class RuleWidget {
                     RenderSystem.disableDepthTest();
                     context.drawTexture(
                             //#if MC >= 12106
-                            //$$ RenderPipelines.GUI_TEXTURED,
+                            RenderPipelines.GUI_TEXTURED,
                             //#elseif MC >= 12102
                             //$$ RenderLayer::getGuiTextured,
                             //#endif
@@ -307,30 +307,30 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean clicked(
+            public boolean mouseClicked(
                     //#if MC < 12109
-                    double mouseX, double mouseY
+                    //$$ double mouseX, double mouseY
                     //#if MC >= 12103
-                    //$$, int button
+                    //$$ , int button
                     //#endif
                     //#else
-                    //$$ Click click, boolean doubled
+                    Click click, boolean doubled
                     //#endif
             ) {
                 //#if MC >= 12109
-                //$$ double mouseX = click.x();
-                //$$ double mouseY = click.y();
+                double mouseX = click.x();
+                double mouseY = click.y();
                 //#endif
 
                 //#if MC >= 12103
-                //$$if(this.isMouseOver(mouseX, mouseY)) {
-                //$$    this.playDownSound(MinecraftClient.getInstance().getSoundManager());
+                if(this.isMouseOver(mouseX, mouseY)) {
+                   this.playDownSound(MinecraftClient.getInstance().getSoundManager());
                 //#if MC >= 12109
-                //$$    this.onClick(click, doubled);
+                   this.onClick(click, doubled);
                 //#else
                 //$$    this.onClick(mouseX, mouseY);
                 //#endif
-                //$$}
+                }
                 //#endif
                 return this.isMouseOver(mouseX, mouseY);
             }
@@ -350,9 +350,9 @@ public class RuleWidget {
             @Override
             public void onClick(
                     //#if MC >= 12109
-                    //$$ Click click, boolean doubled
+                    Click click, boolean doubled
                     //#else
-                    double mouseX, double mouseY
+                    //$$ double mouseX, double mouseY
                     //#endif
             ) {
                 this.toggled = !this.toggled;
@@ -426,19 +426,19 @@ public class RuleWidget {
 
     public void onClicked(double mouseX, double mouseY, boolean clicked, int button) {
         //#if MC >= 12109
-        //$$ Click click = new Click(mouseX, mouseY, new MouseInput(button, 0));
+        Click click = new Click(mouseX, mouseY, new MouseInput(button, 0));
         //#endif
         if (!lockRule.mouseClicked(
                 //#if MC >= 12109
-                //$$ click, false
+                click, false
                 //#else
-                mouseX, mouseY, button
+                //$$ mouseX, mouseY, button
                 //#endif
         ) && !favoriteRule.mouseClicked(
                 //#if MC >= 12109
-                //$$ click, false
+                click, false
                 //#else
-                mouseX, mouseY, button
+                //$$ mouseX, mouseY, button
                 //#endif
         )) {
             valueWidget.setFocused(clicked && !isTrueFalseRule);
@@ -446,18 +446,18 @@ public class RuleWidget {
             if (clicked && isTrueFalseRule) {
                 trueFalseButton.onClick(
                         //#if MC >= 12109
-                        //$$ click, false
+                        click, false
                         //#else
-                        mouseX, mouseY
+                        //$$ mouseX, mouseY
                         //#endif
                 );
                 System.out.println("Clicked toggle button");
             } else if (clicked && !isTrueFalseRule) {
                 valueWidget.onClick(
                         //#if MC >= 12109
-                        //$$ click, false
+                        click, false
                         //#else
-                        mouseX, mouseY
+                        //$$ mouseX, mouseY
                         //#endif
                 );
                 MinecraftClient.getInstance().getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
@@ -466,9 +466,9 @@ public class RuleWidget {
                     String commandName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
                     MinecraftClient.getInstance().getNetworkHandler()
                             //#if MC >= 12106
-                            //$$.sendChatCommand(
+                            .sendChatCommand(
                             //#else
-                            .sendCommand(
+                            //$$ .sendCommand(
                                     //#endif
                                     ("carpet " + commandName + " " + valueWidget.getText()));
                     ruleData.value = valueWidget.getText();

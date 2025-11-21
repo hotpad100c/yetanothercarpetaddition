@@ -42,7 +42,7 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 //#if MC >= 12109
-//$$ import net.minecraft.client.render.Camera;
+import net.minecraft.client.render.Camera;
 //#endif
 
 import java.util.Iterator;
@@ -64,44 +64,44 @@ public abstract class WorldRenderFreeze {
     protected abstract void removeBlockBreakingInfo(BlockBreakingInfo info);
 
     //#if MC < 12109
-    @WrapOperation(
+    //$$ @WrapOperation(
             //#if MC < 12102
-            method = "render",
+            //$$ method = "render",
             //#else
             //$$ method = "renderEntities",
             //#endif
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
-    private void blockTickEntityRender(WorldRenderer instance, Entity entity,
-                                       double cameraX, double cameraY, double cameraZ,
-                                       float tickDelta, MatrixStack matrices,
-                                       VertexConsumerProvider vertexConsumers, Operation<Void> original) {
-        tickDelta = (YetAnotherCarpetAdditionRules.stopTickingEntities
-                || YetAnotherCarpetAdditionClient.selectiveFreezeManager
-                .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;
-        original.call(instance, entity, cameraX, cameraY, cameraZ, tickDelta, matrices, vertexConsumers);
-    }
-    //#else
-    //$$ @ModifyArgs(
-    //$$         method = "getAndUpdateRenderState",
-    //$$         at = @At(
-    //$$                 value = "INVOKE",
-    //$$                 target = "Lnet/minecraft/client/render/entity/EntityRenderManager;getAndUpdateRenderState(Lnet/minecraft/entity/Entity;F)Lnet/minecraft/client/render/entity/state/EntityRenderState;"
-    //$$         )
-    //$$ )
-    //$$ public void blockTickEntityRender(Args args) {
-    //$$     Entity entity = args.get(0);
-    //$$     float tickDelta = args.get(1);
+    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
+    //$$ private void blockTickEntityRender(WorldRenderer instance, Entity entity,
+    //$$                                    double cameraX, double cameraY, double cameraZ,
+    //$$                                    float tickDelta, MatrixStack matrices,
+    //$$                                    VertexConsumerProvider vertexConsumers, Operation<Void> original) {
     //$$     tickDelta = (YetAnotherCarpetAdditionRules.stopTickingEntities
     //$$             || YetAnotherCarpetAdditionClient.selectiveFreezeManager
     //$$             .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;
-    //$$     args.set(1, tickDelta);
+    //$$     original.call(instance, entity, cameraX, cameraY, cameraZ, tickDelta, matrices, vertexConsumers);
     //$$ }
+    //#else
+    @ModifyArgs(
+            method = "getAndUpdateRenderState",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/entity/EntityRenderManager;getAndUpdateRenderState(Lnet/minecraft/entity/Entity;F)Lnet/minecraft/client/render/entity/state/EntityRenderState;"
+            )
+    )
+    public void blockTickEntityRender(Args args) {
+        Entity entity = args.get(0);
+        float tickDelta = args.get(1);
+        tickDelta = (YetAnotherCarpetAdditionRules.stopTickingEntities
+                || YetAnotherCarpetAdditionClient.selectiveFreezeManager
+                .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;
+        args.set(1, tickDelta);
+    }
     //#endif
 
     @WrapMethod(method = "tick")
     private void blockTick(
             //#if MC >= 12109
-            //$$ Camera camera,
+            Camera camera,
             //#endif
             Operation<Void> original
     ) {

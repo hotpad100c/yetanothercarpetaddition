@@ -21,13 +21,13 @@
 package mypals.ml.Screen.RulesEditScreen;
 
 //#if MC >= 12105
-//$$ import com.mojang.blaze3d.opengl.GlStateManager;
+import com.mojang.blaze3d.opengl.GlStateManager;
 //#else
-import com.mojang.blaze3d.platform.GlStateManager;
+//$$ import com.mojang.blaze3d.platform.GlStateManager;
 //#endif
 import net.minecraft.client.gui.widget.ClickableWidget;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import mypals.ml.utils.adapter.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawContext;
@@ -40,13 +40,13 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 
 //#if MC >= 12109
-//$$ import net.minecraft.client.gui.Click;
-//$$ import net.minecraft.client.input.MouseInput;
-//$$ import net.minecraft.client.input.KeyInput;
+import net.minecraft.client.gui.Click;
+import net.minecraft.client.input.MouseInput;
+import net.minecraft.client.input.KeyInput;
 //#endif
 
 //#if MC >= 12106
-//$$ import net.minecraft.client.gl.RenderPipelines;
+import net.minecraft.client.gl.RenderPipelines;
 //#elseif MC >= 12102
 //$$ import net.minecraft.client.render.RenderLayer;
 //#endif
@@ -56,8 +56,8 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
     private static final ButtonTextures TEXT_FIELD_TEXTURES = new ButtonTextures(Identifier.ofVanilla("widget/text_field"), Identifier.ofVanilla("widget/text_field_highlighted"));
     private static final Identifier SCROLLER_TEXTURE = Identifier.ofVanilla("widget/scroller");
     //#else
-    //$$private static final ButtonTextures TEXT_FIELD_TEXTURES = new ButtonTextures(Identifier.of("minecraft","widget/text_field"), Identifier.of("minecraft","widget/text_field_highlighted"));
-    //$$private static final Identifier SCROLLER_TEXTURE = Identifier.of("minecraft","widget/scroller");
+    //$$ private static final ButtonTextures TEXT_FIELD_TEXTURES = new ButtonTextures(Identifier.of("minecraft","widget/text_field"), Identifier.of("minecraft","widget/text_field_highlighted"));
+    //$$ private static final Identifier SCROLLER_TEXTURE = Identifier.of("minecraft","widget/scroller");
     //#endif
     private static final int PADDING = 4;
     private static final int SCROLLER_WIDTH = 8;
@@ -69,15 +69,15 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
     }
 
     //#if MC >= 12109
-    //$$ public boolean mouseClicked(Click click, boolean doubled){
+    public boolean mouseClicked(Click click, boolean doubled){
     //#else
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+    //$$ public boolean mouseClicked(double mouseX, double mouseY, int button) {
     //#endif
 
         //#if MC >= 12109
-        //$$double mouseY = click.y();
-        //$$double mouseX = click.x();
-        //$$int button = click.button();
+        double mouseY = click.y();
+        double mouseX = click.x();
+        int button = click.button();
         //#endif
 
         if (!this.visible) {
@@ -96,16 +96,16 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
 
     public boolean mouseReleased(
             //#if MC >= 12109
-            //$$Click click
+            Click click
             //#else
-            double mouseX, double mouseY, int button
+            //$$ double mouseX, double mouseY, int button
             //#endif
     ) {
         if (
             //#if MC >= 12109
-            //$$click.button() == 0
+            click.button() == 0
             //#else
-            button == 0
+            //$$ button == 0
             //#endif
         ) {
             this.scrollbarDragged = false;
@@ -113,29 +113,29 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
 
         return super.mouseReleased(
                 //#if MC >= 12109
-                //$$click
+                click
                 //#else
-                 mouseX, mouseY,  button
+                //$$  mouseX, mouseY,  button
                 //#endif
         );
     }
 
     public boolean mouseDragged(
             //#if MC >= 12109
-            //$$Click click,
+            Click click,
             //#else
-            double mouseX, double mouseY
+            //$$ double mouseX, double mouseY
             //#endif
             //#if MC < 12109
-            , int button,
+            //$$ , int button,
             //#endif
             double deltaX, double deltaY) {
         //#if MC >= 12109
-        //$$double mousey = click.y();
-        //$$double mousex = click.x();
+        double mousey = click.y();
+        double mousex = click.x();
         //#else
-        double mousey = mouseX;
-        double mousex = mouseY;
+        //$$ double mousey = mouseX;
+        //$$ double mousex = mouseY;
         //#endif
 
 
@@ -168,18 +168,18 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
 
     public boolean keyPressed(
             //#if MC >= 12109
-            //$$KeyInput keyInput
+            KeyInput keyInput
             //#else
-            int keyCode, int scanCode, int modifiers
+            //$$ int keyCode, int scanCode, int modifiers
             //#endif
     ) {
 
         //#if MC >= 12109
-        //$$boolean bl = keyInput.key() == 265;
-        //$$boolean bl2 = keyInput.key() == 264;
+        boolean bl = keyInput.key() == 265;
+        boolean bl2 = keyInput.key() == 264;
         //#else
-        boolean bl = keyCode == 265;
-        boolean bl2 = keyCode == 264;
+        //$$ boolean bl = keyCode == 265;
+        //$$ boolean bl2 = keyCode == 264;
         //#endif
 
 
@@ -193,9 +193,9 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
 
         return super.keyPressed(
                 //#if MC >= 12109
-                //$$keyInput
+                keyInput
                 //#else
-                keyCode, scanCode,  modifiers
+                //$$ keyCode, scanCode,  modifiers
                 //#endif
         );
     }
@@ -206,22 +206,22 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
             context.enableScissor(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1);
 
             //#if MC >= 12106
-            //$$context.getMatrices().pushMatrix();
+            context.getMatrices().pushMatrix();
             //#else
-            context.getMatrices().push();
+            //$$ context.getMatrices().push();
             //#endif
 
             //#if MC >= 12106
-            //$$context.getMatrices().translate(0.0F, (float) -this.scrollY);
+            context.getMatrices().translate(0.0F, (float) -this.scrollY);
             //#else
-            context.getMatrices().translate((double)0.0F, -this.scrollY, (double)0.0F);
+            //$$ context.getMatrices().translate((double)0.0F, -this.scrollY, (double)0.0F);
             //#endif
 
             this.renderContents(context, mouseX, mouseY, delta);
             //#if MC >= 12106
-            //$$context.getMatrices().popMatrix();
+            context.getMatrices().popMatrix();
             //#else
-            context.getMatrices().pop();
+            //$$ context.getMatrices().pop();
             //#endif
             context.disableScissor();
             this.renderOverlay(context);
@@ -277,7 +277,7 @@ public abstract class ConstantScrollableWidget extends ClickableWidget implement
         GlStateManager._enableBlend();
         context.drawGuiTexture(
                 //#if MC >= 12106
-                //$$ RenderPipelines.GUI_TEXTURED,
+                RenderPipelines.GUI_TEXTURED,
                 //#elseif MC >= 12102
                 //$$ RenderLayer::getGuiTextured,
                 //#endif

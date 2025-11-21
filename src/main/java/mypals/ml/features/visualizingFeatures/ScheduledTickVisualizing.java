@@ -31,11 +31,11 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.jetbrains.annotations.NotNull;
 //#if MC >= 12105
-//$$ import org.jetbrains.annotations.NotNull;
-//$$ import net.minecraft.nbt.NbtElement;
-//$$ import net.minecraft.nbt.NbtList;
-//$$ import net.minecraft.nbt.NbtString;
-//$$ import java.util.HashMap;
+import org.jetbrains.annotations.NotNull;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.nbt.NbtString;
+import java.util.HashMap;
 //#endif
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -67,33 +67,33 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
 
             if (tickMarker != null && !tickMarker.isRemoved()) {
                 //#if MC < 12105
-                JsonObject textJson = new JsonObject();
-                textJson.addProperty("text", "");
-                JsonArray extra = new JsonArray();
-
-                JsonObject triggerPart = new JsonObject();
-                triggerPart.addProperty("text", "T:" + trigger);
-                triggerPart.addProperty("color", "red");
-                extra.add(triggerPart);
-
-                JsonObject priorityPart = new JsonObject();
-                priorityPart.addProperty("text", "\nP:" + priority);
-                priorityPart.addProperty("color", "green");
-                extra.add(priorityPart);
-
-                JsonObject subTickPart = new JsonObject();
-                subTickPart.addProperty("text", "\nS:" + subTickOrder);
-                subTickPart.addProperty("color", "blue");
-                extra.add(subTickPart);
+                //$$ JsonObject textJson = new JsonObject();
+                //$$ textJson.addProperty("text", "");
+                //$$ JsonArray extra = new JsonArray();
+                //$$
+                //$$ JsonObject triggerPart = new JsonObject();
+                //$$ triggerPart.addProperty("text", "T:" + trigger);
+                //$$ triggerPart.addProperty("color", "red");
+                //$$ extra.add(triggerPart);
+                //$$
+                //$$ JsonObject priorityPart = new JsonObject();
+                //$$ priorityPart.addProperty("text", "\nP:" + priority);
+                //$$ priorityPart.addProperty("color", "green");
+                //$$ extra.add(priorityPart);
+                //$$
+                //$$ JsonObject subTickPart = new JsonObject();
+                //$$ subTickPart.addProperty("text", "\nS:" + subTickOrder);
+                //$$ subTickPart.addProperty("color", "blue");
+                //$$ extra.add(subTickPart);
                 //#else
-                //$$ NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+                NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
                 //#endif
 
                 NbtCompound nbt = NBTDataManager.readFromEntity(tickMarker, new NbtCompound());
                 //#if MC < 12105
-                nbt.putString("text", textJson.toString());
+                //$$ nbt.putString("text", textJson.toString());
                 //#else
-                //$$ nbt.put("text", nbtList);
+                nbt.put("text", nbtList);
                 //#endif
                 NBTDataManager.writeToEntity(tickMarker, nbt);
             } else {
@@ -114,36 +114,36 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             entity.setInvulnerable(true);
 
             //#if MC < 12105
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
-
-            JsonObject triggerPart = new JsonObject();
-            triggerPart.addProperty("text", "T:" + trigger);
-            triggerPart.addProperty("color", "red");
-            extra.add(triggerPart);
-
-            JsonObject priorityPart = new JsonObject();
-            priorityPart.addProperty("text", "\nP:" + priority);
-            priorityPart.addProperty("color", "green");
-            extra.add(priorityPart);
-
-            JsonObject subTickPart = new JsonObject();
-            subTickPart.addProperty("text", "\nS:" + subTickOrder);
-            subTickPart.addProperty("color", "blue");
-            extra.add(subTickPart);
-
-            textJson.add("extra", extra);
+            //$$ JsonObject textJson = new JsonObject();
+            //$$ textJson.addProperty("text", "");
+            //$$ JsonArray extra = new JsonArray();
+            //$$
+            //$$ JsonObject triggerPart = new JsonObject();
+            //$$ triggerPart.addProperty("text", "T:" + trigger);
+            //$$ triggerPart.addProperty("color", "red");
+            //$$ extra.add(triggerPart);
+            //$$
+            //$$ JsonObject priorityPart = new JsonObject();
+            //$$ priorityPart.addProperty("text", "\nP:" + priority);
+            //$$ priorityPart.addProperty("color", "green");
+            //$$ extra.add(priorityPart);
+            //$$
+            //$$ JsonObject subTickPart = new JsonObject();
+            //$$ subTickPart.addProperty("text", "\nS:" + subTickOrder);
+            //$$ subTickPart.addProperty("color", "blue");
+            //$$ extra.add(subTickPart);
+            //$$
+            //$$ textJson.add("extra", extra);
             //#else
-            //$$ NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+            NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
             //#endif
 
             NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
             nbt.putString("billboard", "center");
             //#if MC < 12105
-            nbt.putString("text", textJson.toString());
+            //$$ nbt.putString("text", textJson.toString());
             //#else
-            //$$ nbt.put("text", nbtList);
+            nbt.put("text", nbtList);
             //#endif
             nbt.putByte("see_through", (byte) 1);
             //nbt.putInt("background", 0x00000000);
@@ -159,7 +159,7 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
 
     @Override
     protected void storeVisualizer(BlockPos key, ScheduledTickObject entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.tickMarker.getWorld())));
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.tickMarker.getEntityWorld())));
     }
 
     @Override
@@ -169,66 +169,66 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             int priority = (int) tickData[1];
             long subTickOrder = (long) tickData[2];
 
-            long time = marker.tickMarker.getWorld().getTime();
+            long time = marker.tickMarker.getEntityWorld().getTime();
             int trigger = (int) (triggerTick - time) - 1;
 
             //#if MC < 12105
-            JsonObject textJson = new JsonObject();
-            textJson.addProperty("text", "");
-            JsonArray extra = new JsonArray();
-
-            JsonObject triggerPart = new JsonObject();
-            triggerPart.addProperty("text", "T:" + trigger);
-            triggerPart.addProperty("color", "red");
-            extra.add(triggerPart);
-
-            JsonObject priorityPart = new JsonObject();
-            priorityPart.addProperty("text", "\nP:" + priority);
-            priorityPart.addProperty("color", "green");
-            extra.add(priorityPart);
-
-            JsonObject subTickPart = new JsonObject();
-            subTickPart.addProperty("text", "\nS:" + subTickOrder);
-            subTickPart.addProperty("color", "blue");
-            extra.add(subTickPart);
-            textJson.add("extra", extra);
+            //$$ JsonObject textJson = new JsonObject();
+            //$$ textJson.addProperty("text", "");
+            //$$ JsonArray extra = new JsonArray();
+            //$$
+            //$$ JsonObject triggerPart = new JsonObject();
+            //$$ triggerPart.addProperty("text", "T:" + trigger);
+            //$$ triggerPart.addProperty("color", "red");
+            //$$ extra.add(triggerPart);
+            //$$
+            //$$ JsonObject priorityPart = new JsonObject();
+            //$$ priorityPart.addProperty("text", "\nP:" + priority);
+            //$$ priorityPart.addProperty("color", "green");
+            //$$ extra.add(priorityPart);
+            //$$
+            //$$ JsonObject subTickPart = new JsonObject();
+            //$$ subTickPart.addProperty("text", "\nS:" + subTickOrder);
+            //$$ subTickPart.addProperty("color", "blue");
+            //$$ extra.add(subTickPart);
+            //$$ textJson.add("extra", extra);
             //#else
-            //$$ NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
+            NbtList nbtList = getNbtElements(trigger, priority, subTickOrder);
             //#endif
 
             NbtCompound nbt = NBTDataManager.readFromEntity(marker.tickMarker, new NbtCompound());
             //#if MC < 12105
-            nbt.putString("text", textJson.toString());
+            //$$ nbt.putString("text", textJson.toString());
             //#else
-            //$$ nbt.put("text", nbtList);
+            nbt.put("text", nbtList);
             //#endif
             NBTDataManager.writeToEntity(marker.tickMarker, nbt);
         }
     }
 
     //#if MC >= 12105
-    //$$ public static @NotNull NbtList getNbtElements(int trigger, int priority, long subTickOrder) {
-    //$$     NbtList nbtList = new NbtList();
+    public static @NotNull NbtList getNbtElements(int trigger, int priority, long subTickOrder) {
+        NbtList nbtList = new NbtList();
 
-    //$$     HashMap<String, NbtElement> triggerPart = new HashMap<>();
-    //$$     triggerPart.put("text", NbtString.of("T:" + trigger));
-    //$$     triggerPart.put("color", NbtString.of("red"));
-    //$$     NbtCompound textComponent = new NbtCompound(triggerPart);
-    //$$     nbtList.add(textComponent);
+        HashMap<String, NbtElement> triggerPart = new HashMap<>();
+        triggerPart.put("text", NbtString.of("T:" + trigger));
+        triggerPart.put("color", NbtString.of("red"));
+        NbtCompound textComponent = new NbtCompound(triggerPart);
+        nbtList.add(textComponent);
 
-    //$$     HashMap<String, NbtElement> priorityPart = new HashMap<>();
-    //$$     priorityPart.put("text", NbtString.of("\nP:" + priority ));
-    //$$     priorityPart.put("color", NbtString.of("green"));
-    //$$     textComponent = new NbtCompound(priorityPart);
-    //$$     nbtList.add(textComponent);
+        HashMap<String, NbtElement> priorityPart = new HashMap<>();
+        priorityPart.put("text", NbtString.of("\nP:" + priority ));
+        priorityPart.put("color", NbtString.of("green"));
+        textComponent = new NbtCompound(priorityPart);
+        nbtList.add(textComponent);
 
-    //$$     HashMap<String, NbtElement> subTickPart = new HashMap<>();
-    //$$     subTickPart.put("text", NbtString.of("\nS:" + subTickOrder));
-    //$$     subTickPart.put("color", NbtString.of("blue"));
-    //$$     textComponent = new NbtCompound(subTickPart);
-    //$$     nbtList.add(textComponent);
-    //$$     return nbtList;
-    //$$ }
+        HashMap<String, NbtElement> subTickPart = new HashMap<>();
+        subTickPart.put("text", NbtString.of("\nS:" + subTickOrder));
+        subTickPart.put("color", NbtString.of("blue"));
+        textComponent = new NbtCompound(subTickPart);
+        nbtList.add(textComponent);
+        return nbtList;
+    }
     //#endif
 
     @Override

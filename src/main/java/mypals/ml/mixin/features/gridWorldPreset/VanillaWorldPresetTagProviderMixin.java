@@ -22,8 +22,8 @@ package mypals.ml.mixin.features.gridWorldPreset;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.data.DataOutput;
-import net.minecraft.data.server.tag.TagProvider;
-import net.minecraft.data.server.tag.vanilla.VanillaWorldPresetTagProvider;
+import net.minecraft.data.tag.TagProvider;
+import net.minecraft.data.tag.vanilla.VanillaWorldPresetTagProvider;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryWrapper;

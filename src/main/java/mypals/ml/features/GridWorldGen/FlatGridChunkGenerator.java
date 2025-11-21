@@ -91,12 +91,12 @@ public class FlatGridChunkGenerator extends FlatChunkGenerator {
         BlockPos.Mutable mutable = new BlockPos.Mutable();
         Heightmap heightmapOcean = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
         Heightmap heightmapSurface = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-        for (int y = chunk.getBottomY(); y < chunk.getTopY(); ++y) {
+        for (int y = chunk.getBottomY(); y < chunk.getTopYInclusive(); ++y) {
             for (int x = 0; x < 16; ++x) {
                 for (int z = 0; z < 16; ++z) {
                     chunk.setBlockState(mutable.set(x, y, z), blockState
                             //#if MC < 12105
-                            , false
+                            //$$ , false
                             //#endif
                     );
                     heightmapOcean.trackUpdate(x, y, z, blockState);
