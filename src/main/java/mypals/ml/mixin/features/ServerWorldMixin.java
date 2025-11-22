@@ -216,6 +216,7 @@ public abstract class ServerWorldMixin extends Level {
                     //$$ target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
                     //#else
                     target = "Lnet/minecraft/world/level/material/FluidState;randomTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"
+                    //#endif
             )
     )
     private void wrapFluidRandomTick(FluidState instance,

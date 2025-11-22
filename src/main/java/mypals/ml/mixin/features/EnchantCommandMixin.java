@@ -54,7 +54,6 @@ public class EnchantCommandMixin {
             method = "enchant",
             at = @At(
                     value = "INVOKE",
-                    //#if MC >= 12101
                     target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;isEnchantmentCompatible(Ljava/util/Collection;Lnet/minecraft/core/Holder;)Z"
             )
     )

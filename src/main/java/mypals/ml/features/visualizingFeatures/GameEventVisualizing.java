@@ -39,7 +39,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
 import java.util.HashMap;
-//#endif
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

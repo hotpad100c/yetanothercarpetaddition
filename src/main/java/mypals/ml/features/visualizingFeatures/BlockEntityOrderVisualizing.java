@@ -31,7 +31,6 @@ import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-//#endif
 import java.util.HashMap;
 import java.util.Map;
 

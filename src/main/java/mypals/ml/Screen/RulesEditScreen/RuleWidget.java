@@ -43,9 +43,10 @@ import java.util.Objects;
 import static mypals.ml.YetAnotherCarpetAdditionClient.defaultRules;
 import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
-//#elseif MC >= 12102
-//$$ import static net.minecraft.client.render.RenderLayer.getGui;
-//#endif
+// TODO something is missing here
+// //#elseif MC >= 12102
+// //$$ import static net.minecraft.client.render.RenderLayer.getGui;
+// //#endif
 public class RuleWidget {
     private RuleData ruleData;
     private int x, y;
