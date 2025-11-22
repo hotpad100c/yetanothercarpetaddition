@@ -76,10 +76,10 @@ public abstract class WorldRenderFreeze {
     //$$ }
     //#else
     @ModifyArgs(
-            method = "getAndUpdateRenderState",
+            method = "extractEntity",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/entity/EntityRenderManager;getAndUpdateRenderState(Lnet/minecraft/entity/Entity;F)Lnet/minecraft/client/render/entity/state/EntityRenderState;"
+                    target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;extractEntity(Lnet/minecraft/world/entity/Entity;F)Lnet/minecraft/client/renderer/entity/state/EntityRenderState;"
             )
     )
     public void blockTickEntityRender(Args args) {

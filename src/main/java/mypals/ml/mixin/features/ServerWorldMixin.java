@@ -154,7 +154,7 @@ public abstract class ServerWorldMixin extends Level {
         }
     }
 
-    @WrapOperation(method = "tickEntity",
+    @WrapOperation(method = "tickNonPassenger",
             at = @At(target = "Lnet/minecraft/world/entity/Entity;tick()V", value = "INVOKE"))
     private void tick(Entity instance, Operation<Void> original) {
         if (!instance.getTags().contains("DoNotTick")) {

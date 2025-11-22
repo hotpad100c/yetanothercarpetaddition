@@ -154,7 +154,7 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
 
     }
 
-    @WrapOperation(method = "replaceWithStateForNeighborUpdate",
+    @WrapOperation(method = "shapeUpdate",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater;addAndRun(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater$NeighborUpdates;)V"))
     public void updateNeighborPP(CollectingNeighborUpdater instance, BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof CollectingNeighborUpdater.ShapeUpdate stateReplacementEntry) {

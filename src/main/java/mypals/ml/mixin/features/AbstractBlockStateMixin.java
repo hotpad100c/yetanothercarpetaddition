@@ -47,7 +47,7 @@ public class AbstractBlockStateMixin {
     }
 
     @Inject(
-            method = "prepare*",
+            method = "updateIndirectNeighbourShapes*",
             at = @At("HEAD"),
             cancellable = true
     )
