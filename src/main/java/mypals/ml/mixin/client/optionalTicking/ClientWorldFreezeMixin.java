@@ -78,8 +78,8 @@ public abstract class ClientWorldFreezeMixin extends Level {
 
     //#if MC < 12109
     //$$ @WrapOperation(method = "tickEntities",
-    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/world/ClientWorld;tickBlockEntities()V"))
-    //$$ private void blockTickClientChunkManager(ClientWorld instance, Operation<Void> original) {
+    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/ClientLevel;tickBlockEntities()V"))
+    //$$ private void blockTickClientChunkManager(ClientLevel instance, Operation<Void> original) {
     //$$     if (!YetAnotherCarpetAdditionRules.stopTickingBlockEntities || !YetAnotherCarpetAdditionClient.selectiveFreezeManager.stopTickingBlockEntities) {
     //$$         original.call(instance);
     //$$     }

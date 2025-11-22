@@ -41,6 +41,11 @@ import org.spongepowered.asm.mixin.injection.ModifyArgs;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import java.util.Iterator;
 
+//#if MC < 12109
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.MultiBufferSource;
+//#endif
+
 @Mixin(LevelRenderer.class)
 public abstract class WorldRenderFreeze {
     @Shadow
@@ -59,19 +64,19 @@ public abstract class WorldRenderFreeze {
 
     //#if MC < 12109
     //$$ @WrapOperation(
-            //#if MC < 12102
-            //$$ method = "render",
-            //#else
-            //$$ method = "renderEntities",
-            //#endif
-    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/WorldRenderer;renderEntity(Lnet/minecraft/entity/Entity;DDDFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;)V"))
-    //$$ private void blockTickEntityRender(WorldRenderer instance, Entity entity,
+    //$$         //#if MC < 12102
+    //$$         //$$ method = "render",
+    //$$         //#else
+    //$$         method = "renderEntities",
+    //$$         //#endif
+    //$$         at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;renderEntity(Lnet/minecraft/world/entity/Entity;DDDFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;)V"))
+    //$$ private void blockTickEntityRender(LevelRenderer instance, Entity entity,
     //$$                                    double cameraX, double cameraY, double cameraZ,
-    //$$                                    float tickDelta, MatrixStack matrices,
-    //$$                                    VertexConsumerProvider vertexConsumers, Operation<Void> original) {
+    //$$                                    float tickDelta, PoseStack matrices,
+    //$$                                    MultiBufferSource vertexConsumers, Operation<Void> original) {
     //$$     tickDelta = (YetAnotherCarpetAdditionRules.stopTickingEntities
     //$$             || YetAnotherCarpetAdditionClient.selectiveFreezeManager
-    //$$             .stopTickingEntities) && !(entity instanceof PlayerEntity) ? 1.0F : tickDelta;
+    //$$             .stopTickingEntities) && !(entity instanceof Player) ? 1.0F : tickDelta;
     //$$     original.call(instance, entity, cameraX, cameraY, cameraZ, tickDelta, matrices, vertexConsumers);
     //$$ }
     //#else
