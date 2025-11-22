@@ -20,10 +20,8 @@
 
 package mypals.ml.mixin.features.gridWorldPreset;
 
-import mypals.ml.features.GridWorldGen.FlatGridChunkGenerator;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.gen.chunk.*;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.LevelStem;

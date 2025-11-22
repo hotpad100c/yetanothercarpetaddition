@@ -37,6 +37,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraft.world.ticks.LevelTicks;
 import net.minecraft.world.ticks.ScheduledTick;
 import org.spongepowered.asm.mixin.Final;
@@ -74,7 +75,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
         if (!YetAnotherCarpetAdditionRules.scheduledTickVisualize) return;
         
         List<ScheduledTick<Block>> allBlockTicks = blockTicks.allContainers.values().stream()
-                .flatMap(chunkTickScheduler -> chunkTickScheduler.getQueueAsStream())
+                .flatMap(LevelChunkTicks::getAll)
                 .sorted(Comparator.comparingLong(ScheduledTick::subTickOrder))
                 .toList();
     
@@ -92,7 +93,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
             );
         }
         List<ScheduledTick<Fluid>> allFluidTicks = fluidTicks.allContainers.values().stream()
-                .flatMap(chunkTickScheduler -> chunkTickScheduler.getQueueAsStream())
+                .flatMap(LevelChunkTicks::getAll)
                 .sorted(Comparator.comparingLong(ScheduledTick::subTickOrder))
                 .toList();
     

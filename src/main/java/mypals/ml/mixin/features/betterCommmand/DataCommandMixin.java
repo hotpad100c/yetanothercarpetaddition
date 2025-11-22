@@ -131,7 +131,7 @@ public class DataCommandMixin {
     private static String getTargetString(DataAccessor object) {
 
         if (object instanceof EntityDataAccessor entityDataObject) {
-            return "entity " + entityDataObject.entity.getUuidAsString();
+            return "entity " + entityDataObject.entity.getStringUUID();
         } else if (object instanceof BlockDataAccessor blockDataObject) {
             return "block " + blockDataObject.pos.getX() + " " + blockDataObject.pos.getY() + " " + blockDataObject.pos.getZ();
         } else if (object instanceof StorageDataAccessor storageDataObject) {

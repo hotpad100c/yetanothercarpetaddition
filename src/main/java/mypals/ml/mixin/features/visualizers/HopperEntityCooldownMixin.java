@@ -56,7 +56,7 @@ public class HopperEntityCooldownMixin {
                         //$$ , pos
                         //$$ , pos
                         //#endif
-                                .toCenterPos(), hopperblockentity.cooldownTime);
+                                .getCenter(), hopperblockentity.cooldownTime);
             }
         }
     }

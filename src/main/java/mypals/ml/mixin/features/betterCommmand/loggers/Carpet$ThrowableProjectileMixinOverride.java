@@ -35,11 +35,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = Projectile.class, priority = 1)
-public abstract class ThrowableProjectileMixinOverride extends Entity {
+public abstract class Carpet$ThrowableProjectileMixinOverride extends Entity {
     @Unique
     private TrajectoryLogHelper YACA$logHelper;
 
-    public ThrowableProjectileMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
+    public Carpet$ThrowableProjectileMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
     }
 

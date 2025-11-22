@@ -140,7 +140,7 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
             , at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater;addAndRun(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater$NeighborUpdates;)V"))
     public void updateNeighbor(CollectingNeighborUpdater instance, BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof CollectingNeighborUpdater.SimpleNeighborUpdate simpleEntry) {
-            this.addAndRun(pos, new FakeEntries.SimpleEntryFake(pos, simpleEntry.sourceBlock(),
+            this.addAndRun(pos, new FakeEntries.SimpleEntryFake(pos, simpleEntry.block(),
                     simpleEntry
                             //#if MC <= 12102
                             //$$ .sourcePos()
@@ -172,7 +172,7 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater;addAndRun(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater$NeighborUpdates;)V"))
     public void updateNeighbor2(CollectingNeighborUpdater instance, BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof CollectingNeighborUpdater.FullNeighborUpdate statefulEntry) {
-            this.addAndRun(pos, new FakeEntries.StatefulEntryFake(statefulEntry.state(), statefulEntry.pos(), statefulEntry.sourceBlock(), statefulEntry
+            this.addAndRun(pos, new FakeEntries.StatefulEntryFake(statefulEntry.state(), statefulEntry.pos(), statefulEntry.block(), statefulEntry
                     //#if MC <= 12102
                     //$$ .sourcePos()
                     //#else

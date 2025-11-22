@@ -21,9 +21,6 @@
 package mypals.ml.mixin.features.moreCollidableEntities;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.entity.EntityType.*;
-import net.minecraft.entity.mob.*;
-import net.minecraft.entity.passive.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.IronGolem;

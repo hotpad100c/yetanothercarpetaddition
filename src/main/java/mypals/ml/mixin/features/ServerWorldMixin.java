@@ -49,6 +49,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.ticks.LevelTicks;
+import net.minecraft.world.ticks.ScheduledTick;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -294,10 +295,10 @@ public abstract class ServerWorldMixin extends Level {
                 && blockTicks.allContainers.values() != null
         ) {
             blockTicks.allContainers.values().forEach(chunkTickScheduler -> {
-                Queue<OrderedTick<Block>> queuedTick = chunkTickScheduler.tickQueue;
-                Queue<OrderedTick<Block>> newQueuedTick = new PriorityQueue(OrderedTick.TRIGGER_TICK_COMPARATOR);
+                Queue<ScheduledTick<Block>> queuedTick = chunkTickScheduler.tickQueue;
+                Queue<ScheduledTick<Block>> newQueuedTick = new PriorityQueue(ScheduledTick.DRAIN_ORDER);
                 queuedTick.forEach(orderedTick -> {
-                    newQueuedTick.add(new OrderedTick(
+                    newQueuedTick.add(new ScheduledTick<>(
                             orderedTick.type(),
                             orderedTick.pos(),
                             orderedTick.triggerTick() + 1,
@@ -318,10 +319,10 @@ public abstract class ServerWorldMixin extends Level {
                 && blockTicks.allContainers.values() != null
         ) {
             fluidTicks.allContainers.values().forEach(chunkTickScheduler -> {
-                Queue<OrderedTick<Fluid>> queuedTick = chunkTickScheduler.tickQueue;
-                Queue<OrderedTick<Fluid>> newQueuedTick = new PriorityQueue(OrderedTick.TRIGGER_TICK_COMPARATOR);
+                Queue<ScheduledTick<Fluid>> queuedTick = chunkTickScheduler.tickQueue;
+                Queue<ScheduledTick<Fluid>> newQueuedTick = new PriorityQueue(ScheduledTick.DRAIN_ORDER);
                 queuedTick.forEach(orderedTick -> {
-                    newQueuedTick.add(new OrderedTick(
+                    newQueuedTick.add(new ScheduledTick<>(
                             orderedTick.type(),
                             orderedTick.pos(),
                             orderedTick.triggerTick() + 2,

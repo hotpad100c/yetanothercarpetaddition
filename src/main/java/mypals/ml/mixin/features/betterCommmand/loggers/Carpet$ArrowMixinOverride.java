@@ -45,7 +45,7 @@ public abstract class Carpet$ArrowMixinOverride extends Entity {
     @Unique
     private TrajectoryLogHelper YACA$logHelper;
 
-    public ArrowMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
+    public Carpet$ArrowMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
     }
 

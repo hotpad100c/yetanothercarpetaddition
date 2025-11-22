@@ -35,10 +35,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = FallingBlockEntity.class, priority = 1)
-public abstract class FallingBlockEntityMixinOverride extends Entity {
+public abstract class Carpet$FallingBlockEntityMixinOverride extends Entity {
     private TrajectoryLogHelper YACA$logHelper;
 
-    public FallingBlockEntityMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
+    public Carpet$FallingBlockEntityMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
     }
 
