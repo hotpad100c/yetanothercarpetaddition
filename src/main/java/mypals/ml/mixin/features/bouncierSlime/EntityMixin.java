@@ -45,7 +45,14 @@ public abstract class EntityMixin {
     @Shadow
     private Level level;
 
-    @Inject(method = "checkInsideBlocks(Ljava/util/List;Lnet/minecraft/world/entity/InsideBlockEffectApplier$StepBasedCollector;)V", at = @At("HEAD"), cancellable = true)
+    @Inject(
+            //#if MC > 12006
+            method = "checkInsideBlocks(Ljava/util/List;Lnet/minecraft/world/entity/InsideBlockEffectApplier$StepBasedCollector;)V",
+            //#else
+            //$$ method = "checkInsideBlocks",
+            //#endif
+            at = @At("HEAD")
+    )
     protected void checkBlockCollision(CallbackInfo ci) {
         checkSurfaceCollision((Entity) (Object) this);
     }

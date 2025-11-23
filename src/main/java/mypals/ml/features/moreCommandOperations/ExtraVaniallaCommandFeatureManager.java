@@ -61,7 +61,7 @@ public class ExtraVaniallaCommandFeatureManager {
                 //#if MC >= 12101
                 ResourceLocation.parse("minecraft:" + reason)
                 //#elseif MC >= 12006
-                //$$ new Identifier("minecraft", reason)
+                //$$ new ResourceLocation("minecraft", reason)
                 //#else
                 //$$ RegistryKey.of(Registries.GAME_EVENT.getKey(), new Identifier("minecraft", reason))
                 //#endif
