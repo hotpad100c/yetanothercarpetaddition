@@ -23,7 +23,6 @@ package mypals.ml.features.waypoint;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import mypals.ml.features.waypoint.WaypointManager.Waypoint;
 import mypals.ml.utils.adapter.ClickEvent;
 import mypals.ml.utils.adapter.HoverEvent;
 import net.minecraft.ChatFormatting;
@@ -52,6 +51,7 @@ public class WayPointCommand {
                 return SharedSuggestionProvider.suggest(names, builder);
             };
 
+    @SuppressWarnings("resource")
     public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
         dispatcher.register(literal("waypoint").requires(source -> source.hasPermission(2))
                 .then(literal("save")

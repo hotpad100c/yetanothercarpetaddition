@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(net.minecraft.server.commands.RideCommand.class)
 public class RideCommandMixin {
     @Inject(method = "mount", cancellable = true, at = @At(value = "FIELD", target = "Lnet/minecraft/server/commands/RideCommand;ERROR_MOUNTING_PLAYER:Lcom/mojang/brigadier/exceptions/SimpleCommandExceptionType;"))
+    @SuppressWarnings("resource")
     private static void playerMount(CommandSourceStack source, Entity rider, Entity vehicle, CallbackInfoReturnable<Integer> cir) {
         if (!rider.level().isClientSide() && YetAnotherCarpetAdditionRules.enableMountPlayers && rider != vehicle) {
             while (rider.getFirstPassenger() != null) {

@@ -34,6 +34,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 public class AutoDustPlacer {
+    @SuppressWarnings("resource")
     public static void tryPlaceOnTop(Player player, BlockPos blockpos, Level world) {
         BlockPos dustPos = blockpos.above();
         BlockState floor = world.getBlockState(blockpos);

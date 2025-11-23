@@ -22,7 +22,6 @@ package mypals.ml.mixin.features.visualizers;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.features.visualizingFeatures.ScheduledTickVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.ticks.LevelTicks;
@@ -33,7 +32,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.function.BiConsumer;
-import java.util.function.BooleanSupplier;
 
 @Mixin(LevelTicks.class)
 public class WorldTickSchedulerRemoveMarkerMixin<T> {

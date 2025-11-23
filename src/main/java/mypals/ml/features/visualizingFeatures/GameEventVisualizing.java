@@ -21,15 +21,10 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
@@ -38,9 +33,19 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
-import java.util.HashMap;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+//#if MC < 12105
+//$$ import com.google.gson.JsonArray;
+//$$ import com.google.gson.JsonObject;
+//#else
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+import java.util.HashMap;
+//#endif
 
 public class GameEventVisualizing extends AbstractVisualizingManager<Vec3, GameEventVisualizing.GameEventObject> {
     private static final ConcurrentHashMap<Vec3, Map.Entry<GameEventObject, Long>> visualizers = new ConcurrentHashMap<>();
@@ -239,6 +244,7 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3, GameE
 
 
     @Override
+    @SuppressWarnings("resource")
     public void updateVisualizer() {
         if (!CarpetServer.minecraft_server.tickRateManager().runsNormally()) {
             return;

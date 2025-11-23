@@ -20,16 +20,13 @@
 
 package mypals.ml.commands;
 
-import carpet.CarpetServer;
 import carpet.CarpetSettings;
 import carpet.patches.EntityPlayerMPFake;
 import carpet.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import mypals.ml.features.fakePlayerControl.FakePlayerControlManager;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -37,8 +34,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-
-import static mypals.ml.features.subscribeRules.RuleSubscribeManager.subscribeRule;
 
 public class BindPlayerCommand {
     private static final SimpleCommandExceptionType NOT_REAL_PLAYER = new SimpleCommandExceptionType(

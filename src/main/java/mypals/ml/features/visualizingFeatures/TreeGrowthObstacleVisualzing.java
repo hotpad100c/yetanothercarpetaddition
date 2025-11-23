@@ -38,8 +38,6 @@ import net.minecraft.world.scores.Scoreboard;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
-
 public class TreeGrowthObstacleVisualzing extends AbstractVisualizingManager<BlockPos, Display.BlockDisplay> {
     public static ConcurrentHashMap<BlockPos, Map.Entry<Display.BlockDisplay, Long>> visualizers = new ConcurrentHashMap<>();
     public static int SURVIVE_TIME = 40;
@@ -72,6 +70,7 @@ public class TreeGrowthObstacleVisualzing extends AbstractVisualizingManager<Blo
 
 
     @Override
+    @SuppressWarnings("resource")
     public void updateVisualizer() {
         visualizers.forEach((pos, entry) -> {
             Display.BlockDisplay object = entry.getKey();

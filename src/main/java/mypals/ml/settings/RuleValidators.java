@@ -20,7 +20,6 @@
 
 package mypals.ml.settings;
 
-import carpet.CarpetServer;
 import carpet.api.settings.CarpetRule;
 import carpet.api.settings.Validator;
 import mypals.ml.features.visualizingFeatures.AbstractVisualizingManager;

@@ -26,7 +26,6 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 //$$import com.mojang.blaze3d.platform.GlStateManager;
 //#endif
 
-import static com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread;
 import static com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread;
 
 public class RenderSystem {

@@ -35,7 +35,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -44,6 +43,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 import java.util.Map;
 
+//#if MC < 12104
+//$$ import org.spongepowered.asm.mixin.Shadow;
+//#endif
 //#if MC > 12004
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.component.BlockItemStateProperties;
@@ -62,6 +64,7 @@ public class MinecraftClientMixin {
 
     @Inject(method = "pickBlock", at =
     @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getInventory()Lnet/minecraft/world/entity/player/Inventory;"))
+    @SuppressWarnings("resource")
     private void doItemPick(CallbackInfo ci, @Local ItemStack itemStack) {
         if (!YetAnotherCarpetAdditionRules.copyBlockState) return;
         Player player = Minecraft.getInstance().player;

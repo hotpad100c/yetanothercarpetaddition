@@ -53,6 +53,7 @@ import java.util.Map;
 public class ServerPlayNetworkHandlerMixin {
 //#if MC >= 12104
     @Inject(method = "handlePickItemFromBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;tryPickItem(Lnet/minecraft/world/item/ItemStack;)V"))
+    @SuppressWarnings("resource")
     private void injectBlockStateData(ServerboundPickItemFromBlockPacket packet, CallbackInfo ci, @Local ItemStack itemStack) {
         if (!YetAnotherCarpetAdditionRules.copyBlockState) return;
 

@@ -48,9 +48,6 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-//#if MC >= 12006
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-//#endif
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -72,9 +69,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+
 //#if MC < 12006
 //$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 //$$ import net.minecraft.network.FriendlyByteBuf;
+//#else
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 //#endif
 
 import static mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager.initCounterManager;
@@ -158,6 +158,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     }
 
     @Override
+    @SuppressWarnings("resource")
     public void onInitialize() {
 
         setUpLogger();

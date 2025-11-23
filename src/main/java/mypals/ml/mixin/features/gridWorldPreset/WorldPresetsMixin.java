@@ -20,25 +20,12 @@
 
 package mypals.ml.mixin.features.gridWorldPreset;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import mypals.ml.features.GridWorldGen.FlatGridChunkGenerator;
-import mypals.ml.features.GridWorldGen.GridWorldGenerator;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.presets.WorldPreset;
 import net.minecraft.world.level.levelgen.presets.WorldPresets;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Optional;
-
-import static net.minecraft.world.level.levelgen.presets.WorldPresets.DEBUG;
-import static net.minecraft.world.level.levelgen.presets.WorldPresets.FLAT;
-import static net.minecraft.world.level.levelgen.presets.WorldPresets.NORMAL;
 
 @Mixin(WorldPresets.Bootstrap.class)
 public abstract class WorldPresetsMixin {

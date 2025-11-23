@@ -28,16 +28,19 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
-import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-//#if MC > 12101
-import net.minecraft.world.level.ScheduledTickAccess;
-//#endif
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
+
+//#if MC < 12102
+//$$ import net.minecraft.world.level.LevelAccessor;
+//#endif
+//#if MC > 12101
+import net.minecraft.world.level.ScheduledTickAccess;
+//#endif
 
 @Mixin(SnowLayerBlock.class)
 public abstract class SnowLayerBlockMixin extends Block {

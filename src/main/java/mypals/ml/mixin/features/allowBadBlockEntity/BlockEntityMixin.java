@@ -20,10 +20,7 @@
 
 package mypals.ml.mixin.features.allowBadBlockEntity;
 
-import me.fallenbreath.conditionalmixin.api.annotation.Condition;
-import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import mypals.ml.utils.ModIds;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -49,7 +46,5 @@ public class BlockEntityMixin {
             cir.setReturnValue(true);
         }
     }
-    //#else
-    //$$
     //#endif
 }

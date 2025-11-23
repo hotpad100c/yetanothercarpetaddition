@@ -44,9 +44,6 @@ import org.spongepowered.asm.mixin.Final;
 //$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 //#endif
 
-
-import java.util.Arrays;
-
 @Mixin(TickCommand.class)
 public abstract class TickCommandMixin {
     @Unique

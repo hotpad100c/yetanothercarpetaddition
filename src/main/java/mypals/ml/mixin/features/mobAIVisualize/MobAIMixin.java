@@ -25,7 +25,6 @@ import mypals.ml.features.visualizingFeatures.MobAIVisualizer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.GoalSelector;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,6 +45,7 @@ public class MobAIMixin {
     protected GoalSelector targetSelector;
 
     @Inject(method = "serverAiStep", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/ai/navigation/PathNavigation;tick()V"))
+    @SuppressWarnings("resource")
     private void displayTargetAboveHead(CallbackInfo ci) {
         Mob mob = (Mob) (Object) this;
         if (mob.level().isClientSide() || !mobAIVisualize) return;

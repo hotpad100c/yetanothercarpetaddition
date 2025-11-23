@@ -21,7 +21,6 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
@@ -115,6 +114,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     }
 
     @Override
+    @SuppressWarnings("resource")
     protected void updateVisualizerEntity(BlockUpdateObject marker, Object data) {
         if (marker.posMarker != null && !marker.posMarker.isRemoved() && !marker.posMarker.level().isClientSide()) {
             marker.posMarker.tickCount = 0;
@@ -174,6 +174,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     }
 
     @Override
+    @SuppressWarnings("resource")
     public void updateVisualizer() {
         if (!CarpetServer.minecraft_server.tickRateManager().runsNormally()) {
             return;

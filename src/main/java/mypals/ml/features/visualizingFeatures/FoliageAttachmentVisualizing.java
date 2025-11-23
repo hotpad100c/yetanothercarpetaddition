@@ -70,6 +70,7 @@ public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<Blo
 
 
     @Override
+    @SuppressWarnings("resource")
     public void updateVisualizer() {
         visualizers.forEach((pos, entry) -> {
             Display.BlockDisplay object = entry.getKey();

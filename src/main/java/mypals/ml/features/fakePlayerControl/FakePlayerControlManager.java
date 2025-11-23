@@ -31,7 +31,6 @@ import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Team;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class FakePlayerControlManager {
     public static Map<ServerPlayer, Map.Entry<PlayerTeam, EntityPlayerMPFake>> binds = new HashMap<>();

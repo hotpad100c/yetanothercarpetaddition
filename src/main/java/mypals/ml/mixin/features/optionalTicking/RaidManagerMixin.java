@@ -21,7 +21,6 @@
 package mypals.ml.mixin.features.optionalTicking;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.world.entity.raid.Raids;
 import org.spongepowered.asm.mixin.Mixin;

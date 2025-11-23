@@ -20,25 +20,29 @@
 
 package mypals.ml.features.visualizingFeatures;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.NotNull;
-//#if MC >= 12105
-import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
-//#endif
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+//#if MC < 12105
+//$$ import com.google.gson.JsonArray;
+//$$ import com.google.gson.JsonObject;
+//#else
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
+//#endif
+//#if MC >= 12105
+import org.jetbrains.annotations.NotNull;
+//#endif
 
 public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPos, ScheduledTickVisualizing.ScheduledTickObject> {
     private static final ConcurrentHashMap<BlockPos, Map.Entry<ScheduledTickObject, Long>> visualizers = new ConcurrentHashMap<>();
@@ -163,6 +167,7 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
     }
 
     @Override
+    @SuppressWarnings("resource")
     protected void updateVisualizerEntity(ScheduledTickObject marker, Object data) {
         if (data instanceof Object[] tickData && marker.tickMarker != null && !marker.tickMarker.isRemoved()) {
             long triggerTick = (long) tickData[0];

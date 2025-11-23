@@ -30,15 +30,16 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.InstantNeighborUpdater;
-//#if MC > 102101
-import net.minecraft.world.level.redstone.Orientation;
-//#endif
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+//#if MC > 12101
+import net.minecraft.world.level.redstone.Orientation;
+//#endif
 
 @Mixin(InstantNeighborUpdater.class)
 public class SimpleNeighborUpdaterMixin {
@@ -66,10 +67,8 @@ public class SimpleNeighborUpdaterMixin {
     }
 
     @Inject(
-            //#if MC <= 12006
+            //#if MC <= 12101
             //$$ method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;Z)V",
-            //#elseif MC < 12102
-            //$$ method = "Lnet/minecraft/world/block/SimpleNeighborUpdater;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
             //#else
             method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
             //#endif

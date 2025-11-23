@@ -30,16 +30,13 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
-//#if MC > 12101
-import net.minecraft.world.level.redstone.Orientation;
-//#endif
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.function.BooleanSupplier;
+//#if MC > 12101
+import net.minecraft.world.level.redstone.Orientation;
+//#endif
 
 @Mixin(Level.class)
 public abstract class WorldUpdateComparatorsMixin {

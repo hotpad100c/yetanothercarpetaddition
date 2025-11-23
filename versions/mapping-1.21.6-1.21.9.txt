@@ -1,4 +1,0 @@
-net.minecraft.entity.Entity getWorld() getEntityWorld()
-net.minecraft.entity.Entity getPos() getEntityPos()
-net.minecraft.entity.Entity getServer() getEntityWorld().getServer()
-net.minecraft.client.gui.DrawContext drawBorder() drawStrokedRectangle()

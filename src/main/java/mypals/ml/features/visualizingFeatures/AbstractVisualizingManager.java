@@ -20,14 +20,10 @@
 
 package mypals.ml.features.visualizingFeatures;
 
-import carpet.CarpetServer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec3;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 
 public abstract class AbstractVisualizingManager<T, E> {
     protected abstract void storeVisualizer(T key, E entity);

@@ -65,6 +65,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     //#endif
 
     @Override
+    @SuppressWarnings("resource")
     public void onInitializeClient() {
         YACAConfigManager.initializeConfig();
         carpetRulesKeyBind = KeyBindingHelper.registerKeyBinding(new KeyMapping(

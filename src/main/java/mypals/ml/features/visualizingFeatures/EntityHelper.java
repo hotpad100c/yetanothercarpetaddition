@@ -20,10 +20,6 @@
 
 package mypals.ml.features.visualizingFeatures;
 
-import mypals.ml.YetAnotherCarpetAdditionServer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.FloatTag;
 import net.minecraft.nbt.ListTag;
@@ -32,6 +28,10 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
 
 
 public class EntityHelper {

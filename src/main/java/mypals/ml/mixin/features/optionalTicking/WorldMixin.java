@@ -22,7 +22,6 @@ package mypals.ml.mixin.features.optionalTicking;
 
 import mypals.ml.YetAnotherCarpetAdditionClient;
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;

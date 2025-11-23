@@ -28,10 +28,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+
 import java.util.Set;
+
 import static mypals.ml.YetAnotherCarpetAdditionServer.VisualizerTags;
+
+//#if MC < 12106
+//$$ import net.minecraft.nbt.CompoundTag;
+//#endif
 
 @Mixin(Entity.class)
 public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
@@ -41,9 +45,7 @@ public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
 
     @Inject(method = "saveAsPassenger", at = @At("HEAD"), cancellable = true)
     public void saveSelfNbt(
-            //#if MC >= 12106
-            //WriteView view,
-            //#else
+            //#if MC < 12106
             //$$ CompoundTag nbt,
             //#endif
             CallbackInfoReturnable<Boolean> cir) {

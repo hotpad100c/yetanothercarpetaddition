@@ -23,7 +23,6 @@ package mypals.ml.mixin.features.updateLogger;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.updateAnylizer.FakeEntries;
 import mypals.ml.features.updateAnylizer.UpdateLoggerHelper;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
@@ -33,13 +32,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
 import net.minecraft.world.level.redstone.NeighborUpdater;
-//#if MC > 12102
-import net.minecraft.world.level.redstone.Orientation;
-//#endif
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
+
+//#if MC > 12102
+import net.minecraft.world.level.redstone.Orientation;
+//#endif
 
 @Mixin(CollectingNeighborUpdater.class)
 public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpdater {

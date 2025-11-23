@@ -22,7 +22,6 @@ package mypals.ml.mixin.client.optionalTicking;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import mypals.ml.YetAnotherCarpetAdditionClient;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
@@ -42,8 +41,9 @@ import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 import java.util.Iterator;
 
 //#if MC < 12109
-import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.client.renderer.MultiBufferSource;
+//$$ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+//$$ import com.mojang.blaze3d.vertex.PoseStack;
+//$$ import net.minecraft.client.renderer.MultiBufferSource;
 //#endif
 
 @Mixin(LevelRenderer.class)

@@ -21,13 +21,11 @@
 package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.NBTDataManager;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.EntityType;
@@ -37,11 +35,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 
 import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
 
@@ -77,6 +73,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
 
 
     @Override
+    @SuppressWarnings("resource")
     public void updateVisualizer() {
         if (!CarpetServer.minecraft_server.tickRateManager().runsNormally()) {
             return;

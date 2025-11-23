@@ -49,9 +49,6 @@ import net.minecraft.world.entity.InsideBlockEffectApplier;
 //#if MC <= 12004
 //$$ import net.minecraft.world.InteractionHand;
 //#endif
-//#if MC >= 12102
-import org.spongepowered.asm.mixin.Unique;
-//#endif
 
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.morphMovingPiston;
 

@@ -20,10 +20,7 @@
 
 package mypals.ml.mixin.features.kExplosion;
 
-import me.fallenbreath.conditionalmixin.api.annotation.Condition;
-import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.interfaces.ExplosionExtension;
-import mypals.ml.utils.ModIds;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.decoration.ArmorStand;

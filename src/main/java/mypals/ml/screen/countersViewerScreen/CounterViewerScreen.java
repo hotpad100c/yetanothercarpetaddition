@@ -20,11 +20,6 @@
 
 package mypals.ml.screen.countersViewerScreen;
 
-//#if MC >= 12106
-import org.joml.Matrix3x2fStack;
-//#else
-import com.mojang.blaze3d.vertex.PoseStack;
-//#endif
 
 import java.awt.*;
 import java.time.format.DateTimeParseException;
@@ -41,8 +36,14 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+
+//#if MC >= 12106
+import org.joml.Matrix3x2fStack;
+//#else
+//$$ import com.mojang.blaze3d.vertex.PoseStack;
+//$$ import org.joml.Quaternionf;
+//$$ import org.joml.Vector3f;
+//#endif
 
 public class CounterViewerScreen extends Screen implements ContainerEventHandler {
     private final Map<String, Map<String, String>> data;

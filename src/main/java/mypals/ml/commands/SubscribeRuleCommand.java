@@ -21,11 +21,9 @@
 package mypals.ml.commands;
 
 import carpet.CarpetServer;
-import carpet.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;

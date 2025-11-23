@@ -20,12 +20,8 @@
 
 package mypals.ml.mixin.features.visualizers;
 
-import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.sugar.Local;
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
-import mypals.ml.features.visualizingFeatures.*;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
@@ -50,7 +46,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
-import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 
 @Mixin(ServerLevel.class)

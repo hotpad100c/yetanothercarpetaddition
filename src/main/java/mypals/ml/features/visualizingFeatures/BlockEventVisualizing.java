@@ -27,7 +27,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -40,7 +39,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.PlayerTeam;
 import net.minecraft.world.scores.Scoreboard;
-import java.util.HashMap;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -155,6 +154,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
     }
 
     @Override
+    @SuppressWarnings("resource")
     protected void updateVisualizerEntity(BlockEventObject marker, Object data) {
         if (data instanceof Integer order && marker.tickMarker != null && !marker.tickMarker.isRemoved()) {
             CompoundTag nbt2 = NBTDataManager.readFromEntity(marker.typeMarker, new CompoundTag());
@@ -276,6 +276,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
     }
 
     @Override
+    @SuppressWarnings("resource")
     public void updateVisualizer() {
         if (!YetAnotherCarpetAdditionRules.blockEventVisualize || !CarpetServer.minecraft_server.tickRateManager().runsNormally()) {
             return;

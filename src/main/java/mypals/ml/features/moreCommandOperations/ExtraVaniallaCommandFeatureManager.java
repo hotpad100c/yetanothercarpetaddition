@@ -35,11 +35,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
 //#if MC < 12006
 //$$ import net.minecraft.resources.ResourceKey;
 //#endif
-
-import java.util.Optional;
 
 import static mypals.ml.features.moreCommandOperations.WorldEventMapper.WORLD_EVENT_MAP;
 

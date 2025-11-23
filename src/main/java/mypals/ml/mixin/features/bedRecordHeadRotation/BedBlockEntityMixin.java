@@ -22,20 +22,24 @@ package mypals.ml.mixin.features.bedRecordHeadRotation;
 
 import mypals.ml.interfaces.BedBlockEntityExtension;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BedBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-//#if MC >= 12106
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
-//#endif
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+
+//#if MC < 12106
+//$$ import net.minecraft.nbt.CompoundTag;
+//#endif
+//#if MC >= 12106
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//#elseif MC >= 12006
+//$$ import net.minecraft.core.HolderLookup;
+//#endif
 
 @Mixin(BedBlockEntity.class)
 @Implements(@Interface(iface = BedBlockEntityExtension.class, prefix = "YACA$"))
