@@ -74,7 +74,7 @@ import java.nio.file.Path;
 import java.util.*;
 //#if MC < 12006
 //$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-//$$ import net.minecraft.network.PacketByteBuf;
+//$$ import net.minecraft.network.FriendlyByteBuf;
 //#endif
 
 import static mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager.initCounterManager;
@@ -219,18 +219,18 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                     ServerPlayer player = context.player();
                     //#else
                     //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
-                    //$$ String lang = buf.readString();
+                    //$$ String lang = buf.readUtf();
                     //#endif
                     RulesPacketPayload rulesPacketPayload = new RulesPacketPayload(getRules(player.level(), lang), getDefaults());
                     //#if MC >= 12006
                     ServerPlayNetworking.send(player, rulesPacketPayload);
                     //#else
-                    //$$ PacketByteBuf data = PacketByteBufs.create();
+                    //$$ FriendlyByteBuf data = PacketByteBufs.create();
                     //$$ data.writeCollection(
                     //$$         rulesPacketPayload.rules(),
                     //$$         (rulesBuffer, rule) -> rule.write(rulesBuffer)
                     //$$ );
-                    //$$ data.writeString(rulesPacketPayload.defaults());
+                    //$$ data.writeUtf(rulesPacketPayload.defaults());
                     //$$ ServerPlayNetworking.send(player, RulesPacketPayload.ID, data);
                     //#endif
                 })
@@ -251,14 +251,14 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                     //#if MC >= 12006
                     ServerPlayNetworking.send(player, countersPacketPayload);
                     //#else
-                    //$$ PacketByteBuf data = PacketByteBufs.create();
+                    //$$ FriendlyByteBuf data = PacketByteBufs.create();
                     //$$ data.writeMap(
                     //$$         countersPacketPayload.currentRecords(),
-                    //$$         PacketByteBuf::writeString,
+                    //$$         FriendlyByteBuf::writeUtf,
                     //$$         (countersBuffer, counters) -> countersBuffer.writeMap(
                     //$$                 counters,
-                    //$$                 PacketByteBuf::writeString,
-                    //$$                 PacketByteBuf::writeString
+                    //$$                 FriendlyByteBuf::writeUtf,
+                    //$$                 FriendlyByteBuf::writeUtf
                     //$$         )
                     //$$ );
                     //$$ ServerPlayNetworking.send(player, CountersPacketPayload.ID, data);

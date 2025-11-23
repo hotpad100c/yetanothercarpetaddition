@@ -25,7 +25,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 import net.minecraft.network.FriendlyByteBuf;
+
+//#if MC >= 12006
 import net.minecraft.network.codec.StreamCodec;
+//#endif
 
 public class RuleData {
     public String name;

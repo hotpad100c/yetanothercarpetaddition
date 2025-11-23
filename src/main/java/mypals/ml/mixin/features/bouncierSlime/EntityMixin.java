@@ -46,7 +46,7 @@ public abstract class EntityMixin {
     private Level level;
 
     @Inject(
-            //#if MC > 12006
+            //#if MC >= 12106
             method = "checkInsideBlocks(Ljava/util/List;Lnet/minecraft/world/entity/InsideBlockEffectApplier$StepBasedCollector;)V",
             //#else
             //$$ method = "checkInsideBlocks",

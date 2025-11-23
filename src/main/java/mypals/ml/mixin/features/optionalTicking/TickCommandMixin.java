@@ -38,8 +38,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.Final;
+
 //#if MC < 12006
-//$$ import net.minecraft.network.PacketByteBuf;
+//$$ import net.minecraft.network.FriendlyByteBuf;
 //$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 //#endif
 
@@ -180,8 +181,8 @@ public abstract class TickCommandMixin {
                 p -> ServerPlayNetworking.send(p, new OptionalFreezePayload(phase, newFreezeState))
                 //#else
                 //$$ p -> {
-                //$$     PacketByteBuf buf = PacketByteBufs.create();
-                //$$     buf.writeString(phase);
+                //$$     FriendlyByteBuf buf = PacketByteBufs.create();
+                //$$     buf.writeUtf(phase);
                 //$$     buf.writeBoolean(newFreezeState);
                 //$$     ServerPlayNetworking.send(p, OptionalFreezePayload.ID, buf);
                 //$$ }

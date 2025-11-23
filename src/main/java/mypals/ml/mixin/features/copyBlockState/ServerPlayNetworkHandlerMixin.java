@@ -20,24 +20,24 @@
 
 package mypals.ml.mixin.features.copyBlockState;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import me.fallenbreath.conditionalmixin.api.annotation.Condition;
 import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.ModIds;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.spongepowered.asm.mixin.Mixin;
+
+//#if MC >= 12104
+import com.llamalad7.mixinextras.sugar.Local;
+import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-//#if MC >= 12104
-import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
-//#endif
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.spongepowered.asm.mixin.Mixin;
+import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -45,6 +45,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.Map;
+//#endif
 
 @Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = ">=1.21.4"))
 @Mixin(ServerGamePacketListenerImpl.class)

@@ -102,7 +102,7 @@ public abstract class BedBlockEntityMixin extends BlockEntity {
                  , 0F
         );
     }
-    //#else
+    //#elseif MC > 12004
     //$$@Override
     //$$protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
     //$$    this.yaw =
@@ -128,5 +128,11 @@ public abstract class BedBlockEntityMixin extends BlockEntity {
                 //#endif
     //$$    );
     //$$}
+    //#else
+    //$$ @Override
+    //$$ public void load(CompoundTag nbt) {
+    //$$     this.yaw = nbt.getFloat("SleeperYaw");
+    //$$     this.pitch = nbt.getFloat("SleeperPitch");
+    //$$ }
     //#endif
 }

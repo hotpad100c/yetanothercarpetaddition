@@ -22,15 +22,20 @@ package mypals.ml.network.client;
 
 import mypals.ml.network.PacketIDs;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+//#if MC > 12004
+import net.minecraft.network.codec.StreamCodec;
+//#else
+//$$ import net.minecraft.resources.ResourceLocation;
+//#endif
 
 public record  RequestRulesPayload(String lang) implements CustomPacketPayload {
     //#if MC >= 12006
     public static final Type<RequestRulesPayload> ID = new Type<>(PacketIDs.REQUEST_RULES_ID);
     public static final StreamCodec<FriendlyByteBuf, RequestRulesPayload> CODEC = StreamCodec.ofMember(RequestRulesPayload::write, RequestRulesPayload::new);
     //#else
-    //$$ public static final Identifier ID = PacketIDs.REQUEST_RULES_ID;
+    //$$ public static final ResourceLocation ID = PacketIDs.REQUEST_RULES_ID;
     //#endif
 
     public RequestRulesPayload(FriendlyByteBuf buf) {
@@ -51,7 +56,7 @@ public record  RequestRulesPayload(String lang) implements CustomPacketPayload {
     }
     //#else
     //$$ @Override
-    //$$ public Identifier id() {
+    //$$ public ResourceLocation id() {
     //$$     return ID;
     //$$ }
     //#endif

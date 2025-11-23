@@ -51,6 +51,7 @@ public abstract class EntityMixin {
     }
 
     @Unique
+    @SuppressWarnings("deprecation")
     private void checkSurfaceCollision(Entity entity) {
         if (!entity.isAlive()) {
             return;

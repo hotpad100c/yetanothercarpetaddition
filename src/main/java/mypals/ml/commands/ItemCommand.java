@@ -20,7 +20,6 @@
 
 package mypals.ml.commands;
 
-import carpet.CarpetSettings;
 import carpet.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -28,12 +27,15 @@ import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+
+//#if MC >= 12006
+import net.minecraft.core.component.DataComponents;
+//#endif
 
 public class ItemCommand {
     public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
@@ -59,7 +61,7 @@ public class ItemCommand {
         //#if MC >= 12006
         itemStack.set(DataComponents.CUSTOM_NAME, Component.literal(name));
         //#else
-        //$$ itemStack.setCustomName(Text.literal(name));
+        //$$ itemStack.setHoverName(Component.literal(name));
         //#endif
 
         return 1;
@@ -74,7 +76,7 @@ public class ItemCommand {
         //#if MC >= 12006
         itemStack.remove(DataComponents.CUSTOM_NAME);
         //#else
-        //$$ itemStack.removeCustomName();
+        //$$ itemStack.resetHoverName();
         //#endif
 
 

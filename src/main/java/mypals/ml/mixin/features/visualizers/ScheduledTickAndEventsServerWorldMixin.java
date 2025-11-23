@@ -173,7 +173,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
         if (YetAnotherCarpetAdditionRules.gameEventVisualize) {
             String type = event
                     //#if MC < 12006
-                    //$$ .getRegistryEntry()
+                    //$$ .builtInRegistryHolder()
                     //#endif
                     .unwrapKey().get().location().toString();
             String emitterName = "";

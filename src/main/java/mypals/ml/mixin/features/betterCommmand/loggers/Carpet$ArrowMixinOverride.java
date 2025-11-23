@@ -37,7 +37,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 //#if MC <= 12004
-//$$ import net.minecraft.item.ItemStack;
+//$$ import net.minecraft.world.item.ItemStack;
 //#endif
 
 @Mixin(value = AbstractArrow.class, priority = 1)
@@ -53,13 +53,13 @@ public abstract class Carpet$ArrowMixinOverride extends Entity {
             //#if MC > 12004
             method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V",
             //#else
-            //$$ method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;)V",
+            //$$ method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/item/ItemStack;)V",
             //#endif
             at = @At("RETURN"))
     //#if MC > 12004
     private void addLogger(EntityType<? extends Projectile> entityType_1, Level world_1, CallbackInfo ci) {
     //#else
-    //$$ private void addLogger(EntityType type, World world_1, ItemStack stack, CallbackInfo ci) {
+    //$$ private void addLogger(EntityType type, Level world_1, ItemStack stack, CallbackInfo ci) {
     //#endif
         if (LoggerRegistry.__projectiles && !world_1.isClientSide())
             YACA$logHelper = new TrajectoryLogHelper("projectiles");

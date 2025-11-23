@@ -22,16 +22,22 @@ package mypals.ml.network.server;
 
 import mypals.ml.network.PacketIDs;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
 import java.util.Map;
+
+//#if MC > 12004
+import net.minecraft.network.codec.StreamCodec;
+//#else
+//$$ import net.minecraft.resources.ResourceLocation;
+//#endif
 
 public record CountersPacketPayload(Map<String, Map<String, String>> currentRecords) implements CustomPacketPayload {
     //#if MC >= 12006
     public static final Type<CountersPacketPayload> ID = new Type<>(PacketIDs.SYNC_COUNTERS_DATA_ID);
     public static final StreamCodec<FriendlyByteBuf, CountersPacketPayload> CODEC = StreamCodec.ofMember(CountersPacketPayload::write, CountersPacketPayload::new);
     //#else
-    //$$ public static final Identifier ID = PacketIDs.SYNC_COUNTERS_DATA_ID;
+    //$$ public static final ResourceLocation ID = PacketIDs.SYNC_COUNTERS_DATA_ID;
     //#endif
 
     public CountersPacketPayload(FriendlyByteBuf buf) {
@@ -67,7 +73,7 @@ public record CountersPacketPayload(Map<String, Map<String, String>> currentReco
     }
     //#else
     //$$ @Override
-    //$$ public Identifier id() {
+    //$$ public ResourceLocation id() {
     //$$     return ID;
     //$$ }
     //#endif

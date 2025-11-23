@@ -26,9 +26,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-//#if MC >= 12105
-import net.minecraft.world.entity.InsideBlockEffectApplier;
-//#endif
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
@@ -45,6 +42,13 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+
+//#if MC >= 12105
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+//#endif
+//#if MC <= 12004
+//$$ import net.minecraft.world.InteractionHand;
+//#endif
 //#if MC >= 12102
 import org.spongepowered.asm.mixin.Unique;
 //#endif
@@ -61,17 +65,27 @@ public abstract class MovingPistionBlockMixin extends BaseEntityBlock {
     @Nullable
     protected abstract PistonMovingBlockEntity getBlockEntity(BlockGetter world, BlockPos pos);
 
+    //#if MC <= 12004
+    //$$ @WrapMethod(method = "use")
+    //#else
     @WrapMethod(method = "useWithoutItem")
+    //#endif
     public InteractionResult onUse(BlockState state, Level world, BlockPos pos, Player player,
                               //#if MC <= 12004
-                              //$$ Hand hand,
+                              //$$ InteractionHand hand,
                               //#endif
                               BlockHitResult hit, Operation<InteractionResult> original) {
         if (morphMovingPiston) {
             PistonMovingBlockEntity
                 pistonBlockEntity = this.getBlockEntity(world, pos);
             return pistonBlockEntity != null ?
-                    pistonBlockEntity.getMovedState().getBlock().useWithoutItem(pistonBlockEntity.getMovedState(), world, pos, player,
+                    pistonBlockEntity.getMovedState().getBlock()
+                            //#if MC > 12004
+                            .useWithoutItem
+                            //#else
+                            //$$ .use
+                            //#endif
+                                    (pistonBlockEntity.getMovedState(), world, pos, player,
                             //#if MC <= 12004
                             //$$ hand,
                             //#endif

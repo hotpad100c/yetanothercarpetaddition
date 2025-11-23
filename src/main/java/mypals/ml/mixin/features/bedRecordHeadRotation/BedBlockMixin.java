@@ -36,8 +36,9 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 //#if MC <= 12004
-//$$ import net.minecraft.util.Hand;
+//$$ import net.minecraft.world.InteractionHand;
 //#endif
 
 import static net.minecraft.world.level.block.BedBlock.PART;
@@ -51,7 +52,11 @@ public abstract class BedBlockMixin {
     }
 
     @Inject(
+            //#if MC <= 12004
+            //$$ method = "use",
+            //#else
             method = "useWithoutItem",
+            //#endif
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/player/Player;startSleepInBed(Lnet/minecraft/core/BlockPos;)Lcom/mojang/datafixers/util/Either;"
@@ -59,7 +64,7 @@ public abstract class BedBlockMixin {
     )
     private void onUse(BlockState state, Level world, BlockPos pos, Player player,
                        //#if MC <= 12004
-                       //$$ Hand hand,
+                       //$$ InteractionHand hand,
                        //#endif
                        BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
         if (YetAnotherCarpetAdditionRules.bedsRecordSleeperFacing) {

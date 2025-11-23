@@ -21,8 +21,13 @@
 package mypals.ml.network;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+
+//#if MC > 12004
+import net.minecraft.network.codec.StreamCodec;
+//#else
+//$$ import net.minecraft.resources.ResourceLocation;
+//#endif
 
 public record OptionalFreezePayload(String phase, boolean freeze) implements CustomPacketPayload {
     //#if MC >= 12006
@@ -32,7 +37,7 @@ public record OptionalFreezePayload(String phase, boolean freeze) implements Cus
             OptionalFreezePayload::new
     );
     //#else
-    //$$ public static final Identifier ID = PacketIDs.FREEZE_PACKET_ID;
+    //$$ public static final ResourceLocation ID = PacketIDs.FREEZE_PACKET_ID;
     //#endif
 
     public OptionalFreezePayload(FriendlyByteBuf buf) {
@@ -54,7 +59,7 @@ public record OptionalFreezePayload(String phase, boolean freeze) implements Cus
     }
     //#else
     //$$ @Override
-    //$$ public Identifier id() {
+    //$$ public ResourceLocation id() {
     //$$     return ID;
     //$$ }
     //#endif

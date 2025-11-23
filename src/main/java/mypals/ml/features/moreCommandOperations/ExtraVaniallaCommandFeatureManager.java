@@ -36,7 +36,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 //#if MC < 12006
-//$$ import net.minecraft.registry.RegistryKey;
+//$$ import net.minecraft.resources.ResourceKey;
 //#endif
 
 import java.util.Optional;
@@ -63,7 +63,7 @@ public class ExtraVaniallaCommandFeatureManager {
                 //#elseif MC >= 12006
                 //$$ new ResourceLocation("minecraft", reason)
                 //#else
-                //$$ RegistryKey.of(Registries.GAME_EVENT.getKey(), new Identifier("minecraft", reason))
+                //$$ ResourceKey.create(BuiltInRegistries.GAME_EVENT.key(), new ResourceLocation("minecraft", reason))
                 //#endif
         )
                 //#if MC > 12101

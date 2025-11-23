@@ -27,6 +27,11 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.commands.CommandBuildContext;
 
+//#if MC <= 12004
+//$$ import net.minecraft.network.FriendlyByteBuf;
+//$$ import io.netty.buffer.Unpooled;
+//#endif
+
 public class HopperCounterRequestCommand {
     public static void registerCommand(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
         dispatcher.register(ClientCommandManager.literal("counterGUI")
@@ -41,7 +46,7 @@ public class HopperCounterRequestCommand {
                 new RequestCountersPayload("Server please give me some counter data owo")
                 //#else
                 //$$ RequestCountersPayload.ID,
-                //$$ new PacketByteBuf(Unpooled.buffer()).writeString("hi")
+                //$$ new FriendlyByteBuf(Unpooled.buffer()).writeUtf("hi")
                 //#endif
         );
         return 1;

@@ -27,10 +27,8 @@ import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.ModIds;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.BlockItemStateProperties;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
@@ -45,6 +43,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.Map;
+
+//#if MC > 12004
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.BlockItemStateProperties;
+//#else
+//$$ import net.minecraft.nbt.CompoundTag;
+//#endif
 
 @Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.4"))
 @Mixin(Minecraft.class)
@@ -83,11 +88,11 @@ public class MinecraftClientMixin {
         BlockItemStateProperties component = new BlockItemStateProperties(map);
         stack.set(DataComponents.BLOCK_STATE, component);
         //#else
-        //$$ NbtCompound nbt = new NbtCompound();
-        //$$ state.getEntries().forEach((property, value) -> {
+        //$$ CompoundTag nbt = new CompoundTag();
+        //$$ state.getValues().forEach((property, value) -> {
         //$$     nbt.putString(property.getName(), value.toString());
-        //$$});
-        //$$stack.getOrCreateNbt().put("BlockStateTag", nbt);
+        //$$ });
+        //$$ stack.getOrCreateTag().put("BlockStateTag", nbt);
         //#endif
 
     }
@@ -103,8 +108,8 @@ public class MinecraftClientMixin {
     //#else
     //$$ @Unique
     //$$ private static <T extends Comparable<T>> String getPropertyValueAsString(BlockState state, Property<T> property) {
-    //$$    T value = state.get(property);
-    //$$    return property.name(value);
+    //$$     T value = state.getValue(property);
+    //$$     return property.getName(value);
     //$$ }
     //#endif
 

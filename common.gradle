@@ -56,7 +56,7 @@ JavaVersion MIXIN_COMPATIBILITY_LEVEL = JAVA_COMPATIBILITY
 loom {
 	accessWidenerPath = file("YACA.accesswidener")
 
-	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=false']
+	def commonVmArgs = ['-Dmixin.debug.export=true']
 	runConfigs.configureEach {
 		// to make sure it generates all "Minecraft Client (:subproject_name)" applications
 		ideConfigGenerated = true

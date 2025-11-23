@@ -41,10 +41,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.InputConstants;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+//#if MC <= 12004
+//$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+//$$ import net.minecraft.network.FriendlyByteBuf;
+//#endif
 
 public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static KeyMapping carpetRulesKeyBind;
@@ -77,8 +83,8 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 //#if MC >= 12006
                 ClientPlayNetworking.send(new RequestRulesPayload(lang));
                 //#else
-                //$$ PacketByteBuf buf = PacketByteBufs.create();
-                //$$ ClientPlayNetworking.send(RequestRulesPayload.ID, buf.writeString(lang));
+                //$$ FriendlyByteBuf buf = PacketByteBufs.create();
+                //$$ ClientPlayNetworking.send(RequestRulesPayload.ID, buf.writeUtf(lang));
                 //#endif
                 requesting = true;
             }

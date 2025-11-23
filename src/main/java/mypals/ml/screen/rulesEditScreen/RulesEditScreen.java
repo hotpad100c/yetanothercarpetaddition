@@ -552,7 +552,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
 
     @Override
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
+        //#if MC > 12004
         renderMenuBackgroundTexture(context
+        //#else
+        //$$ renderDirtBackground(context
+        //#endif
                 //#if MC > 12004
                 , MENU_BACKGROUND, 0, 0, 0.0F, 0.0F, width, height
                 //#endif
