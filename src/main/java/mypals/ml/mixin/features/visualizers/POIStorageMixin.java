@@ -47,7 +47,7 @@ public abstract class POIStorageMixin {
             method = "sendPoiAddition",
             at = @At("HEAD")
     )
-    private static void add(ServerWorld world, BlockPos pos, CallbackInfo ci) {
+    private static void add(ServerLevel world, BlockPos pos, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.POIVisualize)
             YetAnotherCarpetAdditionServer.poiVisualizing.setVisualizer(
                     world,
@@ -65,7 +65,13 @@ public abstract class POIStorageMixin {
             //#endif
             at = @At("HEAD")
     )
-    private static void remove(
+    private
+
+    //#if MC <= 12106
+    //$$ static
+    //#endif
+
+    void remove(
             //#if MC < 12109
             //$$ ServerLevel world,
             //#endif

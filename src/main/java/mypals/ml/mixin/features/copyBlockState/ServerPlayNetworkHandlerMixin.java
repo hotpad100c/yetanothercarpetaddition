@@ -27,7 +27,9 @@ import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.ModIds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+//#if MC >= 12104
 import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
+//#endif
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;

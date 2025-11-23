@@ -18,7 +18,7 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.Screen.CountersViewer;
+package mypals.ml.screen.countersViewerScreen;
 
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

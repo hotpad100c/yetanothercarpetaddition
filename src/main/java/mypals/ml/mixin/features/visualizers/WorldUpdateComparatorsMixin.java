@@ -30,7 +30,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+//#if MC > 12101
 import net.minecraft.world.level.redstone.Orientation;
+//#endif
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -48,7 +50,7 @@ public abstract class WorldUpdateComparatorsMixin {
             method = "updateNeighbourForOutputSignal",
             at = @At(
                     //#if MC < 12102
-                    //$$ target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
+                    //$$ target = "Lnet/minecraft/world/level/Level;neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;Z)V",
                     //#else
                     target = "Lnet/minecraft/world/level/Level;neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
                     //#endif
@@ -79,7 +81,7 @@ public abstract class WorldUpdateComparatorsMixin {
             method = "updateNeighbourForOutputSignal",
             at = @At(
                     //#if MC < 12102
-                    //$$ target = "Lnet/minecraft/world/World;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
+                    //$$ target = "Lnet/minecraft/world/level/Level;neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;Z)V",
                     //#else
                     target = "Lnet/minecraft/world/level/Level;neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
                     //#endif

@@ -31,7 +31,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
 import net.minecraft.world.level.redstone.NeighborUpdater;
+//#if MC > 12102
 import net.minecraft.world.level.redstone.Orientation;
+//#endif
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -47,7 +49,7 @@ public class ChainRestrictedNeighborUpdaterMixin {
 
     @Inject(
             //#if MC < 12102
-            //$$ method = "Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater;updateNeighbor(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;)V",
+            //$$ method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;)V",
             //#else
             method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;)V",
             //#endif
@@ -66,7 +68,7 @@ public class ChainRestrictedNeighborUpdaterMixin {
 
     @Inject(
             //#if MC < 12102
-            //$$ method = "Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater;updateNeighbor(Lnet/minecraft/block/BlockState;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/BlockPos;Z)V",
+            //$$ method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;Z)V",
             //#else
             method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
             //#endif
@@ -84,11 +86,7 @@ public class ChainRestrictedNeighborUpdaterMixin {
     }
 
     @Inject(
-            //#if MC < 12102
-            //$$ method = "Lnet/minecraft/world/block/ChainRestrictedNeighborUpdater;updateNeighbors(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;Lnet/minecraft/util/math/Direction;)V",
-            //#else
             method = "updateNeighborsAtExceptFromFacing",
-            //#endif
             at = @At("HEAD")
     )
     private void AddNCMarkerSixWayEntry(BlockPos pos, Block sourceBlock, Direction except,

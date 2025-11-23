@@ -18,7 +18,7 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.Screen.RulesEditScreen;
+package mypals.ml.screen.rulesEditScreen;
 
 public class CategoryEntry {
     public String name;

@@ -18,19 +18,18 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.Screen.RulesEditScreen;
+package mypals.ml.screen.rulesEditScreen;
 
 //#if MC >= 12105
 import com.mojang.blaze3d.opengl.GlStateManager;
-import mypals.ml.utils.adapter.RenderSystem;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
+//#else
+//$$import com.mojang.blaze3d.platform.GlStateManager;
+//#endif
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
-import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.components.events.GuiEventListener;
-import net.minecraft.client.renderer.RenderPipelines;
+
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -39,17 +38,18 @@ import net.minecraft.util.Mth;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 //#endif
-//#elseif MC >= 12102
-//$$ import net.minecraft.client.render.RenderLayer;
+
+//#if MC >= 12106
+import net.minecraft.client.renderer.RenderPipelines;
+//#else
+//$$import net.minecraft.client.renderer.RenderType;
 //#endif
-@Environment(EnvType.CLIENT)
+
 public abstract class ConstantScrollableWidget extends AbstractWidget implements Renderable, GuiEventListener {
     //#if MC >= 12106
-    private static final WidgetSprites TEXT_FIELD_TEXTURES = new WidgetSprites(ResourceLocation.withDefaultNamespace("widget/text_field"), ResourceLocation.withDefaultNamespace("widget/text_field_highlighted"));
     private static final ResourceLocation SCROLLER_TEXTURE = ResourceLocation.withDefaultNamespace("widget/scroller");
     //#else
-    //$$ private static final ButtonTextures TEXT_FIELD_TEXTURES = new ButtonTextures(Identifier.of("minecraft","widget/text_field"), Identifier.of("minecraft","widget/text_field_highlighted"));
-    //$$ private static final Identifier SCROLLER_TEXTURE = Identifier.of("minecraft","widget/scroller");
+    //$$ private static final ResourceLocation SCROLLER_TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft","widget/scroller");
     //#endif
     private static final int PADDING = 4;
     private static final int SCROLLER_WIDTH = 8;
@@ -65,7 +65,6 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
     //#else
     //$$ public boolean mouseClicked(double mouseX, double mouseY, int button) {
     //#endif
-
         //#if MC >= 12109
         double mouseY = click.y();
         double mouseX = click.x();
@@ -200,20 +199,20 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
             //#if MC >= 12106
             context.pose().pushMatrix();
             //#else
-            //$$ context.getMatrices().push();
+            //$$ context.pose().pushPose();
             //#endif
 
             //#if MC >= 12106
             context.pose().translate(0.0F, (float) -this.scrollY);
             //#else
-            //$$ context.getMatrices().translate((double)0.0F, -this.scrollY, (double)0.0F);
+            //$$ context.pose().translate((double)0.0F, -this.scrollY, (double)0.0F);
             //#endif
 
             this.renderContents(context, mouseX, mouseY, delta);
             //#if MC >= 12106
             context.pose().popMatrix();
             //#else
-            //$$ context.getMatrices().pop();
+            //$$ context.pose().popPose();
             //#endif
             context.disableScissor();
             this.renderOverlay(context);
@@ -271,7 +270,7 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
                 //#if MC >= 12106
                 RenderPipelines.GUI_TEXTURED,
                 //#elseif MC >= 12102
-                //$$ RenderLayer::getGuiTextured,
+                //$$ RenderType::guiTextured,
                 //#endif
                 SCROLLER_TEXTURE, j, k, 8, i);
         GlStateManager._disableBlend();

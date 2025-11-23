@@ -55,9 +55,9 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
 
             //#if MC < 12105
             //$$
-            //$$ String textJson = "{\"text\":\"" + "[" + (poi.getType().value().ticketCount() - poi.getFreeTickets()) + "/" +
-            //$$         poi.getType().value().ticketCount() + "]"
-            //$$         + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getType().value().ticketCount() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
+            //$$ String textJson = "{\"text\":\"" + "[" + (poi.getPoiType().value().maxTickets() - poi.getFreeTickets()) + "/" +
+            //$$         poi.getPoiType().value().maxTickets() + "]"
+            //$$         + "\",\"color\":\"" + (poi.getFreeTickets() <= 0 && poi.getPoiType().value().maxTickets() != 0 ? "red" : (poi.isOccupied() ? "yellow" : "white")) + "\"}";
             //$$ nbt.remove("text");
             //$$ nbt.putString("text", textJson);
             //#else

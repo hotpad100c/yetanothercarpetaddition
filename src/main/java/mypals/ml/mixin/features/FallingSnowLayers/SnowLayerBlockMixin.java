@@ -28,8 +28,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+//#if MC > 12101
 import net.minecraft.world.level.ScheduledTickAccess;
+//#endif
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SnowLayerBlock;
@@ -41,15 +44,14 @@ public abstract class SnowLayerBlockMixin extends Block {
     public SnowLayerBlockMixin(Properties settings) {
         super(settings);
     }
-
     @WrapMethod(method = "updateShape")
-    protected BlockState getStateForNeighborUpdate(BlockState state,
+    protected BlockState updateShape(BlockState state,
                                                    //#if MC >= 12102
                                                    LevelReader world, ScheduledTickAccess tickView, BlockPos pos,
                                                    Direction direction,
                                                    //#else
                                                    //$$ Direction direction, BlockState neighborState,
-                                                   //$$ WorldAccess world, BlockPos pos,
+                                                   //$$ LevelAccessor world, BlockPos pos,
                                                    //#endif
                                                    BlockPos neighborPos,
                                                    //#if MC >= 12102
@@ -69,14 +71,14 @@ public abstract class SnowLayerBlockMixin extends Block {
             return
                     super
                     //#if MC < 12102
-                    //$$         .getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+                    //$$         .updateShape(state, direction, neighborState, world, pos, neighborPos);
                     //#else
                        .updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
                     //#endif
         } else {
             return !state.canSurvive(world, pos) ? Blocks.AIR.defaultBlockState() : super
                     //#if MC < 12102
-                    //$$         .getStateForNeighborUpdate(state, direction, neighborState, world, pos, neighborPos);
+                    //$$         .updateShape(state, direction, neighborState, world, pos, neighborPos);
                     //#else
                        .updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
                     //#endif

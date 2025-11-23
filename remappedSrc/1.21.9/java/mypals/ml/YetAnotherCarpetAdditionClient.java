@@ -20,8 +20,8 @@
 
 package mypals.ml;
 
-import mypals.ml.Screen.CountersViewer.CounterViewerScreen;
-import mypals.ml.Screen.RulesEditScreen.RulesEditScreen;
+import mypals.ml.screen.countersViewerScreen.CounterViewerScreen;
+import mypals.ml.screen.rulesEditScreen.RulesEditScreen;
 import mypals.ml.commands.HopperCounterRequestCommand;
 import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.network.OptionalFreezePayload;

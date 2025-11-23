@@ -23,7 +23,9 @@ package mypals.ml.mixin.features;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
+//#if MC>=12105
 import net.minecraft.world.entity.InsideBlockEffectApplier;
+//#endif
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HalfTransparentBlock;

@@ -29,7 +29,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+//#if MC > 12101
 import net.minecraft.world.level.ScheduledTickAccess;
+//#endif
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
@@ -59,7 +61,7 @@ public class AbstractBlockMixin {
                              //#if MC >= 12102
                              LevelReader world, ScheduledTickAccess tickView,
                              //#else
-                             //$$ Direction direction, BlockState neighborState, WorldAccess world,
+                             //$$ Direction direction, BlockState neighborState, LevelAccessor world,
                              //#endif
                              BlockPos pos,
                              //#if MC >= 12102

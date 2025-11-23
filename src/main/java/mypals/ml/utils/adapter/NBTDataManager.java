@@ -24,9 +24,11 @@ import mypals.ml.YetAnotherCarpetAdditionServer;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
+//#if MC >= 12106
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
+//#endif
 public class NBTDataManager {
 
     public static void writeToEntity(Entity entity, CompoundTag data) {
@@ -38,7 +40,7 @@ public class NBTDataManager {
         entity.load(nbtReadView);
         //#else
         //$$
-        //$$ entity.readNbt(data);
+        //$$ entity.load(data);
         //#endif
     }
 
@@ -50,7 +52,7 @@ public class NBTDataManager {
         entity.saveWithoutId(nbtWriteView2);
         nbtCompound = nbtWriteView2.buildResult();
         //#else
-        //$$ entity.writeNbt(nbtCompound);
+        //$$ entity.saveWithoutId(nbtCompound);
         //#endif
         return nbtCompound;
     }

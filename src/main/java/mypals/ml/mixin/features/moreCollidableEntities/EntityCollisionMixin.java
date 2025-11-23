@@ -76,26 +76,26 @@ public abstract class EntityCollisionMixin extends Entity {
     //$$ }
     //$$
     //#else
- private boolean isBoat() {
-         return this.getType() == EntityType.OAK_BOAT ||
-                this.getType() == EntityType.ACACIA_BOAT ||
-                this.getType() == EntityType.CHERRY_BOAT ||
-               this.getType() == EntityType.JUNGLE_BOAT ||
-               this.getType() == EntityType.SPRUCE_BOAT ||
-                this.getType() == EntityType.BIRCH_BOAT ||
-                this.getType() == EntityType.DARK_OAK_BOAT ||
-                this.getType() == EntityType.MANGROVE_BOAT ||
-                this.getType() == EntityType.PALE_OAK_BOAT ||
-                this.getType() == EntityType.OAK_CHEST_BOAT ||
-                this.getType() == EntityType.ACACIA_CHEST_BOAT ||
-                this.getType() == EntityType.CHERRY_CHEST_BOAT ||
-                this.getType() == EntityType.JUNGLE_CHEST_BOAT ||
-                this.getType() == EntityType.SPRUCE_CHEST_BOAT ||
-               this.getType() == EntityType.DARK_OAK_CHEST_BOAT ||
-                this.getType() == EntityType.BAMBOO_RAFT ||
-                this.getType() == EntityType.BAMBOO_CHEST_RAFT;
-     }
-//#endif
+     private boolean isBoat() {
+             return this.getType() == EntityType.OAK_BOAT ||
+                    this.getType() == EntityType.ACACIA_BOAT ||
+                    this.getType() == EntityType.CHERRY_BOAT ||
+                   this.getType() == EntityType.JUNGLE_BOAT ||
+                   this.getType() == EntityType.SPRUCE_BOAT ||
+                    this.getType() == EntityType.BIRCH_BOAT ||
+                    this.getType() == EntityType.DARK_OAK_BOAT ||
+                    this.getType() == EntityType.MANGROVE_BOAT ||
+                    this.getType() == EntityType.PALE_OAK_BOAT ||
+                    this.getType() == EntityType.OAK_CHEST_BOAT ||
+                    this.getType() == EntityType.ACACIA_CHEST_BOAT ||
+                    this.getType() == EntityType.CHERRY_CHEST_BOAT ||
+                    this.getType() == EntityType.JUNGLE_CHEST_BOAT ||
+                    this.getType() == EntityType.SPRUCE_CHEST_BOAT ||
+                   this.getType() == EntityType.DARK_OAK_CHEST_BOAT ||
+                    this.getType() == EntityType.BAMBOO_RAFT ||
+                    this.getType() == EntityType.BAMBOO_CHEST_RAFT;
+         }
+    //#endif
     @Override
     public boolean canCollideWith(Entity other) {
         if (YetAnotherCarpetAdditionRules.moreHardCollisions && Boat.canVehicleCollide(this, other)) {

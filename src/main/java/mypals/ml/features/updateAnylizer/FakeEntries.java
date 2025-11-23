@@ -30,7 +30,9 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
 import net.minecraft.world.level.redstone.NeighborUpdater;
+//#if MC > 12102
 import net.minecraft.world.level.redstone.Orientation;
+//#endif
 
 public class FakeEntries {
     public static record SimpleEntryFake(BlockPos pos, Block sourceBlock,

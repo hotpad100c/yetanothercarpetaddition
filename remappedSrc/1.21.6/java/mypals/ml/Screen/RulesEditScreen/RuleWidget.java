@@ -18,7 +18,7 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.Screen.RulesEditScreen;
+package mypals.ml.screen.rulesEditScreen;
 
 import mypals.ml.utils.adapter.RenderSystem;
 import net.minecraft.client.Minecraft;

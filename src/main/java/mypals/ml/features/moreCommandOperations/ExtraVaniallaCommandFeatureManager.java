@@ -39,6 +39,8 @@ import org.jetbrains.annotations.Nullable;
 //$$ import net.minecraft.registry.RegistryKey;
 //#endif
 
+import java.util.Optional;
+
 import static mypals.ml.features.moreCommandOperations.WorldEventMapper.WORLD_EVENT_MAP;
 
 public class ExtraVaniallaCommandFeatureManager {
@@ -50,7 +52,12 @@ public class ExtraVaniallaCommandFeatureManager {
     }
 
     public static int addGameEvent(CommandSourceStack source, Vec3 pos, String reason, @Nullable Entity entity, @Nullable BlockState blockState) {
-        Holder<GameEvent> event = BuiltInRegistries.GAME_EVENT.get(
+        //#if MC > 12101
+        Holder.Reference<GameEvent> event
+        //#else
+        //$$ GameEvent gameEvent
+        //#endif
+                = BuiltInRegistries.GAME_EVENT.get(
                 //#if MC >= 12101
                 ResourceLocation.parse("minecraft:" + reason)
                 //#elseif MC >= 12006
@@ -58,7 +65,14 @@ public class ExtraVaniallaCommandFeatureManager {
                 //#else
                 //$$ RegistryKey.of(Registries.GAME_EVENT.getKey(), new Identifier("minecraft", reason))
                 //#endif
-        ).orElse(null);
+        )
+                //#if MC > 12101
+                .orElse(null)
+                //#endif
+                ;
+        //#if MC<=12101
+        //$$Holder<GameEvent> event = Holder.direct(gameEvent);
+        //#endif
         if (event == null) {
             source.sendFailure(Component.literal("Unknown GameEvent: " + reason));
             return 0;

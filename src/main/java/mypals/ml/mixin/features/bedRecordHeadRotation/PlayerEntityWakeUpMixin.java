@@ -52,7 +52,7 @@ public abstract class PlayerEntityWakeUpMixin extends Player {
         super(world, gameProfile);
     }
     //#else
-    //$$ public PlayerEntityWakeUpMixin(World world, BlockPos pos, float yaw, GameProfile gameProfile) {
+    //$$ public PlayerEntityWakeUpMixin(Level world, BlockPos pos, float yaw, GameProfile gameProfile) {
     //$$
     //$$     super(world, pos, yaw, gameProfile);
     //$$ }

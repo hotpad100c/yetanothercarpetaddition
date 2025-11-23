@@ -20,7 +20,11 @@
 
 package mypals.ml.utils.adapter;
 
+//#if MC > 12104
 import com.mojang.blaze3d.opengl.GlStateManager;
+//#else
+//$$import com.mojang.blaze3d.platform.GlStateManager;
+//#endif
 
 import static com.mojang.blaze3d.systems.RenderSystem.assertOnRenderThread;
 import static com.mojang.blaze3d.systems.RenderSystem.isOnRenderThread;

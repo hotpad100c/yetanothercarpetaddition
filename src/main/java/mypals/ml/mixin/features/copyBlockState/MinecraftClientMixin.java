@@ -26,6 +26,15 @@ import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.ModIds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -42,37 +51,37 @@ import java.util.Map;
 public class MinecraftClientMixin {
     //#if MC >= 12104
     //#else
-    //$$ @Shadow
-    //$$ @Nullable
-    //$$ public HitResult crosshairTarget;
-    //$$
-    //$$ @Inject(method = "doItemPick", at =
-    //$$ @At(value = "INVOKE", target = "Lnet/minecraft/client/network/ClientPlayerEntity;getInventory()Lnet/minecraft/entity/player/PlayerInventory;"))
-    //$$ private void doItemPick(CallbackInfo ci, @Local ItemStack itemStack) {
-    //$$     if (!YetAnotherCarpetAdditionRules.copyBlockState) return;
-    //$$     PlayerEntity player = MinecraftClient.getInstance().player;
-    //$$     if (this.crosshairTarget != null && this.crosshairTarget.getType() != net.minecraft.util.hit.HitResult.Type.MISS) {
-    //$$         if (this.crosshairTarget.getType() == HitResult.Type.BLOCK) {
-    //$$             BlockPos blockPos = ((BlockHitResult) this.crosshairTarget).getBlockPos();
-    //$$             if (Screen.hasShiftDown()) {
-    //$$                 setBlockStateData(itemStack, player.getWorld().getBlockState(blockPos));
-    //$$             }
-    //$$         }
-    //$$     }
-    //$$
-    //$$ }
-    //$$
-    //$$ @Unique
-    //$$ private static void setBlockStateData(ItemStack stack, BlockState state) {
+    //$$@Shadow
+    @Nullable
+    public HitResult hitResult;
+
+    @Inject(method = "pickBlock", at =
+    @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getInventory()Lnet/minecraft/world/entity/player/Inventory;"))
+    private void doItemPick(CallbackInfo ci, @Local ItemStack itemStack) {
+        if (!YetAnotherCarpetAdditionRules.copyBlockState) return;
+        Player player = Minecraft.getInstance().player;
+        if (this.hitResult != null && this.hitResult.getType() != HitResult.Type.MISS) {
+            if (this.hitResult.getType() == HitResult.Type.BLOCK) {
+                BlockPos blockPos = ((BlockHitResult) this.hitResult).getBlockPos();
+                if (player.isShiftKeyDown()) {
+                    setBlockStateData(itemStack, player.level().getBlockState(blockPos));
+                }
+            }
+        }
+
+    }
+
+    @Unique
+    private static void setBlockStateData(ItemStack stack, BlockState state) {
         //#if MC >= 12006
-        //$$ Map<String, String> map = new HashMap<>();
-        //$$
-        //$$ for (Property<?> property : state.getProperties()) {
-        //$$     setPropertyToMap(state, (Property<?>) property, map);
-        //$$ }
-        //$$
-        //$$ BlockStateComponent component = new BlockStateComponent(map);
-        //$$ stack.set(DataComponentTypes.BLOCK_STATE, component);
+        Map<String, String> map = new HashMap<>();
+
+        for (Property<?> property : state.getProperties()) {
+            setPropertyToMap(state, (Property<?>) property, map);
+        }
+
+        BlockItemStateProperties component = new BlockItemStateProperties(map);
+        stack.set(DataComponents.BLOCK_STATE, component);
         //#else
         //$$ NbtCompound nbt = new NbtCompound();
         //$$ state.getEntries().forEach((property, value) -> {
@@ -80,17 +89,17 @@ public class MinecraftClientMixin {
         //$$});
         //$$stack.getOrCreateNbt().put("BlockStateTag", nbt);
         //#endif
-    //$$
-    //$$ }
-    //$$
+
+    }
+
     //#if MC > 12004
-    //$$ @Unique
-    //$$ private static <T extends Comparable<T>> void setPropertyToMap(BlockState state, Property<T> property, Map<String, String> map) {
-    //$$     T value = state.get(property);
-    //$$     map.put(property.getName(), property.name(value));
-    //$$ }
-    //$$
-    //$$
+    @Unique
+    private static <T extends Comparable<T>> void setPropertyToMap(BlockState state, Property<T> property, Map<String, String> map) {
+        T value = state.getValue(property);
+        map.put(property.getName(), property.getName(value));
+    }
+
+
     //#else
     //$$ @Unique
     //$$ private static <T extends Comparable<T>> String getPropertyValueAsString(BlockState state, Property<T> property) {
@@ -98,6 +107,6 @@ public class MinecraftClientMixin {
     //$$    return property.name(value);
     //$$ }
     //#endif
-    //$$
+
     //#endif
 }

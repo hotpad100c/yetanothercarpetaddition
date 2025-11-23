@@ -104,7 +104,12 @@ public class ExtraVaniallaCommandRegister {
                         .then(Commands.argument("pos", Vec3Argument.vec3())
                                 .then(Commands.argument("reason", StringArgumentType.word())
                                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(
-                                                BuiltInRegistries.GAME_EVENT.listElements()
+                                                BuiltInRegistries.GAME_EVENT.
+                                                        //#if MC > 12101
+                                                        listElements()
+                                                        //#else
+                                                        //$$holders()
+                                                        //#endif
                                                         .map(entry -> entry.key().location().toString().replace("minecraft:", ""))
                                                         .collect(Collectors.toList()), builder
                                         ))

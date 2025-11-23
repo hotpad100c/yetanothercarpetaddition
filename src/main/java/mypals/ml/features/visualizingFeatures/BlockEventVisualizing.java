@@ -174,7 +174,13 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
                 extra.add(orderPart);
                 textJson.add("extra", extra);
             } else {
-                String existingText = nbt.getStringOr(
+                String existingText = nbt.
+                        //#if MC >= 12105
+                        getStringOr
+                        //#else
+                        //$$getString
+                        //#endif
+                        (
                         "text"
                         //#if MC >= 12105
                         , ""

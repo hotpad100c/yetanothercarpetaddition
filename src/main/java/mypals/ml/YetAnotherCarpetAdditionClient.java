@@ -20,8 +20,8 @@
 
 package mypals.ml;
 
-import mypals.ml.Screen.CountersViewer.CounterViewerScreen;
-import mypals.ml.Screen.RulesEditScreen.RulesEditScreen;
+import mypals.ml.screen.countersViewerScreen.CounterViewerScreen;
+import mypals.ml.screen.rulesEditScreen.RulesEditScreen;
 import mypals.ml.commands.HopperCounterRequestCommand;
 import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.network.OptionalFreezePayload;
@@ -73,11 +73,6 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (carpetRulesKeyBind.consumeClick()) {
-                Minecraft.getInstance().player.displayClientMessage(Component.literal("Requesting rules now！")
-                        //#if MC >= 12102
-                        , false
-                        //#endif
-                );
                 String lang = client.getLanguageManager().getSelected();
                 //#if MC >= 12006
                 ClientPlayNetworking.send(new RequestRulesPayload(lang));
@@ -159,11 +154,6 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                     chachedCategories.addAll(chachedRules.stream()
                             .flatMap(r -> r.categories.stream())
                             .distinct().toList());
-                    client.player.displayClientMessage(Component.literal("Received " + chachedRules.size() + " rules from server！")
-                            //#if MC >= 12102
-                            , false
-                            //#endif
-                    );
                     requesting = false;
                     defaultRules.clear();
                     defaultRules.addAll(Arrays.stream(payload.defaults().split(";")).toList());

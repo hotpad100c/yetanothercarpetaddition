@@ -33,10 +33,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
 import net.minecraft.world.level.redstone.NeighborUpdater;
+//#if MC > 12102
 import net.minecraft.world.level.redstone.Orientation;
+//#endif
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
 
 @Mixin(CollectingNeighborUpdater.class)
 public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpdater {
@@ -71,7 +74,13 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     }
 
 
-    @WrapMethod(method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;)V")
+    @WrapMethod(
+            //#if MC < 12102
+            //$$ method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;)V"
+            //#else
+            method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;)V"
+            //#endif
+    )
     public void updateNeighborA(BlockPos pos, Block sourceBlock,
                                 //#if MC > 12102
                                 Orientation orientation,
@@ -103,7 +112,13 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     }
 
 
-    @WrapMethod(method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V")
+    @WrapMethod(
+            //#if MC < 12102
+            //$$ method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;Z)V"
+            //#else
+            method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V"
+            //#endif
+    )
     public void updateNeighborB(BlockState state, BlockPos pos, Block sourceBlock,
                                 //#if MC > 12102
                                 Orientation orientation
@@ -135,15 +150,18 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
 
 
     @WrapOperation(
+            //#if MC < 12102
+            //$$ method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;Z)V"
+            //#else
             method = "neighborChanged(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;)V"
-
+            //#endif
             , at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater;addAndRun(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater$NeighborUpdates;)V"))
     public void updateNeighbor(CollectingNeighborUpdater instance, BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof CollectingNeighborUpdater.SimpleNeighborUpdate simpleEntry) {
             this.addAndRun(pos, new FakeEntries.SimpleEntryFake(pos, simpleEntry.block(),
                     simpleEntry
                             //#if MC <= 12102
-                            //$$ .sourcePos()
+                            //$$ .pos()
                     //#else
                     .orientation()
                     //#endif
@@ -167,14 +185,18 @@ public abstract class ChainRestrictedNeighborUpdaterMixin implements NeighborUpd
     }
 
     @WrapOperation(
-            method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
 
+            //#if MC < 12102
+            //$$ method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/core/BlockPos;Z)V",
+            //#else
+            method = "neighborChanged(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;Lnet/minecraft/world/level/redstone/Orientation;Z)V",
+            //#endif
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater;addAndRun(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/redstone/CollectingNeighborUpdater$NeighborUpdates;)V"))
     public void updateNeighbor2(CollectingNeighborUpdater instance, BlockPos pos, CollectingNeighborUpdater.NeighborUpdates entry, Operation<Void> original) {
         if (YetAnotherCarpetAdditionRules.updateCounter && entry instanceof CollectingNeighborUpdater.FullNeighborUpdate statefulEntry) {
             this.addAndRun(pos, new FakeEntries.StatefulEntryFake(statefulEntry.state(), statefulEntry.pos(), statefulEntry.block(), statefulEntry
                     //#if MC <= 12102
-                    //$$ .sourcePos()
+                    //$$ .pos()
                     //#else
                     .orientation()
                     //#endif

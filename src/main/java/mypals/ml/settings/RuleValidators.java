@@ -54,8 +54,8 @@ public class RuleValidators {
                 return "off";
             }
             //#if MC < 12105
-            //$$ if (!Registries.BLOCK.containsId(Identifier.of("minecraft", parts[0].replace("minecraft:", "")))
-            //$$        || !Registries.BLOCK.containsId(Identifier.of("minecraft", parts[1].replace("minecraft:", ""))
+            //$$ if (!BuiltInRegistries.BLOCK.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", parts[0].replace("minecraft:", "")))
+            //$$        || !BuiltInRegistries.BLOCK.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", parts[1].replace("minecraft:", ""))
             //$$ ))
             //#else
             if (!BuiltInRegistries.BLOCK.containsKey(ResourceLocation.withDefaultNamespace(parts[0].replace("minecraft:", "")))

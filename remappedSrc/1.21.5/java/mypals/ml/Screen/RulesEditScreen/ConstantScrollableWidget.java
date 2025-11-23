@@ -18,7 +18,7 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.Screen.RulesEditScreen;
+package mypals.ml.screen.rulesEditScreen;
 
 //#if MC >= 12105
 import com.mojang.blaze3d.opengl.GlStateManager;
@@ -287,6 +287,7 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
     }
 
     protected abstract int getContentsHeight();
+
 
     protected abstract double getDeltaYPerScroll();
 

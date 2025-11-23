@@ -18,7 +18,7 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.Screen.RulesEditScreen;
+package mypals.ml.screen.rulesEditScreen;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
@@ -28,9 +28,13 @@ import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
+//#if MC >= 12102
 import net.minecraft.client.renderer.LevelTargetBundle;
+//#endif
 import net.minecraft.client.renderer.PostChain;
+//#if MC > 12104
 import net.minecraft.client.renderer.RenderPipelines;
+//#endif
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
@@ -50,6 +54,10 @@ import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 //#endif
 
+//#if MC >= 12106
+//#else
+//$$import net.minecraft.client.renderer.RenderType;
+//#endif
 import static mypals.ml.YetAnotherCarpetAdditionClient.*;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
@@ -213,14 +221,14 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                                 if (this.isVisible()) {
                                     context.fill(
                                             //#if MC < 12106
-                                            //$$ RenderLayer.getGuiOverlay(),
+                                            //$$ RenderType.gui(),
                                             //#endif
                                             this.getX(), this.getY() - 1,
                                             this.width + 1, this.height + 1 + 9, 0x0AAAAAAA);
 
                                     context.fill(
                                             //#if MC < 12106
-                                            //$$ RenderLayer.getGuiOverlay(),
+                                            //$$ RenderType.gui(),
                                             //#endif
                                             this.getX(), this.getY() + this.height - 4,
                                             this.width + 1, this.getY() + this.height - 5, 0xAFFFFFFF);
@@ -535,7 +543,7 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                 //#if MC >= 12106
                 RenderPipelines.GUI_TEXTURED,
                 //#elseif MC >= 12102
-                //$$ RenderLayer::getGuiTextured,
+                //$$ RenderType::guiTextured,
                 //#endif
                 searching ? ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/search_s.png") : ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
@@ -561,19 +569,19 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
             //#if MC >= 12106
             context.blurBeforeThisStratum();
             //#elseif MC >= 12105
-            //$$ blur.render(this.client.getFramebuffer(), gameRenderer.pool, pass -> pass.setUniform("Radius", 20F));
+            //$$ blur.process(this.minecraft.getMainRenderTarget(), gameRenderer.resourcePool, pass -> pass.setUniform("Radius", 20F));
             //#else
-            //$$ blur.setUniforms("Radius", 20F);
-            //$$ blur.render(client.getFramebuffer(), gameRenderer.pool);
+            //$$ blur.setUniform("Radius", 20F);
+            //$$ blur.process(this.minecraft.getMainRenderTarget(), gameRenderer.resourcePool);
             //#endif
             }
             //#elseif MC > 12004
-            //$$ gameRenderer.blurPostProcessor.setUniforms("Radius", 20);
-            //$$ gameRenderer.blurPostProcessor.render(delta);
+            //$$ gameRenderer.blurEffect.setUniform("Radius", 20);
+            //$$ gameRenderer.blurEffect.process(delta);
             //#endif
 
             //#if MC < 12105
-            //$$ this.client.getFramebuffer().beginWrite(false);
+            //$$ this.minecraft.getMainRenderTarget().bindWrite(false);
             //#endif
         }
 

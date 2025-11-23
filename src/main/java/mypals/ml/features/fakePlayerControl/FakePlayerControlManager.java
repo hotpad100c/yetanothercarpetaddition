@@ -159,7 +159,7 @@ public class FakePlayerControlManager {
         HumanoidArm arm = HumanoidArm.valueOf(playerData.getString("MainArm").get());
         //#else
         //$$ String gameModeName = playerData.getString("GameMode");
-        //$$ Arm arm = Arm.valueOf(playerData.getString("MainArm"));
+        //$$ HumanoidArm arm = HumanoidArm.valueOf(playerData.getString("MainArm"));
         //#endif
         GameType gameMode = GameType.byName(gameModeName, GameType.SURVIVAL);
         player.setGameMode(gameMode);

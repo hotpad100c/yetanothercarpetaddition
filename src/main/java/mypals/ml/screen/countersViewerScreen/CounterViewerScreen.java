@@ -18,12 +18,12 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.Screen.CountersViewer;
+package mypals.ml.screen.countersViewerScreen;
 
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 //#if MC >= 12106
 import org.joml.Matrix3x2fStack;
+//#else
+import com.mojang.blaze3d.vertex.PoseStack;
 //#endif
 
 import java.awt.*;
@@ -41,6 +41,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class CounterViewerScreen extends Screen implements ContainerEventHandler {
     private final Map<String, Map<String, String>> data;
@@ -101,12 +103,11 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
             this(new RenderPoint(x1, y1, data, time), new RenderPoint(x2, y2, data, time), lineWidth, color);
         }
 
-
         public void render(
                 //#if MC >= 12106
                 Matrix3x2fStack poseStack
                 //#else
-                //$$ MatrixStack poseStack
+                //$$ PoseStack poseStack
                 //#endif
                 , GuiGraphics drawContext
         ) {
@@ -116,9 +117,9 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
             poseStack.translate(this.startPoint.x, this.startPoint.y);
             poseStack.rotate(this.rotationAngleInDeg);
             //#else
-            //$$ poseStack.push();
+            //$$ poseStack.pushPose();
             //$$ poseStack.translate(this.startPoint.x, this.startPoint.y, 0);
-            //$$ poseStack.multiply(new Quaternionf().rotationAxis((float) Math.toRadians(this.rotationAngleInDeg), new Vector3f(0, 0, 90)));
+            //$$ poseStack.mulPose(new Quaternionf().rotationAxis((float) Math.toRadians(this.rotationAngleInDeg), new Vector3f(0, 0, 90)));
             //#endif
             if (this.lineWidth % 2 == 0 || this.lineWidth == 1) {
                 drawContext.fill(0, 0,
@@ -130,7 +131,7 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
             //#if MC >= 12106
             poseStack.popMatrix();
             //#else
-            //$$ poseStack.pop();
+            //$$ poseStack.popPose();
             //#endif
         }
 
@@ -312,7 +313,7 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
         //#if MC >= 12106
         Matrix3x2fStack poseStack = context.pose();
         //#else
-        //$$ MatrixStack poseStack = context.getMatrices();
+        //$$ PoseStack poseStack = context.pose();
         //#endif
 
         int chartX = 40;

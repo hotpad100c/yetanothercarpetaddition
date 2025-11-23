@@ -65,7 +65,7 @@ public abstract class WorldRenderFreeze {
     //#if MC < 12109
     //$$ @WrapOperation(
     //$$         //#if MC < 12102
-    //$$         //$$ method = "render",
+    //$$         //$$ method = "renderLevel",
     //$$         //#else
     //$$         method = "renderEntities",
     //$$         //#endif

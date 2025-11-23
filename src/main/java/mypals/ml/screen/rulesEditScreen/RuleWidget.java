@@ -18,7 +18,7 @@
  * along with Yet Another Carpet Addition.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package mypals.ml.Screen.RulesEditScreen;
+package mypals.ml.screen.rulesEditScreen;
 
 import mypals.ml.utils.adapter.RenderSystem;
 import net.minecraft.client.Minecraft;
@@ -26,7 +26,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.components.WidgetSprites;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -50,6 +49,13 @@ import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 // //#elseif MC >= 12102
 // //$$ import static net.minecraft.client.render.RenderLayer.getGui;
 // //#endif
+
+//#if MC >= 12106
+import net.minecraft.client.renderer.RenderPipelines;
+//#else
+//$$import net.minecraft.client.renderer.RenderType;
+//#endif
+
 public class RuleWidget {
     private RuleData ruleData;
     private int x, y;
@@ -75,7 +81,7 @@ public class RuleWidget {
                             //#if MC >= 12106
 
                             //#else
-                            //$$ RenderLayer.getGuiOverlay(),
+                            //$$ RenderType.guiOverlay(),
                             //#endif
 
                             this.getX() + this.width / 2, this.getY() + this.height - 4,
@@ -112,7 +118,7 @@ public class RuleWidget {
                             //#if MC >= 12106
                             RenderPipelines.GUI_TEXTURED,
                             //#elseif MC >= 12102
-                            //$$ RenderLayer::getGuiTextured,
+                            //$$ RenderType::guiTextured,
                             //#endif
                             this.sprites.get(this.isStateTriggered(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
@@ -120,7 +126,13 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean mouseClicked(
+            public boolean
+            //#if MC>12101
+            mouseClicked
+            //#else
+            //$$ clicked
+            //#endif
+            (
                     //#if MC < 12109
                     //$$ double mouseX, double mouseY
                     //#if MC >= 12103
@@ -201,7 +213,7 @@ public class RuleWidget {
                             //#if MC >= 12106
                             RenderPipelines.GUI_TEXTURED,
                             //#elseif MC >= 12102
-                            //$$ RenderLayer::getGuiTextured,
+                            //$$ RenderType::guiTextured,
                             //#endif
                             this.sprites.get(this.isStateTriggered(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
@@ -209,7 +221,13 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean mouseClicked(
+            public boolean
+            //#if MC > 12101
+            mouseClicked
+            //#else
+            //$$ clicked
+            //#endif
+                    (
                     //#if MC < 12109
                     //$$ double mouseX, double mouseY
                     //#if MC >= 12103
@@ -296,7 +314,7 @@ public class RuleWidget {
                             //#if MC >= 12106
                             RenderPipelines.GUI_TEXTURED,
                             //#elseif MC >= 12102
-                            //$$ RenderLayer::getGuiTextured,
+                            //$$ RenderType::guiTextured,
                             //#endif
                             this.sprites.get(this.isStateTriggered(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
                     RenderSystem.enableDepthTest();
@@ -304,7 +322,13 @@ public class RuleWidget {
             }
 
             @Override
-            public boolean mouseClicked(
+            public boolean
+            //#if MC>12101
+            mouseClicked
+            //#else
+            //$$ clicked
+            //#endif
+                    (
                     //#if MC < 12109
                     //$$ double mouseX, double mouseY
                     //#if MC >= 12103
