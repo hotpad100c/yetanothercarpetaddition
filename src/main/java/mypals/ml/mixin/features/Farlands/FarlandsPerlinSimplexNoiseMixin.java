@@ -21,16 +21,16 @@
 package mypals.ml.mixin.features.Farlands;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.util.math.noise.OctavePerlinNoiseSampler;
+import net.minecraft.world.level.levelgen.synth.PerlinNoise;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin({OctavePerlinNoiseSampler.class})
+@Mixin({PerlinNoise.class})
 public class FarlandsPerlinSimplexNoiseMixin {
     @Inject(
-            method = {"maintainPrecision"},
+            method = {"wrap"},
             at = {@At("TAIL")},
             cancellable = true
     )

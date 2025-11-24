@@ -22,15 +22,15 @@ package mypals.ml.mixin.features.updateLogger;
 
 import mypals.ml.features.updateAnylizer.UpdateLoggerHelper;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
+import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ChainRestrictedNeighborUpdater.SixWayEntry.class)
+@Mixin(CollectingNeighborUpdater.MultiNeighborUpdate.class)
 public class SixWayEntryMixin {
-    @Inject(method = "update", at = @At("HEAD"))
+    @Inject(method = "runNext", at = @At("HEAD"))
     private void onUpdate(CallbackInfoReturnable<Boolean> cir) {
         if (YetAnotherCarpetAdditionRules.updateCounter)
             UpdateLoggerHelper.incrementNC();

@@ -23,9 +23,9 @@ package mypals.ml.features.waypoint;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.level.storage.LevelResource;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -48,7 +48,7 @@ public class WaypointManager {
     }
 
     public static void init(MinecraftServer server) {
-        File worldDir = server.getSavePath(WorldSavePath.ROOT).toFile();
+        File worldDir = server.getWorldPath(LevelResource.ROOT).toFile();
         File configDir = new File(worldDir, "YACA");
         if (!configDir.exists()) {
             configDir.mkdirs();

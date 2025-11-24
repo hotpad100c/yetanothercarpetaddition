@@ -23,14 +23,14 @@ package mypals.ml.features.log2Chat;
 import carpet.CarpetServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.HoverEvent;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
-import net.minecraft.text.Text;
 import org.apache.logging.log4j.core.config.Property;
 
 import java.io.Serializable;
@@ -49,22 +49,22 @@ public class LogAppender extends AbstractAppender {
             String fqcn = event.getLoggerFqcn() != null ? event.getLoggerFqcn() : "Unknown";
             String message = event.getMessage().getFormattedMessage();
             if (message.contains("<L2C>")) return;
-            for (ServerPlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().getPlayerList()) {
-                Formatting color = event.getLevel() == Level.TRACE ? Formatting.GOLD :
-                        event.getLevel() == Level.DEBUG ? Formatting.LIGHT_PURPLE :
-                                event.getLevel() == Level.ERROR ? Formatting.RED :
-                                        event.getLevel() == Level.WARN ? Formatting.YELLOW :
-                                                Formatting.GRAY;
-                player.sendMessage(
-                        Text.literal("").append(Text.literal("<L2C>").formatted(Formatting.ITALIC).formatted(Formatting.GRAY))
-                                .append(Text.literal(message).formatted(color))
+            for (ServerPlayer player : CarpetServer.minecraft_server.getPlayerList().getPlayers()) {
+                ChatFormatting color = event.getLevel() == Level.TRACE ? ChatFormatting.GOLD :
+                        event.getLevel() == Level.DEBUG ? ChatFormatting.LIGHT_PURPLE :
+                                event.getLevel() == Level.ERROR ? ChatFormatting.RED :
+                                        event.getLevel() == Level.WARN ? ChatFormatting.YELLOW :
+                                                ChatFormatting.GRAY;
+                player.displayClientMessage(
+                        Component.literal("").append(Component.literal("<L2C>").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY))
+                                .append(Component.literal(message).withStyle(color))
 
-                                .styled(style -> style
+                                .withStyle(style -> style
                                         .withClickEvent(mypals.ml.utils.adapter.ClickEvent.copyToClipboard(context))
                                         .withHoverEvent(HoverEvent.showText(
-                                                Text.literal("")
-                                                        .append(Text.literal("Logger: " + event.getLoggerName() + "\n").formatted(Formatting.GOLD))
-                                                        .append(Text.literal("Level: " + event.getLevel() + "\n").formatted(color))
+                                                Component.literal("")
+                                                        .append(Component.literal("Logger: " + event.getLoggerName() + "\n").withStyle(ChatFormatting.GOLD))
+                                                        .append(Component.literal("Level: " + event.getLevel() + "\n").withStyle(color))
                                                         .append("Marker: " + marker + "\n")
                                                         .append("Thread: " + event.getThreadName() + "\n")
                                                         .append("Fqcn: " + fqcn + "\n")

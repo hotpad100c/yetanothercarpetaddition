@@ -20,8 +20,8 @@
 
 package mypals.ml;
 
-import mypals.ml.Screen.CountersViewer.CounterViewerScreen;
-import mypals.ml.Screen.RulesEditScreen.RulesEditScreen;
+import mypals.ml.screen.countersViewerScreen.CounterViewerScreen;
+import mypals.ml.screen.rulesEditScreen.RulesEditScreen;
 import mypals.ml.commands.HopperCounterRequestCommand;
 import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.network.OptionalFreezePayload;
@@ -35,26 +35,25 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.option.KeyBinding;
-import net.minecraft.client.util.InputUtil;
-import net.minecraft.text.Text;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
-//#if MC >= 12109
-//$$ import net.minecraft.util.Identifier;
-//#endif
-//#if MC < 12006
-//$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-//$$ import net.minecraft.network.PacketByteBuf;
-//#endif
+import com.mojang.blaze3d.platform.InputConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+//#if MC <= 12004
+//$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+//$$ import net.minecraft.network.FriendlyByteBuf;
+//#endif
+
 public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
-    public static KeyBinding carpetRulesKeyBind;
+    public static KeyMapping carpetRulesKeyBind;
     public static List<RuleData> chachedRules = new ArrayList<>();
     public static List<String> chachedCategories = new ArrayList<>();
     public static CopyOnWriteArrayList<String> defaultRules = new CopyOnWriteArrayList<>();
@@ -62,35 +61,31 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static SelectiveFreezeManager selectiveFreezeManager = new SelectiveFreezeManager();
     public boolean requesting = false;
     //#if MC >= 12109
-    //$$ private static final KeyBinding.Category YACA_CATEGORY = KeyBinding.Category.create(Identifier.of("yaca", "name"));
+    private static final KeyMapping.Category YACA_CATEGORY = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("yaca", "name"));
     //#endif
 
     @Override
+    @SuppressWarnings("resource")
     public void onInitializeClient() {
         YACAConfigManager.initializeConfig();
-        carpetRulesKeyBind = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+        carpetRulesKeyBind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 "key.carpetRulesKeyBind",
-                InputUtil.Type.KEYSYM,
+                InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_F8,
                 //#if MC >= 12109
-                //$$ YACA_CATEGORY
+                YACA_CATEGORY
                 //#else
-                "key.category.yaca.name"
+                //$$ "key.category.yaca.name"
                 //#endif
         ));
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (carpetRulesKeyBind.wasPressed()) {
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("Requesting rules now！")
-                        //#if MC >= 12102
-                        //$$ , false
-                        //#endif
-                );
-                String lang = client.getLanguageManager().getLanguage();
+            while (carpetRulesKeyBind.consumeClick()) {
+                String lang = client.getLanguageManager().getSelected();
                 //#if MC >= 12006
                 ClientPlayNetworking.send(new RequestRulesPayload(lang));
                 //#else
-                //$$ PacketByteBuf buf = PacketByteBufs.create();
-                //$$ ClientPlayNetworking.send(RequestRulesPayload.ID, buf.writeString(lang));
+                //$$ FriendlyByteBuf buf = PacketByteBufs.create();
+                //$$ ClientPlayNetworking.send(RequestRulesPayload.ID, buf.writeUtf(lang));
                 //#endif
                 requesting = true;
             }
@@ -152,7 +147,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
         ClientPlayNetworking.registerGlobalReceiver(RulesPacketPayload.ID,
                 //#if MC >= 12006
                 (payload, context) -> context.client().execute(() -> {
-                    MinecraftClient client = context.client();
+                    Minecraft client = context.client();
                 //#else
                 //$$ (client, player, buf, packetSender) -> client.execute(() -> {
                 //$$   RulesPacketPayload payload = new RulesPacketPayload(buf);
@@ -166,11 +161,6 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                     chachedCategories.addAll(chachedRules.stream()
                             .flatMap(r -> r.categories.stream())
                             .distinct().toList());
-                    client.player.sendMessage(Text.literal("Received " + chachedRules.size() + " rules from server！")
-                            //#if MC >= 12102
-                            //$$ , false
-                            //#endif
-                    );
                     requesting = false;
                     defaultRules.clear();
                     defaultRules.addAll(Arrays.stream(payload.defaults().split(";")).toList());
@@ -178,12 +168,12 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                     favoriteRules.clear();
                     favoriteRules.addAll(YACAConfigManager.readFavoriteRules());
 
-                    client.setScreen(new RulesEditScreen(Text.of("Carpet Rules")));
+                    client.setScreen(new RulesEditScreen(Component.nullToEmpty("Carpet Rules")));
                 }));
         ClientPlayNetworking.registerGlobalReceiver(CountersPacketPayload.ID,
                 //#if MC >= 12006
                 (payload, context) -> context.client().execute(() -> {
-                    MinecraftClient client = context.client();
+                    Minecraft client = context.client();
                 //#else
                 //$$ (client, player, buf, packetSender) -> client.execute(() -> {
                 //$$   CountersPacketPayload payload = new CountersPacketPayload(buf);

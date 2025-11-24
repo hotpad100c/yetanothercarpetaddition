@@ -26,10 +26,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.util.JsonHelper;
+import net.minecraft.util.GsonHelper;
 import org.apache.commons.io.IOUtils;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,7 +37,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 public class YACALanguageUtil {
     private static final Gson GSON = new Gson();
@@ -133,7 +131,7 @@ public class YACALanguageUtil {
                 JsonObject jsonObject = GSON.fromJson(jsonContent, JsonObject.class);
                 jsonObject.entrySet().forEach(entry -> {
                     if (!entry.getKey().startsWith("//")) {
-                        translations.putIfAbsent(entry.getKey(), JsonHelper.getString(jsonObject, entry.getKey(), entry.getKey()));
+                        translations.putIfAbsent(entry.getKey(), GsonHelper.getAsString(jsonObject, entry.getKey(), entry.getKey()));
                     }
                 });
             } else {
@@ -143,7 +141,7 @@ public class YACALanguageUtil {
                         JsonObject jsonObject = GSON.fromJson(jsonContent, JsonObject.class);
                         jsonObject.entrySet().forEach(entry -> {
                             if (!entry.getKey().startsWith("//")) {
-                                translations.putIfAbsent(entry.getKey(), JsonHelper.getString(jsonObject, entry.getKey(), entry.getKey()));
+                                translations.putIfAbsent(entry.getKey(), GsonHelper.getAsString(jsonObject, entry.getKey(), entry.getKey()));
                             }
                         });
                     }

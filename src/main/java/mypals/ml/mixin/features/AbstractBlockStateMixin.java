@@ -21,55 +21,55 @@
 package mypals.ml.mixin.features;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(AbstractBlock.AbstractBlockState.class)
+@Mixin(BlockBehaviour.BlockStateBase.class)
 public class AbstractBlockStateMixin {
     @Inject(
-            method = "onBlockAdded",
+            method = "onPlace",
             at = @At("HEAD"),
             cancellable = true
     )
-    private void onBlockAdded(World world, BlockPos pos, BlockState state, boolean notify, CallbackInfo ci) {
+    private void onBlockAdded(Level world, BlockPos pos, BlockState state, boolean notify, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.blocksNoSelfCheck) {
             ci.cancel();
         }
     }
 
     @Inject(
-            method = "prepare*",
+            method = "updateIndirectNeighbourShapes*",
             at = @At("HEAD"),
             cancellable = true
     )
-    public void prepare(WorldAccess world, BlockPos pos, int flags, CallbackInfo ci) {
+    public void prepare(LevelAccessor world, BlockPos pos, int flags, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.blocksNoSelfCheck) {
             ci.cancel();
         }
     }
 
     @Inject(
-            method = "shouldSuffocate",
+            method = "isSuffocating",
             at = @At("HEAD"),
             cancellable = true
     )
-    public void shouldSuffocate(BlockView world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
+    public void shouldSuffocate(BlockGetter world, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         if (YetAnotherCarpetAdditionRules.blocksNoSuffocate) {
             cir.setReturnValue(false);
         }
     }
 
     @Inject(
-            method = "hasBlockBreakParticles",
+            method = "shouldSpawnTerrainParticles",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -80,18 +80,18 @@ public class AbstractBlockStateMixin {
     }
 
     @Inject(
-            method = "getHardness",
+            method = "getDestroySpeed",
             at = @At("HEAD"),
             cancellable = true
     )
-    public void getHardness(BlockView world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
+    public void getHardness(BlockGetter world, BlockPos pos, CallbackInfoReturnable<Float> cir) {
         if (YetAnotherCarpetAdditionRules.blocksNoHardness) {
             cir.setReturnValue(0f);
         }
     }
 
     @Inject(
-            method = "canPlaceAt",
+            method = "canSurvive",
             at = @At("HEAD"),
             cancellable = true
     )

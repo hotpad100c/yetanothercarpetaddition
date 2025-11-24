@@ -20,12 +20,35 @@
 
 package mypals.ml.mixin.features.kExplosion;
 
-import mypals.ml.utils.DummyClass;
+import me.fallenbreath.conditionalmixin.api.annotation.Condition;
+import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
+import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import mypals.ml.utils.ModIds;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.ServerExplosion;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
-/**
- * the real mixin code is on version 1.21.6
- */
-@Mixin(DummyClass.class)
+@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = ">1.21.5"))
+@Mixin(ServerExplosion.class)
 public class ExplosionImplMixin {
+
+    @Shadow @Final private @Nullable Entity source;
+
+    @ModifyVariable(
+            method = "shouldAffectBlocklikeEntities",
+            at = @At(
+                    value = "STORE"
+            ),
+            ordinal = 1
+    )
+    public boolean preservesDecorativeEntities(boolean bl3) {
+        boolean bl2 = this.source == null || !this.source.isInWater();
+        return YetAnotherCarpetAdditionRules.waterTNT? bl2 && bl3 : bl3;
+    }
+
 }

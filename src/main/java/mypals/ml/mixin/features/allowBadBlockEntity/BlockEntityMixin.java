@@ -20,12 +20,9 @@
 
 package mypals.ml.mixin.features.allowBadBlockEntity;
 
-import me.fallenbreath.conditionalmixin.api.annotation.Condition;
-import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import mypals.ml.utils.ModIds;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,20 +33,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class BlockEntityMixin {
 
     //#if MC>=12101
-    @Inject(method = "validateSupports", at = @At("HEAD"), cancellable = true,require=0)
+    @Inject(method = "validateBlockState", at = @At("HEAD"), cancellable = true,require=0)
     private void allowInvalidBlockEntities(BlockState blockState, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.allowIllegalBlockEntities) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "supports", at = @At("HEAD"), cancellable = true,require=0)
+    @Inject(method = "isValidBlockState", at = @At("HEAD"), cancellable = true,require=0)
     private void supportsInvalidBlockEntities(BlockState state, CallbackInfoReturnable<Boolean> cir) {
         if (YetAnotherCarpetAdditionRules.allowIllegalBlockEntities) {
             cir.setReturnValue(true);
         }
     }
-    //#else
-    //$$
     //#endif
 }

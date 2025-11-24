@@ -22,8 +22,7 @@ package mypals.ml.mixin.features.noServerCrash;
 
 import com.mojang.logging.LogUtils;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.dedicated.DedicatedServerWatchdog;
+import net.minecraft.server.dedicated.ServerWatchdog;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -32,14 +31,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(DedicatedServerWatchdog.class)
+@Mixin(ServerWatchdog.class)
 public class WatchDogMixin {
     @Shadow
     @Final
     private static Logger LOGGER;
 
 
-    @Inject(method = "shutdown()V",
+    @Inject(method = "exit()V",
             at = @At(value = "HEAD"), cancellable = true)
     public void stopShutdown(CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.bypassCrashForcibly) {

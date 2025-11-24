@@ -26,7 +26,7 @@ configurations {
 dependencies {
 	// loom
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    mappings loom.officialMojangMappings()
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	modImplementation "carpet:fabric-carpet:${project.carpet_version}"
@@ -34,6 +34,9 @@ dependencies {
 	// dependencies
 	include(modImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
 	include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
+
+    // runtime
+    modRuntimeOnly "me.fallenbreath:mixin-auditor:0.1.0"
 }
 
 String MIXIN_CONFIG_PATH = 'yetanothercarpetaddition.mixins.json'
@@ -53,13 +56,28 @@ JavaVersion MIXIN_COMPATIBILITY_LEVEL = JAVA_COMPATIBILITY
 loom {
 	accessWidenerPath = file("YACA.accesswidener")
 
-	def commonVmArgs = ['-Dmixin.debug.export=true', '-Dmixin.debug.countInjections=false']
+	def commonVmArgs = ['-Dmixin.debug.export=true']
 	runConfigs.configureEach {
 		// to make sure it generates all "Minecraft Client (:subproject_name)" applications
 		ideConfigGenerated = true
 		runDir '../../run'
 		vmArgs commonVmArgs
 	}
+
+    runs {
+        def auditVmArgs = ['-DmixinAuditor.audit=true', '-Dmixin.debug.export=true']
+        serverMixinAudit {
+            server()
+            vmArgs auditVmArgs
+            ideConfigGenerated false
+        }
+
+        clientMixinAudit {
+            client()
+            vmArgs(*auditVmArgs, '-DmixinAuditor.when=game_init')
+            ideConfigGenerated false
+        }
+    }
 }
 
 String modVersionSuffix = ''

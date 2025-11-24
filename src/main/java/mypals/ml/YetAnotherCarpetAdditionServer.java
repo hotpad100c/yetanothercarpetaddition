@@ -33,10 +33,6 @@ import mypals.ml.features.log2Chat.LogAppender;
 import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.features.subscribeRules.RuleSubscribeManager;
 import mypals.ml.features.tickStepCounter.StepManager;
-import mypals.ml.features.visualizingFeatures.BlockEventVisualizing;
-import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
-import mypals.ml.features.visualizingFeatures.GameEventVisualizing;
-import mypals.ml.features.visualizingFeatures.RandomTickVisualizing;
 import mypals.ml.features.visualizingFeatures.*;
 import mypals.ml.features.waypoint.WaypointManager;
 import mypals.ml.network.OptionalFreezePayload;
@@ -52,19 +48,16 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
-//#if MC >= 12006
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
-//#endif
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.command.CommandRegistryAccess;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.WorldSavePath;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.poi.PointOfInterestType;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.village.poi.PoiType;
+import net.minecraft.world.level.storage.LevelResource;
+import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.config.Property;
 import org.apache.logging.log4j.core.layout.PatternLayout;
@@ -76,9 +69,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+
 //#if MC < 12006
 //$$ import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-//$$ import net.minecraft.network.PacketByteBuf;
+//$$ import net.minecraft.network.FriendlyByteBuf;
+//#else
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 //#endif
 
 import static mypals.ml.features.hopperCounterDataCollector.HopperCounterDataManager.initCounterManager;
@@ -104,7 +100,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final Set<String> VisualizerTags = new HashSet<>();
 
-    public static ServerWorld serverWorld = null;
+    public static ServerLevel serverWorld = null;
 
     static {
         allVisualizers.add(gameEventVisualizing);
@@ -162,6 +158,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     }
 
     @Override
+    @SuppressWarnings("resource")
     public void onInitialize() {
 
         setUpLogger();
@@ -184,15 +181,15 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         ServerTickEvents.END_WORLD_TICK.register((world) -> {
             FakePlayerControlManager.tickBinds(world);
             if (YetAnotherCarpetAdditionRules.POIVisualize) {
-                world.getServer().getPlayerManager().players.forEach(
+                world.getServer().getPlayerList().players.forEach(
                         player -> {
                             POIManage.getPOIsWithinRange(player, world,
                                             POIVisualizing.RANGE)
                                     .forEach(poi -> {
-                                        PointOfInterestType type = poi.getType().value();
-                                        Vec3d pos = poi.getPos().toCenterPos();
+                                        PoiType type = poi.getPoiType().value();
+                                        Vec3 pos = poi.getPos().getCenter();
                                         YetAnotherCarpetAdditionServer.poiVisualizing.setVisualizer(
-                                                player.getServerWorld(),
+                                                player.level(),
                                                 poi.getPos(),
                                                 pos,
                                                 poi
@@ -220,21 +217,21 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                 //#if MC >= 12006
                 (payload, context) -> context.server().execute(() -> {
                     String lang = payload.lang();
-                    ServerPlayerEntity player = context.player();
+                    ServerPlayer player = context.player();
                     //#else
                     //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
-                    //$$ String lang = buf.readString();
+                    //$$ String lang = buf.readUtf();
                     //#endif
-                    RulesPacketPayload rulesPacketPayload = new RulesPacketPayload(getRules(player.getServerWorld(), lang), getDefaults());
+                    RulesPacketPayload rulesPacketPayload = new RulesPacketPayload(getRules(player.level(), lang), getDefaults());
                     //#if MC >= 12006
                     ServerPlayNetworking.send(player, rulesPacketPayload);
                     //#else
-                    //$$ PacketByteBuf data = PacketByteBufs.create();
+                    //$$ FriendlyByteBuf data = PacketByteBufs.create();
                     //$$ data.writeCollection(
                     //$$         rulesPacketPayload.rules(),
                     //$$         (rulesBuffer, rule) -> rule.write(rulesBuffer)
                     //$$ );
-                    //$$ data.writeString(rulesPacketPayload.defaults());
+                    //$$ data.writeUtf(rulesPacketPayload.defaults());
                     //$$ ServerPlayNetworking.send(player, RulesPacketPayload.ID, data);
                     //#endif
                 })
@@ -242,7 +239,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         ServerPlayNetworking.registerGlobalReceiver(RequestCountersPayload.ID,
                 //#if MC >= 12006
                 (payload, context) -> context.server().execute(() -> {
-                    ServerPlayerEntity player = context.player();
+                    ServerPlayer player = context.player();
                     //#else
                     //$$ (server, player, handler, buf, responseSender) -> server.execute(() -> {
                     //#endif
@@ -255,14 +252,14 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                     //#if MC >= 12006
                     ServerPlayNetworking.send(player, countersPacketPayload);
                     //#else
-                    //$$ PacketByteBuf data = PacketByteBufs.create();
+                    //$$ FriendlyByteBuf data = PacketByteBufs.create();
                     //$$ data.writeMap(
                     //$$         countersPacketPayload.currentRecords(),
-                    //$$         PacketByteBuf::writeString,
+                    //$$         FriendlyByteBuf::writeUtf,
                     //$$         (countersBuffer, counters) -> countersBuffer.writeMap(
                     //$$                 counters,
-                    //$$                 PacketByteBuf::writeString,
-                    //$$                 PacketByteBuf::writeString
+                    //$$                 FriendlyByteBuf::writeUtf,
+                    //$$                 FriendlyByteBuf::writeUtf
                     //$$         )
                     //$$ );
                     //$$ ServerPlayNetworking.send(player, CountersPacketPayload.ID, data);
@@ -271,7 +268,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     }
 
     private Path getConfigFile() {
-        return CarpetServer.minecraft_server.getSavePath(WorldSavePath.ROOT).resolve(CarpetServer.settingsManager.identifier() + ".conf");
+        return CarpetServer.minecraft_server.getWorldPath(LevelResource.ROOT).resolve(CarpetServer.settingsManager.identifier() + ".conf");
     }
 
     private List<String> readSettingsFromConf(Path path) {
@@ -303,7 +300,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
         return defaults.toString();
     }
 
-    public List<RuleData> getRules(ServerWorld serverWorld, String lang) {
+    public List<RuleData> getRules(ServerLevel serverWorld, String lang) {
         List<RuleData> rules = new ArrayList<>();
 
         CarpetServer.settingsManager.getCarpetRules().forEach(rule -> {
@@ -349,8 +346,8 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
     }
 
     @Override
-    public void registerCommands(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess commandBuildContext) {
-        YetAnotherCarpetAdditionCommands.register(dispatcher, commandBuildContext, CommandManager.RegistrationEnvironment.DEDICATED);
+    public void registerCommands(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext commandBuildContext) {
+        YetAnotherCarpetAdditionCommands.register(dispatcher, commandBuildContext, Commands.CommandSelection.DEDICATED);
     }
 
     @Override

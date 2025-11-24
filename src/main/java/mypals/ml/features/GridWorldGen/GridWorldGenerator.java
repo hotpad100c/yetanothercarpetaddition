@@ -21,7 +21,7 @@
 package mypals.ml.features.GridWorldGen;
 
 
-import net.minecraft.block.Block;
+import net.minecraft.world.level.block.Block;
 
 public class GridWorldGenerator {
     /*public static final RegistryKey<WorldPreset> GRID = GridWorldGenerator.of("grid_world");

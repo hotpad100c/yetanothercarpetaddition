@@ -24,11 +24,11 @@ import carpet.logging.LoggerRegistry;
 import carpet.logging.logHelpers.TrajectoryLogHelper;
 import mypals.ml.features.betterCommands.TrajectoryLogHelperExtension;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.FallingBlockEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,13 +38,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class Carpet$FallingBlockEntityMixinOverride extends Entity {
     private TrajectoryLogHelper YACA$logHelper;
 
-    public Carpet$FallingBlockEntityMixinOverride(EntityType<? extends ProjectileEntity> entityType, World world) {
+    public Carpet$FallingBlockEntityMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V", at = @At("RETURN"))
-    private void addLogger(EntityType<? extends ProjectileEntity> entityType_1, World world_1, CallbackInfo ci) {
-        if (LoggerRegistry.__fallingBlocks && !world_1.isClient())
+    @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at = @At("RETURN"))
+    private void addLogger(EntityType<? extends Projectile> entityType_1, Level world_1, CallbackInfo ci) {
+        if (LoggerRegistry.__fallingBlocks && !world_1.isClientSide())
             YACA$logHelper = new TrajectoryLogHelper("fallingBlocks");
     }
 
@@ -53,7 +53,7 @@ public abstract class Carpet$FallingBlockEntityMixinOverride extends Entity {
         super.remove(arg);
         if (LoggerRegistry.__fallingBlocks && YACA$logHelper != null) {
             if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false"))
-                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getPos(), getVelocity());
+                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, position(), getDeltaMovement());
         }
     }
 }

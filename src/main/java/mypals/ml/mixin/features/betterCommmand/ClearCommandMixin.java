@@ -24,15 +24,15 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.DynamicCommandExceptionType;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.HoverEvent;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.command.ClearCommand;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.server.commands.ClearInventoryCommands;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -41,34 +41,34 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.*;
 import java.util.function.Predicate;
 
-@Mixin(ClearCommand.class)
+@Mixin(ClearInventoryCommands.class)
 public class ClearCommandMixin {
     private static final DynamicCommandExceptionType FAILED_SINGLE_EXCEPTION = new DynamicCommandExceptionType(
-            playerName -> Text.stringifiedTranslatable("clear.failed.single", playerName)
+            playerName -> Component.translatableEscape("clear.failed.single", playerName)
     );
     private static final DynamicCommandExceptionType FAILED_MULTIPLE_EXCEPTION = new DynamicCommandExceptionType(
-            playerCount -> Text.stringifiedTranslatable("clear.failed.multiple", playerCount)
+            playerCount -> Component.translatableEscape("clear.failed.multiple", playerCount)
     );
     private static final ThreadLocal<List<ItemStack>> REMOVED_ITEMS = ThreadLocal.withInitial(ArrayList::new);
 
     @Inject(
-            method = "execute(Lnet/minecraft/server/command/ServerCommandSource;Ljava/util/Collection;Ljava/util/function/Predicate;I)I",
+            method = "clearInventory(Lnet/minecraft/commands/CommandSourceStack;Ljava/util/Collection;Ljava/util/function/Predicate;I)I",
             at = @At("HEAD"),
             cancellable = true
     )
-    private static void onExecute(ServerCommandSource source, Collection<ServerPlayerEntity> targets, Predicate<ItemStack> item, int maxCount, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
-        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isExecutedByPlayer())) {
+    private static void onExecute(CommandSourceStack source, Collection<ServerPlayer> targets, Predicate<ItemStack> item, int maxCount, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException {
+        if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") || (YetAnotherCarpetAdditionRules.commandEnhance.equals("player") && !source.isPlayer())) {
             return;
         }
 
         List<ItemStack> removedItems = new ArrayList<>();
         int totalRemoved = 0;
 
-        for (ServerPlayerEntity player : targets) {
-            PlayerInventory inventory = player.getInventory();
+        for (ServerPlayer player : targets) {
+            Inventory inventory = player.getInventory();
             totalRemoved += removeItemsWithTracking(inventory, item, maxCount, removedItems);
-            player.currentScreenHandler.sendContentUpdates();
-            player.playerScreenHandler.onContentChanged(inventory);
+            player.containerMenu.broadcastChanges();
+            player.inventoryMenu.slotsChanged(inventory);
         }
 
         REMOVED_ITEMS.set(removedItems);
@@ -83,15 +83,15 @@ public class ClearCommandMixin {
             int finalTotal = totalRemoved;
             if (maxCount == 0) {
                 if (targets.size() == 1) {
-                    source.sendFeedback(() -> createFeedbackWithTooltip("commands.clear.test.single", finalTotal, targets.iterator().next().getDisplayName(), removedItems), true);
+                    source.sendSuccess(() -> createFeedbackWithTooltip("commands.clear.test.single", finalTotal, targets.iterator().next().getDisplayName(), removedItems), true);
                 } else {
-                    source.sendFeedback(() -> createFeedbackWithTooltip("commands.clear.test.multiple", finalTotal, targets.size(), removedItems), true);
+                    source.sendSuccess(() -> createFeedbackWithTooltip("commands.clear.test.multiple", finalTotal, targets.size(), removedItems), true);
                 }
             } else {
                 if (targets.size() == 1) {
-                    source.sendFeedback(() -> createFeedbackWithTooltip("commands.clear.success.single", finalTotal, targets.iterator().next().getDisplayName(), removedItems), true);
+                    source.sendSuccess(() -> createFeedbackWithTooltip("commands.clear.success.single", finalTotal, targets.iterator().next().getDisplayName(), removedItems), true);
                 } else {
-                    source.sendFeedback(() -> createFeedbackWithTooltip("commands.clear.success.multiple", finalTotal, targets.size(), removedItems), true);
+                    source.sendSuccess(() -> createFeedbackWithTooltip("commands.clear.success.multiple", finalTotal, targets.size(), removedItems), true);
                 }
             }
 
@@ -101,11 +101,11 @@ public class ClearCommandMixin {
     }
 
     //remove and collect
-    private static int removeItemsWithTracking(PlayerInventory inventory, Predicate<ItemStack> item, int maxCount, List<ItemStack> removedItems) {
+    private static int removeItemsWithTracking(Inventory inventory, Predicate<ItemStack> item, int maxCount, List<ItemStack> removedItems) {
         int removedCount = 0;
 
-        for (int i = 0; i < inventory.size() && (maxCount == -1 || removedCount < maxCount); ++i) {
-            ItemStack stack = inventory.getStack(i);
+        for (int i = 0; i < inventory.getContainerSize() && (maxCount == -1 || removedCount < maxCount); ++i) {
+            ItemStack stack = inventory.getItem(i);
             if (!stack.isEmpty() && item.test(stack)) {
                 int countToRemove = maxCount == -1 ? stack.getCount() : Math.min(maxCount - removedCount, stack.getCount());
                 if (countToRemove > 0) {
@@ -120,9 +120,9 @@ public class ClearCommandMixin {
     }
 
     // tooltip
-    private static MutableText createFeedbackWithTooltip(String translationKey, int count, Object arg, List<ItemStack> removedItems) {
-        MutableText baseText = Text.translatable(translationKey, count, arg);
-        MutableText tooltip = Text.literal("");
+    private static MutableComponent createFeedbackWithTooltip(String translationKey, int count, Object arg, List<ItemStack> removedItems) {
+        MutableComponent baseText = Component.translatable(translationKey, count, arg);
+        MutableComponent tooltip = Component.literal("");
 
         // merge
         Map<Item, Integer> itemCounts = new HashMap<>();
@@ -132,7 +132,7 @@ public class ClearCommandMixin {
 
         for (Map.Entry<Item, Integer> entry : itemCounts.entrySet()) {
             ItemStack representativeStack = new ItemStack(entry.getKey(), 1);
-            tooltip.append(Text.literal("- ").append(representativeStack.getName()).append(" x" + entry.getValue() + "\n"));
+            tooltip.append(Component.literal("- ").append(representativeStack.getHoverName()).append(" x" + entry.getValue() + "\n"));
         }
 
         return baseText.setStyle(Style.EMPTY.withHoverEvent(HoverEvent.showText(tooltip)));

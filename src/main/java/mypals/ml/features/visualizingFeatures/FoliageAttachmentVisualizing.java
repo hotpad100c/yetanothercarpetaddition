@@ -22,60 +22,60 @@ package mypals.ml.features.visualizingFeatures;
 
 import carpet.CarpetServer;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtHelper;
-import net.minecraft.scoreboard.Scoreboard;
-import net.minecraft.scoreboard.Team;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.scores.PlayerTeam;
+import net.minecraft.world.scores.Scoreboard;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<BlockPos, DisplayEntity.BlockDisplayEntity> {
-    public static ConcurrentHashMap<BlockPos, Map.Entry<DisplayEntity.BlockDisplayEntity, Long>> visualizers = new ConcurrentHashMap<>();
+public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<BlockPos, Display.BlockDisplay> {
+    public static ConcurrentHashMap<BlockPos, Map.Entry<Display.BlockDisplay, Long>> visualizers = new ConcurrentHashMap<>();
     public static int SURVIVE_TIME = 40;
     public static int RANGE = 40;
 
-    public void setVisualizer(World world, BlockPos pos) {
+    public void setVisualizer(Level world, BlockPos pos) {
         boolean playersNearBy = false;
-        for (PlayerEntity player : CarpetServer.minecraft_server.getPlayerManager().players) {
-            if (player.getPos().distanceTo(pos.toCenterPos()) < RANGE) {
+        for (Player player : CarpetServer.minecraft_server.getPlayerList().players) {
+            if (player.position().distanceTo(pos.getCenter()) < RANGE) {
                 playersNearBy = true;
                 break;
             }
         }
 
         if (!playersNearBy) return;
-        this.setVisualizer((ServerWorld) world, pos, pos.toCenterPos(), null);
+        this.setVisualizer((ServerLevel) world, pos, pos.getCenter(), null);
     }
 
-    private static void addMarkerToTeam(ServerWorld world, String teamName, DisplayEntity.BlockDisplayEntity marker) {
+    private static void addMarkerToTeam(ServerLevel world, String teamName, Display.BlockDisplay marker) {
         Scoreboard scoreboard = world.getScoreboard();
-        Team team = scoreboard.getTeam(teamName);
+        PlayerTeam team = scoreboard.getPlayerTeam(teamName);
         if (team == null) {
-            team = scoreboard.addTeam(teamName);
+            team = scoreboard.addPlayerTeam(teamName);
 
-            team.setColor(Formatting.RED);
+            team.setColor(ChatFormatting.RED);
         }
-        String entityName = marker.getUuidAsString();
-        scoreboard.addScoreHolderToTeam(entityName, team);
+        String entityName = marker.getStringUUID();
+        scoreboard.addPlayerToTeam(entityName, team);
     }
 
 
     @Override
+    @SuppressWarnings("resource")
     public void updateVisualizer() {
         visualizers.forEach((pos, entry) -> {
-            DisplayEntity.BlockDisplayEntity object = entry.getKey();
+            Display.BlockDisplay object = entry.getKey();
             long time = entry.getValue();
-            if (time < object.getWorld().getTime()) {
+            if (time < object.level().getGameTime()) {
                 removeVisualizer(pos);
                 visualizers.remove(pos);
             }
@@ -83,43 +83,43 @@ public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<Blo
     }
 
     @Override
-    protected void storeVisualizer(BlockPos key, DisplayEntity.BlockDisplayEntity entity) {
-        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerWorld) entity.getWorld())));
+    protected void storeVisualizer(BlockPos key, Display.BlockDisplay entity) {
+        visualizers.put(key, Map.entry(entity, getDeleteTick(SURVIVE_TIME, (ServerLevel) entity.level())));
     }
 
     @Override
-    protected void updateVisualizerEntity(DisplayEntity.BlockDisplayEntity marker, Object data) {
+    protected void updateVisualizerEntity(Display.BlockDisplay marker, Object data) {
     }
 
     @Override
-    protected DisplayEntity.BlockDisplayEntity createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
-        DisplayEntity.BlockDisplayEntity entity = new DisplayEntity.BlockDisplayEntity(EntityType.BLOCK_DISPLAY, world);
+    protected Display.BlockDisplay createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
+        Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, world);
         entity.setNoGravity(true);
 
-        NbtCompound nbt = NBTDataManager.readFromEntity(entity, new NbtCompound());
-        nbt.put("block_state", NbtHelper.fromBlockState(Blocks.RED_STAINED_GLASS.getDefaultState()));
+        CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
+        nbt.put("block_state", NbtUtils.writeBlockState(Blocks.RED_STAINED_GLASS.defaultBlockState()));
         float scale = 0.9f;
         nbt = EntityHelper.scaleEntity(nbt, scale);
         nbt.putInt("glow_color_override", 0xFF0000);
         NBTDataManager.writeToEntity(entity, nbt);
         entity.setInvisible(true);
         entity.setInvulnerable(true);
-        entity.setGlowing(true);
-        entity.noClip = true;
-        entity.setYaw(0);
-        entity.setPos(pos.getX() - (scale / 2), pos.getY() - (scale / 2), pos.getZ() - (scale / 2));
-        entity.addCommandTag(getVisualizerTag());
-        entity.addCommandTag("DoNotTick");
-        if (!world.isClient()) {
+        entity.setGlowingTag(true);
+        entity.noPhysics = true;
+        entity.setYRot(0);
+        entity.setPosRaw(pos.x() - (scale / 2), pos.y() - (scale / 2), pos.z() - (scale / 2));
+        entity.addTag(getVisualizerTag());
+        entity.addTag("DoNotTick");
+        if (!world.isClientSide()) {
             addMarkerToTeam(world, "foliageAttachmentVisualizerTeam", entity);
         }
-        world.spawnEntity(entity);
+        world.addFreshEntity(entity);
         return entity;
     }
 
     @Override
     protected void removeVisualizerEntity(BlockPos key) {
-        Map.Entry<DisplayEntity.BlockDisplayEntity, Long> entry = visualizers.get(key);
+        Map.Entry<Display.BlockDisplay, Long> entry = visualizers.get(key);
         if (entry != null) {
             entry.getKey().discard();
             visualizers.remove(key);
@@ -132,7 +132,7 @@ public class FoliageAttachmentVisualizing extends AbstractVisualizingManager<Blo
     }
 
     @Override
-    protected DisplayEntity.BlockDisplayEntity getVisualizer(BlockPos key) {
+    protected Display.BlockDisplay getVisualizer(BlockPos key) {
         return visualizers.get(key) == null ? null : visualizers.get(key).getKey();
     }
 

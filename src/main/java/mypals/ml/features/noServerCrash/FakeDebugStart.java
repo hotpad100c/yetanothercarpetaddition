@@ -21,15 +21,9 @@
 package mypals.ml.features.noServerCrash;
 
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.profiler.ProfileResult;
-import net.minecraft.util.profiler.ProfilerTiming;
-
-import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
 
 public class FakeDebugStart {
-    public static class DebugStart extends MinecraftServer.DebugStart {
+    public static class DebugStart extends MinecraftServer.TimeProfiler {
         public DebugStart(long time, int tick) {
             super(time, tick);
         }

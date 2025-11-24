@@ -21,7 +21,7 @@
 package mypals.ml.mixin.features.morphMovingPiston;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.minecraft.block.entity.PistonBlockEntity;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -29,18 +29,18 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import static mypals.ml.settings.YetAnotherCarpetAdditionRules.movingPistonSpeed;
 
 //@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.2"))
-@Mixin(PistonBlockEntity.class)
+@Mixin(PistonMovingBlockEntity.class)
 public abstract class PistonBlockEntityMixin {
 
     @ModifyVariable(
-            method = "tick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;Lnet/minecraft/block/entity/PistonBlockEntity;)V",
+            method = "tick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/block/piston/PistonMovingBlockEntity;)V",
             at = @At(
                     value = "STORE",
                     target = "Lnet/minecraft/block/piston/PistonBlockEntity;progress:F"
             ),
             ordinal = 0
     )
-    private static float modifyPistonSpeed(float f, @Local(argsOnly = true) PistonBlockEntity blockEntity) {
+    private static float modifyPistonSpeed(float f, @Local(argsOnly = true) PistonMovingBlockEntity blockEntity) {
 
         return blockEntity.getProgress(0) + movingPistonSpeed;
     }

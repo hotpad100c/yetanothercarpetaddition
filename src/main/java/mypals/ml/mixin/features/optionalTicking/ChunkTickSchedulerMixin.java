@@ -20,10 +20,9 @@
 
 package mypals.ml.mixin.features.optionalTicking;
 
-import net.minecraft.world.tick.ChunkTickScheduler;
-import net.minecraft.world.tick.WorldTickScheduler;
+import net.minecraft.world.ticks.LevelTicks;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(WorldTickScheduler.class)
+@Mixin(LevelTicks.class)
 public class ChunkTickSchedulerMixin {
 }

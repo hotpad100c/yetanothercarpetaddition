@@ -24,94 +24,81 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import mypals.ml.features.selectiveFreeze.SelectiveFreezeManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerChunkManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.world.EntityList;
-import net.minecraft.world.MutableWorldProperties;
-import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.tick.OrderedTick;
-import net.minecraft.world.tick.TickManager;
-import net.minecraft.world.tick.WorldTickScheduler;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.TickRateManager;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.entity.EntityTickList;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.ticks.LevelTicks;
+import net.minecraft.world.ticks.ScheduledTick;
 import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-//#if MC >= 12102
-//$$ import net.minecraft.util.profiler.Profilers;
-//#endif
 
-import java.util.HashSet;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-@Mixin(ServerWorld.class)
-public abstract class ServerWorldMixin extends World {
+@Mixin(ServerLevel.class)
+public abstract class ServerWorldMixin extends Level {
     @Shadow
     @Final
-    private EntityList entityList;
+    private EntityTickList entityTickList;
 
-    protected ServerWorldMixin(MutableWorldProperties properties, RegistryKey<World> registryRef, DynamicRegistryManager registryManager, RegistryEntry<DimensionType> dimensionEntry, Supplier<Profiler> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
+    protected ServerWorldMixin(WritableLevelData properties, ResourceKey<Level> registryRef, RegistryAccess registryManager, Holder<DimensionType> dimensionEntry, Supplier<ProfilerFiller> profiler, boolean isClient, boolean debugWorld, long biomeAccess, int maxChainedNeighborUpdates) {
         super(properties, registryRef, registryManager, dimensionEntry,
                 //#if MC <12102
-                profiler,
+                //$$ profiler,
                 //#endif
                 isClient, debugWorld, biomeAccess, maxChainedNeighborUpdates);
     }
 
-    //#if MC < 12102
     @Shadow
-    protected abstract boolean shouldCancelSpawn(Entity entity);
-    //#endif
-
-    @Shadow
-    public abstract TickManager getTickManager();
+    public abstract TickRateManager tickRateManager();
 
     @Shadow
     @Final
-    private ServerChunkManager chunkManager;
+    private ServerChunkCache chunkSource;
 
     @Shadow
     protected abstract void tickPassenger(Entity vehicle, Entity passenger);
 
     @Shadow
     @Final
-    private WorldTickScheduler<Fluid> fluidTickScheduler;
+    private LevelTicks<Fluid> fluidTicks;
 
     @Shadow
     @Final
-    private WorldTickScheduler<Block> blockTickScheduler;
+    private LevelTicks<Block> blockTicks;
 
     @Shadow
     @NotNull
     public abstract MinecraftServer getServer();
 
     @Inject(
-            method = "tickWeather",
+            method = "advanceWeatherCycle",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -122,7 +109,7 @@ public abstract class ServerWorldMixin extends World {
     }
 
     @Inject(
-            method = "tickBlock(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/Block;)V",
+            method = "tickBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/Block;)V",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -144,23 +131,23 @@ public abstract class ServerWorldMixin extends World {
     }
 
     @Inject(
-            method = "tickEntity",
+            method = "tickNonPassenger",
             at = @At("HEAD"),
             cancellable = true
     )
     private void tickEntity(Entity entity, CallbackInfo ci) {
-        if ((YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) && !(entity instanceof PlayerEntity)) {
+        if ((YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) && !(entity instanceof Player)) {
             ci.cancel();
         }
-        if (entity.getCommandTags().contains("DoNotTick")) {
+        if (entity.getTags().contains("DoNotTick")) {
             ci.cancel();
         }
     }
 
-    @WrapOperation(method = "tickEntity",
-            at = @At(target = "Lnet/minecraft/entity/Entity;tick()V", value = "INVOKE"))
+    @WrapOperation(method = "tickNonPassenger",
+            at = @At(target = "Lnet/minecraft/world/entity/Entity;tick()V", value = "INVOKE"))
     private void tick(Entity instance, Operation<Void> original) {
-        if (!instance.getCommandTags().contains("DoNotTick")) {
+        if (!instance.getTags().contains("DoNotTick")) {
             original.call(instance);
         }
     }
@@ -177,7 +164,7 @@ public abstract class ServerWorldMixin extends World {
     }
 
     @Inject(
-            method = "tickSpawners",
+            method = "tickCustomSpawners",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -188,7 +175,7 @@ public abstract class ServerWorldMixin extends World {
     }
 
     @Inject(
-            method = "processSyncedBlockEvents",
+            method = "runBlockEvents",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -202,10 +189,10 @@ public abstract class ServerWorldMixin extends World {
             method = "tickChunk",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/BlockState;randomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    target = "Lnet/minecraft/world/level/block/state/BlockState;randomTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"
             )
     )
-    private void wrapRandomTick(BlockState instance, ServerWorld serverWorld, BlockPos blockPos, Random random, Operation<Void> original) {
+    private void wrapRandomTick(BlockState instance, ServerLevel serverWorld, BlockPos blockPos, RandomSource random, Operation<Void> original) {
         if (!YetAnotherCarpetAdditionRules.stopTickingBlocks || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks) {
             original.call(instance, serverWorld, blockPos, random);
         }
@@ -216,19 +203,19 @@ public abstract class ServerWorldMixin extends World {
             at = @At(
                     value = "INVOKE",
                     //#if MC < 12102
-                    target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    //$$ target = "Lnet/minecraft/world/level/material/FluidState;randomTick(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"
                     //#else
-                    //$$ target = "Lnet/minecraft/fluid/FluidState;onRandomTick(Lnet/minecraft/server/world/ServerWorld;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/random/Random;)V"
+                    target = "Lnet/minecraft/world/level/material/FluidState;randomTick(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V"
                     //#endif
             )
     )
     private void wrapFluidRandomTick(FluidState instance,
                                      //#if MC < 12102
-                                     World world,
+                                     //$$ Level world,
                                      //#else
-                                     //$$ ServerWorld world,
+                                     ServerLevel world,
                                      //#endif
-                                     BlockPos pos, Random random, Operation<Void> original) {
+                                     BlockPos pos, RandomSource random, Operation<Void> original) {
         if (!YetAnotherCarpetAdditionRules.stopTickingFluids || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids) {
             original.call(instance, world, pos, random);
         }
@@ -238,53 +225,53 @@ public abstract class ServerWorldMixin extends World {
             method = "tickChunk",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;tickIceAndSnow(Lnet/minecraft/util/math/BlockPos;)V"
+                    target = "Lnet/minecraft/server/level/ServerLevel;tickPrecipitation(Lnet/minecraft/core/BlockPos;)V"
             )
     )
-    private void wrapIceAndSnowTick(ServerWorld instance, BlockPos pos, Operation<Void> original) {
+    private void wrapIceAndSnowTick(ServerLevel instance, BlockPos pos, Operation<Void> original) {
         if (!YetAnotherCarpetAdditionRules.stopTickingBlocks || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks) {
             original.call(instance, pos);
         }
     }
 
     //#if MC >= 12105
-    //$$ @Inject(method = "tickThunder", at = @At("HEAD"), cancellable = true)
-    //$$ private void wrapLightningAndSkeletonHorseEntitySpawn(CallbackInfo ci) {
-    //$$     if (YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionRules.stopTickingWeather) {
-    //$$         ci.cancel();
-    //$$     }
-    //$$ }
+    @Inject(method = "tickThunder", at = @At("HEAD"), cancellable = true)
+    private void wrapLightningAndSkeletonHorseEntitySpawn(CallbackInfo ci) {
+        if (YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionRules.stopTickingWeather) {
+            ci.cancel();
+        }
+    }
     //#else
-    @WrapOperation(
-            method = "tickChunk",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
-                    ordinal = 0
-            )
-    )
-    private boolean wrapLightningSpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingEntities || !YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
-            original.call(instance, entity);
-        }
-        return false;
-    }
-
-    @WrapOperation(
-            method = "tickChunk",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;spawnEntity(Lnet/minecraft/entity/Entity;)Z",
-                    ordinal = 1
-            )
-    )
-    private boolean wrapSkeletonHorseEntitySpawn(ServerWorld instance, Entity entity, Operation<Boolean> original) {
-        if (!YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
-            original.call(instance, entity);
-        }
-        return false;
-    }
-
+    //$$ @WrapOperation(
+    //$$         method = "tickChunk",
+    //$$         at = @At(
+    //$$                 value = "INVOKE",
+    //$$                 target = "Lnet/minecraft/server/level/ServerLevel;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z",
+    //$$                 ordinal = 0
+    //$$         )
+    //$$ )
+    //$$ private boolean wrapLightningSpawn(ServerLevel instance, Entity entity, Operation<Boolean> original) {
+    //$$     if (!YetAnotherCarpetAdditionRules.stopTickingEntities || !YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
+    //$$         original.call(instance, entity);
+    //$$     }
+    //$$     return false;
+    //$$ }
+    //$$
+    //$$ @WrapOperation(
+    //$$         method = "tickChunk",
+    //$$         at = @At(
+    //$$                 value = "INVOKE",
+    //$$                 target = "Lnet/minecraft/server/level/ServerLevel;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z",
+    //$$                 ordinal = 1
+    //$$         )
+    //$$ )
+    //$$ private boolean wrapSkeletonHorseEntitySpawn(ServerLevel instance, Entity entity, Operation<Boolean> original) {
+    //$$     if (!YetAnotherCarpetAdditionRules.stopTickingWeather || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingWeather) {
+    //$$         original.call(instance, entity);
+    //$$     }
+    //$$     return false;
+    //$$ }
+    //$$
     //#endif
     @Inject(
             method = "tick",
@@ -293,16 +280,15 @@ public abstract class ServerWorldMixin extends World {
     )
     private void tick(BooleanSupplier shouldKeepTicking, CallbackInfo ci) {
         YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.globalOrder = 0;
-        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick
-                || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks
-                || YetAnotherCarpetAdditionRules.stopTickingBlocks
-                && blockTickScheduler.chunkTickSchedulers.values() != null
+        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick ||
+                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileBlocks ||
+                YetAnotherCarpetAdditionRules.stopTickingBlocks
         ) {
-            blockTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
-                Queue<OrderedTick<Block>> queuedTick = chunkTickScheduler.tickQueue;
-                Queue<OrderedTick<Block>> newQueuedTick = new PriorityQueue(OrderedTick.TRIGGER_TICK_COMPARATOR);
+            blockTicks.allContainers.values().forEach(chunkTickScheduler -> {
+                Queue<ScheduledTick<Block>> queuedTick = chunkTickScheduler.tickQueue;
+                Queue<ScheduledTick<Block>> newQueuedTick = new PriorityQueue(ScheduledTick.DRAIN_ORDER);
                 queuedTick.forEach(orderedTick -> {
-                    newQueuedTick.add(new OrderedTick(
+                    newQueuedTick.add(new ScheduledTick<>(
                             orderedTick.type(),
                             orderedTick.pos(),
                             orderedTick.triggerTick() + 1,
@@ -317,16 +303,15 @@ public abstract class ServerWorldMixin extends World {
 
             });
         }
-        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick
-                || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids
-                || YetAnotherCarpetAdditionRules.stopTickingFluids
-                && blockTickScheduler.chunkTickSchedulers.values() != null
+        if (YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileTick ||
+                YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingTileFluids ||
+                YetAnotherCarpetAdditionRules.stopTickingFluids
         ) {
-            fluidTickScheduler.chunkTickSchedulers.values().forEach(chunkTickScheduler -> {
-                Queue<OrderedTick<Fluid>> queuedTick = chunkTickScheduler.tickQueue;
-                Queue<OrderedTick<Fluid>> newQueuedTick = new PriorityQueue(OrderedTick.TRIGGER_TICK_COMPARATOR);
+            fluidTicks.allContainers.values().forEach(chunkTickScheduler -> {
+                Queue<ScheduledTick<Fluid>> queuedTick = chunkTickScheduler.tickQueue;
+                Queue<ScheduledTick<Fluid>> newQueuedTick = new PriorityQueue(ScheduledTick.DRAIN_ORDER);
                 queuedTick.forEach(orderedTick -> {
-                    newQueuedTick.add(new OrderedTick(
+                    newQueuedTick.add(new ScheduledTick<>(
                             orderedTick.type(),
                             orderedTick.pos(),
                             orderedTick.triggerTick() + 2,
@@ -341,49 +326,15 @@ public abstract class ServerWorldMixin extends World {
             });
         }
     }
-
-    private static float targetAInterval = 1000.0f / SelectiveFreezeManager.entitiesTickSpeed;
-    private static float accumulatedTime = 0.0f;
-    private static long lastTickTime = System.nanoTime();
-
-    @WrapOperation(
-            method = "tick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/EntityList;forEach(Ljava/util/function/Consumer;)V"
-            )
-    )
-    private void wrapEntityTicking(EntityList instance, Consumer<Entity> action, Operation<Void> original, @Local Profiler profiler) {
-        /*long currentTime = System.nanoTime();
-        float deltaTime = (currentTime - lastTickTime) / 1_000_000.0f;
-        accumulatedTime += deltaTime;
-        lastTickTime = currentTime;
-        targetAInterval = 1000.0f / SelectiveFreezeManager.entitiesTickSpeed;
-        if (SelectiveFreezeManager.entitiesTickSpeed <= this.getServer().getTickManager().getTickRate()) {
-            if (accumulatedTime >= targetAInterval) {
-                entityTicking(instance, action, original, profiler);
-                accumulatedTime -= targetAInterval;
-            }
-        } else {
-            int ticks = (int) (accumulatedTime / targetAInterval);
-            for (int i = 0; i < ticks; i++) {
-                entityTicking(instance, action, original, profiler);
-            }
-            accumulatedTime -= ticks * targetAInterval;
-        }*/
-        original.call(instance, action);
-        //entityTicking(instance, action, original, profiler);
-    }
-
     @WrapOperation(
             method = "method_31420",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/world/ServerWorld;tickEntity(Ljava/util/function/Consumer;Lnet/minecraft/entity/Entity;)V"
+                    target = "Lnet/minecraft/server/level/ServerLevel;guardEntityTick(Ljava/util/function/Consumer;Lnet/minecraft/world/entity/Entity;)V"
             )
     )
-    private void entityTicking(ServerWorld instance, Consumer consumer, Entity entity, Operation<Void> original, @Local Profiler profiler) {
-        if (!(YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) || entity instanceof PlayerEntity) {
+    private void entityTicking(ServerLevel instance, Consumer consumer, Entity entity, Operation<Void> original, @Local ProfilerFiller profiler) {
+        if (!(YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) || entity instanceof Player) {
             original.call(instance, consumer, entity);
         }
     }
@@ -392,36 +343,12 @@ public abstract class ServerWorldMixin extends World {
             method = "method_31420",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/Entity;checkDespawn()V"
+                    target = "Lnet/minecraft/world/entity/Entity;checkDespawn()V"
             )
     )
-    private void entityDespawn(Entity instance, Operation<Void> original, @Local Profiler profiler) {
+    private void entityDespawn(Entity instance, Operation<Void> original, @Local ProfilerFiller profiler) {
         if (!YetAnotherCarpetAdditionRules.stopCheckEntityDespawn || !YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopCheckEntityDespawn) {
             instance.checkDespawn();
         }
     }
-
-    @Unique
-    public void tickEntity(Entity entity) {
-        if ((YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) && !(entity instanceof PlayerEntity)) {
-            return;
-        }
-        entity.resetPosition();
-        Profiler profiler =
-                //#if MC < 12102
-                this.getProfiler();
-        //#else
-        //$$ Profilers.get();
-        //#endif
-        entity.age++;
-        profiler.push((Supplier<String>) (() -> Registries.ENTITY_TYPE.getId(entity.getType()).toString()));
-        profiler.visit("tickNonPassenger");
-        entity.tick();
-        profiler.pop();
-
-        for (Entity entity2 : entity.getPassengerList()) {
-            this.tickPassenger(entity, entity2);
-        }
-    }
-
 }

@@ -21,33 +21,33 @@
 package mypals.ml.mixin.features.subscribeRules;
 
 import mypals.ml.features.subscribeRules.RuleSubscribeManager;
-import net.minecraft.network.packet.Packet;
-import net.minecraft.network.packet.s2c.play.PlayerListHeaderS2CPacket;
-import net.minecraft.server.PlayerManager;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundTabListPacket;
+import net.minecraft.server.players.PlayerList;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(PlayerManager.class)
+@Mixin(PlayerList.class)
 public abstract class PlayerManagerMixin {
     @Shadow
-    public abstract void sendToAll(Packet<?> packet);
+    public abstract void broadcastAll(Packet<?> packet);
 
-    @Inject(at = @At("HEAD"), method = "updatePlayerLatency")
+    @Inject(at = @At("HEAD"), method = "tick")
     public void updatePlayerLatency(CallbackInfo ci) {
-        MutableText multitext = Text.empty();
+        MutableComponent multitext = Component.empty();
         RuleSubscribeManager.subscribed.forEach((name, rule) -> {
-            Formatting valColor = rule.value() == rule.defaultValue() ? Formatting.GRAY : Formatting.GOLD;
-            multitext.append(name).append(Text.literal(rule.value() + "\n").formatted(valColor));
+            ChatFormatting valColor = rule.value() == rule.defaultValue() ? ChatFormatting.GRAY : ChatFormatting.GOLD;
+            multitext.append(name).append(Component.literal(rule.value() + "\n").withStyle(valColor));
         });
         if (!RuleSubscribeManager.subscribed.isEmpty())
-            this.sendToAll(new PlayerListHeaderS2CPacket(
-                    Text.empty(),
+            this.broadcastAll(new ClientboundTabListPacket(
+                    Component.empty(),
                     multitext
             ));
     }

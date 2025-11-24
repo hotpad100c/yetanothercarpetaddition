@@ -22,19 +22,19 @@ package mypals.ml.mixin.features.bypassRideRestriction;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.PlayerManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.stream.Stream;
+import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 
-@Mixin(PlayerManager.class)
+@Mixin(PlayerList.class)
 public class PlayerManagerMixin {
     @WrapOperation(method = "remove", at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/entity/Entity;streamPassengersAndSelf()Ljava/util/stream/Stream;"))
+            target = "Lnet/minecraft/world/entity/Entity;getPassengersAndSelf()Ljava/util/stream/Stream;"))
     public Stream<Entity> remove(Entity instance, Operation<Stream<Entity>> original) {
-        return instance.streamPassengersAndSelf().filter(entity -> !(entity instanceof PlayerEntity));
+        return instance.getPassengersAndSelf().filter(entity -> !(entity instanceof Player));
     }
 }

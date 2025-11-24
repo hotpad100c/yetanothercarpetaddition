@@ -20,34 +20,14 @@
 
 package mypals.ml.mixin.features.chokolatekiller;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonPart;
-import net.minecraft.entity.boss.dragon.phase.PhaseManager;
-import net.minecraft.entity.boss.dragon.phase.PhaseType;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
-import org.jetbrains.annotations.Nullable;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(EnderDragonEntity.class)
-public abstract class EnderDragonMixin extends MobEntity {
+@Mixin(EnderDragon.class)
+public abstract class EnderDragonMixin extends Mob {
     /*@Shadow
     @Final
     public EnderDragonPart head;
@@ -68,7 +48,7 @@ public abstract class EnderDragonMixin extends MobEntity {
     @Shadow
     private float damageDuringSitting;
 */
-    protected EnderDragonMixin(EntityType<? extends MobEntity> entityType, World world) {
+    protected EnderDragonMixin(EntityType<? extends Mob> entityType, Level world) {
         super(entityType, world);
     }
 /*

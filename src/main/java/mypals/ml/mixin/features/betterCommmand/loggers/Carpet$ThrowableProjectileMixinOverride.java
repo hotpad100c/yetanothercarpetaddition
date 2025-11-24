@@ -24,46 +24,42 @@ import carpet.logging.LoggerRegistry;
 import carpet.logging.logHelpers.TrajectoryLogHelper;
 import mypals.ml.features.betterCommands.TrajectoryLogHelperExtension;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.projectile.ArrowEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.TridentEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = ProjectileEntity.class, priority = 1)
+@Mixin(value = Projectile.class, priority = 1)
 public abstract class Carpet$ThrowableProjectileMixinOverride extends Entity {
     @Unique
     private TrajectoryLogHelper YACA$logHelper;
 
-    public Carpet$ThrowableProjectileMixinOverride(EntityType<? extends ProjectileEntity> entityType, World world) {
+    public Carpet$ThrowableProjectileMixinOverride(EntityType<? extends Projectile> entityType, Level world) {
         super(entityType, world);
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/entity/EntityType;Lnet/minecraft/world/World;)V", at = @At("RETURN"))
-    private void addLogger(EntityType<? extends ProjectileEntity> entityType_1, World world_1,
+    @Inject(method = "<init>(Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/world/level/Level;)V", at = @At("RETURN"))
+    private void addLogger(EntityType<? extends Projectile> entityType_1, Level world_1,
                           
                            CallbackInfo ci) {
-        if (LoggerRegistry.__projectiles && !world_1.isClient())
+        if (LoggerRegistry.__projectiles && !world_1.isClientSide())
             YACA$logHelper = new TrajectoryLogHelper("projectiles");
     }
 
     @Override
-    public void remove(Entity.RemovalReason arg) {
+    public void remove(RemovalReason arg) {
         super.remove(arg);
         if (LoggerRegistry.__projectiles && YACA$logHelper != null) {
             if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") &&
                     !(this.getType() == EntityType.ARROW ||
                             this.getType() == EntityType.TRIDENT ||
                             this.getType() == EntityType.FISHING_BOBBER)) {
-                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, getPos(), getVelocity());
+                ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, position(), getDeltaMovement());
             }
         }
     }

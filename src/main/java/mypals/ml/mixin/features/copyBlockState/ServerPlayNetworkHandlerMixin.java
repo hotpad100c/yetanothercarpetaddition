@@ -20,26 +20,24 @@
 
 package mypals.ml.mixin.features.copyBlockState;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import me.fallenbreath.conditionalmixin.api.annotation.Condition;
 import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.ModIds;
-import net.minecraft.block.BlockState;
-//#if MC >= 12104
-import net.minecraft.component.DataComponentTypes;
-//$$import net.minecraft.component.type.BlockStateComponent;
-//$$import net.minecraft.entity.player.PlayerEntity;
-//$$import net.minecraft.item.ItemStack;
-//$$import net.minecraft.nbt.NbtCompound;
-//$$import net.minecraft.network.packet.c2s.play.PickItemFromBlockC2SPacket;
-//#endif
-import net.minecraft.server.network.ServerPlayNetworkHandler;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.state.property.Property;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.spongepowered.asm.mixin.Mixin;
+
+//#if MC >= 12104
+import com.llamalad7.mixinextras.sugar.Local;
+import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BlockItemStateProperties;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.network.protocol.game.ServerboundPickItemFromBlockPacket;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -47,41 +45,43 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashMap;
 import java.util.Map;
+//#endif
 
 @Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = ">=1.21.4"))
-@Mixin(ServerPlayNetworkHandler.class)
+@Mixin(ServerGamePacketListenerImpl.class)
 
 public class ServerPlayNetworkHandlerMixin {
 //#if MC >= 12104
-//$$     @Inject(method = "onPickItemFromBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerPlayNetworkHandler;onPickItem(Lnet/minecraft/item/ItemStack;)V"))
-//$$     private void injectBlockStateData(PickItemFromBlockC2SPacket packet, CallbackInfo ci, @Local ItemStack itemStack) {
-//$$         if (!YetAnotherCarpetAdditionRules.copyBlockState) return;
-//$$
-//$$         ServerPlayNetworkHandler handler = (ServerPlayNetworkHandler) (Object) this;
-//$$         PlayerEntity player = handler.player;
-//$$         World serverWorld = player.getWorld();
-//$$         BlockPos blockPos = packet.pos();
-//$$         if (player.isSneaking()) {
-//$$             BlockState blockState = serverWorld.getBlockState(blockPos);
-//$$             setBlockStateData(itemStack, blockState);
-//$$         }
-//$$     }
+    @Inject(method = "handlePickItemFromBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;tryPickItem(Lnet/minecraft/world/item/ItemStack;)V"))
+    @SuppressWarnings("resource")
+    private void injectBlockStateData(ServerboundPickItemFromBlockPacket packet, CallbackInfo ci, @Local ItemStack itemStack) {
+        if (!YetAnotherCarpetAdditionRules.copyBlockState) return;
 
-//$$     @Unique
-//$$     private static void setBlockStateData(ItemStack stack, BlockState state) {
-//$$         Map<String, String> map = new HashMap<>();
-//$$
-//$$         for (Property<?> property : state.getProperties()) {
-//$$             setPropertyToMap(state, (Property<?>) property, map);
-//$$         }
-//$$
-//$$         BlockStateComponent component = new BlockStateComponent(map);
-//$$         stack.set(DataComponentTypes.BLOCK_STATE, component);
-//$$     }
-//$$
-//$$     private static <T extends Comparable<T>> void setPropertyToMap(BlockState state, Property<T> property, Map<String, String> map) {
-//$$         T value = state.get(property);
-//$$         map.put(property.getName(), property.name(value));
-//$$     }
+        ServerGamePacketListenerImpl handler = (ServerGamePacketListenerImpl) (Object) this;
+        Player player = handler.player;
+        Level serverWorld = player.level();
+        BlockPos blockPos = packet.pos();
+        if (player.isShiftKeyDown()) {
+            BlockState blockState = serverWorld.getBlockState(blockPos);
+            setBlockStateData(itemStack, blockState);
+        }
+    }
+
+    @Unique
+    private static void setBlockStateData(ItemStack stack, BlockState state) {
+        Map<String, String> map = new HashMap<>();
+
+        for (Property<?> property : state.getProperties()) {
+            setPropertyToMap(state, (Property<?>) property, map);
+        }
+
+        BlockItemStateProperties component = new BlockItemStateProperties(map);
+        stack.set(DataComponents.BLOCK_STATE, component);
+    }
+
+    private static <T extends Comparable<T>> void setPropertyToMap(BlockState state, Property<T> property, Map<String, String> map) {
+        T value = state.getValue(property);
+        map.put(property.getName(), property.getName(value));
+    }
 //#endif
 }

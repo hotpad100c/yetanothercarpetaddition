@@ -20,18 +20,15 @@
 
 package mypals.ml.mixin.features.gridWorldPreset;
 
-import mypals.ml.features.GridWorldGen.FlatGridChunkGenerator;
-import net.minecraft.registry.RegistryEntryLookup;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.structure.StructureSet;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.biome.Biome;
-import net.minecraft.world.dimension.DimensionOptions;
-import net.minecraft.world.gen.WorldPreset;
-import net.minecraft.world.gen.WorldPresets;
-import net.minecraft.world.gen.chunk.*;
-import net.minecraft.world.gen.feature.PlacedFeature;
+import net.minecraft.core.HolderGetter;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.placement.PlacedFeature;
+import net.minecraft.world.level.levelgen.presets.WorldPreset;
+import net.minecraft.world.level.levelgen.presets.WorldPresets;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,25 +37,25 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
-@Mixin(WorldPresets.Registrar.class)
+@Mixin(WorldPresets.Bootstrap.class)
 public abstract class WorldPresetsRegistrarMixin {
     @Shadow
-    protected abstract void register(RegistryKey<WorldPreset> key, DimensionOptions dimensionOptions);
+    protected abstract void registerCustomOverworldPreset(ResourceKey<WorldPreset> key, LevelStem dimensionOptions);
 
     @Shadow
     @Final
-    private RegistryEntryLookup<Biome> biomeLookup;
+    private HolderGetter<Biome> biomes;
 
     @Shadow
     @Final
-    private RegistryEntryLookup<StructureSet> structureSetLookup;
+    private HolderGetter<StructureSet> structureSets;
 
     @Shadow
     @Final
-    private RegistryEntryLookup<PlacedFeature> featureLookup;
+    private HolderGetter<PlacedFeature> placedFeatures;
 
     @Shadow
-    protected abstract DimensionOptions createOverworldOptions(ChunkGenerator chunkGenerator);
+    protected abstract LevelStem makeOverworld(ChunkGenerator chunkGenerator);
 
     //private static final RegistryKey<WorldPreset> GRID = of("grid_world");
 

@@ -25,61 +25,58 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import mypals.ml.utils.adapter.ClickEvent;
 import mypals.ml.utils.adapter.HoverEvent;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.BlockPosArgumentType;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.BlockPos;
-//#if MC >= 12102
-//$$ import net.minecraft.network.packet.s2c.play.PositionFlag;
-//#endif
-
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import java.util.HashSet;
 import java.util.Set;
 
 import static mypals.ml.features.waypoint.WaypointManager.*;
-import static net.minecraft.server.command.CommandManager.argument;
-import static net.minecraft.server.command.CommandManager.literal;
+import static net.minecraft.commands.Commands.argument;
+import static net.minecraft.commands.Commands.literal;
 
 public class WayPointCommand {
-    private static final SuggestionProvider<ServerCommandSource> WAYPOINT_SUGGESTIONS =
+    private static final SuggestionProvider<CommandSourceStack> WAYPOINT_SUGGESTIONS =
             (context, builder) -> {
                 Set<String> names = new HashSet<>();
                 for (Waypoint waypoint : waypoints) {
                     names.add(waypoint.name);
                 }
-                return CommandSource.suggestMatching(names, builder);
+                return SharedSuggestionProvider.suggest(names, builder);
             };
 
-    public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
-        dispatcher.register(literal("waypoint").requires(source -> source.hasPermissionLevel(2))
+    @SuppressWarnings("resource")
+    public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
+        dispatcher.register(literal("waypoint").requires(source -> source.hasPermission(2))
                 .then(literal("save")
                         .then(argument("name", StringArgumentType.word())
                                 .executes(context -> {
                                     String name = StringArgumentType.getString(context, "name");
-                                    ServerPlayerEntity player = context.getSource().getPlayer();
-                                    ServerWorld world = player.getServerWorld();
-                                    BlockPos pos = player.getBlockPos();
+                                    ServerPlayer player = context.getSource().getPlayer();
+                                    ServerLevel world = player.level();
+                                    BlockPos pos = player.blockPosition();
 
-                                    addWaypoint(name, pos, world.getRegistryKey().getValue().getPath());
+                                    addWaypoint(name, pos, world.dimension().location().getPath());
 
-                                    context.getSource().sendFeedback(() -> Text.literal("Saved waypoint '" + name + "' at " + pos), false);
+                                    context.getSource().sendSuccess(() -> Component.literal("Saved waypoint '" + name + "' at " + pos), false);
                                     return 1;
                                 })
-                                .then(argument("pos", BlockPosArgumentType.blockPos())
+                                .then(argument("pos", BlockPosArgument.blockPos())
                                         .executes(context -> {
-                                            BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
+                                            BlockPos pos = BlockPosArgument.getBlockPos(context, "pos");
                                             String name = StringArgumentType.getString(context, "name");
-                                            ServerPlayerEntity player = context.getSource().getPlayer();
-                                            ServerWorld world = player.getServerWorld();
+                                            ServerPlayer player = context.getSource().getPlayer();
+                                            ServerLevel world = player.level();
 
-                                            addWaypoint(name, pos, world.getRegistryKey().getValue().getPath());
+                                            addWaypoint(name, pos, world.dimension().location().getPath());
 
-                                            context.getSource().sendFeedback(() -> Text.literal("Saved waypoint '" + name + "' at " + pos), false);
+                                            context.getSource().sendSuccess(() -> Component.literal("Saved waypoint '" + name + "' at " + pos), false);
                                             return 1;
                                         }))))
                 .then(literal("remove")
@@ -87,9 +84,9 @@ public class WayPointCommand {
                                 .executes(context -> {
                                     String name = StringArgumentType.getString(context, "name");
                                     if (delWaypoint(name)) {
-                                        context.getSource().sendFeedback(() -> Text.literal("Removed waypoint '" + name + "'"), false);
+                                        context.getSource().sendSuccess(() -> Component.literal("Removed waypoint '" + name + "'"), false);
                                     } else {
-                                        context.getSource().sendError(Text.literal("Waypoint '" + name + "' does not exist."));
+                                        context.getSource().sendFailure(Component.literal("Waypoint '" + name + "' does not exist."));
                                     }
                                     return 1;
                                 })))
@@ -97,48 +94,48 @@ public class WayPointCommand {
                         .then(argument("name", StringArgumentType.word()).suggests(WAYPOINT_SUGGESTIONS)
                                 .executes(context -> {
                                     String name = StringArgumentType.getString(context, "name");
-                                    ServerPlayerEntity player = context.getSource().getPlayer();
+                                    ServerPlayer player = context.getSource().getPlayer();
                                     if (player != null) {
                                         Waypoint waypoint = getWaypoint(name);
                                         if (waypoint != null) {
                                             BlockPos pos = waypoint.pos;
-                                            ServerWorld world = player.getServer().getWorld(ServerWorld.OVERWORLD);
+                                            ServerLevel world = player.level().getServer().getLevel(ServerLevel.OVERWORLD);
                                             switch (waypoint.dimension) {
                                                 case "overworld" ->
-                                                        world = player.getServer().getWorld(ServerWorld.OVERWORLD);
+                                                        world = player.level().getServer().getLevel(ServerLevel.OVERWORLD);
                                                 case "the_nether" ->
-                                                        world = player.getServer().getWorld(ServerWorld.NETHER);
-                                                case "the_end" -> world = player.getServer().getWorld(ServerWorld.END);
+                                                        world = player.level().getServer().getLevel(ServerLevel.NETHER);
+                                                case "the_end" -> world = player.level().getServer().getLevel(ServerLevel.END);
                                             }
-                                            player.teleport(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
+                                            player.teleportTo(world, pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,
                                                     //#if MC >= 12102
-                                                    //$$ Set.of(),
+                                                    Set.of(),
                                                     //#endif
-                                                    player.getYaw(), player.getPitch()
+                                                    player.getYRot(), player.getXRot()
                                                     //#if MC >= 12102
-                                                    //$$ , false
+                                                    , false
                                                     //#endif
                                             );
                                         }
                                     } else {
-                                        context.getSource().sendError(Text.literal("Waypoint '" + name + "' does not exist."));
+                                        context.getSource().sendFailure(Component.literal("Waypoint '" + name + "' does not exist."));
                                     }
                                     return 1;
                                 })))
                 .then(literal("list")
                         .executes(ctx -> {
                             if (waypoints.isEmpty()) {
-                                ctx.getSource().sendFeedback(() -> Text.literal("No waypoints saved."), false);
+                                ctx.getSource().sendSuccess(() -> Component.literal("No waypoints saved."), false);
                             } else {
-                                ctx.getSource().sendFeedback(() -> Text.literal("Waypoints:").formatted(Formatting.GOLD), false);
+                                ctx.getSource().sendSuccess(() -> Component.literal("Waypoints:").withStyle(ChatFormatting.GOLD), false);
                                 for (Waypoint waypoint : waypoints) {
-                                    Text clickable = Text.literal("• [" + waypoint.name + "]")
-                                            .styled(style -> style
-                                                    .withColor(Formatting.AQUA)
+                                    Component clickable = Component.literal("• [" + waypoint.name + "]")
+                                            .withStyle(style -> style
+                                                    .withColor(ChatFormatting.AQUA)
                                                     .withClickEvent(ClickEvent.runCommand("/waypoint tp " + waypoint.name))
-                                                    .withHoverEvent(HoverEvent.showText((Text.literal("Click to teleport to " + waypoint.name))))
+                                                    .withHoverEvent(HoverEvent.showText((Component.literal("Click to teleport to " + waypoint.name))))
                                             );
-                                    ctx.getSource().sendFeedback(() -> clickable, false);
+                                    ctx.getSource().sendSuccess(() -> clickable, false);
                                 }
                             }
 

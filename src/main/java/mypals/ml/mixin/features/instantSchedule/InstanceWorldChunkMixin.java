@@ -21,11 +21,11 @@
 package mypals.ml.mixin.features.instantSchedule;
 
 import mypals.ml.interfaces.InstanceChunkTickSchedule;
-import net.minecraft.block.Block;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.world.chunk.WorldChunk;
-import net.minecraft.world.tick.ChunkTickScheduler;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.ticks.LevelChunkTicks;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,23 +33,23 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(WorldChunk.class)
+@Mixin(LevelChunk.class)
 public abstract class InstanceWorldChunkMixin {
 
 
     @Shadow
     @Final
-    private ChunkTickScheduler<Block> blockTickScheduler;
+    private LevelChunkTicks<Block> blockTicks;
 
     @Shadow
     @Final
-    private ChunkTickScheduler<Fluid> fluidTickScheduler;
+    private LevelChunkTicks<Fluid> fluidTicks;
 
-    @Inject(method = "addChunkTickSchedulers", at = @At("HEAD"))
-    public void setWorld(ServerWorld world, CallbackInfo ci) {
-        ((InstanceChunkTickSchedule) this.blockTickScheduler)
+    @Inject(method = "registerTickContainerInLevel", at = @At("HEAD"))
+    public void setWorld(ServerLevel world, CallbackInfo ci) {
+        ((InstanceChunkTickSchedule) this.blockTicks)
                 .setServerWorld(world);
-        ((InstanceChunkTickSchedule) this.fluidTickScheduler)
+        ((InstanceChunkTickSchedule) this.fluidTicks)
                 .setServerWorld(world);
     }
 }

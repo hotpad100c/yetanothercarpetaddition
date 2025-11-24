@@ -24,11 +24,10 @@ import carpet.api.settings.SettingsManager;
 
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.command.CommandSource;
+import net.minecraft.commands.SharedSuggestionProvider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -58,7 +57,7 @@ public class SettingsManagerMixin {
                 smartSuggestionList.add(listItem);
             }
             // Regular prefix matching, reference: CommandSource.suggestMatching
-            if (CommandSource.shouldSuggest(query, listItem.toLowerCase(Locale.ROOT))) {
+            if (SharedSuggestionProvider.matchesSubStr(query, listItem.toLowerCase(Locale.ROOT))) {
                 regularSuggestionList.add(listItem);
             }
         });

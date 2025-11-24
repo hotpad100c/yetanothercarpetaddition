@@ -26,25 +26,24 @@ import com.mojang.serialization.MapCodec;
 //$$ import com.mojang.serialization.Codec;
 //#endif
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.Heightmap;
-import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.gen.StructureAccessor;
-import net.minecraft.world.gen.chunk.Blender;
-import net.minecraft.world.gen.chunk.ChunkGenerator;
-import net.minecraft.world.gen.chunk.FlatChunkGenerator;
-import net.minecraft.world.gen.chunk.FlatChunkGeneratorConfig;
-import net.minecraft.world.gen.noise.NoiseConfig;
-
 import java.util.concurrent.CompletableFuture;
 //#if MC < 12101
 //$$ import java.util.concurrent.Executor;
 //#endif
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 
-public class FlatGridChunkGenerator extends FlatChunkGenerator {
+public class FlatGridChunkGenerator extends FlatLevelSource {
     public static final
     //#if MC >= 12006
     MapCodec<FlatGridChunkGenerator>
@@ -59,11 +58,11 @@ public class FlatGridChunkGenerator extends FlatChunkGenerator {
             //$$ .create(
             //#endif
             instance -> instance.group(
-                    FlatChunkGeneratorConfig.CODEC.fieldOf("settings").forGetter(FlatChunkGenerator::getConfig)
+                    FlatLevelGeneratorSettings.CODEC.fieldOf("settings").forGetter(FlatLevelSource::settings)
             ).apply(instance, instance.stable(FlatGridChunkGenerator::new))
     );
 
-    public FlatGridChunkGenerator(FlatChunkGeneratorConfig config) {
+    public FlatGridChunkGenerator(FlatLevelGeneratorSettings config) {
         super(config);
     }
 
@@ -74,33 +73,33 @@ public class FlatGridChunkGenerator extends FlatChunkGenerator {
     //#else
     //$$ Codec<? extends ChunkGenerator>
     //#endif
-    getCodec() {
+    codec() {
         return CODEC;
     }
 
     @Override
-    public CompletableFuture<Chunk> populateNoise(
+    public CompletableFuture<ChunkAccess> fillFromNoise(
             //#if MC < 12101
             //$$ Executor executor,
             //#endif
-            Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
+            Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk) {
         ChunkPos chunkPos = chunk.getPos();
         boolean isBlack = (chunkPos.x + chunkPos.z) % 2 == 0;
-        BlockState blockState = isBlack ? Blocks.BLACK_STAINED_GLASS.getDefaultState() : Blocks.WHITE_STAINED_GLASS.getDefaultState();
+        BlockState blockState = isBlack ? Blocks.BLACK_STAINED_GLASS.defaultBlockState() : Blocks.WHITE_STAINED_GLASS.defaultBlockState();
 
-        BlockPos.Mutable mutable = new BlockPos.Mutable();
-        Heightmap heightmapOcean = chunk.getHeightmap(Heightmap.Type.OCEAN_FLOOR_WG);
-        Heightmap heightmapSurface = chunk.getHeightmap(Heightmap.Type.WORLD_SURFACE_WG);
-        for (int y = chunk.getBottomY(); y < chunk.getTopY(); ++y) {
+        BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
+        Heightmap heightmapOcean = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);
+        Heightmap heightmapSurface = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.WORLD_SURFACE_WG);
+        for (int y = chunk.getMinY(); y < chunk.getMaxY(); ++y) {
             for (int x = 0; x < 16; ++x) {
                 for (int z = 0; z < 16; ++z) {
                     chunk.setBlockState(mutable.set(x, y, z), blockState
                             //#if MC < 12105
-                            , false
+                            //$$ , false
                             //#endif
                     );
-                    heightmapOcean.trackUpdate(x, y, z, blockState);
-                    heightmapSurface.trackUpdate(x, y, z, blockState);
+                    heightmapOcean.update(x, y, z, blockState);
+                    heightmapSurface.update(x, y, z, blockState);
                 }
             }
         }

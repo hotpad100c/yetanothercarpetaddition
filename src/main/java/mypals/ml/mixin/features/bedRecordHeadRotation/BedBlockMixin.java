@@ -22,56 +22,61 @@ package mypals.ml.mixin.features.bedRecordHeadRotation;
 
 import mypals.ml.interfaces.BedBlockEntityExtension;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.BedBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.enums.BedPart;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.phys.BlockHitResult;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
 //#if MC <= 12004
-//$$ import net.minecraft.util.Hand;
+//$$ import net.minecraft.world.InteractionHand;
 //#endif
 
-import static net.minecraft.block.BedBlock.PART;
-import static net.minecraft.block.HorizontalFacingBlock.FACING;
+import static net.minecraft.world.level.block.BedBlock.PART;
+import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 
 @Mixin(BedBlock.class)
 public abstract class BedBlockMixin {
     @Shadow
-    private static Direction getDirectionTowardsOtherPart(BedPart part, Direction direction) {
+    private static Direction getNeighbourDirection(BedPart part, Direction direction) {
         return part == BedPart.FOOT ? direction : direction.getOpposite();
     }
 
     @Inject(
-            method = "onUse",
+            //#if MC <= 12004
+            //$$ method = "use",
+            //#else
+            method = "useWithoutItem",
+            //#endif
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/entity/player/PlayerEntity;trySleep(Lnet/minecraft/util/math/BlockPos;)Lcom/mojang/datafixers/util/Either;"
+                    target = "Lnet/minecraft/world/entity/player/Player;startSleepInBed(Lnet/minecraft/core/BlockPos;)Lcom/mojang/datafixers/util/Either;"
             )
     )
-    private void onUse(BlockState state, World world, BlockPos pos, PlayerEntity player,
+    private void onUse(BlockState state, Level world, BlockPos pos, Player player,
                        //#if MC <= 12004
-                       //$$ Hand hand,
+                       //$$ InteractionHand hand,
                        //#endif
-                       BlockHitResult hit, CallbackInfoReturnable<ActionResult> cir) {
+                       BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
         if (YetAnotherCarpetAdditionRules.bedsRecordSleeperFacing) {
             if (world.getBlockEntity(pos) instanceof BedBlockEntityExtension bedBlockEntityPlus) {
-                bedBlockEntityPlus.setSleeperYaw(player.getYaw());
-                bedBlockEntityPlus.getSleeperPitch(player.getPitch());
+                bedBlockEntityPlus.setSleeperYaw(player.getYRot());
+                bedBlockEntityPlus.getSleeperPitch(player.getXRot());
             }
-            BedPart bedPart = state.get(PART);
-            BlockPos blockPos = pos.offset(getDirectionTowardsOtherPart(bedPart, state.get(FACING)));
+            BedPart bedPart = state.getValue(PART);
+            BlockPos blockPos = pos.relative(getNeighbourDirection(bedPart, state.getValue(FACING)));
             if (world.getBlockEntity(blockPos) instanceof BedBlockEntityExtension bedBlockEntityPlus) {
-                bedBlockEntityPlus.setSleeperYaw(player.getYaw());
-                bedBlockEntityPlus.getSleeperPitch(player.getPitch());
+                bedBlockEntityPlus.setSleeperYaw(player.getYRot());
+                bedBlockEntityPlus.getSleeperPitch(player.getXRot());
             }
         }
     }

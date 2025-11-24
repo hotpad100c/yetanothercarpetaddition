@@ -25,18 +25,16 @@ import carpet.api.settings.CarpetRule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import mypals.ml.features.waypoint.WaypointManager;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.level.storage.LevelResource;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,7 +45,7 @@ public class RuleSubscribeManager {
     public static Map<String, CarpetRule<?>> subscribed = new HashMap<>();
 
     public static void init(MinecraftServer server) {
-        File worldDir = server.getSavePath(WorldSavePath.ROOT).toFile();
+        File worldDir = server.getWorldPath(LevelResource.ROOT).toFile();
         File configDir = new File(worldDir, "YACA");
         if (!configDir.exists()) {
             configDir.mkdirs();
@@ -96,20 +94,20 @@ public class RuleSubscribeManager {
         }
     }
 
-    public static void subscribeRule(String name, ServerCommandSource source) {
+    public static void subscribeRule(String name, CommandSourceStack source) {
         if (subscribed.containsKey(name)) {
-            source.sendFeedback(() -> Text.of("Unsubscribed to rule: " + name), true);
+            source.sendSuccess(() -> Component.nullToEmpty("Unsubscribed to rule: " + name), true);
             subscribed.remove(name);
         } else {
             CarpetServer.settingsManager.getCarpetRules().stream()
                     .forEach(carpetRule -> {
                         if (carpetRule.name().equals(name)) {
                             if (subscribed.size() >= MAX_SUBSCRIBES) {
-                                source.sendError(Text.of("You have reached the maximum number of subscribed rules."));
+                                source.sendFailure(Component.nullToEmpty("You have reached the maximum number of subscribed rules."));
                                 return;
                             }
                             subscribed.put(name, carpetRule);
-                            source.sendFeedback(() -> Text.of("Subscribed to rule: " + name), true);
+                            source.sendSuccess(() -> Component.nullToEmpty("Subscribed to rule: " + name), true);
                         }
                     });
         }

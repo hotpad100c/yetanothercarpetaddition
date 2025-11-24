@@ -20,15 +20,15 @@
 
 package mypals.ml.network;
 
-import net.minecraft.network.PacketByteBuf;
-//#if MC >= 12006
-import net.minecraft.network.codec.PacketCodec;
-//#endif
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import net.minecraft.network.FriendlyByteBuf;
+
+//#if MC >= 12006
+import net.minecraft.network.codec.StreamCodec;
+//#endif
 
 public class RuleData {
     public String name;
@@ -50,17 +50,17 @@ public class RuleData {
     }
 
     //#if MC >= 12006
-    public static final PacketCodec<PacketByteBuf, RuleData> CODEC = PacketCodec.of(RuleData::write, RuleData::new);
+    public static final StreamCodec<FriendlyByteBuf, RuleData> CODEC = StreamCodec.ofMember(RuleData::write, RuleData::new);
     //#endif
 
-    public void write(PacketByteBuf buf) {
-        buf.writeString(this.name);
+    public void write(FriendlyByteBuf buf) {
+        buf.writeUtf(this.name);
 
-        buf.writeString(this.type.toString());
+        buf.writeUtf(this.type.toString());
 
-        buf.writeString(this.defaultValue);
-        buf.writeString(this.value);
-        buf.writeString(this.description);
+        buf.writeUtf(this.defaultValue);
+        buf.writeUtf(this.value);
+        buf.writeUtf(this.description);
         AtomicReference<String> suggestions = new AtomicReference<String>();
         suggestions.set("");
         this.suggestions.forEach(
@@ -69,7 +69,7 @@ public class RuleData {
                         suggestions.set(suggestions + suggestion.toString() + "|");
                 }
         );
-        buf.writeString(suggestions.toString());
+        buf.writeUtf(suggestions.toString());
 
         AtomicReference<String> categories = new AtomicReference<>();
         categories.set("");
@@ -79,18 +79,18 @@ public class RuleData {
                         categories.set(categories + category.toString() + "~");
                 }
         );
-        buf.writeString(categories.toString());
+        buf.writeUtf(categories.toString());
     }
 
-    public RuleData(PacketByteBuf buf) {
+    public RuleData(FriendlyByteBuf buf) {
         this(
-                buf.readString(), // name
-                getRuleType(buf.readString()), // type
-                buf.readString(), // defaultValue
-                buf.readString(), // value
-                buf.readString(), //des
-                Arrays.stream(buf.readString().split("\\|")).toList(), //suggestions
-                Arrays.stream(buf.readString().split("~")).toList() //categories
+                buf.readUtf(), // name
+                getRuleType(buf.readUtf()), // type
+                buf.readUtf(), // defaultValue
+                buf.readUtf(), // value
+                buf.readUtf(), //des
+                Arrays.stream(buf.readUtf().split("\\|")).toList(), //suggestions
+                Arrays.stream(buf.readUtf().split("~")).toList() //categories
         );
     }
 

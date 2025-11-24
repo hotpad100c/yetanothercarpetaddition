@@ -20,35 +20,26 @@
 
 package mypals.ml.features.visualizingFeatures;
 
-import carpet.CarpetServer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Predicate;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.phys.Vec3;
 
 public abstract class AbstractVisualizingManager<T, E> {
     protected abstract void storeVisualizer(T key, E entity);
 
     protected abstract void updateVisualizerEntity(E marker, Object data);
 
-    protected abstract E createVisualizerEntity(ServerWorld world, Vec3d pos, Object data);
+    protected abstract E createVisualizerEntity(ServerLevel world, Vec3 pos, Object data);
 
     protected abstract void removeVisualizerEntity(T key);
 
-    protected static long getDeleteTick(int duration, ServerWorld world) {
-        return world.getTime() + duration;
+    protected static long getDeleteTick(int duration, ServerLevel world) {
+        return world.getGameTime() + duration;
     }
 
 
-    public void setVisualizer(ServerWorld world, T key, Vec3d pos, Object data) {
+    public void setVisualizer(ServerLevel world, T key, Vec3 pos, Object data) {
         E marker = getVisualizer(key);
         if (marker != null) {
 
@@ -77,7 +68,7 @@ public abstract class AbstractVisualizingManager<T, E> {
     public abstract String getVisualizerTag();
 
 
-    protected NbtCompound configureCommonNbt(NbtCompound nbt) {
+    protected CompoundTag configureCommonNbt(CompoundTag nbt) {
         nbt.putString("billboard", "center");
         nbt.putByte("see_through", (byte) 1);
         return nbt;

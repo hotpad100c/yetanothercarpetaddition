@@ -23,36 +23,33 @@ package mypals.ml.features.visualizingFeatures;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import mypals.ml.utils.adapter.NBTDataManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ai.goal.GoalSelector;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.nbt.NbtCompound;
-//#if MC >= 12105
-//$$import net.minecraft.nbt.NbtList;
-//#endif
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
-
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.ai.goal.GoalSelector;
+import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Map;
 
 import static mypals.ml.features.visualizingFeatures.MobGoals.getGoalName;
 
-public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entry<MobAIVisualizer.MobAIData, DisplayEntity.TextDisplayEntity>> {
-    private static final Map<Entity, Map.Entry<MobAIVisualizer.MobAIData, DisplayEntity.TextDisplayEntity>> visualizers = new HashMap<>();
+public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entry<MobAIVisualizer.MobAIData, Display.TextDisplay>> {
+    private static final Map<Entity, Map.Entry<MobAIData, Display.TextDisplay>> visualizers = new HashMap<>();
 
     @Override
-    protected void storeVisualizer(Entity key, Map.Entry<MobAIData, DisplayEntity.TextDisplayEntity> data) {
+    protected void storeVisualizer(Entity key, Map.Entry<MobAIData, Display.TextDisplay> data) {
         visualizers.put(key, data);
     }
 
     @Override
-    protected void updateVisualizerEntity(Map.Entry<MobAIData, DisplayEntity.TextDisplayEntity> marker, Object data) {
+    protected void updateVisualizerEntity(Map.Entry<MobAIData, Display.TextDisplay> marker, Object data) {
 
-        DisplayEntity.TextDisplayEntity display = (DisplayEntity.TextDisplayEntity) marker.getValue();
+        Display.TextDisplay display = (Display.TextDisplay) marker.getValue();
         MobAIData mobAIData = (MobAIData) marker.getKey();
         Entity keyEntity = (Entity) marker.getKey().entity;
         if (keyEntity == null || keyEntity.isRemoved() || !keyEntity.isAlive() || display == null || display.isRemoved()) {
@@ -61,19 +58,19 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
             return;
         }
         displayTargetAndGoals(mobAIData, display);
-        display.setPos(keyEntity.getX(), keyEntity.getY() + keyEntity.getHeight() + 0.5, keyEntity.getZ());
+        display.setPosRaw(keyEntity.getX(), keyEntity.getY() + keyEntity.getBbHeight() + 0.5, keyEntity.getZ());
     }
 
     @Override
-    protected Map.Entry<MobAIData, DisplayEntity.TextDisplayEntity> createVisualizerEntity(ServerWorld world, Vec3d pos, Object data) {
+    protected Map.Entry<MobAIData, Display.TextDisplay> createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
         if (data instanceof MobAIData mobAIData) {
-            DisplayEntity.TextDisplayEntity display = new DisplayEntity.TextDisplayEntity(EntityType.TEXT_DISPLAY, world);
+            Display.TextDisplay display = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
             display.setNoGravity(true);
             display.setInvulnerable(true);
-            display.setPos(pos.getX(), pos.getY() + 0.1f, pos.getZ());
-            display.addCommandTag(getVisualizerTag());
-            display.addCommandTag("DoNotTick");
-            world.spawnEntity(display);
+            display.setPosRaw(pos.x(), pos.y() + 0.1f, pos.z());
+            display.addTag(getVisualizerTag());
+            display.addTag("DoNotTick");
+            world.addFreshEntity(display);
             display.startRiding(mobAIData.entity);
             displayTargetAndGoals(mobAIData, display);
             return Map.entry(mobAIData, display);
@@ -83,7 +80,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
 
     @Override
     protected void removeVisualizerEntity(Entity key) {
-        DisplayEntity.TextDisplayEntity entity = visualizers.get(key).getValue();
+        Display.TextDisplay entity = visualizers.get(key).getValue();
         if (entity != null) {
             entity.discard();
             visualizers.remove(key);
@@ -96,7 +93,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
     }
 
     @Override
-    protected Map.Entry<MobAIData, DisplayEntity.TextDisplayEntity> getVisualizer(Entity key) {
+    protected Map.Entry<MobAIData, Display.TextDisplay> getVisualizer(Entity key) {
         return visualizers.get(key) == null ? null : visualizers.get(key);
     }
 
@@ -107,8 +104,8 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
 
     @Override
     public void updateVisualizer() {
-        for (Map.Entry<Entity, Map.Entry<MobAIData, DisplayEntity.TextDisplayEntity>> entry : visualizers.entrySet()) {
-            DisplayEntity.TextDisplayEntity display = entry.getValue().getValue();
+        for (Map.Entry<Entity, Map.Entry<MobAIData, Display.TextDisplay>> entry : visualizers.entrySet()) {
+            Display.TextDisplay display = entry.getValue().getValue();
             MobAIData mobAIData = entry.getValue().getKey();
             Entity keyEntity = entry.getKey();
             if (keyEntity == null || keyEntity.isRemoved() || !keyEntity.isAlive() || display == null || display.isRemoved()) {
@@ -122,7 +119,7 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         }
     }
 
-    private void displayTargetAndGoals(MobAIData data, DisplayEntity.TextDisplayEntity display) {
+    private void displayTargetAndGoals(MobAIData data, Display.TextDisplay display) {
 
         JsonObject textJson = new JsonObject();
         textJson.addProperty("text", "");
@@ -133,10 +130,10 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         goalSelectorHeader.addProperty("color", "white");
         extra.add(goalSelectorHeader);
 
-        data.goalSelector.getGoals().forEach(goal -> {
+        data.goalSelector.getAvailableGoals().forEach(goal -> {
             if (goal.getGoal() != null) {
                 String goalName = getGoalName(goal.getGoal().getClass());
-                String translatedName = Text.translatable(goalName).getString();
+                String translatedName = Component.translatable(goalName).getString();
                 String color = goal.isRunning() ? "gold" : "gray";
                 JsonObject goalPart = new JsonObject();
                 goalPart.addProperty("text", "- " + translatedName + "\n");
@@ -150,10 +147,10 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         targetSelectorHeader.addProperty("color", "white");
         extra.add(targetSelectorHeader);
 
-        data.targetSelector.getGoals().forEach(goal -> {
+        data.targetSelector.getAvailableGoals().forEach(goal -> {
             if (goal.getGoal() != null) {
                 String goalName = getGoalName(goal.getGoal().getClass());
-                String translatedName = Text.translatable(goalName).getString();
+                String translatedName = Component.translatable(goalName).getString();
                 String color = goal.isRunning() ? "gold" : "gray";
                 JsonObject goalPart = new JsonObject();
                 goalPart.addProperty("text", "- " + translatedName + "\n");
@@ -163,19 +160,19 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
         });
 
         textJson.add("extra", extra);
-        NbtCompound nbt = NBTDataManager.readFromEntity(display, new NbtCompound());
+        CompoundTag nbt = NBTDataManager.readFromEntity(display, new CompoundTag());
         //#if MC >= 12105
-        //$$NbtList nbtList = new NbtList();
-        //$$extra.forEach(element -> {
-        //$$    JsonObject obj = element.getAsJsonObject();
-        //$$    NbtCompound component = new NbtCompound();
-        //$$    component.putString("text", obj.get("text").getAsString());
-        //$$     component.putString("color", obj.get("color").getAsString());
-        //$$    nbtList.add(component);
-        //$$});
-        //$$nbt.put("text", nbtList);
+        ListTag nbtList = new ListTag();
+        extra.forEach(element -> {
+           JsonObject obj = element.getAsJsonObject();
+           CompoundTag component = new CompoundTag();
+           component.putString("text", obj.get("text").getAsString());
+            component.putString("color", obj.get("color").getAsString());
+           nbtList.add(component);
+        });
+        nbt.put("text", nbtList);
         //#else
-        nbt.putString("text", textJson.toString());
+        //$$ nbt.putString("text", textJson.toString());
         //#endif
         nbt = configureCommonNbt(nbt);
         NBTDataManager.writeToEntity(display, nbt);
@@ -185,9 +182,9 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
     public static class MobAIData {
         public GoalSelector goalSelector;
         public GoalSelector targetSelector;
-        public MobEntity entity;
+        public Mob entity;
 
-        public MobAIData(MobEntity entity, GoalSelector goalSelector, GoalSelector targetSelector) {
+        public MobAIData(Mob entity, GoalSelector goalSelector, GoalSelector targetSelector) {
             this.entity = entity;
             this.goalSelector = goalSelector;
             this.targetSelector = targetSelector;

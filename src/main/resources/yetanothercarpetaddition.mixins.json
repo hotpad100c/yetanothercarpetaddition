@@ -97,12 +97,12 @@
     "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
     "features.visualizers.WorldUpdateComparatorsMixin"
   ],
-  "injectors": {
-    "defaultRequire": 1
-  },
   "client": [
     "client.optionalTicking.ClientWorldFreezeMixin",
     "client.optionalTicking.WorldRenderFreeze",
     "features.copyBlockState.MinecraftClientMixin"
-  ]
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

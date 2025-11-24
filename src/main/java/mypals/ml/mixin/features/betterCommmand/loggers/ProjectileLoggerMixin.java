@@ -26,10 +26,10 @@ import carpet.utils.Messenger;
 import mypals.ml.features.betterCommands.TrajectoryLogHelperExtension;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.HoverEvent;
-import net.minecraft.entity.Entity;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -51,31 +51,31 @@ public abstract class ProjectileLoggerMixin implements TrajectoryLogHelperExtens
 
     @Shadow
     @Final
-    private ArrayList<Vec3d> positions;
+    private ArrayList<Vec3> positions;
 
     @Shadow
     @Final
-    private ArrayList<Vec3d> motions;
+    private ArrayList<Vec3> motions;
 
     @Shadow
     @Final
     private static int MAX_TICKS_PER_LINE;
 
     @Override
-    public void yetanothercarpetaddition$finish(Entity entity, Vec3d posEnd, Vec3d velocityEnd) {
+    public void yetanothercarpetaddition$finish(Entity entity, Vec3 posEnd, Vec3 velocityEnd) {
         if (!this.doLog || !YetAnotherCarpetAdditionRules.commandEnhance.equals("false")) return;
         this.logger.log((option) -> {
-            List<Text> comp = new ArrayList<>();
-            MutableText header = Text.literal("--=== ");
-            header.append(entity.getDisplayName()).styled(style -> style.withHoverEvent(
-                    HoverEvent.showText(Text.of(entity.getUuidAsString()))
+            List<Component> comp = new ArrayList<>();
+            MutableComponent header = Component.literal("--=== ");
+            header.append(entity.getDisplayName()).withStyle(style -> style.withHoverEvent(
+                    HoverEvent.showText(Component.nullToEmpty(entity.getStringUUID()))
             ));
             header.append(" ===--");
             header.append("\n");
             header.append(Messenger.tp(""
                     , posEnd));
             comp.add(header);
-            return comp.toArray(new Text[0]);
+            return comp.toArray(new Component[0]);
         });
     }
 }

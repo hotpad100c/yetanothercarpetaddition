@@ -21,19 +21,17 @@
 package mypals.ml.mixin.features.forceMaxLight;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.util.math.ChunkPos;
-import net.minecraft.world.chunk.light.ChunkSkyLightProvider;
-import net.minecraft.world.chunk.light.LightingProvider;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.lighting.SkyLightEngine;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(ChunkSkyLightProvider.class)
+@Mixin(SkyLightEngine.class)
 public class disableSkyLightProviderMixin {
     @Inject(
-            method = "method_51529",
+            method = "checkNode",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -44,7 +42,7 @@ public class disableSkyLightProviderMixin {
     }
 
     @Inject(
-            method = "method_51530",
+            method = "propagateDecrease",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -55,7 +53,7 @@ public class disableSkyLightProviderMixin {
     }
 
     @Inject(
-            method = "method_51531",
+            method = "propagateIncrease",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -66,7 +64,7 @@ public class disableSkyLightProviderMixin {
     }
 
     @Inject(
-            method = "propagateLight",
+            method = "propagateLightSources",
             at = @At("HEAD"),
             cancellable = true
     )

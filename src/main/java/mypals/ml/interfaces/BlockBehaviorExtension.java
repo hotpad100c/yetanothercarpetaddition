@@ -20,12 +20,12 @@
 
 package mypals.ml.interfaces;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
 
 public interface BlockBehaviorExtension {
-    default void yaca$onEntityTouch(World world, BlockPos pos, Entity entity) {
+    default void yaca$onEntityTouch(Level world, BlockPos pos, Entity entity) {
 
     }
 }

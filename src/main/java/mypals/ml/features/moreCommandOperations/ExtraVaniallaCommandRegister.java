@@ -26,117 +26,121 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.argument.BlockPosArgumentType;
-import net.minecraft.command.argument.BlockStateArgumentType;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.command.argument.Vec3ArgumentType;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.Registries;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.tick.TickPriority;
-
 import java.util.stream.Collectors;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.commands.arguments.blocks.BlockStateArgument;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
+import net.minecraft.commands.arguments.coordinates.Vec3Argument;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.ticks.TickPriority;
 
 import static mypals.ml.features.moreCommandOperations.ExtraVaniallaCommandFeatureManager.*;
 import static mypals.ml.features.moreCommandOperations.WorldEventMapper.WORLD_EVENT_MAP;
 
 public class ExtraVaniallaCommandRegister {
-    private static final SuggestionProvider<ServerCommandSource> WORLD_EVENT_SUGGESTIONS =
-            (context, builder) -> CommandSource.suggestMatching(WORLD_EVENT_MAP.keySet(), builder);
+    private static final SuggestionProvider<CommandSourceStack> WORLD_EVENT_SUGGESTIONS =
+            (context, builder) -> SharedSuggestionProvider.suggest(WORLD_EVENT_MAP.keySet(), builder);
 
-    public static void registerCommand(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
-        dispatcher.register(CommandManager.literal("scheduleTick").requires(source -> CommandHelper.canUseCommand(source, 2))
-                .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-                        .then(CommandManager.argument("block", BlockStateArgumentType.blockState(registryAccess))
-                                .then(CommandManager.argument("time", IntegerArgumentType.integer(0))
-                                        .then(CommandManager.argument("priority", IntegerArgumentType.integer(-3, 3))
+    public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
+        dispatcher.register(Commands.literal("scheduleTick").requires(source -> CommandHelper.canUseCommand(source, 2))
+                .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .then(Commands.argument("block", BlockStateArgument.block(registryAccess))
+                                .then(Commands.argument("time", IntegerArgumentType.integer(0))
+                                        .then(Commands.argument("priority", IntegerArgumentType.integer(-3, 3))
                                                 .executes(context -> {
-                                                    ServerCommandSource source = context.getSource();
+                                                    CommandSourceStack source = context.getSource();
 
-                                                    BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
-                                                    Block block = BlockStateArgumentType.getBlockState(context, "block").getBlockState().getBlock();
+                                                    BlockPos pos = BlockPosArgument.getBlockPos(context, "pos");
+                                                    Block block = BlockStateArgument.getBlock(context, "block").getState().getBlock();
                                                     int time = IntegerArgumentType.getInteger(context, "time");
                                                     int priority = IntegerArgumentType.getInteger(context, "priority");
-                                                    source.getWorld().scheduleBlockTick(pos, block, time, TickPriority.byIndex(priority));
+                                                    source.getLevel().scheduleTick(pos, block, time, TickPriority.byValue(priority));
 
-                                                    source.sendFeedback(() -> Text.literal("ScheduleTick for [" + Text.translatable(block.getTranslationKey()).getString() + "] was added at [" + pos.getX() + "," +
+                                                    source.sendSuccess(() -> Component.literal("ScheduleTick for [" + Component.translatable(block.getDescriptionId()).getString() + "] was added at [" + pos.getX() + "," +
                                                             pos.getY() + "," + pos.getZ() + "] with delay of [" + time + "]and priority[" + priority + "]."), true);
 
                                                     return Command.SINGLE_SUCCESS;
                                                 }))))));
-        dispatcher.register(CommandManager.literal("blockEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
-                .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-                        .then(CommandManager.argument("block", BlockStateArgumentType.blockState(registryAccess))
-                                .then(CommandManager.argument("type", IntegerArgumentType.integer(0, 2))
-                                        .then(CommandManager.argument("data", IntegerArgumentType.integer(0, 5))
+        dispatcher.register(Commands.literal("blockEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
+                .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .then(Commands.argument("block", BlockStateArgument.block(registryAccess))
+                                .then(Commands.argument("type", IntegerArgumentType.integer(0, 2))
+                                        .then(Commands.argument("data", IntegerArgumentType.integer(0, 5))
                                                 .executes(context -> {
-                                                    ServerCommandSource source = context.getSource();
+                                                    CommandSourceStack source = context.getSource();
 
-                                                    BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
-                                                    Block block = BlockStateArgumentType.getBlockState(context, "block").getBlockState().getBlock();
+                                                    BlockPos pos = BlockPosArgument.getBlockPos(context, "pos");
+                                                    Block block = BlockStateArgument.getBlock(context, "block").getState().getBlock();
                                                     int type = IntegerArgumentType.getInteger(context, "type");
                                                     int data = IntegerArgumentType.getInteger(context, "data");
                                                     addBlockEvent(source, pos, block, type, data);
 
                                                     return 1;
                                                 }))))));
-        dispatcher.register(CommandManager.literal("randomTick").requires(source -> CommandHelper.canUseCommand(source, 2))
-                .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
+        dispatcher.register(Commands.literal("randomTick").requires(source -> CommandHelper.canUseCommand(source, 2))
+                .then(Commands.argument("pos", BlockPosArgument.blockPos())
                         .executes(context -> {
-                            ServerCommandSource source = context.getSource();
+                            CommandSourceStack source = context.getSource();
 
-                            BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
+                            BlockPos pos = BlockPosArgument.getBlockPos(context, "pos");
 
                             addRandomTick(source, pos);
 
                             return 1;
                         })));
         dispatcher.register(
-                CommandManager.literal("gameEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
-                        .then(CommandManager.argument("pos", Vec3ArgumentType.vec3())
-                                .then(CommandManager.argument("reason", StringArgumentType.word())
-                                        .suggests((context, builder) -> CommandSource.suggestMatching(
-                                                Registries.GAME_EVENT.streamEntries()
-                                                        .map(entry -> entry.registryKey().getValue().toString().replace("minecraft:", ""))
+                Commands.literal("gameEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
+                        .then(Commands.argument("pos", Vec3Argument.vec3())
+                                .then(Commands.argument("reason", StringArgumentType.word())
+                                        .suggests((context, builder) -> SharedSuggestionProvider.suggest(
+                                                BuiltInRegistries.GAME_EVENT.
+                                                        //#if MC > 12101
+                                                        listElements()
+                                                        //#else
+                                                        //$$holders()
+                                                        //#endif
+                                                        .map(entry -> entry.key().location().toString().replace("minecraft:", ""))
                                                         .collect(Collectors.toList()), builder
                                         ))
-                                        .then(CommandManager.argument("entity", EntityArgumentType.entity())
-                                                .then(CommandManager.argument("blockstate", BlockStateArgumentType.blockState(registryAccess))
+                                        .then(Commands.argument("entity", EntityArgument.entity())
+                                                .then(Commands.argument("blockstate", BlockStateArgument.block(registryAccess))
                                                         .executes(context -> {
-                                                            Vec3d pos = Vec3ArgumentType.getVec3(context, "pos");
+                                                            Vec3 pos = Vec3Argument.getVec3(context, "pos");
                                                             String reason = StringArgumentType.getString(context, "reason");
-                                                            Entity entity = EntityArgumentType.getEntity(context, "entity");
-                                                            BlockState blockState = BlockStateArgumentType.getBlockState(context, "blockstate").getBlockState();
+                                                            Entity entity = EntityArgument.getEntity(context, "entity");
+                                                            BlockState blockState = BlockStateArgument.getBlock(context, "blockstate").getState();
                                                             return addGameEvent(context.getSource(), pos, reason, entity, blockState);
                                                         })
                                                 )
                                         )
-                                        .then(CommandManager.argument("entity", EntityArgumentType.entity())
+                                        .then(Commands.argument("entity", EntityArgument.entity())
                                                 .executes(context -> {
-                                                    Vec3d pos = Vec3ArgumentType.getVec3(context, "pos");
+                                                    Vec3 pos = Vec3Argument.getVec3(context, "pos");
                                                     String reason = StringArgumentType.getString(context, "reason");
-                                                    Entity entity = EntityArgumentType.getEntity(context, "entity");
+                                                    Entity entity = EntityArgument.getEntity(context, "entity");
                                                     return addGameEvent(context.getSource(), pos, reason, entity, null);
                                                 })
-                                        ).then(CommandManager.argument("blockstate", BlockStateArgumentType.blockState(registryAccess))
+                                        ).then(Commands.argument("blockstate", BlockStateArgument.block(registryAccess))
                                                 .executes(context -> {
-                                                    Vec3d pos = Vec3ArgumentType.getVec3(context, "pos");
+                                                    Vec3 pos = Vec3Argument.getVec3(context, "pos");
                                                     String reason = StringArgumentType.getString(context, "reason");
-                                                    BlockState blockState = BlockStateArgumentType.getBlockState(context, "blockstate").getBlockState();
+                                                    BlockState blockState = BlockStateArgument.getBlock(context, "blockstate").getState();
                                                     return addGameEvent(context.getSource(), pos, reason, null, blockState);
                                                 })
                                         )
                                         .executes(context -> {
-                                            Vec3d pos = Vec3ArgumentType.getVec3(context, "pos");
+                                            Vec3 pos = Vec3Argument.getVec3(context, "pos");
                                             String reason = StringArgumentType.getString(context, "reason");
                                             return addGameEvent(context.getSource(), pos, reason, null, null);
                                         })
@@ -144,29 +148,29 @@ public class ExtraVaniallaCommandRegister {
                                 )
                         )
         );
-        dispatcher.register(CommandManager.literal("worldEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
-                .then(CommandManager.argument("player", EntityArgumentType.player())
-                        .then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-                                .then(CommandManager.argument("event", StringArgumentType.string()).suggests(WORLD_EVENT_SUGGESTIONS)
-                                        .then(CommandManager.argument("data", IntegerArgumentType.integer())
+        dispatcher.register(Commands.literal("worldEvent").requires(source -> CommandHelper.canUseCommand(source, 2))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                .then(Commands.argument("event", StringArgumentType.string()).suggests(WORLD_EVENT_SUGGESTIONS)
+                                        .then(Commands.argument("data", IntegerArgumentType.integer())
                                                 .executes(context -> {
-                                                    ServerCommandSource source = context.getSource();
+                                                    CommandSourceStack source = context.getSource();
 
-                                                    PlayerEntity player = EntityArgumentType.getPlayer(context, "player");
-                                                    BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
+                                                    Player player = EntityArgument.getPlayer(context, "player");
+                                                    BlockPos pos = BlockPosArgument.getBlockPos(context, "pos");
                                                     String event = StringArgumentType.getString(context, "event");
                                                     int data = IntegerArgumentType.getInteger(context, "data");
                                                     addWorldEvent(source, pos, event, player, data);
 
                                                     return 1;
                                                 }))))
-                ).then(CommandManager.argument("pos", BlockPosArgumentType.blockPos())
-                        .then(CommandManager.argument("event", StringArgumentType.string()).suggests(WORLD_EVENT_SUGGESTIONS)
-                                .then(CommandManager.argument("data", IntegerArgumentType.integer())
+                ).then(Commands.argument("pos", BlockPosArgument.blockPos())
+                        .then(Commands.argument("event", StringArgumentType.string()).suggests(WORLD_EVENT_SUGGESTIONS)
+                                .then(Commands.argument("data", IntegerArgumentType.integer())
                                         .executes(context -> {
-                                            ServerCommandSource source = context.getSource();
+                                            CommandSourceStack source = context.getSource();
 
-                                            BlockPos pos = BlockPosArgumentType.getBlockPos(context, "pos");
+                                            BlockPos pos = BlockPosArgument.getBlockPos(context, "pos");
                                             String event = StringArgumentType.getString(context, "event");
                                             int data = IntegerArgumentType.getInteger(context, "data");
                                             addWorldEvent(source, pos, event, null, data);

@@ -21,23 +21,24 @@
 package mypals.ml.mixin.features.bedRecordHeadRotation;
 
 import mypals.ml.interfaces.BedBlockEntityExtension;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BedBlockEntity;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.text.Text;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BedBlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Implements;
 import org.spongepowered.asm.mixin.Interface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+
+//#if MC < 12106
+//$$ import net.minecraft.nbt.CompoundTag;
+//#endif
 //#if MC >= 12106
-//$$ import net.minecraft.storage.NbtWriteView;
-//$$ import net.minecraft.storage.NbtReadView;
-//$$ import net.minecraft.storage.WriteView;
-//$$ import net.minecraft.storage.ReadView;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+//#elseif MC >= 12006
+//$$ import net.minecraft.core.HolderLookup;
 //#endif
 
 @Mixin(BedBlockEntity.class)
@@ -72,77 +73,70 @@ public abstract class BedBlockEntityMixin extends BlockEntity {
     }
 
     //#if MC >= 12106
-    //$$ @Override
-    //$$ protected void writeData(WriteView nbt) {
-    //$$     nbt.putFloat("SleeperYaw", this.yaw);
-    //$$     nbt.putFloat("SleeperPitch", this.pitch);
-    //$$ }
-    //#elseif MC >= 12006
     @Override
-    protected void writeNbt(NbtCompound nbt
-            , RegistryWrapper.WrapperLookup registryLookup
-    ) {
+    protected void saveAdditional(ValueOutput nbt) {
         nbt.putFloat("SleeperYaw", this.yaw);
         nbt.putFloat("SleeperPitch", this.pitch);
     }
+    //#elseif MC >= 12006
+    //$$@Override
+    //$$protected void saveAdditional(CompoundTag nbt
+    //$$        , HolderLookup.Provider provider
+    //$$) {
+    //$$    nbt.putFloat("SleeperYaw", this.yaw);
+    //$$    nbt.putFloat("SleeperPitch", this.pitch);
+    //$$}
     //#else
     //$$ @Override
-    //$$ protected void writeNbt(NbtCompound nbt) {
+    //$$ protected void saveAdditional(CompoundTag nbt) {
     //$$     nbt.putFloat("SleeperYaw", this.yaw);
     //$$     nbt.putFloat("SleeperPitch", this.pitch);
     //$$ }
     //#endif
 
     //#if MC >= 12106
-    //$$ @Override
-    //$$ protected void readData(ReadView nbt) {
-    //$$     this.yaw = nbt.getFloat(
-    //$$              "SleeperYaw"
-    //$$             //#if MC >= 12105
-    //$$             , 0F
-    //$$              //#endif
-    //$$     );
-    //$$     this.pitch = nbt.getFloat(
-    //$$             "SleeperPitch"
-    //$$             //#if MC >= 12105
-    //$$              , 0F
-    //$$             //#endif
-    //$$     );
-    //$$ }
-    //#elseif MC >= 12006
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        this.yaw = nbt.getFloat(
-                "SleeperYaw"
-                //#if MC >= 12105
-                //$$ ,0F
-                //#endif
+    protected void loadAdditional(ValueInput nbt) {
+        this.yaw = nbt.getFloatOr(
+                 "SleeperYaw"
+                , 0F
         );
-        this.pitch = nbt.getFloat(
+        this.pitch = nbt.getFloatOr(
                 "SleeperPitch"
-                //#if MC >= 12105
-                //$$ ,0F
-                //#endif
+                 , 0F
         );
     }
-    //#else
-    //$$ @Override
-    //$$ public
-
-    //$$void readNbt(NbtCompound nbt
-    //$$) {
-    //$$    this.yaw = nbt.getFloat(
+    //#elseif MC > 12004
+    //$$@Override
+    //$$protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registryLookup) {
+    //$$    this.yaw =
+                    //#if MC >= 12105
+                    //$$ nbt.getFloatOr(
+                    //#else
+                    //$$ nbt.getFloat(
+                    //#endif
     //$$            "SleeperYaw"
-    //$$            //#if MC >= 12105
-    //$$            //$$ ,0F
-    //$$            //#endif
-    //$$    );
-    //$$     this.pitch = nbt.getFloat(
-    //$$            "SleeperPitch"
-    //$$             //#if MC >= 12105
-    //$$            //$$ ,0F
-    //$$            //#endif
+                //#if MC >= 12105
+                //$$,0F
+                //#endif
+    //$$     );
+    //$$     this.pitch =
+                    //#if MC >= 12105
+                    //$$ nbt.getFloatOr(
+                    //#else
+                    //$$ nbt.getFloat(
+                    //#endif
+    //$$             "SleeperPitch"
+                //#if MC >= 12105
+                //$$,0F
+                //#endif
     //$$    );
     //$$}
+    //#else
+    //$$ @Override
+    //$$ public void load(CompoundTag nbt) {
+    //$$     this.yaw = nbt.getFloat("SleeperYaw");
+    //$$     this.pitch = nbt.getFloat("SleeperPitch");
+    //$$ }
     //#endif
 }

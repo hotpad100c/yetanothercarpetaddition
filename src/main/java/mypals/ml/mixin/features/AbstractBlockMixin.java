@@ -23,28 +23,27 @@ package mypals.ml.mixin.features;
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.features.visualizingFeatures.BlockUpdateVisualizing;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.WorldAccess;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+//#if MC > 12101
+import net.minecraft.world.level.ScheduledTickAccess;
+//#endif
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-//#if MC >= 12102
-//$$ import net.minecraft.util.math.random.Random;
-//$$ import net.minecraft.world.WorldView;
-//$$ import net.minecraft.world.tick.ScheduledTickView;
-//#endif
-
-@Mixin(AbstractBlock.class)
+@Mixin(BlockBehaviour.class)
 public class AbstractBlockMixin {
     @Inject(
-            method = "onBlockAdded",
+            method = "onPlace",
             at = @At("HEAD"),
             cancellable = true
     )
@@ -55,40 +54,40 @@ public class AbstractBlockMixin {
     }
 
     @Inject(
-            method = "getStateForNeighborUpdate",
+            method = "updateShape",
             at = @At("HEAD")
     )
     private void AddPPMarker(BlockState state,
                              //#if MC >= 12102
-                             //$$ WorldView world, ScheduledTickView tickView,
+                             LevelReader world, ScheduledTickAccess tickView,
                              //#else
-                             Direction direction, BlockState neighborState, WorldAccess world,
+                             //$$ Direction direction, BlockState neighborState, LevelAccessor world,
                              //#endif
                              BlockPos pos,
                              //#if MC >= 12102
-                             //$$ Direction direction,BlockPos neighborPos,BlockState neighborState, Random random,
+                             Direction direction,BlockPos neighborPos,BlockState neighborState, RandomSource random,
                              //#else
-                             BlockPos neighborPos,
+                             //$$ BlockPos neighborPos,
                              //#endif
                              CallbackInfoReturnable<BlockState> cir) {
-        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || world.isClient()) return;
-        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerWorld) (Object) world, pos.toImmutable(), BlockUpdateVisualizing.UpdateType.PP);
+        if (!YetAnotherCarpetAdditionRules.stateUpdateVisualize || world.isClientSide()) return;
+        YetAnotherCarpetAdditionServer.blockUpdateVisualizing.setVisualizer((ServerLevel) (Object) world, pos.immutable(), BlockUpdateVisualizing.UpdateType.PP);
 
     }
 
     @Inject(
-            method = "prepare",
+            method = "updateIndirectNeighbourShapes",
             at = @At("HEAD"),
             cancellable = true
     )
-    public void prepare(BlockState state, WorldAccess world, BlockPos pos, int flags, int maxUpdateDepth, CallbackInfo ci) {
+    public void prepare(BlockState state, LevelAccessor world, BlockPos pos, int flags, int maxUpdateDepth, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.blocksNoSelfCheck) {
             ci.cancel();
         }
     }
 
     @Inject(
-            method = "getHardness",
+            method = "defaultDestroyTime",
             at = @At("HEAD"),
             cancellable = true
     )

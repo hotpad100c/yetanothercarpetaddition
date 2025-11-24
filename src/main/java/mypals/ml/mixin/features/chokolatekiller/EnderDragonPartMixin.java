@@ -20,17 +20,11 @@
 
 package mypals.ml.mixin.features.chokolatekiller;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonPart;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.Final;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.boss.EnderDragonPart;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 
 @Mixin(EnderDragonPart.class)
 public abstract class EnderDragonPartMixin extends Entity {
@@ -39,7 +33,7 @@ public abstract class EnderDragonPartMixin extends Entity {
      @Final
      public EnderDragonEntity owner;
  */
-    public EnderDragonPartMixin(EntityType<?> type, World world) {
+    public EnderDragonPartMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 

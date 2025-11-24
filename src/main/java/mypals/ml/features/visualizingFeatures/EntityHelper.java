@@ -20,66 +20,58 @@
 
 package mypals.ml.features.visualizingFeatures;
 
-import mypals.ml.YetAnotherCarpetAdditionServer;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.DisplayEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.FloatTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtFloat;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.network.packet.s2c.play.EntityAttachS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntityAttributesS2CPacket;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
-import net.minecraft.util.math.BlockPos;
-
 
 public class EntityHelper {
-    public static NbtCompound scaleEntity(NbtCompound nbt, float scale) {
-        NbtCompound scaleNbt = new NbtCompound();
-        NbtCompound transformation = new NbtCompound();
+    public static CompoundTag scaleEntity(CompoundTag nbt, float scale) {
+        CompoundTag scaleNbt = new CompoundTag();
+        CompoundTag transformation = new CompoundTag();
         // Right rotation (identity quaternion: no rotation)
-        NbtList rightRotation = new NbtList();
-        rightRotation.add(NbtFloat.of(0.0f));
-        rightRotation.add(NbtFloat.of(0.0f));
-        rightRotation.add(NbtFloat.of(0.0f));
-        rightRotation.add(NbtFloat.of(1.0f));
+        ListTag rightRotation = new ListTag();
+        rightRotation.add(FloatTag.valueOf(0.0f));
+        rightRotation.add(FloatTag.valueOf(0.0f));
+        rightRotation.add(FloatTag.valueOf(0.0f));
+        rightRotation.add(FloatTag.valueOf(1.0f));
         transformation.put("right_rotation", rightRotation);
         // Left rotation (identity quaternion: no rotation)
-        NbtList leftRotation = new NbtList();
-        leftRotation.add(NbtFloat.of(0.0f));
-        leftRotation.add(NbtFloat.of(0.0f));
-        leftRotation.add(NbtFloat.of(0.0f));
-        leftRotation.add(NbtFloat.of(1.0f));
+        ListTag leftRotation = new ListTag();
+        leftRotation.add(FloatTag.valueOf(0.0f));
+        leftRotation.add(FloatTag.valueOf(0.0f));
+        leftRotation.add(FloatTag.valueOf(0.0f));
+        leftRotation.add(FloatTag.valueOf(1.0f));
         transformation.put("left_rotation", leftRotation);
         // Translation (no offset)
 
 
-        NbtList translation = new NbtList();
-        translation.add(NbtFloat.of(0));
-        translation.add(NbtFloat.of(0));
-        translation.add(NbtFloat.of(0));
+        ListTag translation = new ListTag();
+        translation.add(FloatTag.valueOf(0));
+        translation.add(FloatTag.valueOf(0));
+        translation.add(FloatTag.valueOf(0));
         transformation.put("translation", translation);
         // Scale
-        NbtList scaleList = new NbtList();
-        scaleList.add(NbtFloat.of(scale));
-        scaleList.add(NbtFloat.of(scale));
-        scaleList.add(NbtFloat.of(scale));
+        ListTag scaleList = new ListTag();
+        scaleList.add(FloatTag.valueOf(scale));
+        scaleList.add(FloatTag.valueOf(scale));
+        scaleList.add(FloatTag.valueOf(scale));
         transformation.put("scale", scaleList);
         nbt.put("transformation", transformation);
         return nbt;
     }
 
     public static void clearVisualizersInServer(MinecraftServer server, String target) {
-        for (ServerWorld world : server.getWorlds()) {
+        for (ServerLevel world : server.getAllLevels()) {
             clearWorldVisualizers(world, target);
         }
     }
@@ -90,18 +82,18 @@ public class EntityHelper {
     }
 
 
-    public static void clearWorldVisualizers(ServerWorld world, String target) {
+    public static void clearWorldVisualizers(ServerLevel world, String target) {
         if (world != null) {
-            List<DisplayEntity.TextDisplayEntity> entitiesText = new ArrayList<>();
-            Predicate<DisplayEntity.TextDisplayEntity> predicate = marker -> marker.getCommandTags().contains(target);
-            world.collectEntitiesByType(EntityType.TEXT_DISPLAY,
+            List<Display.TextDisplay> entitiesText = new ArrayList<>();
+            Predicate<Display.TextDisplay> predicate = marker -> marker.getTags().contains(target);
+            world.getEntities(EntityType.TEXT_DISPLAY,
                     predicate,
                     entitiesText);
             entitiesText.forEach(Entity::discard);
 
-            List<DisplayEntity.BlockDisplayEntity> entitiesBlock = new ArrayList<>();
-            Predicate<DisplayEntity.BlockDisplayEntity> predicate2 = bd -> bd.getCommandTags().contains(target);
-            world.collectEntitiesByType(EntityType.BLOCK_DISPLAY,
+            List<Display.BlockDisplay> entitiesBlock = new ArrayList<>();
+            Predicate<Display.BlockDisplay> predicate2 = bd -> bd.getTags().contains(target);
+            world.getEntities(EntityType.BLOCK_DISPLAY,
                     predicate2,
                     entitiesBlock);
             entitiesBlock.forEach(Entity::discard);

@@ -21,10 +21,7 @@
 package mypals.ml.mixin.features.bouncierSlime;
 
 import mypals.ml.interfaces.BlockBehaviorExtension;
-import net.minecraft.block.Block;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.World;
+import net.minecraft.world.level.block.Block;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Block.class)

@@ -20,57 +20,50 @@
 
 package mypals.ml.commands;
 
-import carpet.CarpetServer;
 import carpet.CarpetSettings;
 import carpet.patches.EntityPlayerMPFake;
 import carpet.utils.CommandHelper;
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import com.mojang.brigadier.suggestion.SuggestionProvider;
 import mypals.ml.features.fakePlayerControl.FakePlayerControlManager;
-import net.minecraft.command.CommandRegistryAccess;
-import net.minecraft.command.argument.EntityArgumentType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.server.command.CommandManager;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.command.TeleportCommand;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.Text;
-
-import static mypals.ml.features.subscribeRules.RuleSubscribeManager.subscribeRule;
+import net.minecraft.commands.CommandBuildContext;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 
 public class BindPlayerCommand {
     private static final SimpleCommandExceptionType NOT_REAL_PLAYER = new SimpleCommandExceptionType(
-            Text.literal("The first argument must be a real player, not a fake player.")
+            Component.literal("The first argument must be a real player, not a fake player.")
     );
     private static final SimpleCommandExceptionType NOT_FAKE_PLAYER = new SimpleCommandExceptionType(
-            Text.literal("The second argument must be a fake player.")
+            Component.literal("The second argument must be a fake player.")
     );
     private static final SimpleCommandExceptionType PLAYER_NOT_FOUND = new SimpleCommandExceptionType(
-            Text.literal("Player not found.")
+            Component.literal("Player not found.")
     );
 
-    public static void register(CommandDispatcher<ServerCommandSource> dispatcher, CommandRegistryAccess registryAccess) {
+    public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
         dispatcher.register(
-                CommandManager.literal("bindToFake")
+                Commands.literal("bindToFake")
                         .requires(source -> CommandHelper.canUseCommand(source, CarpetSettings.commandPlayer))
-                        .then(CommandManager.argument("player", EntityArgumentType.player())
-                                .then(CommandManager.argument("player2", EntityArgumentType.player())
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .then(Commands.argument("player2", EntityArgument.player())
                                         .executes(context -> execute(
                                                 context,
-                                                EntityArgumentType.getPlayer(context, "player"),
-                                                EntityArgumentType.getPlayer(context, "player2")
+                                                EntityArgument.getPlayer(context, "player"),
+                                                EntityArgument.getPlayer(context, "player2")
                                         ))
                                 )
                         )
         );
     }
 
-    private static int execute(CommandContext<ServerCommandSource> context,
-                               ServerPlayerEntity player, ServerPlayerEntity fakePlayer) throws CommandSyntaxException {
+    private static int execute(CommandContext<CommandSourceStack> context,
+                               ServerPlayer player, ServerPlayer fakePlayer) throws CommandSyntaxException {
         if (player == null || fakePlayer == null) {
             throw PLAYER_NOT_FOUND.create();
         }
@@ -81,8 +74,8 @@ public class BindPlayerCommand {
             throw NOT_FAKE_PLAYER.create();
         }
         boolean suc = FakePlayerControlManager.tryBind(player, (EntityPlayerMPFake) fakePlayer);
-        context.getSource().sendFeedback(() -> Text.literal("Successfully " + (suc ? "bound " : "unbound ")
-                + player.getNameForScoreboard() + " to " + fakePlayer.getNameForScoreboard()), true);
+        context.getSource().sendSuccess(() -> Component.literal("Successfully " + (suc ? "bound " : "unbound ")
+                + player.getScoreboardName() + " to " + fakePlayer.getScoreboardName()), true);
         return 1;
     }
 }

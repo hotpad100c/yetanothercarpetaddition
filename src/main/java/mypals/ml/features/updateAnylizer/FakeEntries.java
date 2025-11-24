@@ -20,55 +20,53 @@
 
 package mypals.ml.features.updateAnylizer;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-import net.minecraft.world.block.ChainRestrictedNeighborUpdater;
-import net.minecraft.world.block.NeighborUpdater;
-
 //#if MC >= 12109
-//$$ import java.util.function.Consumer;
+import java.util.function.Consumer;
 //#endif
-
-//#if MC>12102
-//$$ import net.minecraft.world.block.WireOrientation;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.redstone.CollectingNeighborUpdater;
+import net.minecraft.world.level.redstone.NeighborUpdater;
+//#if MC > 12102
+import net.minecraft.world.level.redstone.Orientation;
 //#endif
 
 public class FakeEntries {
     public static record SimpleEntryFake(BlockPos pos, Block sourceBlock,
                                          //#if MC <= 12102
-                                         BlockPos sourcePos
+                                         //$$ BlockPos sourcePos
                                          //#else
-                                         //$$ WireOrientation wireOrientation
+                                         Orientation wireOrientation
                                          //#endif
-    ) implements ChainRestrictedNeighborUpdater.Entry {
+    ) implements CollectingNeighborUpdater.NeighborUpdates {
         public SimpleEntryFake(BlockPos pos, Block sourceBlock,
                                //#if MC <= 12102
-                               BlockPos sourcePos
+                               //$$ BlockPos sourcePos
                                //#else
-                               //$$ WireOrientation wireOrientation
+                               Orientation wireOrientation
                                //#endif
         ) {
             this.pos = pos;
             this.sourceBlock = sourceBlock;
             //#if MC <= 12102
-            this.sourcePos = sourcePos;
+            //$$ this.sourcePos = sourcePos;
             //#else
-            //$$ this.wireOrientation = wireOrientation;
+            this.wireOrientation = wireOrientation;
             //#endif
         }
 
-        public boolean update(World world) {
+        public boolean runNext(Level world) {
             UpdateLoggerHelper.incrementNC();
             BlockState blockState = world.getBlockState(this.pos);
-            NeighborUpdater.tryNeighborUpdate(world, blockState, this.pos, this.sourceBlock, this
+            NeighborUpdater.executeUpdate(world, blockState, this.pos, this.sourceBlock, this
 
                             //#if MC <= 12102
-                            .sourcePos
+                            //$$ .sourcePos
                     //#else
-                    //$$.wireOrientation
+                    .wireOrientation
                     //#endif
 
                     , false);
@@ -84,24 +82,24 @@ public class FakeEntries {
         }
 
         //#if MC <= 12102
-        public BlockPos sourcePos() {
-            return this.sourcePos;
-        }
+        //$$ public BlockPos sourcePos() {
+        //$$     return this.sourcePos;
+        //$$ }
         //#else
-        //$$ public WireOrientation wireOrientation() {return this.wireOrientation;}
+        public Orientation wireOrientation() {return this.wireOrientation;}
         //#endif
 
         //#if MC >= 12109
-        //$$ @Override
-        //$$ public void runCallback(Consumer<BlockPos> callback) {
-        //$$     callback.accept(this.pos);
-        //$$ }
+        @Override
+        public void forEachUpdatedPos(Consumer<BlockPos> callback) {
+            callback.accept(this.pos);
+        }
         //#endif
     }
 
     public static record StateReplacementEntryFake(Direction direction, BlockState neighborState, BlockPos pos,
                                                    BlockPos neighborPos, int updateFlags,
-                                                   int updateLimit) implements ChainRestrictedNeighborUpdater.Entry {
+                                                   int updateLimit) implements CollectingNeighborUpdater.NeighborUpdates {
         public StateReplacementEntryFake(Direction direction, BlockState neighborState, BlockPos pos, BlockPos neighborPos, int updateFlags, int updateLimit) {
             this.direction = direction;
             this.neighborState = neighborState;
@@ -111,13 +109,13 @@ public class FakeEntries {
             this.updateLimit = updateLimit;
         }
 
-        public boolean update(World world) {
+        public boolean runNext(Level world) {
             UpdateLoggerHelper.incrementPP();
-            NeighborUpdater.replaceWithStateForNeighborUpdate(world,
+            NeighborUpdater.executeShapeUpdate(world,
                     //#if MC <=12102
-                    this.direction, this.neighborState, this.pos, this.neighborPos, this.updateFlags, this.updateLimit
+                    //$$ this.direction, this.neighborState, this.pos, this.neighborPos, this.updateFlags, this.updateLimit
                     //#else
-                    //$$ this.direction, this.pos, this.neighborPos, this.neighborState, this.updateFlags, this.updateLimit
+                    this.direction, this.pos, this.neighborPos, this.neighborState, this.updateFlags, this.updateLimit
                     //#endif
 
             );
@@ -149,48 +147,48 @@ public class FakeEntries {
         }
 
         //#if MC >= 12109
-        //$$ @Override
-        //$$ public void runCallback(Consumer<BlockPos> callback) {
-        //$$     callback.accept(this.pos);
-        //$$ }
+        @Override
+        public void forEachUpdatedPos(Consumer<BlockPos> callback) {
+            callback.accept(this.pos);
+        }
         //#endif
     }
 
     public static record StatefulEntryFake(BlockState state, BlockPos pos, Block sourceBlock,
 
                                            //#if MC <= 12102
-                                           BlockPos sourcePos
+                                           //$$ BlockPos sourcePos
                                            //#else
-                                           //$$ WireOrientation wireOrientation
+                                           Orientation wireOrientation
                                            //#endif
             ,
-                                           boolean movedByPiston) implements ChainRestrictedNeighborUpdater.Entry {
+                                           boolean movedByPiston) implements CollectingNeighborUpdater.NeighborUpdates {
         public StatefulEntryFake(BlockState state, BlockPos pos, Block sourceBlock,
 
                                  //#if MC <= 12102
-                                 BlockPos sourcePos
+                                 //$$ BlockPos sourcePos
                                  //#else
-                                 //$$ WireOrientation wireOrientation
+                                 Orientation wireOrientation
                                  //#endif
                 , boolean movedByPiston) {
             this.state = state;
             this.pos = pos;
             this.sourceBlock = sourceBlock;
             //#if MC <= 12102
-            this.sourcePos = sourcePos;
+            //$$ this.sourcePos = sourcePos;
             //#else
-            //$$ this.wireOrientation = wireOrientation;
+            this.wireOrientation = wireOrientation;
             //#endif
             this.movedByPiston = movedByPiston;
         }
 
-        public boolean update(World world) {
+        public boolean runNext(Level world) {
             UpdateLoggerHelper.incrementNC();
-            NeighborUpdater.tryNeighborUpdate(world, this.state, this.pos, this.sourceBlock,
+            NeighborUpdater.executeUpdate(world, this.state, this.pos, this.sourceBlock,
                     //#if MC <= 12102
-                    this.sourcePos
+                    //$$ this.sourcePos
                     //#else
-                    //$$ this.wireOrientation
+                    this.wireOrientation
                     //#endif
                     , this.movedByPiston);
             return false;
@@ -209,11 +207,11 @@ public class FakeEntries {
         }
 
         //#if MC <= 12102
-        public BlockPos sourcePos() {
-            return this.sourcePos;
-        }
+        //$$ public BlockPos sourcePos() {
+        //$$     return this.sourcePos;
+        //$$ }
         //#else
-        //$$ public WireOrientation wireOrientation() {return this.wireOrientation;}
+        public Orientation wireOrientation() {return this.wireOrientation;}
         //#endif
 
         public boolean movedByPiston() {
@@ -221,10 +219,10 @@ public class FakeEntries {
         }
 
         //#if MC >= 12109
-        //$$ @Override
-        //$$ public void runCallback(Consumer<BlockPos> callback) {
-        //$$     callback.accept(this.pos);
-        //$$ }
+        @Override
+        public void forEachUpdatedPos(Consumer<BlockPos> callback) {
+            callback.accept(this.pos);
+        }
         //#endif
     }
 }

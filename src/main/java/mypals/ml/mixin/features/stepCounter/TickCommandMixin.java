@@ -24,10 +24,10 @@ import com.llamalad7.mixinextras.sugar.Local;
 import mypals.ml.features.tickStepCounter.StepManager;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import mypals.ml.utils.adapter.HoverEvent;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.server.command.TickCommand;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Text;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.commands.TickCommand;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -36,29 +36,29 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(TickCommand.class)
 public class TickCommandMixin {
-    @Inject(method = "executeFreeze",
+    @Inject(method = "setFreeze",
             at = @At("RETURN"))
-    private static void modifyFeedbackText(ServerCommandSource source, boolean frozen, CallbackInfoReturnable<Integer> cir) {
+    private static void modifyFeedbackText(CommandSourceStack source, boolean frozen, CallbackInfoReturnable<Integer> cir) {
         StepManager.reset();
     }
     @ModifyArg(
-            method = "executeStep(Lnet/minecraft/server/command/ServerCommandSource;I)I",
+            method = "step(Lnet/minecraft/commands/CommandSourceStack;I)I",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/command/ServerCommandSource;sendFeedback(Ljava/util/function/Supplier;Z)V",
+                    target = "Lnet/minecraft/commands/CommandSourceStack;sendSuccess(Ljava/util/function/Supplier;Z)V",
                     ordinal = 0
             ),
             index = 0
     )
-    private static java.util.function.Supplier<Text> modifyFeedbackText(java.util.function.Supplier<Text> original, @Local(argsOnly = true) int steps) {
+    private static java.util.function.Supplier<Component> modifyFeedbackText(java.util.function.Supplier<Component> original, @Local(argsOnly = true) int steps) {
         return () -> {
-            Text originalText = original.get();
-            MutableText modifiedText = originalText.copy();
+            Component originalText = original.get();
+            MutableComponent modifiedText = originalText.copy();
             StepManager.step(steps);
             if(YetAnotherCarpetAdditionRules.enableTickStepCounter) {
-                modifiedText.styled(style -> style.withHoverEvent(
+                modifiedText.withStyle(style -> style.withHoverEvent(
                         HoverEvent.showText(
-                                Text.literal(String.format(Text.translatable("TickStepCounter.stepped").getString(), StepManager.getStepped()))
+                                Component.literal(String.format(Component.translatable("TickStepCounter.stepped").getString(), StepManager.getStepped()))
                         )
                 ));
             }

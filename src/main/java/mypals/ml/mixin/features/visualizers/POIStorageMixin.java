@@ -21,23 +21,24 @@
 package mypals.ml.mixin.features.visualizers;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-//#if MC >= 12109
-//$$ import net.minecraft.server.debug.SubscriptionTracker;
+
+//#if MC > 12109
+import net.minecraft.util.debug.LevelDebugSynchronizers;
 //#else
-import net.minecraft.server.network.DebugInfoSender;
+//$$ import net.minecraft.network.protocol.game.DebugPackets;
+//$$ import net.minecraft.server.level.ServerLevel;
 //#endif
 
 @Mixin(
         //#if MC >= 12109
-        //$$ SubscriptionTracker.class
+        LevelDebugSynchronizers.class
         //#else
-        DebugInfoSender.class
+        //$$ DebugPackets.class
         //#endif
 )
 public abstract class POIStorageMixin {
@@ -46,7 +47,7 @@ public abstract class POIStorageMixin {
             method = "sendPoiAddition",
             at = @At("HEAD")
     )
-    private static void add(ServerWorld world, BlockPos pos, CallbackInfo ci) {
+    private static void add(ServerLevel world, BlockPos pos, CallbackInfo ci) {
         if (YetAnotherCarpetAdditionRules.POIVisualize)
             YetAnotherCarpetAdditionServer.poiVisualizing.setVisualizer(
                     world,
@@ -58,15 +59,21 @@ public abstract class POIStorageMixin {
 
     @Inject(
             //#if MC >= 12109
-            //$$ method = "onPoiRemoved",
+            method = "dropPoi",
             //#else
-            method = "sendPoiRemoval",
+            //$$ method = "sendPoiRemovedPacket",
             //#endif
             at = @At("HEAD")
     )
-    private static void remove(
+    private
+
+    //#if MC <= 12106
+    //$$ static
+    //#endif
+
+    void remove(
             //#if MC < 12109
-            ServerWorld world,
+            //$$ ServerLevel world,
             //#endif
             BlockPos pos, CallbackInfo ci
     ) {
