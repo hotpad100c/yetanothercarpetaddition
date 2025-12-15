@@ -336,5 +336,5 @@ public class YetAnotherCarpetAdditionRules {
     @Rule(
             categories = {YACA, FEATURE}
     )
-    public static boolean allowIllegalBlockEntities = true;
+    public static boolean allowIllegalBlockEntities = false;
 }
