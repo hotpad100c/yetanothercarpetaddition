@@ -47,7 +47,7 @@ public class BindPlayerCommand {
     );
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
-        dispatcher.register(
+        /*dispatcher.register(
                 Commands.literal("bindToFake")
                         .requires(source -> CommandHelper.canUseCommand(source, CarpetSettings.commandPlayer))
                         .then(Commands.argument("player", EntityArgument.player())
@@ -59,7 +59,7 @@ public class BindPlayerCommand {
                                         ))
                                 )
                         )
-        );
+        );*/
     }
 
     private static int execute(CommandContext<CommandSourceStack> context,
