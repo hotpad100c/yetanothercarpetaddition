@@ -34,7 +34,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+//#if MC >= 1.21.11
 import net.minecraft.server.permissions.Permissions;
+//#endif
 
 import java.util.HashSet;
 import java.util.Set;
@@ -55,7 +57,12 @@ public class WayPointCommand {
 
     @SuppressWarnings("resource")
     public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
-        dispatcher.register(literal("waypoint").requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+        dispatcher.register(literal("waypoint").requires(source ->
+                        //#if MC >= 1.21.11
+                        source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                        //#else
+                        //$$ source.hasPermission(2))
+                        //#endif
                 .then(literal("save")
                         .then(argument("name", StringArgumentType.word())
                                 .executes(context -> {

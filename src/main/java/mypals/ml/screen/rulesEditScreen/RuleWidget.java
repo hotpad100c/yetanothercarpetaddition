@@ -69,9 +69,9 @@ public class RuleWidget {
     public CycleButton<@NotNull Boolean> favoriteRule;
     public boolean isTrueFalseRule = false;
     private RulesEditScreen rulesEditScreen;
-    private WidgetSprites LOCK = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "ui/lock"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/unlock"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/lock_s"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/unlock_s"));
-    private WidgetSprites LOVE = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "ui/loved"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/love"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/loved_s"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/love_s"));
-    private WidgetSprites TRUE_FALSE = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "ui/true_t"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/false_t"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/true_t_s"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/false_t_s"));
+    private WidgetSprites LOCK = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "lock"), Identifier.fromNamespaceAndPath(MOD_ID, "unlock"), Identifier.fromNamespaceAndPath(MOD_ID, "lock_s"), Identifier.fromNamespaceAndPath(MOD_ID, "unlock_s"));
+    private WidgetSprites LOVE = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "loved"), Identifier.fromNamespaceAndPath(MOD_ID, "love"), Identifier.fromNamespaceAndPath(MOD_ID, "loved_s"), Identifier.fromNamespaceAndPath(MOD_ID, "love_s"));
+    private WidgetSprites TRUE_FALSE = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "true_t"), Identifier.fromNamespaceAndPath(MOD_ID, "false_t"), Identifier.fromNamespaceAndPath(MOD_ID, "true_t_s"), Identifier.fromNamespaceAndPath(MOD_ID, "false_t_s"));
 
     protected RuleWidget(RuleData ruleData, RulesEditScreen rulesEditScreen) {
         this.rulesEditScreen = rulesEditScreen;
