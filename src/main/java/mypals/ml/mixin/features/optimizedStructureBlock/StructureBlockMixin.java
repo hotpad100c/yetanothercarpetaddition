@@ -25,7 +25,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -54,7 +54,7 @@ public class StructureBlockMixin extends BlockEntity {
     @Shadow
     private Vec3i structureSize;
 
-    @Shadow private ResourceLocation structureName;
+    @Shadow private Identifier structureName;
 
     public StructureBlockMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);

@@ -110,7 +110,7 @@ public class ExtraVaniallaCommandRegister {
                                                         //#else
                                                         //$$holders()
                                                         //#endif
-                                                        .map(entry -> entry.key().location().toString().replace("minecraft:", ""))
+                                                        .map(entry -> entry.key().identifier().toString().replace("minecraft:", ""))
                                                         .collect(Collectors.toList()), builder
                                         ))
                                         .then(Commands.argument("entity", EntityArgument.entity())

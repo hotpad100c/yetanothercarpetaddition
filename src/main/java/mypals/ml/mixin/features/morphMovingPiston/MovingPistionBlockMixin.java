@@ -118,6 +118,9 @@ public abstract class MovingPistionBlockMixin extends BaseEntityBlock {
             //#if MC >= 12105
             , InsideBlockEffectApplier entityCollisionHandler
             //#endif
+            //#if MC >= 12110
+            , boolean bl
+            //#endif
     ) {
        PistonMovingBlockEntity pistonBlockEntity = this.getBlockEntity(world, entity.getOnPos());
         if (pistonBlockEntity != null && pistonBlockEntity.getMovedState() != null && morphMovingPiston)
@@ -125,6 +128,9 @@ public abstract class MovingPistionBlockMixin extends BaseEntityBlock {
                     pistonBlockEntity.getMovedState(), world, pos, entity
                     //#if MC >= 12105
                     , entityCollisionHandler
+                    //#endif
+                    //#if MC >= 12110
+                    , bl
                     //#endif
             );
     }

@@ -20,15 +20,17 @@
 
 package mypals.ml.screen.rulesEditScreen;
 
+import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import mypals.ml.utils.adapter.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.StateSwitchingButton;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.sounds.SoundEvents;
 import mypals.ml.network.RuleData;
 import mypals.ml.settings.YACAConfigManager;
@@ -45,6 +47,7 @@ import net.minecraft.client.input.MouseButtonInfo;
 import static mypals.ml.YetAnotherCarpetAdditionClient.defaultRules;
 import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
+import org.jetbrains.annotations.NotNull;
 // TODO something is missing here
 // //#elseif MC >= 12102
 // //$$ import static net.minecraft.client.render.RenderLayer.getGui;
@@ -60,15 +63,15 @@ public class RuleWidget {
     private RuleData ruleData;
     private int x, y;
     public EditBox valueWidget;
-    public StateSwitchingButton trueFalseButton;
+    public CycleButton<@NotNull Boolean> trueFalseButton;
 
-    public StateSwitchingButton lockRule;
-    public StateSwitchingButton favoriteRule;
+    public CycleButton<@NotNull Boolean> lockRule;
+    public CycleButton<@NotNull Boolean> favoriteRule;
     public boolean isTrueFalseRule = false;
     private RulesEditScreen rulesEditScreen;
-    private WidgetSprites LOCK = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/lock.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/unlock.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/lock_s.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/unlock_s.png"));
-    private WidgetSprites LOVE = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/loved.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/love.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/loved_s.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/love_s.png"));
-    private WidgetSprites TRUE_FALSE = new WidgetSprites(ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/true_t.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/false_t.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/true_t_s.png"), ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/false_t_s.png"));
+    private WidgetSprites LOCK = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "ui/lock"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/unlock"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/lock_s"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/unlock_s"));
+    private WidgetSprites LOVE = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "ui/loved"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/love"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/loved_s"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/love_s"));
+    private WidgetSprites TRUE_FALSE = new WidgetSprites(Identifier.fromNamespaceAndPath(MOD_ID, "ui/true_t"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/false_t"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/true_t_s"), Identifier.fromNamespaceAndPath(MOD_ID, "ui/false_t_s"));
 
     protected RuleWidget(RuleData ruleData, RulesEditScreen rulesEditScreen) {
         this.rulesEditScreen = rulesEditScreen;
@@ -103,301 +106,69 @@ public class RuleWidget {
         valueWidget.setSize(60, 15);
         valueWidget.setSuggestion(ruleData.value);
 
-        trueFalseButton = new StateSwitchingButton(x + 30, y + 5, 30, 13, ruleData.value.toLowerCase().equals("true")) {
-            @Override
-            public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                this.isHovered = this.active && this.visible && mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
+        //TODO Translate
+        boolean initState = ruleData.value.equalsIgnoreCase("true");
+        trueFalseButton = CycleButton.booleanBuilder(Component.literal("True"), Component.literal("False"),initState)
+                .withSprite((value, focused) -> TRUE_FALSE.get(focused, value.isHoveredOrFocused()))
+                .displayState(CycleButton.DisplayState.HIDE)
+                .create(x + 30, y + 5, 30, 13, Component.empty(), (button, active) ->{
+                    String commandName = getCommandName();
+                    Minecraft.getInstance().getConnection().sendCommand(("carpet " + commandName + " " + active));
+                    ruleData.value = active ? "true" : "false";
+                    valueWidget.setValue("");
+                });
 
-                if (this.sprites != null) {
-                    RenderSystem.disableDepthTest();
-                    context.blit(
-                            //#if MC >= 12106
-                            RenderPipelines.GUI_TEXTURED,
-                            //#elseif MC >= 12102
-                            //$$ RenderType::guiTextured,
-                            //#endif
-                            this.sprites.get(this.isStateTriggered(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
-                    RenderSystem.enableDepthTest();
-                }
-            }
+        // *Maybe ruleData.type?
+        isTrueFalseRule = ruleData.suggestions.size() == 2 && (
+                (ruleData.suggestions.getLast().equalsIgnoreCase("true") && ruleData.suggestions.getFirst().equalsIgnoreCase("false")) ||
+                (ruleData.suggestions.getFirst().equalsIgnoreCase("true") && ruleData.suggestions.getLast().equalsIgnoreCase("false"))
+        );
 
-            @Override
-            public boolean
-            //#if MC>12101
-            mouseClicked
-            //#else
-            //$$ clicked
-            //#endif
-            (
-                    //#if MC < 12109
-                    //$$ double mouseX, double mouseY
-                    //#if MC >= 12103
-                    //$$ , int button
-                    //#endif
-                    //#else
-                    MouseButtonEvent click, boolean doubled
-                    //#endif
-            ) {
-                //#if MC >= 12109
-                double mouseX = click.x();
-                double mouseY = click.y();
-                //#endif
+        lockRule = CycleButton.booleanBuilder(Component.literal("Lock"), Component.literal("Unlock"),defaultRules.contains(getCommandName()))
+                .withSprite((button, focused) ->
+                        LOCK.get(focused, button.isHoveredOrFocused())
+                )
+                .displayState(CycleButton.DisplayState.HIDE)
+                .create(x - 15, y + 3, 10, 11, CommonComponents.EMPTY, (button, active) -> {
+                    System.out.println("Clicked lock button");
+                    String commandName = getCommandName();
+                    Minecraft.getInstance().getConnection().sendCommand(
+                            (active ? "carpet setDefault " : "carpet removeDefault ") + commandName + (active ? " " + ruleData.value : "")
+                    );
 
-                //#if MC >= 12103
-                if(this.isMouseOver(mouseX, mouseY)) {
-                   this.playDownSound(Minecraft.getInstance().getSoundManager());
-                //#if MC >= 12109
-                   this.onClick(click, doubled);
-                //#else
-                //$$    this.onClick(mouseX, mouseY);
-                //#endif
-                }
-                //#endif
-                return this.isMouseOver(mouseX, mouseY);
-            }
+                    if (active) {
+                        defaultRules.add(commandName);
+                    } else {
+                        defaultRules.remove(commandName);
+                    }
+                    if (Objects.equals(rulesEditScreen.currentCategory, "default"))
+                        rulesEditScreen.setCurrentCategory("default");
+            });
 
-            @Override
-            public boolean isMouseOver(double mouseX, double mouseY) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                this.isHovered = mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
-
-                return this.active && this.visible && this.isHovered;
-            }
-
-
-            @Override
-            public void onClick(
-                    //#if MC >= 12109
-                    MouseButtonEvent click, boolean doubled
-                    //#else
-                    //$$ double mouseX, double mouseY
-                    //#endif
-            ) {
-                this.isStateTriggered = !this.isStateTriggered;
-                this.playDownSound(Minecraft.getInstance().getSoundManager());
-                String commandName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
-                Minecraft.getInstance().getConnection()
-                        //#if MC >= 12106
-                        .sendCommand(
-                        //#else
-                        //$$ .sendCommand(
-                                //#endif
-                                ("carpet " + commandName + " " + this.isStateTriggered));
-                ruleData.value = this.isStateTriggered ? "true" : "false";
-                valueWidget.setValue("");
-            }
-        };
-        trueFalseButton.initTextureValues(TRUE_FALSE);
-
-        isTrueFalseRule = ruleData.suggestions.size() == 2 &&
-                ((ruleData.suggestions.getLast().toLowerCase().equals("true") &&
-                        ruleData.suggestions.getFirst().toLowerCase().equals("false"))
-                        ||
-                        (ruleData.suggestions.getFirst().toLowerCase().equals("true")
-                                && ruleData.suggestions.getLast().toLowerCase().equals("false")));
-
-        String orgName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
-        lockRule = new StateSwitchingButton(x - 15, y + 3, 10, 11, defaultRules.contains(orgName)) {
-            @Override
-            public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-                if (this.sprites != null) {
-                    RenderSystem.disableDepthTest();
-                    context.blit(
-                            //#if MC >= 12106
-                            RenderPipelines.GUI_TEXTURED,
-                            //#elseif MC >= 12102
-                            //$$ RenderType::guiTextured,
-                            //#endif
-                            this.sprites.get(this.isStateTriggered(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
-                    RenderSystem.enableDepthTest();
-                }
-            }
-
-            @Override
-            public boolean
-            //#if MC > 12101
-            mouseClicked
-            //#else
-            //$$ clicked
-            //#endif
-                    (
-                    //#if MC < 12109
-                    //$$ double mouseX, double mouseY
-                    //#if MC >= 12103
-                    //$$ , int button
-                    //#endif
-                    //#else
-                    MouseButtonEvent click, boolean doubled
-                    //#endif
-            ) {
-                //#if MC >= 12109
-                double mouseX = click.x();
-                double mouseY = click.y();
-                //#endif
-
-                //#if MC >= 12103
-                if(this.isMouseOver(mouseX, mouseY)) {
-                   this.playDownSound(Minecraft.getInstance().getSoundManager());
-                //#if MC >= 12109
-                   this.onClick(click, doubled);
-                //#else
-                //$$    this.onClick(mouseX, mouseY);
-                //#endif
-                }
-                //#endif
-                return this.isMouseOver(mouseX, mouseY);
-            }
-
-            @Override
-            public boolean isMouseOver(double mouseX, double mouseY) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                this.isHovered = mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
-
-                return this.active && this.visible && this.isHovered;
-            }
-
-
-            @Override
-            public void onClick(
-                    //#if MC >= 12109
-                    MouseButtonEvent click, boolean doubled
-                    //#else
-                    //$$ double mouseX, double mouseY
-                    //#endif
-            ) {
-                this.isStateTriggered = !this.isStateTriggered;
-                System.out.println("Clicked lock button");
-                String commandName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
-                Minecraft.getInstance().getConnection()
-
-                        //#if MC >= 12106
-                        .sendCommand(
-                        //#else
-                        //$$ .sendCommand(
-                                //#endif
-                                (isStateTriggered ? "carpet setDefault " : "carpet removeDefault ") + commandName + (isStateTriggered ? " " + ruleData.value : "")
-                        );
-
-                if (isStateTriggered) {
-                    defaultRules.add(commandName);
-                } else {
-                    defaultRules.remove(commandName);
-                }
-                if (Objects.equals(rulesEditScreen.currentCategory, "default"))
-                    rulesEditScreen.setCurrentCategory("default");
-            }
-        };
-
-        lockRule.initTextureValues(LOCK);
-
-        favoriteRule = new StateSwitchingButton(x - 15, y - 3, 10, 11, favoriteRules.contains(orgName)) {
-            @Override
-            public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                this.isHovered = this.active && this.visible && mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
-                if (this.sprites != null) {
-                    RenderSystem.disableDepthTest();
-                    context.blit(
-                            //#if MC >= 12106
-                            RenderPipelines.GUI_TEXTURED,
-                            //#elseif MC >= 12102
-                            //$$ RenderType::guiTextured,
-                            //#endif
-                            this.sprites.get(this.isStateTriggered(), this.isMouseOver(mouseX, mouseY)), this.getX(), this.getY(), 0, 0, this.width, this.height, this.width, this.height);
-                    RenderSystem.enableDepthTest();
-                }
-            }
-
-            @Override
-            public boolean
-            //#if MC>12101
-            mouseClicked
-            //#else
-            //$$ clicked
-            //#endif
-                    (
-                    //#if MC < 12109
-                    //$$ double mouseX, double mouseY
-                    //#if MC >= 12103
-                    //$$ , int button
-                    //#endif
-                    //#else
-                    MouseButtonEvent click, boolean doubled
-                    //#endif
-            ) {
-                //#if MC >= 12109
-                double mouseX = click.x();
-                double mouseY = click.y();
-                //#endif
-
-                //#if MC >= 12103
-                if(this.isMouseOver(mouseX, mouseY)) {
-                   this.playDownSound(Minecraft.getInstance().getSoundManager());
-                //#if MC >= 12109
-                   this.onClick(click, doubled);
-                //#else
-                //$$    this.onClick(mouseX, mouseY);
-                //#endif
-                }
-                //#endif
-                return this.isMouseOver(mouseX, mouseY);
-            }
-
-            @Override
-            public boolean isMouseOver(double mouseX, double mouseY) {
-                double adjustedMouseY = mouseY + rulesEditScreen.rulesScrollableWidget.getScrollY();
-                this.isHovered = mouseX >= (double) this.getX()
-                        && adjustedMouseY >= (double) this.getY() &&
-                        mouseX < (double) (this.getX() + this.getWidth()) &&
-                        adjustedMouseY < (double) (this.getY() + this.getHeight());
-
-                return this.active && this.visible && this.isHovered;
-            }
-
-
-            @Override
-            public void onClick(
-                    //#if MC >= 12109
-                    MouseButtonEvent click, boolean doubled
-                    //#else
-                    //$$ double mouseX, double mouseY
-                    //#endif
-            ) {
-                this.isStateTriggered = !this.isStateTriggered;
-
-                String orgName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
-
-                if (isStateTriggered) {
-                    YACAConfigManager.addFavoriteRule(orgName);
-                    favoriteRules.add(orgName);
-                } else {
-                    YACAConfigManager.removeFavoriteRule(orgName);
-                    favoriteRules.remove(orgName);
-                }
-                if (Objects.equals(rulesEditScreen.currentCategory, "favorite"))
-                    rulesEditScreen.setCurrentCategory("favorite");
-            }
-        };
-
-        favoriteRule.initTextureValues(LOVE);
+        favoriteRule = CycleButton.booleanBuilder(Component.literal("Love"), Component.literal("Unlove"),favoriteRules.contains(getCommandName()))
+                .withSprite((value, focused) -> LOVE.get(focused, value.isHoveredOrFocused()))
+                .displayState(CycleButton.DisplayState.HIDE)
+                .create(x - 15, y - 3, 10, 11, Component.empty(),(button, active) ->{
+                    String orgName = getCommandName();
+                    if (active) {
+                        YACAConfigManager.addFavoriteRule(orgName);
+                        favoriteRules.add(orgName);
+                    } else {
+                        YACAConfigManager.removeFavoriteRule(orgName);
+                        favoriteRules.remove(orgName);
+                    }
+                    if (Objects.equals(rulesEditScreen.currentCategory, "favorite"))
+                        rulesEditScreen.setCurrentCategory("favorite");
+                });
     }
 
     public void setPosition(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    private String getCommandName() {
+        return ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
     }
 
     protected List<Component> renderContents(GuiGraphics context, int mouseX, int mouseY, float delta, boolean isMouseOver, int index, int spacing, int boxHeight, int boxWidth) {

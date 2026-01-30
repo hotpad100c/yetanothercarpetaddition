@@ -26,7 +26,7 @@ import mypals.ml.features.visualizingFeatures.AbstractVisualizingManager;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -57,8 +57,8 @@ public class RuleValidators {
             //$$        || !BuiltInRegistries.BLOCK.containsKey(ResourceLocation.fromNamespaceAndPath("minecraft", parts[1].replace("minecraft:", ""))
             //$$ ))
             //#else
-            if (!BuiltInRegistries.BLOCK.containsKey(ResourceLocation.withDefaultNamespace(parts[0].replace("minecraft:", "")))
-                    || !BuiltInRegistries.BLOCK.containsKey(ResourceLocation.withDefaultNamespace(parts[1].replace("minecraft:", ""))
+            if (!BuiltInRegistries.BLOCK.containsKey(Identifier.withDefaultNamespace(parts[0].replace("minecraft:", "")))
+                    || !BuiltInRegistries.BLOCK.containsKey(Identifier.withDefaultNamespace(parts[1].replace("minecraft:", ""))
             ))
             //#endif
             {

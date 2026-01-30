@@ -38,7 +38,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.InputConstants;
 
@@ -61,7 +61,7 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     public static SelectiveFreezeManager selectiveFreezeManager = new SelectiveFreezeManager();
     public boolean requesting = false;
     //#if MC >= 12109
-    private static final KeyMapping.Category YACA_CATEGORY = KeyMapping.Category.register(ResourceLocation.fromNamespaceAndPath("yaca", "name"));
+    private static final KeyMapping.Category YACA_CATEGORY = KeyMapping.Category.register(Identifier.fromNamespaceAndPath("yaca", "name"));
     //#endif
 
     @Override

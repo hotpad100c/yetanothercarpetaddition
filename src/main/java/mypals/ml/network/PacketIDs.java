@@ -22,13 +22,13 @@ package mypals.ml.network;
 
 import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class PacketIDs {
-    public static final ResourceLocation REQUEST_RULES_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "request_rules");
-    public static final ResourceLocation SYNC_RULES_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "sync_rules");
-    public static final ResourceLocation REQUEST_COUNTERS_DATA_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "request_counters");
-    public static final ResourceLocation SYNC_COUNTERS_DATA_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "sync_counters");
-    public static final ResourceLocation FREEZE_PACKET_ID = ResourceLocation.fromNamespaceAndPath(MOD_ID, "freeze");
+    public static final Identifier REQUEST_RULES_ID = Identifier.fromNamespaceAndPath(MOD_ID, "request_rules");
+    public static final Identifier SYNC_RULES_ID = Identifier.fromNamespaceAndPath(MOD_ID, "sync_rules");
+    public static final Identifier REQUEST_COUNTERS_DATA_ID = Identifier.fromNamespaceAndPath(MOD_ID, "request_counters");
+    public static final Identifier SYNC_COUNTERS_DATA_ID = Identifier.fromNamespaceAndPath(MOD_ID, "sync_counters");
+    public static final Identifier FREEZE_PACKET_ID = Identifier.fromNamespaceAndPath(MOD_ID, "freeze");
 
 }

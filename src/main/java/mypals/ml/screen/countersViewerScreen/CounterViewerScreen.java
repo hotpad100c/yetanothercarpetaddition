@@ -288,10 +288,11 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
             COLORS.put(color.getName(), colorValue);
         });
         viewModeButton = this.addRenderableWidget(CycleButton.<ViewMode>builder(
-                        viewMode -> Component.translatable(viewMode.getKey())
+                        viewMode -> Component.translatable(viewMode.getKey()),
+                        viewMode
                 )
                 .withValues(ViewMode.values())
-                .withInitialValue(viewMode)
+//                .withInitialValue(viewMode)
                 .create(
                         this.width / 2 - 100, this.height - 30, 100, 20,
                         Component.literal("Mode"),

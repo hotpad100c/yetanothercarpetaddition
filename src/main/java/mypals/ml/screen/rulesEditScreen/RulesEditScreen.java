@@ -38,7 +38,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import java.awt.*;
 import java.util.ArrayList;
@@ -63,7 +63,7 @@ import static mypals.ml.YetAnotherCarpetAdditionServer.MOD_ID;
 
 public class RulesEditScreen extends Screen implements ContainerEventHandler {
     private static final Component CONFIGURE_TEXT = Component.translatable("gui.screen.configure");
-    private static final ResourceLocation CONFIGURE_TEXTURE = ResourceLocation.fromNamespaceAndPath(MOD_ID, "textures/gui/configure.png");
+    private static final Identifier CONFIGURE_TEXTURE = Identifier.fromNamespaceAndPath(MOD_ID, "textures/gui/configure.png");
     public String currentCategory = "unknown";
     public String lastCategoryBeforeSearching = currentCategory;
     private static CopyOnWriteArrayList<RuleWidget> rulesInCurrentCategory = new CopyOnWriteArrayList<>();
@@ -545,7 +545,7 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                 //#elseif MC >= 12102
                 //$$ RenderType::guiTextured,
                 //#endif
-                searching ? ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/search_s.png") : ResourceLocation.fromNamespaceAndPath(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
+                searching ? Identifier.fromNamespaceAndPath(MOD_ID, "ui/search_s.png") : Identifier.fromNamespaceAndPath(MOD_ID, "ui/search.png"), 2, 10, 0, 0, 10, 11, 10, 11);
         if (!(currentToolTips == null || currentToolTips.isEmpty()))
             context.setComponentTooltipForNextFrame(Minecraft.getInstance().font, currentToolTips, mouseX, mouseY);
     }
@@ -566,7 +566,7 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
             super.renderBackground(context, mouseX, mouseY, delta);
         } else {
             //#if MC >= 12102
-            ResourceLocation BLUR_SHADER = ResourceLocation.withDefaultNamespace("blur");
+            Identifier BLUR_SHADER = Identifier.withDefaultNamespace("blur");
             PostChain blur = minecraft.getShaderManager().getPostChain(BLUR_SHADER, LevelTargetBundle.MAIN_TARGETS);
             if (blur != null) {
 

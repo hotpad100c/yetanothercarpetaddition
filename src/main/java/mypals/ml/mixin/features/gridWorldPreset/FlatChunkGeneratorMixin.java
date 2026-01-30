@@ -26,7 +26,7 @@ import mypals.ml.features.GridWorldGen.GridWorldGenerator;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.block.Block;
@@ -116,7 +116,7 @@ public class FlatChunkGeneratorMixin {
     @Unique
     private static GridWorldGenerator.ChessboardSuperFlatSettings parseSettings(String settings) {
         String[] parts = settings.split(";");
-        ResourceLocation blockId1 = ResourceLocation.tryParse(parts[0]);
+        Identifier blockId1 = Identifier.tryParse(parts[0]);
         if (blockId1 == null) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     Blocks.WHITE_STAINED_GLASS,
@@ -133,7 +133,7 @@ public class FlatChunkGeneratorMixin {
             );
         }
 
-        ResourceLocation blockId2 = ResourceLocation.tryParse(parts[1]);
+        Identifier blockId2 = Identifier.tryParse(parts[1]);
         if (blockId2 == null) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     block1.get(),

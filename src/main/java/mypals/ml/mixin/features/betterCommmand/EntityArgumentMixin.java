@@ -57,7 +57,7 @@ public class EntityArgumentMixin {
             for (Entity entity : world.getAllEntities()) {
                 if (!(entity instanceof Player)) {
                     String name = entity.getDisplayName().getString();
-                    names.add(entity.getStringUUID() + "(%s)".formatted(name) + "(%s)".formatted(world.dimension().location()));
+                    names.add(entity.getStringUUID() + "(%s)".formatted(name) + "(%s)".formatted(world.dimension().identifier()));
                 }
             }
         }

@@ -170,7 +170,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
                     //#if MC < 12006
                     //$$ .builtInRegistryHolder()
                     //#endif
-                    .unwrapKey().get().location().toString();
+                    .unwrapKey().get().identifier().toString();
             String emitterName = "";
             if (emitter.sourceEntity() != null) {
                 emitterName = Component.translatable(emitter.sourceEntity().getType().getDescriptionId()).getString();
