@@ -133,7 +133,7 @@ public class GameRuleCommandMixin {
         GameRules gameRules = source.getLevel().getGameRules();
         gameRules.availableRules().forEach(key -> {
             String id = key.id();
-            if (gameRules.get(key) != key.defaultValue()) {
+            if (!gameRules.get(key).equals(key.defaultValue())) {
                 Object value = gameRules.get(key);
                 String valueString = gameRules.getAsString(key);
         //#else
