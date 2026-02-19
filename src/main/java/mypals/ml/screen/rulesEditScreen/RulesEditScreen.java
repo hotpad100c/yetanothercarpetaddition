@@ -83,27 +83,27 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
 
     //#if MC >= 12109
     public boolean mouseDragged(MouseButtonEvent click, double deltaX, double deltaY) {
-       return super.mouseDragged(click,deltaX,deltaY) || this.rulesScrollableWidget.mouseDragged(click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(click,deltaX,deltaY);
+       return this.rulesScrollableWidget.mouseDragged(click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(click,deltaX,deltaY) || super.mouseDragged(click,deltaX,deltaY);
     }
     @Override
     public boolean keyPressed(KeyEvent keyInput) {
-       return super.keyPressed(keyInput) || this.rulesScrollableWidget.keyPressed(keyInput) || this.categoriesScrollableWidget.keyPressed(keyInput) || searchFieldWidget.keyPressed(keyInput);
+       return this.rulesScrollableWidget.keyPressed(keyInput) || this.categoriesScrollableWidget.keyPressed(keyInput) || searchFieldWidget.keyPressed(keyInput) || super.keyPressed(keyInput);
     }
     @Override
     public boolean charTyped(CharacterEvent charInput){
-       return super.charTyped(charInput) || this.rulesScrollableWidget.charTyped(charInput) || this.categoriesScrollableWidget.charTyped(charInput) || searchFieldWidget.charTyped(charInput);
+       return this.rulesScrollableWidget.charTyped(charInput) || this.categoriesScrollableWidget.charTyped(charInput) || searchFieldWidget.charTyped(charInput) || super.charTyped(charInput);
     }
     //#elseif MC >= 12106
     //$$ public boolean mouseDragged(double x,double y,int click, double deltaX, double deltaY) {
-    //$$    return super.mouseDragged(x,y,click,deltaX,deltaY) || this.rulesScrollableWidget.mouseDragged(x,y,click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(x,y,click,deltaX,deltaY);
+    //$$    return this.rulesScrollableWidget.mouseDragged(x,y,click,deltaX,deltaY) || this.categoriesScrollableWidget.mouseDragged(x,y,click,deltaX,deltaY) || super.mouseDragged(x,y,click,deltaX,deltaY);
     //$$ }
     //$$ @Override
     //$$ public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-    //$$    return super.keyPressed(keyCode,scanCode,modifiers) || this.rulesScrollableWidget.keyPressed(keyCode,scanCode,modifiers) || this.categoriesScrollableWidget.keyPressed(keyCode,scanCode,modifiers) || searchFieldWidget.keyPressed(keyCode,scanCode,modifiers);
+    //$$    return this.rulesScrollableWidget.keyPressed(keyCode,scanCode,modifiers) || this.categoriesScrollableWidget.keyPressed(keyCode,scanCode,modifiers) || searchFieldWidget.keyPressed(keyCode,scanCode,modifiers) || super.keyPressed(keyCode,scanCode,modifiers);
     //$$ }
     //$$ @Override
     //$$ public boolean charTyped(char chr, int modifiers){
-    //$$    return super.charTyped(chr,modifiers) || this.rulesScrollableWidget.charTyped(chr,modifiers) || this.categoriesScrollableWidget.charTyped(chr,modifiers) || searchFieldWidget.charTyped(chr,modifiers);
+    //$$    return this.rulesScrollableWidget.charTyped(chr,modifiers) || this.categoriesScrollableWidget.charTyped(chr,modifiers) || searchFieldWidget.charTyped(chr,modifiers) || super.charTyped(chr,modifiers) ;
     //$$ }
     //#endif
 
