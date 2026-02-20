@@ -38,11 +38,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-//#if MC >= 12109
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.MouseButtonInfo;
-//#endif
 
 import static mypals.ml.YetAnotherCarpetAdditionClient.defaultRules;
 import static mypals.ml.YetAnotherCarpetAdditionClient.favoriteRules;
@@ -52,12 +49,6 @@ import org.jetbrains.annotations.NotNull;
 // //#elseif MC >= 12102
 // //$$ import static net.minecraft.client.render.RenderLayer.getGui;
 // //#endif
-
-//#if MC >= 12106
-import net.minecraft.client.renderer.RenderPipelines;
-//#else
-//$$import net.minecraft.client.renderer.RenderType;
-//#endif
 
 public class RuleWidget {
     private RuleData ruleData;
@@ -81,19 +72,9 @@ public class RuleWidget {
             public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
                 if (this.isVisible()) {
                     context.fill(
-                            //#if MC >= 12106
-
-                            //#else
-                            //$$ RenderType.guiOverlay(),
-                            //#endif
-
                             this.getX() + this.width / 2, this.getY() + this.height - 4,
                             this.getX(), this.getY() + this.height - 5,
-                            //#if MC >= 12106
                             -1072689136
-                            //#else
-                            //$$ 0xAFFFFFFF
-                            //#endif
                     );
                     super.renderWidget(context, mouseX, mouseY, delta);
                 }
@@ -217,52 +198,21 @@ public class RuleWidget {
     }
 
     public void onClicked(double mouseX, double mouseY, boolean clicked, int button) {
-        //#if MC >= 12109
         MouseButtonEvent click = new MouseButtonEvent(mouseX, mouseY, new MouseButtonInfo(button, 0));
-        //#endif
-        if (!lockRule.mouseClicked(
-                //#if MC >= 12109
-                click, false
-                //#else
-                //$$ mouseX, mouseY, button
-                //#endif
-        ) && !favoriteRule.mouseClicked(
-                //#if MC >= 12109
-                click, false
-                //#else
-                //$$ mouseX, mouseY, button
-                //#endif
-        )) {
+        if (!lockRule.mouseClicked(click, false) && !favoriteRule.mouseClicked(click, false)) {
             valueWidget.setFocused(clicked && !isTrueFalseRule);
             valueWidget.setSuggestion(clicked || !valueWidget.getValue().isEmpty() ? "" : ruleData.value);
             if (clicked && isTrueFalseRule) {
-                trueFalseButton.onClick(
-                        //#if MC >= 12109
-                        click, false
-                        //#else
-                        //$$ mouseX, mouseY
-                        //#endif
-                );
+                trueFalseButton.onClick(click, false);
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                 System.out.println("Clicked toggle button");
             } else if (clicked && !isTrueFalseRule) {
-                valueWidget.onClick(
-                        //#if MC >= 12109
-                        click, false
-                        //#else
-                        //$$ mouseX, mouseY
-                        //#endif
-                );
+                valueWidget.onClick(click, false);
                 Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             } else {
                 if (!valueWidget.getValue().isEmpty() && !isTrueFalseRule) {
                     String commandName = ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
-                    Minecraft.getInstance().getConnection()
-                            //#if MC >= 12106
-                            .sendCommand(
-                            //#else
-                            //$$ .sendCommand(
-                                    //#endif
-                                    ("carpet " + commandName + " " + valueWidget.getValue()));
+                    Minecraft.getInstance().getConnection().sendCommand(("carpet " + commandName + " " + valueWidget.getValue()));
                     ruleData.value = valueWidget.getValue();
                     valueWidget.setValue("");
                 }

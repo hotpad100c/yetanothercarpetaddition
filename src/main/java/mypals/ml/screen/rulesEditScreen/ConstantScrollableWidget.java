@@ -60,6 +60,14 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
         super(i, j, k, l, text);
     }
 
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        //TODO hacky, don't know why
+        boolean result = super.isMouseOver(mouseX, mouseY);
+        boolean extraCheck = this.overflows() && mouseX >= (double)(this.getX() + this.width) && mouseX <= (double)(this.getX() + this.width + 8) && mouseY >= (double)this.getY() && mouseY < (double)(this.getY() + this.height);
+        return extraCheck || result;
+    }
+    
     //#if MC >= 12109
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled){
     //#else
