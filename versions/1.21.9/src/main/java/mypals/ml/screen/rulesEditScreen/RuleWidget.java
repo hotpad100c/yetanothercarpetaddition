@@ -222,7 +222,7 @@ public class RuleWidget {
 
             @Override
             public boolean
-                //#if MC > 12101
+            //#if MC > 12101
             mouseClicked
             //#else
             //$$ clicked
@@ -323,10 +323,10 @@ public class RuleWidget {
 
             @Override
             public boolean
-                //#if MC>12101
-            mouseClicked
-            //#else
+            //#if MC <= 12101
             //$$ clicked
+            //#else
+            mouseClicked
             //#endif
             (
                     //#if MC < 12109
