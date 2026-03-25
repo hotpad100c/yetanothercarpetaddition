@@ -20,9 +20,11 @@
 
 package mypals.ml.features.betterCommands;
 
-import java.util.HashMap;
-import net.minecraft.world.level.GameRules;
-
-public class GamerulesDefaultValueSorter {
-    public static HashMap<GameRules.Key<?>, String> gamerulesDefaultValues = new HashMap<>();
-}
+//#if MC < 12111
+//$$ import java.util.HashMap;
+//$$ import net.minecraft.world.level.GameRules;
+//$$
+//$$ public class GamerulesDefaultValueSorter {
+//$$     public static HashMap<GameRules.Key<?>, String> gamerulesDefaultValues = new HashMap<>();
+//$$ }
+//#endif

@@ -26,7 +26,7 @@ import mypals.ml.features.betterCommands.TrajectoryLogHelperExtension;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.projectile.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
 import net.minecraft.world.entity.projectile.Projectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;

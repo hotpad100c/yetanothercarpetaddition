@@ -31,7 +31,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 //#if MC >= 12109
@@ -47,7 +47,7 @@ import net.minecraft.client.renderer.RenderPipelines;
 
 public abstract class ConstantScrollableWidget extends AbstractWidget implements Renderable, GuiEventListener {
     //#if MC >= 12106
-    private static final ResourceLocation SCROLLER_TEXTURE = ResourceLocation.withDefaultNamespace("widget/scroller");
+    private static final Identifier SCROLLER_TEXTURE = Identifier.withDefaultNamespace("widget/scroller");
     //#else
     //$$ private static final ResourceLocation SCROLLER_TEXTURE = ResourceLocation.fromNamespaceAndPath("minecraft","widget/scroller");
     //#endif
@@ -60,6 +60,14 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
         super(i, j, k, l, text);
     }
 
+    @Override
+    public boolean isMouseOver(double mouseX, double mouseY) {
+        //TODO hacky, don't know why
+        boolean result = super.isMouseOver(mouseX, mouseY);
+        boolean extraCheck = this.overflows() && mouseX >= (double)(this.getX() + this.width) && mouseX <= (double)(this.getX() + this.width + 8) && mouseY >= (double)this.getY() && mouseY < (double)(this.getY() + this.height);
+        return extraCheck || result;
+    }
+    
     //#if MC >= 12109
     public boolean mouseClicked(MouseButtonEvent click, boolean doubled){
     //#else

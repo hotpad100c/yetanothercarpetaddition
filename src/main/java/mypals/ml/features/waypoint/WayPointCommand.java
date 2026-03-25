@@ -34,6 +34,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+//#if MC >= 1.21.11
+import net.minecraft.server.permissions.Permissions;
+//#endif
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,7 +57,12 @@ public class WayPointCommand {
 
     @SuppressWarnings("resource")
     public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher, CommandBuildContext registryAccess) {
-        dispatcher.register(literal("waypoint").requires(source -> source.hasPermission(2))
+        dispatcher.register(literal("waypoint").requires(source ->
+                        //#if MC >= 1.21.11
+                        source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                        //#else
+                        //$$ source.hasPermission(2))
+                        //#endif
                 .then(literal("save")
                         .then(argument("name", StringArgumentType.word())
                                 .executes(context -> {
@@ -62,7 +71,7 @@ public class WayPointCommand {
                                     ServerLevel world = player.level();
                                     BlockPos pos = player.blockPosition();
 
-                                    addWaypoint(name, pos, world.dimension().location().getPath());
+                                    addWaypoint(name, pos, world.dimension().identifier().getPath());
 
                                     context.getSource().sendSuccess(() -> Component.literal("Saved waypoint '" + name + "' at " + pos), false);
                                     return 1;
@@ -74,7 +83,7 @@ public class WayPointCommand {
                                             ServerPlayer player = context.getSource().getPlayer();
                                             ServerLevel world = player.level();
 
-                                            addWaypoint(name, pos, world.dimension().location().getPath());
+                                            addWaypoint(name, pos, world.dimension().identifier().getPath());
 
                                             context.getSource().sendSuccess(() -> Component.literal("Saved waypoint '" + name + "' at " + pos), false);
                                             return 1;

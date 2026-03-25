@@ -26,7 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -58,11 +58,11 @@ public class ExtraVaniallaCommandFeatureManager {
         //#endif
                 = BuiltInRegistries.GAME_EVENT.get(
                 //#if MC >= 12101
-                ResourceLocation.parse("minecraft:" + reason)
+                Identifier.parse("minecraft:" + reason)
                 //#elseif MC >= 12006
                 //$$ new ResourceLocation("minecraft", reason)
                 //#else
-                //$$ ResourceKey.create(BuiltInRegistries.GAME_EVENT.key(), new ResourceLocation("minecraft", reason))
+                //$$ ResourceKey.create(BuiltInRegistries.GAME_EVENT.key(), new Identifier("minecraft", reason))
                 //#endif
         )
                 //#if MC > 12101

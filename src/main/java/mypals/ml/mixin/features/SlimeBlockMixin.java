@@ -46,6 +46,9 @@ public abstract class SlimeBlockMixin extends HalfTransparentBlock {
                                   //#if MC >= 12105
                                   , InsideBlockEffectApplier handler
                                   //#endif
+                                  //#if MC >= 12110
+                                  , boolean bl
+                                  //#endif
 
     ) {
         if (!YetAnotherCarpetAdditionRules.bouncierSlime) return;

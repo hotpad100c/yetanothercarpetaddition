@@ -20,63 +20,13 @@
 
 package mypals.ml.mixin.features.betterCommmand;
 
-import mypals.ml.features.betterCommands.GamerulesDefaultValueSorter;
-import net.minecraft.world.flag.FeatureFlagSet;
-import net.minecraft.world.level.GameRules;
-import org.spongepowered.asm.mixin.Final;
+import me.fallenbreath.conditionalmixin.api.annotation.Condition;
+import me.fallenbreath.conditionalmixin.api.annotation.Restriction;
+import mypals.ml.utils.DummyClass;
+import mypals.ml.utils.ModIds;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import java.util.Map;
 
-@Mixin(GameRules.class)
-public class GamerulesMixin {
-    @Shadow
-    @Final
-    public Map<GameRules.Key<?>, GameRules.Value<?>> rules;
-
-    @Inject(
-            //#if MC < 12102
-            //$$ method = "<init>()V",
-            //#else
-            method = "<init>(Lnet/minecraft/world/flag/FeatureFlagSet;)V",
-            //#endif
-            at = @At(
-                    "RETURN"
-            )
-    )
-    public void createGameRules(CallbackInfo ci) {
-        GamerulesDefaultValueSorter.gamerulesDefaultValues.clear();
-        this.rules.forEach((key, rule) -> {
-            GamerulesDefaultValueSorter
-                    .gamerulesDefaultValues.put(key, rule.toString());
-
-        });
-    }
-
-    @Inject(
-            //#if MC < 12102
-            //$$ method = "<init>(Ljava/util/Map;)V",
-            //#else
-            method = "<init>(Ljava/util/Map;Lnet/minecraft/world/flag/FeatureFlagSet;)V",
-            //#endif
-            at = @At(
-                    "RETURN"
-            )
-    )
-    public void createGameRules2(Map rules,
-                                 //#if MC >= 12102
-                                 FeatureFlagSet enabledFeatures,
-                                 //#endif
-                                 CallbackInfo ci) {
-        GamerulesDefaultValueSorter.gamerulesDefaultValues.clear();
-        rules.forEach((key, rule) -> {
-            GamerulesDefaultValueSorter
-                    .gamerulesDefaultValues.put((GameRules.Key<?>) key, rule.toString());
-
-        });
-    }
-    
+@Restriction(require = @Condition(value = ModIds.minecraft, versionPredicates = "<1.21.11"))
+@Mixin(DummyClass.class)
+public abstract class GamerulesMixin {
 }
