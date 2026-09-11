@@ -28,12 +28,28 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//#if MC >= 260300
+//$$ import net.minecraft.world.item.component.SwingAnimation;
+//#endif
+
 @Mixin(ServerPlayer.class)
 public class PlayerEntityMixin {
+    // 26.3 replaced ServerPlayer#swing(InteractionHand) (which was swing + resetAttackStrengthTicker,
+    // see 26.2 byte code) with swingAndResetAttackStrength, taking the animation from the packet and
+    // a flag that only controls whether the swinging player itself is notified as well.
+    //#if MC >= 260300
+    //$$ @Inject(method = "swingAndResetAttackStrength(Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/component/SwingAnimation;Z)V", at = @At("HEAD"), cancellable = true)
+    //$$ public void swingHand(InteractionHand hand, SwingAnimation animation, boolean broadcastToSelf, CallbackInfo ci) {
+    //$$     if (FakePlayerControlManager.binds.containsKey((ServerPlayer) (Object) this)) {
+    //$$         FakePlayerControlManager.binds.get((ServerPlayer) (Object) this).getValue().swingAndResetAttackStrength(hand, animation, false);
+    //$$     }
+    //$$ }
+    //#else
     @Inject(method = "swing", at = @At("HEAD"), cancellable = true)
     public void swingHand(InteractionHand hand, CallbackInfo ci) {
         if (FakePlayerControlManager.binds.containsKey((ServerPlayer) (Object) this)) {
             FakePlayerControlManager.binds.get((ServerPlayer) (Object) this).getValue().swing(hand);
         }
     }
+    //#endif
 }

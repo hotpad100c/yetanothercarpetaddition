@@ -28,8 +28,9 @@ import net.minecraft.world.level.LevelSimulatedReader;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.featuresize.FeatureSize;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
+import net.minecraft.world.level.levelgen.feature.trunkplacers.TrunkPlacer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -40,34 +41,68 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.function.BiConsumer;
 
+//#if MC < 260300
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+//#endif
+
 @Mixin(TreeFeature.class)
 public abstract class TreeGrowthObstacleUpdaterMixin {
+
+    // 26.3 made TreeFeature a record that carries the former TreeConfiguration: doPlace() and
+    // getMaxFreeTreeHeight() lost their TreeConfiguration parameter, so the copied descriptor
+    // and the configuration values both have to be branch specific.
+    //#if MC >= 260300
+    //$$ private static final String DO_PLACE = "doPlace(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;)Z";
+    //$$ private static final String GET_MAX_FREE_TREE_HEIGHT = "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/WorldGenLevel;ILnet/minecraft/core/BlockPos;)I";
+    //#elseif MC >= 260100
+    //$$ private static final String DO_PLACE = "doPlace(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)Z";
+    //$$ private static final String GET_MAX_FREE_TREE_HEIGHT = "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/WorldGenLevel;ILnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)I";
+    //#else
+    private static final String DO_PLACE = "doPlace(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)Z";
+    private static final String GET_MAX_FREE_TREE_HEIGHT = "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/LevelSimulatedReader;ILnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)I";
+    //#endif
 
     @Shadow
     private static boolean isVine(LevelSimulatedReader world, BlockPos pos) {return false;}
 
+    //#if MC >= 260300
+    //$$ @Shadow
+    //$$ public abstract TrunkPlacer trunkPlacer();
+    //$$ @Shadow
+    //$$ public abstract FeatureSize minimumSize();
+    //$$ @Shadow
+    //$$ public abstract boolean ignoreVines();
+    //#endif
+
     @Unique
     private BlockPos pos;
 
-    @Inject(method = "doPlace(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)Z", at = @At(value = "INVOKE", target =
-    //#if MC >= 260100
-            //$$ "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/WorldGenLevel;ILnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)I"
-            //#else
-            "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/LevelSimulatedReader;ILnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)I"
+    @Inject(method = DO_PLACE, at = @At(value = "INVOKE", target = GET_MAX_FREE_TREE_HEIGHT, shift = At.Shift.AFTER))
+    private void getObstacle(WorldGenLevel world, RandomSource random, BlockPos pos, BiConsumer<BlockPos, BlockState> rootPlacerReplacer, BiConsumer<BlockPos, BlockState> trunkPlacerReplacer, FoliagePlacer.FoliageSetter blockPlacer,
+            //#if MC < 260300
+            TreeConfiguration config,
             //#endif
-            , shift = At.Shift.AFTER))
-    private void getObstacle(WorldGenLevel world, RandomSource random, BlockPos pos, BiConsumer<BlockPos, BlockState> rootPlacerReplacer, BiConsumer<BlockPos, BlockState> trunkPlacerReplacer, FoliagePlacer.FoliageSetter blockPlacer, TreeConfiguration config, CallbackInfoReturnable<Boolean> cir) {
+            CallbackInfoReturnable<Boolean> cir) {
         if(YetAnotherCarpetAdditionRules.treeGrowthObstacleVisualize) {
-            int height = config.trunkPlacer.baseHeight + config.trunkPlacer.heightRandA + config.trunkPlacer.heightRandB;
+            //#if MC >= 260300
+            //$$ TrunkPlacer trunkPlacer = this.trunkPlacer();
+            //$$ FeatureSize minimumSize = this.minimumSize();
+            //$$ boolean ignoreVines = this.ignoreVines();
+            //#else
+            TrunkPlacer trunkPlacer = config.trunkPlacer;
+            FeatureSize minimumSize = config.minimumSize;
+            boolean ignoreVines = config.ignoreVines;
+            //#endif
+            int height = trunkPlacer.baseHeight + trunkPlacer.heightRandA + trunkPlacer.heightRandB;
             BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
 
             for (int i = 0; i <= height + 1; i++) {
-                int j = config.minimumSize.getSizeAtHeight(height, i);
+                int j = minimumSize.getSizeAtHeight(height, i);
 
                 for (int k = -j; k <= j; k++) {
                     for (int l = -j; l <= j; l++) {
                         mutable.setWithOffset(this.pos, k, i, l);
-                        if (!config.trunkPlacer.isFree(world, mutable) || !config.ignoreVines && this.isVine(world, mutable)) {
+                        if (!trunkPlacer.isFree(world, mutable) || !ignoreVines && this.isVine(world, mutable)) {
                             YetAnotherCarpetAdditionServer.treeGrowthObstacleVisualzing.setVisualizer(world.getLevel(), mutable.immutable());
                         }
                     }
@@ -76,13 +111,7 @@ public abstract class TreeGrowthObstacleUpdaterMixin {
         }
     }
 
-    @ModifyArg(method = "doPlace(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;Ljava/util/function/BiConsumer;Ljava/util/function/BiConsumer;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)Z", at= @At(value = "INVOKE", target =
-    //#if MC >= 260100
-            //$$ "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/WorldGenLevel;ILnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)I"
-            //#else
-            "Lnet/minecraft/world/level/levelgen/feature/TreeFeature;getMaxFreeTreeHeight(Lnet/minecraft/world/level/LevelSimulatedReader;ILnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;)I"
-            //#endif
-            ),index = 2)
+    @ModifyArg(method = DO_PLACE, at= @At(value = "INVOKE", target = GET_MAX_FREE_TREE_HEIGHT),index = 2)
     private BlockPos getpos(BlockPos pos) {
         this.pos = pos;
         return pos;

@@ -21,6 +21,7 @@
 package mypals.ml.features.treeGrowthStats;
 
 import com.mojang.brigadier.context.CommandContext;
+import carpet.utils.Translations;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
@@ -37,6 +38,8 @@ public final class TreeGrowthTask {
 
     private static final int PER_TICK = 500;
 
+    private static final int MAX_CONSECUTIVE_FAILS = 5000;
+
     private static Task active;
     private static boolean registered;
 
@@ -50,6 +53,8 @@ public final class TreeGrowthTask {
         CommandSourceStack source;
         int total;
         int done;
+        int fails;
+        int consecutive;
         ServerBossEvent bar;
     }
 
@@ -65,7 +70,7 @@ public final class TreeGrowthTask {
         t.sapling = sapling.setValue(SaplingBlock.STAGE, 1);
         t.total = times;
         t.source = source;
-        t.bar = makeBar(Component.literal("树苗统计 0/" + times));
+        t.bar = makeBar(Component.literal(String.format(Translations.tr("command.treeStats.bar"), 0, times)));
         for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
             t.bar.addPlayer(player);
         }
@@ -97,15 +102,23 @@ public final class TreeGrowthTask {
             t.level.setBlock(t.pos, t.sapling, 3);
             TreeGrowthStatistics.resetCommitted();
             ((SaplingBlock) t.sapling.getBlock()).advanceTree(t.level, t.pos, t.sapling, t.level.getRandom());
-            if (!TreeGrowthStatistics.lastCommitted()) {
-                finish(t, "第 " + (t.done + 1) + "/" + t.total
-                        + " 次没有长成树，已中止（检查上方是否有空间、下方是否为泥土）");
-                return;
+            if (TreeGrowthStatistics.lastCommitted()) {
+                t.done++;
+                t.consecutive = 0;
+            } else {
+                t.fails++;
+                t.consecutive++;
+                if (t.consecutive >= MAX_CONSECUTIVE_FAILS) {
+                    finish(t, "command.treeStats.growFailed", t.consecutive);
+                    return;
+                }
             }
-            t.done++;
         }
         t.bar.setProgress(t.total == 0 ? 0F : (float) t.done / t.total);
-        t.bar.setName(Component.literal("树苗统计 " + t.done + "/" + t.total));
+        String title = t.fails > 0
+                ? String.format(Translations.tr("command.treeStats.barRetry"), t.done, t.total, t.fails)
+                : String.format(Translations.tr("command.treeStats.bar"), t.done, t.total);
+        t.bar.setName(Component.literal(title));
         if (t.done >= t.total) {
             finish(t, null);
         }
@@ -114,27 +127,30 @@ public final class TreeGrowthTask {
     public static boolean stop(CommandSourceStack requester) {
         Task t = active;
         if (t == null) {
-            requester.sendFailure(Component.literal("[YACA] 当前没有正在运行的催熟任务。"));
+            requester.sendFailure(Component.literal("[YACA] " + Translations.tr("command.treeStats.notRunning")));
             return false;
         }
-        finish(t, "被手动停止");
-        requester.sendSuccess(() -> Component.literal("[YACA] 已停止催熟任务。"), false);
+        finish(t, "command.treeStats.stopped");
+        requester.sendSuccess(() -> Component.literal("[YACA] " + Translations.tr("command.treeStats.stopped")), false);
         return true;
     }
 
-    private static void finish(Task t, String reason) {
+    private static void finish(Task t, String reasonKey, Object... reasonArgs) {
         active = null;
         t.bar.removeAllPlayers();
-        String head = reason == null
-                ? "[YACA] 完成 " + t.total + " 次催熟"
-                : "[YACA] 催熟任务中止：" + reason + "（完成 " + t.done + "/" + t.total + "）";
-        String tail;
+        String path;
         try {
-            tail = "；累计样本 " + TreeGrowthStatistics.totalTreeCount() + " 棵；网页：" + TreeStatsExporter.export();
+            path = String.valueOf(TreeStatsExporter.export());
         } catch (Exception e) {
-            tail = "；导出网页失败：" + e;
+            path = String.valueOf(e);
         }
-        final String msg = head + tail;
+        final String msg;
+        if (reasonKey == null) {
+            msg = "[YACA] " + String.format(Translations.tr("command.treeStats.growDone"), t.total, TreeGrowthStatistics.totalTreeCount(), path);
+        } else {
+            String reason = String.format(Translations.tr(reasonKey), reasonArgs);
+            msg = "[YACA] " + String.format(Translations.tr("command.treeStats.growAborted"), reason, t.done, t.total);
+        }
         t.source.sendSuccess(() -> Component.literal(msg), false);
     }
 }

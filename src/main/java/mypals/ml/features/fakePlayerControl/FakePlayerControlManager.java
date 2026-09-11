@@ -127,7 +127,11 @@ public class FakePlayerControlManager {
             fakePlayer.setSprinting(player.isSprinting());
             fakePlayer.setSwimming(player.isSwimming());
 
+            //#if MC >= 260300
+            //$$ fakePlayer.setPermanentlyInvulnerable(player.isInvulnerable());
+            //#else
             fakePlayer.setInvulnerable(player.isInvulnerable());
+            //#endif
             if (fakePlayer.isCurrentlyGlowing() != player.isCurrentlyGlowing())
                 fakePlayer.setGlowingTag(player.isCurrentlyGlowing());
             if (fakePlayer.isOnFire() != player.isOnFire())

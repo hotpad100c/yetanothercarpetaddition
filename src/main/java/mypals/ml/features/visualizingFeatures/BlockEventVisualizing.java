@@ -108,7 +108,11 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
+            //#if MC >= 260300
+            //$$ entity.setPermanentlyInvulnerable(true);
+            //#else
             entity.setInvulnerable(true);
+            //#endif
 
             JsonObject textJson = new JsonObject();
             textJson.addProperty("text", "");
@@ -152,7 +156,11 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             entity.noPhysics = true;
             entity.setGlowingTag(true);
             entity.setInvisible(true);
+            //#if MC >= 260300
+            //$$ entity.setPermanentlyInvulnerable(true);
+            //#else
             entity.setInvulnerable(true);
+            //#endif
 
             float offset = (float) ((1.0f - scale) / 2.0f);
             entity.setPosRaw(pos.getX() + offset, pos.getY() + offset, pos.getZ() + offset);

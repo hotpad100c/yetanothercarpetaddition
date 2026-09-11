@@ -80,7 +80,11 @@ public class BlockEntityOrderVisualizing extends AbstractVisualizingManager<Bloc
             //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
+            //#if MC >= 260300
+            //$$ entity.setPermanentlyInvulnerable(true);
+            //#else
             entity.setInvulnerable(true);
+            //#endif
             entity.setPosRaw(pos.x(), pos.y(), pos.z());
             entity.addTag(getVisualizerTag());
             entity.addTag("DoNotTick");

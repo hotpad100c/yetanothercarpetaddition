@@ -30,8 +30,12 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.TreeFeature;
+import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
+//#if MC < 260300
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+//#endif
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -92,23 +96,36 @@ public final class TreeGrowthStatistics {
         committed = false;
     }
 
+    // 26.3 turned TreeFeature into a record holding the former TreeConfiguration and dropped
+    // both FeaturePlaceContext and TreeConfiguration, so the placement arguments are passed in directly.
+    //#if MC >= 260300
+    //$$ public static void begin(TreeFeature feature, WorldGenLevel level, RandomSource random, BlockPos origin) {
+    //#else
     public static void begin(FeaturePlaceContext<TreeConfiguration> context) {
+    //#endif
         committed = false;
         if (!YetAnotherCarpetAdditionRules.saplingGrowthStatistics) {
             return;
         }
+        //#if MC < 260300
         WorldGenLevel level = context.level();
+        //#endif
         if (!(level instanceof ServerLevel)) {
             return;
         }
+        //#if MC >= 260300
+        //$$ BlockStateProvider trunkProvider = feature.trunkProvider();
+        //#else
         TreeConfiguration config = context.config();
         RandomSource random = context.random();
         BlockPos origin = context.origin();
+        BlockStateProvider trunkProvider = config.trunkProvider;
+        //#endif
         Block log;
         //#if MC >= 260100
-        //$$ log = config.trunkProvider.getState(level, random, origin).getBlock();
+        //$$ log = trunkProvider.getState(level, random, origin).getBlock();
         //#else
-        log = config.trunkProvider.getState(random, origin).getBlock();
+        log = trunkProvider.getState(random, origin).getBlock();
         //#endif
         CURRENT.set(new Sample(speciesOf(log), origin));
     }

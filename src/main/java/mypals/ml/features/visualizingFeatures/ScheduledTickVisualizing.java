@@ -122,7 +122,11 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
             //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
+            //#if MC >= 260300
+            //$$ entity.setPermanentlyInvulnerable(true);
+            //#else
             entity.setInvulnerable(true);
+            //#endif
 
             //#if MC < 12105
             //$$ JsonObject textJson = new JsonObject();

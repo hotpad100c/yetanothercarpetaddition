@@ -2,7 +2,9 @@
 // Derived from the version string so that it is known before any plugin is applied; the numbers match
 // the mcVersion of the preprocess nodes declared in the root build.gradle.
 def toMcVersion = { String version ->
-	def parts = version.tokenize('.').collect { it as int }
+	// snapshots carry a suffix on their last component ("26.3-snapshot-9"), only the leading
+	// numeric part of every component takes part in the comparison -> 260300
+	def parts = version.tokenize('.').collect { ((it =~ /^\d+/)[0]) as int }
 	parts[0] * 10000 + (parts.size() > 1 ? parts[1] : 0) * 100 + (parts.size() > 2 ? parts[2] : 0)
 }
 final int mcVersion = toMcVersion(project.minecraft_version as String)

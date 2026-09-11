@@ -134,7 +134,11 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3, GameE
             //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
+            //#if MC >= 260300
+            //$$ entity.setPermanentlyInvulnerable(true);
+            //#else
             entity.setInvulnerable(true);
+            //#endif
 
             //#if MC < 12105
             //$$ JsonObject textJson = new JsonObject();

@@ -86,7 +86,11 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
             //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
+            //#if MC >= 260300
+            //$$ entity.setPermanentlyInvulnerable(true);
+            //#else
             entity.setInvulnerable(true);
+            //#endif
             entity.setPosRaw(pos.x(), pos.y() + 0.1f, pos.z());
             entity.addTag(getVisualizerTag());
             entity.addTag("DoNotTick");

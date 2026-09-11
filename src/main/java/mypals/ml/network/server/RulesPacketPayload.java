@@ -25,6 +25,7 @@ import mypals.ml.network.RuleData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
+import java.util.ArrayList;
 import java.util.List;
 
 //#if MC > 12004
@@ -41,15 +42,38 @@ public record RulesPacketPayload(List<RuleData> rules, String defaults) implemen
     //$$ public static final ResourceLocation ID = PacketIDs.SYNC_RULES_ID;
     //#endif
 
+    // 26.3 removed FriendlyByteBuf#readList/writeCollection in favour of ByteBufCodecs; this is the
+    // same wire format (varint size followed by the encoded elements) written out by hand.
+    //#if MC >= 260300
+    //$$ public RulesPacketPayload(FriendlyByteBuf buf) {
+    //$$     this(readRules(buf), buf.readUtf());
+    //$$ }
+    //$$ private static List<RuleData> readRules(FriendlyByteBuf buf) {
+    //$$     int size = buf.readVarInt();
+    //$$     List<RuleData> rules = new ArrayList<>(size);
+    //$$     for (int i = 0; i < size; i++) {
+    //$$         rules.add(new RuleData(buf));
+    //$$     }
+    //$$     return rules;
+    //$$ }
+    //#else
     public RulesPacketPayload(FriendlyByteBuf buf) {
         this(buf.readList(RuleData::new), buf.readUtf());
     }
+    //#endif
 
     //#if MC < 12006
     //$$ @Override
     //#endif
     public void write(FriendlyByteBuf buf) {
+        //#if MC >= 260300
+        //$$ buf.writeVarInt(this.rules().size());
+        //$$ for (RuleData rule : this.rules()) {
+        //$$     rule.write(buf);
+        //$$ }
+        //#else
         buf.writeCollection(this.rules(), ((buf1, value) -> value.write(buf1)));
+        //#endif
         buf.writeUtf(this.defaults);
     }
 

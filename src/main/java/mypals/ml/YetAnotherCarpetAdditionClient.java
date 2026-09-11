@@ -43,7 +43,9 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+//#if MC < 260300
 import org.lwjgl.glfw.GLFW;
+//#endif
 import com.mojang.blaze3d.platform.InputConstants;
 
 import java.util.ArrayList;
@@ -79,8 +81,16 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 KeyBindingHelper.registerKeyBinding(new KeyMapping(
                 //#endif
                 "key.carpetRulesKeyBind",
+                //#if MC >= 260300
+                //$$ InputConstants.Type.KEYBOARD,
+                //#else
                 InputConstants.Type.KEYSYM,
+                //#endif
+                //#if MC >= 260300
+                //$$ InputConstants.KEY_F8,
+                //#else
                 GLFW.GLFW_KEY_F8,
+                //#endif
                 //#if MC >= 12109
                 YACA_CATEGORY
                 //#else

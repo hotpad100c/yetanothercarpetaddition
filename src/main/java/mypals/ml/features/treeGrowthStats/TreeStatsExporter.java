@@ -24,6 +24,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import mypals.ml.translations.YetAnotherCarpetAdditionTranslations;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.world.level.block.Block;
 
@@ -43,6 +44,8 @@ public final class TreeStatsExporter {
 
     private static final String OUTPUT_FILE = "tree-growth-stats.html";
 
+    private static final String I18N_PREFIX = "web.treeStats.";
+
     private TreeStatsExporter() {
     }
 
@@ -53,6 +56,43 @@ public final class TreeStatsExporter {
     public static Path export() throws IOException {
         Path out = outputPath();
         Files.write(out, buildHtml().getBytes(StandardCharsets.UTF_8));
+        return out;
+    }
+
+    private static List<String> availableLanguages() {
+        List<String> out = new ArrayList<>();
+        FabricLoader.getInstance().getModContainer("yetanothercarpetaddition").ifPresent(mod ->
+                mod.findPath("assets/yetanothercarpetaddition/lang").ifPresent(dir -> {
+                    try (java.util.stream.Stream<java.nio.file.Path> stream = Files.list(dir)) {
+                        stream.forEach(path -> {
+                            String name = path.getFileName().toString();
+                            if (name.endsWith(".json")) {
+                                out.add(name.substring(0, name.length() - 5));
+                            }
+                        });
+                    } catch (IOException ignored) {
+                    }
+                }));
+        if (out.isEmpty()) {
+            out.add("en_us");
+        }
+        out.sort(String::compareTo);
+        return out;
+    }
+
+    private static JsonObject buildI18n() {
+        JsonObject out = new JsonObject();
+        for (String lang : availableLanguages()) {
+            JsonObject table = new JsonObject();
+            for (Map.Entry<String, String> e : YetAnotherCarpetAdditionTranslations.getTranslations(lang).entrySet()) {
+                if (e.getKey().startsWith(I18N_PREFIX)) {
+                    table.addProperty(e.getKey().substring(I18N_PREFIX.length()), e.getValue());
+                }
+            }
+            if (table.size() > 0) {
+                out.add(lang, table);
+            }
+        }
         return out;
     }
 
@@ -186,6 +226,7 @@ public final class TreeStatsExporter {
     private static String buildHtml() {
         Gson gson = new GsonBuilder().create();
         String json = gson.toJson(buildData()).replace("</", "<\\/");
+        String i18n = gson.toJson(buildI18n()).replace("</", "<\\/");
 
         return """
 <!DOCTYPE html>
@@ -193,7 +234,7 @@ public final class TreeStatsExporter {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>树苗生长统计 / Sapling Growth Statistics</title>
+<title>Tree Stats</title>
 <style>
   :root { --bg:#14161a; --panel:#1c1f26; --line:#2c313a; --text:#e6e8eb; --dim:#9aa4b2; --accent:#2f6feb; }
   * { box-sizing:border-box; }
@@ -202,6 +243,10 @@ public final class TreeStatsExporter {
   header { padding:16px 24px; background:var(--panel); border-bottom:1px solid var(--line); }
   h1 { margin:0 0 4px; font-size:18px; font-weight:600; }
   header .sub { color:var(--dim); font-size:13px; }
+  .langbar { position:absolute; top:18px; right:24px; }
+  header { position:relative; }
+  select { background:#23272f; color:var(--text); border:1px solid var(--line);
+           border-radius:7px; padding:4px 8px; font-size:12px; }
   main { padding:20px 24px 60px; max-width:1400px; margin:0 auto; }
   h2 { font-size:13px; font-weight:600; color:var(--dim); text-transform:uppercase;
        letter-spacing:.06em; margin:0 0 12px; }
@@ -269,13 +314,15 @@ public final class TreeStatsExporter {
 </head>
 <body>
 <header>
-  <h1>树苗生长统计 / Sapling Growth Statistics</h1>
+  <h1 id="h1"></h1>
   <div class="sub" id="meta"></div>
+  <div class="langbar"><select id="langSel"></select></div>
 </header>
 <main><div id="app"></div></main>
 <div id="tooltip"></div>
 <script>
 const DATA = __DATA__;
+const I18N = __I18N__;
 
 const BASE_COLOR = { log:'#c98a4b', leaves:'#5faa3c', beehive:'#e0b040', sapling:'#8bc34a', dirt:'#8d6e52', other:'#7f8ea3' };
 
@@ -286,19 +333,36 @@ function colorOf(id, cat) {
   return 'hsl(' + h + ',36%,63%)';
 }
 
-function shortName(id) {
+function shortName(id, cat) {
+  if (cat && I18N[lang] && I18N[lang]['short.' + cat] !== undefined) return t('short.' + cat);
   const p = id.includes(':') ? id.split(':')[1] : id;
   const parts = p.split('_');
-  const last = parts[parts.length - 1];
-  const map = { log:'木', wood:'木', stem:'柄', hyphae:'柄', leaves:'叶', planks:'板',
-                sapling:'苗', propagule:'苗', beehive:'巢', bee_nest:'巢', vine:'藤',
-                dirt:'土', podzol:'灰', moss_block:'苔', cocoa:'可', shroomlight:'光',
-                wart_block:'疣', roots:'根', mud:'泥' };
-  if (map[last]) return map[last];
-  return last.slice(0, 3);
+  return parts[parts.length - 1].slice(0, 3);
 }
 
 let lastFaces = null;
+let outlineCache = { key:null, edges:[] };
+
+const LANGS = Object.keys(I18N);
+let lang = (function () {
+  const nav = (navigator.language || 'en').toLowerCase().replace('-', '_');
+  for (const l of LANGS) if (l === nav) return l;
+  for (const l of LANGS) if (l.split('_')[0] === nav.split('_')[0]) return l;
+  return LANGS.indexOf('en_us') >= 0 ? 'en_us' : (LANGS[0] || 'en_us');
+})();
+
+function t(key) {
+  const table = I18N[lang] || {};
+  let out = table[key];
+  if (out === undefined) {
+    const fb = I18N.en_us || {};
+    out = fb[key] !== undefined ? fb[key] : key;
+  }
+  for (let i = 1; i < arguments.length; i++) {
+    out = out.replace('%s', arguments[i]);
+  }
+  return out;
+}
 
 const state = { species:null, hidden:new Set(), highlight:null, yaw:0.7, pitch:0.32, dist:30,
                 panX:0, panY:0, z:0, dispLayer:null, onlyLayer:false };
@@ -308,12 +372,23 @@ function list() { return (DATA.speciesOrder || []).filter(k => DATA.species[k]);
 function render() {
   const app = document.getElementById('app');
   const keys = list();
+  document.title = t('title');
+  document.getElementById('h1').textContent = t('title');
   document.getElementById('meta').textContent =
-    '生成于 ' + DATA.generatedAt + ' · 总样本 ' + DATA.totalTrees + ' 棵树 · 树种 ' + keys.length + ' 个';
+    t('meta', DATA.generatedAt, DATA.totalTrees, keys.length);
+  const sel = document.getElementById('langSel');
+  sel.innerHTML = '';
+  for (const l of LANGS) {
+    const o = document.createElement('option');
+    o.value = l;
+    o.textContent = l;
+    if (l === lang) o.selected = true;
+    sel.appendChild(o);
+  }
+  sel.onchange = () => { lang = sel.value; render(); };
 
   if (!keys.length) {
-    app.innerHTML = '<div class="empty">还没有数据。开启规则 <code>saplingGrowthStatistics</code>，' +
-      '让树苗长成树后再执行 <code>/treeStats export</code>。</div>';
+    app.innerHTML = '<div class="empty">' + t('empty') + '</div>';
     return;
   }
   if (!state.species || !DATA.species[state.species]) { state.species = keys[0]; state.hidden.clear(); state.highlight = null; }
@@ -322,27 +397,27 @@ function render() {
   app.innerHTML =
     '<div class="tabs" id="tabs"></div>' +
     '<div class="cards">' +
-      card('样本（树）', sp.treeCount) +
-      card('总原木', sp.totalLogs) +
-      card('总树叶', sp.totalLeaves) +
-      card('总蜂巢', sp.totalBeehives) +
-      card('方块总数', sp.totalBlocks) +
-      card('平均原木/棵', sp.treeCount ? (sp.totalLogs / sp.treeCount).toFixed(2) : '0') +
+      card(t('samples'), sp.treeCount) +
+      card(t('totalLogs'), sp.totalLogs) +
+      card(t('totalLeaves'), sp.totalLeaves) +
+      card(t('totalBeehives'), sp.totalBeehives) +
+      card(t('totalBlocks'), sp.totalBlocks) +
+      card(t('avgLogs'), sp.treeCount ? (sp.totalLogs / sp.treeCount).toFixed(2) : '0') +
     '</div>' +
-    '<div class="panel"><h2>方块显示 <span class="hint">点击切换显示 / 隐藏，三维与剖面表联动</span></h2>' +
+    '<div class="panel"><h2>' + t('visibility') + ' <span class="hint">' + t('visibilityHint') + '</span></h2>' +
       '<div class="legend" id="legend"></div></div>' +
-    '<div class="panel"><h2>三维视图 <span class="hint">左键拖拽旋转 · 滚轮缩放 · 右键拖拽平移 · 点击方块看信息</span></h2>' +
-      '<div class="row"><span>显示层级：</span><input type="range" id="layerRange">' +
+    '<div class="panel"><h2>' + t('view3d') + ' <span class="hint">' + t('view3dHint') + '</span></h2>' +
+      '<div class="row"><span>' + t('layer') + '</span><input type="range" id="layerRange">' +
       '<span id="layerText"></span>' +
       '<label><input type="checkbox" id="onlyLayer"' + (state.onlyLayer ? ' checked' : '') +
-      '> 只看该层（不勾选则显示到该层为止）</label></div>' +
+      '> ' + t('onlyLayer') + '</label></div>' +
       '<div class="viewwrap"><canvas id="view3d"></canvas><div id="pickInfo" class="pickinfo"></div></div>' +
-      '<div class="row" style="margin-top:12px"><button id="resetView">重置视角</button>' +
+      '<div class="row" style="margin-top:12px"><button id="resetView">' + t('reset') + '</button>' +
       '<span id="viewInfo"></span></div></div>' +
-    '<div class="panel"><h2>纵向剖面表 <span class="hint">横轴 = 到树苗的水平距离，纵轴 = 高度</span></h2>' +
+    '<div class="panel"><h2>' + t('profile') + ' <span class="hint">' + t('profileHint') + '</span></h2>' +
       '<div class="row">' +
-        '<span>Z 切面：</span><input type="range" id="zSlider"><span id="zLabel"></span>' +
-        '<span>（树苗中心对称，只显示 X ≥ 0 一侧）</span>' +
+        '<span>' + t('zSlice') + '</span><input type="range" id="zSlider"><span id="zLabel"></span>' +
+        '<span>' + t('symmetric') + '</span>' +
       '</div>' +
       '<div class="profilewrap" id="profileWrap"></div></div>';
 
@@ -441,8 +516,8 @@ function renderLegend(sp) {
                    (state.highlight === b.id ? ' hl' : '');
     el.innerHTML = '<span class="sw" style="background:' + colorOf(b.id, b.category) + '"></span>' +
       '<span class="lbl">' + b.id + '</span> <span class="n">' + b.count + '</span>' +
-      '<span class="eye" title="点击切换该类方块的显示 / 隐藏">' +
-      (state.hidden.has(b.id) ? '显示' : '隐藏') + '</span>';
+      '<span class="eye" title="' + t('eyeTitle') + '">' +
+      t(state.hidden.has(b.id) ? 'show' : 'hide') + '</span>';
     el.onclick = ev => {
       if (ev.target.classList.contains('eye')) {
         if (state.hidden.has(b.id)) state.hidden.delete(b.id); else state.hidden.add(b.id);
@@ -477,12 +552,11 @@ function drawProfile() {
   const yTop = b.maxY, yBot = b.minY;
 
   if (!map.size) {
-    wrap.innerHTML = '<div class="empty">Z = ' + state.z + ' 这个切面上没有数据，换个 Z 试试。</div>';
+    wrap.innerHTML = '<div class="empty">' + t('zEmpty', state.z) + '</div>';
     return;
   }
 
-  let html = '<div class="axis">该切面共 ' + map.size + ' 个位置；格子颜色 = 主导方块，' +
-             '百分比 = 该方块在此位置的出现率（出现次数 / 样本数）</div>';
+  let html = '<div class="axis">' + t('cells', map.size) + '</div>';
   html += '<table class="profile"><thead><tr><th class="yh">Y \\ X</th>';
   for (let x = xMin; x <= xMax; x++) html += '<th>' + x + '</th>';
   html += '</tr></thead><tbody>';
@@ -505,7 +579,7 @@ function drawProfile() {
       const pct = (top.prob * 100).toFixed(2);
       html += '<td><div class="cell has" data-x="' + x + '" data-y="' + y + '" ' +
               'style="background:rgb(' + bg[0] + ',' + bg[1] + ',' + bg[2] + ');color:' + fg + ring + '">' +
-              '<span class="b">' + shortName(top.block) + '</span>' +
+              '<span class="b">' + shortName(top.block, meta.category) + '</span>' +
               '<span class="p">' + pct + '%</span></div></td>';
     }
     html += '</tr>';
@@ -516,7 +590,7 @@ function drawProfile() {
   wrap.querySelectorAll('.cell.has').forEach(el => {
     el.onmousemove = ev => {
       const cell = map.get(el.dataset.x + ',' + el.dataset.y);
-      if (cell) showTip(ev, '相对坐标 (' + cell.x + ', ' + el.dataset.y + ', ' + state.z + ')', cell.all);
+      if (cell) showTip(ev, t('pos') + ' (' + cell.x + ', ' + el.dataset.y + ', ' + state.z + ')', cell.all);
     };
     el.onmouseleave = hideTip;
   });
@@ -531,8 +605,9 @@ function showTip(ev, title, all) {
       o.block + '</td><td class="num">' + o.count + '</td><td class="num">' +
       (o.prob * 100).toFixed(2) + '%</td></tr>';
   }
-  tip.innerHTML = '<b>' + title + '</b><table><thead><tr><th>方块</th><th class="num">次数</th>' +
-    '<th class="num">出现率</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  tip.innerHTML = '<b>' + title + '</b><table><thead><tr><th>' + t('block') +
+    '</th><th class="num">' + t('count') + '</th><th class="num">' + t('rate') +
+    '</th></tr></thead><tbody>' + rows + '</tbody></table>';
   tip.style.display = 'block';
   const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
   tip.style.left = Math.min(ev.clientX + pad, window.innerWidth - w - 8) + 'px';
@@ -622,9 +697,10 @@ function showPickInfo(cube) {
             '<td class="num">' + o.count + '</td>' +
             '<td class="num">' + (o.prob * 100).toFixed(2) + '%</td></tr>';
   }
-  box.innerHTML = '<div class="hdr">相对坐标 (' + cube.x + ', ' + cube.y + ', ' + cube.z + ')' +
-    ' · 样本 ' + DATA.species[state.species].treeCount + ' 棵</div>' +
-    '<table><thead><tr><th>方块</th><th class="num">次数</th><th class="num">出现率</th></tr></thead>' +
+  box.innerHTML = '<div class="hdr">' + t('pos') + ' (' + cube.x + ', ' + cube.y + ', ' + cube.z + ')' +
+    ' · ' + t('samplesShort', DATA.species[state.species].treeCount) + '</div>' +
+    '<table><thead><tr><th>' + t('block') + '</th><th class="num">' + t('count') +
+    '</th><th class="num">' + t('rate') + '</th></tr></thead>' +
     '<tbody>' + rows + '</tbody></table>';
   box.style.display = 'block';
 }
@@ -662,7 +738,7 @@ function draw3D() {
       cubes.push({ x:c.x, y:layer.y, z:c.z, block:top.block, prob:top.prob, cat:top.category });
     }
   }
-  document.getElementById('viewInfo').textContent = cubes.length + ' 个方块（已按开关过滤）';
+  document.getElementById('viewInfo').textContent = t('viewInfo', cubes.length);
   if (!cubes.length) return;
 
   const env = {
@@ -766,34 +842,51 @@ function draw3D() {
   }
 
   if (state.highlight && !state.hidden.has(state.highlight)) {
-    const hlSet = new Set();
-    const hlCells = [];
-    for (const layer of sp.layers) {
-      if (state.onlyLayer ? layer.y !== state.dispLayer : layer.y > state.dispLayer) continue;
-      for (const c of layer.cells) {
-        if (!c.all.some(o => o.block === state.highlight)) continue;
-        hlSet.add(c.x + ',' + layer.y + ',' + c.z);
-        hlCells.push({ x:c.x, y:layer.y, z:c.z });
-      }
-    }
-    const edgePlanes = new Map();
-    for (const h of hlCells) {
-      for (const face of FACES) {
-        const nx = h.x + face.n[0], ny = h.y + face.n[1], nz = h.z + face.n[2];
-        if (hlSet.has(nx + ',' + ny + ',' + nz)) continue;
-        const plane = face.n.join(',') + ':' +
-          (face.n[0] !== 0 ? h.x + (face.n[0] > 0 ? 1 : 0)
-           : face.n[1] !== 0 ? h.y + (face.n[1] > 0 ? 1 : 0)
-           : h.z + (face.n[2] > 0 ? 1 : 0));
-        const vs = face.v.map(v => (h.x + v[0]) + ',' + (h.y + v[1]) + ',' + (h.z + v[2]));
-        for (let i = 0; i < 4; i++) {
-          const a = vs[i], b = vs[(i + 1) % 4];
-          const ek = a < b ? a + '|' + b : b + '|' + a;
-          let m = edgePlanes.get(ek);
-          if (!m) { m = new Map(); edgePlanes.set(ek, m); }
-          m.set(plane, (m.get(plane) || 0) + 1);
+    const outlineKey = state.species + '|' + state.highlight + '|' + state.onlyLayer + '|' +
+                       state.dispLayer + '|' + Array.from(state.hidden).sort().join(',');
+    if (outlineCache.key !== outlineKey) {
+      const hlSet = new Set();
+      const hlCells = [];
+      for (const layer of sp.layers) {
+        if (state.onlyLayer ? layer.y !== state.dispLayer : layer.y > state.dispLayer) continue;
+        for (const c of layer.cells) {
+          if (!c.all.some(o => o.block === state.highlight)) continue;
+          hlSet.add(c.x + ',' + layer.y + ',' + c.z);
+          hlCells.push({ x:c.x, y:layer.y, z:c.z });
         }
       }
+      const edgePlanes = new Map();
+      for (const h of hlCells) {
+        for (const face of FACES) {
+          const nx = h.x + face.n[0], ny = h.y + face.n[1], nz = h.z + face.n[2];
+          if (hlSet.has(nx + ',' + ny + ',' + nz)) continue;
+          const plane = face.n.join(',') + ':' +
+            (face.n[0] !== 0 ? h.x + (face.n[0] > 0 ? 1 : 0)
+             : face.n[1] !== 0 ? h.y + (face.n[1] > 0 ? 1 : 0)
+             : h.z + (face.n[2] > 0 ? 1 : 0));
+          const vs = face.v.map(v => (h.x + v[0]) + ',' + (h.y + v[1]) + ',' + (h.z + v[2]));
+          for (let i = 0; i < 4; i++) {
+            const a = vs[i], b = vs[(i + 1) % 4];
+            const ek = a < b ? a + '|' + b : b + '|' + a;
+            let m = edgePlanes.get(ek);
+            if (!m) { m = new Map(); edgePlanes.set(ek, m); }
+            m.set(plane, (m.get(plane) || 0) + 1);
+          }
+        }
+      }
+      const edges = [];
+      for (const entry of edgePlanes) {
+        let internal = false;
+        for (const cnt of entry[1].values()) {
+          if (cnt >= 2) { internal = true; break; }
+        }
+        if (internal) continue;
+        const parts = entry[0].split('|');
+        const a = parts[0].split(',').map(Number);
+        const b = parts[1].split(',').map(Number);
+        edges.push([a[0], a[1], a[2], b[0], b[1], b[2]]);
+      }
+      outlineCache = { key:outlineKey, edges:edges };
     }
     g.save();
     g.lineWidth = 2;
@@ -801,17 +894,9 @@ function draw3D() {
     g.shadowColor = 'rgba(255,206,0,.85)';
     g.shadowBlur = 6;
     g.beginPath();
-    for (const entry of edgePlanes) {
-      let internal = false;
-      for (const cnt of entry[1].values()) {
-        if (cnt >= 2) { internal = true; break; }
-      }
-      if (internal) continue;
-      const parts = entry[0].split('|');
-      const a = parts[0].split(',').map(Number);
-      const b = parts[1].split(',').map(Number);
-      const pa = projectPoint(a[0], a[1], a[2], env);
-      const pb = projectPoint(b[0], b[1], b[2], env);
+    for (const e of outlineCache.edges) {
+      const pa = projectPoint(e[0], e[1], e[2], env);
+      const pb = projectPoint(e[3], e[4], e[5], env);
       g.moveTo(pa.x, pa.y);
       g.lineTo(pb.x, pb.y);
     }
@@ -854,6 +939,6 @@ render();
 </script>
 </body>
 </html>
-""".replace("__DATA__", json);
+""".replace("__DATA__", json).replace("__I18N__", i18n);
     }
 }

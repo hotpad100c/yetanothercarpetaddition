@@ -21,34 +21,68 @@
 package mypals.ml.mixin.features.treeGrowthStats;
 
 import mypals.ml.features.treeGrowthStats.TreeGrowthStatistics;
+import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.feature.TreeFeature;
-import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+//#if MC < 260300
+import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+//#endif
+
 @Mixin(TreeFeature.class)
 public class TreeFeatureStatMixin {
 
+    // 26.3 folded TreeConfiguration into TreeFeature and made place() take the placement
+    // arguments directly instead of a FeaturePlaceContext.
+    //#if MC >= 260300
+    //$$ private static final String PLACE = "place(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/chunk/ChunkGenerator;Lnet/minecraft/util/RandomSource;Lnet/minecraft/core/BlockPos;)Z";
+    //#else
     private static final String PLACE = "place(Lnet/minecraft/world/level/levelgen/feature/FeaturePlaceContext;)Z";
+    //#endif
 
     @Inject(method = PLACE, at = @At("HEAD"))
-    private void yaca$beginTreeStats(FeaturePlaceContext<TreeConfiguration> context, CallbackInfoReturnable<Boolean> cir) {
+    private void yaca$beginTreeStats(
+            //#if MC >= 260300
+            //$$ WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos pos,
+            //#else
+            FeaturePlaceContext<TreeConfiguration> context,
+            //#endif
+            CallbackInfoReturnable<Boolean> cir) {
+        //#if MC >= 260300
+        //$$ TreeGrowthStatistics.begin((TreeFeature) (Object) this, level, random, pos);
+        //#else
         TreeGrowthStatistics.begin(context);
+        //#endif
     }
 
     @Inject(method = PLACE, at = @At("RETURN"), cancellable = true)
-    private void yaca$endTreeStats(FeaturePlaceContext<TreeConfiguration> context, CallbackInfoReturnable<Boolean> cir) {
+    private void yaca$endTreeStats(
+            //#if MC >= 260300
+            //$$ WorldGenLevel level, ChunkGenerator generator, RandomSource random, BlockPos pos,
+            //#else
+            FeaturePlaceContext<TreeConfiguration> context,
+            //#endif
+            CallbackInfoReturnable<Boolean> cir) {
         if (TreeGrowthStatistics.end()) {
             cir.setReturnValue(false);
         }
     }
 
+    // The wrapped level must be the one place() itself works with: an argument on 26.3,
+    // a local variable (index 2, right after `this` and the context) before that.
+    //#if MC >= 260300
+    //$$ @ModifyVariable(method = PLACE, at = @At("HEAD"), argsOnly = true, index = 1)
+    //#else
     @ModifyVariable(method = PLACE, at = @At("STORE"), index = 2)
+    //#endif
     private WorldGenLevel yaca$wrapLevel(WorldGenLevel level) {
         return TreeGrowthStatistics.wrapLevel(level);
     }

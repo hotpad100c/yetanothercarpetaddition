@@ -119,7 +119,11 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
             nbt.putInt("glow_color_override", updateType.color);
             NBTDataManager.writeToEntity(entity, nbt);
             entity.setInvisible(true);
+            //#if MC >= 260300
+            //$$ entity.setPermanentlyInvulnerable(true);
+            //#else
             entity.setInvulnerable(true);
+            //#endif
             entity.setGlowingTag(true);
             entity.noPhysics = true;
             entity.setYRot(0);

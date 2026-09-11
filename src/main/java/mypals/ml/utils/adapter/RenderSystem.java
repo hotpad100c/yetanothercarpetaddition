@@ -20,7 +20,9 @@
 
 package mypals.ml.utils.adapter;
 
-//#if MC > 12104
+//#if MC >= 260300
+//$$ import com.mojang.renderpearl.backend.opengl.GlStateManager;
+//#elseif MC > 12104
 import com.mojang.blaze3d.opengl.GlStateManager;
 //#else
 //$$import com.mojang.blaze3d.platform.GlStateManager;

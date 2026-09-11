@@ -24,6 +24,7 @@ import mypals.ml.network.PacketIDs;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
+import java.util.HashMap;
 import java.util.Map;
 
 //#if MC > 12004
@@ -40,6 +41,27 @@ public record CountersPacketPayload(Map<String, Map<String, String>> currentReco
     //$$ public static final ResourceLocation ID = PacketIDs.SYNC_COUNTERS_DATA_ID;
     //#endif
 
+    // 26.3 removed FriendlyByteBuf#readMap/writeMap in favour of ByteBufCodecs; this is the same
+    // wire format (varint size followed by the encoded key/value pairs) written out by hand.
+    //#if MC >= 260300
+    //$$ public CountersPacketPayload(FriendlyByteBuf buf) {
+    //$$     this(readRecords(buf));
+    //$$ }
+    //$$ private static Map<String, Map<String, String>> readRecords(FriendlyByteBuf buf) {
+    //$$     int size = buf.readVarInt();
+    //$$     Map<String, Map<String, String>> records = new HashMap<>(size);
+    //$$     for (int i = 0; i < size; i++) {
+    //$$         String timestamp = buf.readUtf(); // Read timestamp
+    //$$         int counterCount = buf.readVarInt();
+    //$$         Map<String, String> counters = new HashMap<>(counterCount);
+    //$$         for (int j = 0; j < counterCount; j++) {
+    //$$             counters.put(buf.readUtf(), buf.readUtf()); // Read counter name and value
+    //$$         }
+    //$$         records.put(timestamp, counters);
+    //$$     }
+    //$$     return records;
+    //$$ }
+    //#else
     public CountersPacketPayload(FriendlyByteBuf buf) {
         this(buf.readMap(
                         FriendlyByteBuf::readUtf, // Read timestamp
@@ -50,11 +72,23 @@ public record CountersPacketPayload(Map<String, Map<String, String>> currentReco
                 )
         );
     }
+    //#endif
 
     //#if MC < 12006
     //$$ @Override
     //#endif
     public void write(FriendlyByteBuf buf) {
+        //#if MC >= 260300
+        //$$ buf.writeVarInt(this.currentRecords().size());
+        //$$ for (Map.Entry<String, Map<String, String>> entry : this.currentRecords().entrySet()) {
+        //$$     buf.writeUtf(entry.getKey()); // Write timestamp
+        //$$     buf.writeVarInt(entry.getValue().size());
+        //$$     for (Map.Entry<String, String> counter : entry.getValue().entrySet()) {
+        //$$         buf.writeUtf(counter.getKey()); // Write counter name
+        //$$         buf.writeUtf(counter.getValue()); // Write counter value
+        //$$     }
+        //$$ }
+        //#else
         buf.writeMap(
                 this.currentRecords(), // Access currentRecords field
                 FriendlyByteBuf::writeUtf, // Write timestamp
@@ -64,6 +98,7 @@ public record CountersPacketPayload(Map<String, Map<String, String>> currentReco
                         FriendlyByteBuf::writeUtf  // Write counter value
                 )
         );
+        //#endif
     }
 
     //#if MC >= 12006

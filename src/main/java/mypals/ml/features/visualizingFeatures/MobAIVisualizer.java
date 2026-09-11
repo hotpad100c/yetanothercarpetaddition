@@ -73,7 +73,11 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
             Display.TextDisplay display = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
             //#endif
             display.setNoGravity(true);
+            //#if MC >= 260300
+            //$$ display.setPermanentlyInvulnerable(true);
+            //#else
             display.setInvulnerable(true);
+            //#endif
             display.setPosRaw(pos.x(), pos.y() + 0.1f, pos.z());
             display.addTag(getVisualizerTag());
             display.addTag("DoNotTick");

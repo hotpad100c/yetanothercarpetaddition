@@ -20,7 +20,10 @@
 
 package mypals.ml.screen.rulesEditScreen;
 
-//#if MC >= 12105
+//#if MC >= 260100
+// 26.1 and later let the GUI render pipeline handle the scrollbar blending (see drawScrollbar),
+// so GlStateManager is not referenced any more - and on 26.3 it moved to another package.
+//#elseif MC >= 12105
 import com.mojang.blaze3d.opengl.GlStateManager;
 //#else
 //$$import com.mojang.blaze3d.platform.GlStateManager;

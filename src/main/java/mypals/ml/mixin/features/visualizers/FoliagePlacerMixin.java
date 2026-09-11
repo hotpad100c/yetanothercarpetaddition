@@ -23,18 +23,26 @@ package mypals.ml.mixin.features.visualizers;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelSimulatedReader;
-import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+import net.minecraft.world.level.levelgen.feature.TreeFeature;
 import net.minecraft.world.level.levelgen.feature.foliageplacers.FoliagePlacer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//#if MC < 260300
+import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
+//#endif
+
 @Mixin(FoliagePlacer.class)
 public class FoliagePlacerMixin {
 
     @Inject(
-            //#if MC >= 260100
+            // 26.3 replaced the TreeConfiguration argument of createFoliage with the TreeFeature
+            // that now carries the configuration itself.
+            //#if MC >= 260300
+            //$$ method = "createFoliage(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/feature/TreeFeature;ILnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageAttachment;II)V",
+            //#elseif MC >= 260100
             //$$ method = "createFoliage(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;ILnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageAttachment;II)V",
             //#else
             method = "createFoliage(Lnet/minecraft/world/level/LevelSimulatedReader;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;ILnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageAttachment;II)V",
@@ -46,7 +54,13 @@ public class FoliagePlacerMixin {
             //#else
             LevelSimulatedReader world,
             //#endif
-            FoliagePlacer.FoliageSetter placer, RandomSource random, TreeConfiguration config, int trunkHeight, FoliagePlacer.FoliageAttachment treeNode, int foliageHeight, int radius, CallbackInfo ci) {
+            FoliagePlacer.FoliageSetter placer, RandomSource random,
+            //#if MC >= 260300
+            //$$ TreeFeature config,
+            //#else
+            TreeConfiguration config,
+            //#endif
+            int trunkHeight, FoliagePlacer.FoliageAttachment treeNode, int foliageHeight, int radius, CallbackInfo ci) {
         if(mypals.ml.settings.YetAnotherCarpetAdditionRules.foliagePlacerVisualize) {
             mypals.ml.YetAnotherCarpetAdditionServer.foliageAttachment.setVisualizer((Level)world, treeNode.pos());
         }

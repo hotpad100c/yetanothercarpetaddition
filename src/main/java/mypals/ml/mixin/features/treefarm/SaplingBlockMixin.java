@@ -25,6 +25,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SaplingBlock;
+//#if MC >= 260300
+//$$ import net.minecraft.world.level.block.BonemealSource;
+//#endif
 import net.minecraft.world.level.block.state.BlockState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -34,7 +37,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(SaplingBlock.class)
 public class SaplingBlockMixin {
     @Inject(method = "isBonemealSuccess", at = @At("HEAD"), cancellable = true)
-    public void canGrow(Level world, RandomSource random, BlockPos pos, BlockState state, CallbackInfoReturnable<Boolean> cir) {
+    public void canGrow(Level world, RandomSource random, BlockPos pos, BlockState state,
+                        // 26.3 added the BonemealSource argument (INTERACTION / MOB) to isBonemealSuccess
+                        //#if MC >= 260300
+                        //$$ BonemealSource source,
+                        //#endif
+                        CallbackInfoReturnable<Boolean> cir) {
         cir.setReturnValue ((double)world.getRandom().nextFloat() < YetAnotherCarpetAdditionRules.bonemealSuccessProbability);
     }
 }

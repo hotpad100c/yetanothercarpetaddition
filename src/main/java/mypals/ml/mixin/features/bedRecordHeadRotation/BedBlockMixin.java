@@ -28,6 +28,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
+//#if MC >= 260300
+//$$ import net.minecraft.world.level.block.AbstractBedBlock;
+//#endif
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.phys.BlockHitResult;
@@ -44,7 +47,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import static net.minecraft.world.level.block.BedBlock.PART;
 import static net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING;
 
+// 26.3 moved useWithoutItem() from BedBlock up into the new AbstractBedBlock superclass.
+//#if MC >= 260300
+//$$ @Mixin(AbstractBedBlock.class)
+//#else
 @Mixin(BedBlock.class)
+//#endif
 public abstract class BedBlockMixin {
     @Shadow
     private static Direction getNeighbourDirection(BedPart part, Direction direction) {
@@ -59,7 +67,12 @@ public abstract class BedBlockMixin {
             //#endif
             at = @At(
                     value = "INVOKE",
+                    // 26.3 passes the bed block, its state and the bed rule to startSleepInBed as well
+                    //#if MC >= 260300
+                    //$$ target = "Lnet/minecraft/world/entity/player/Player;startSleepInBed(Lnet/minecraft/world/level/block/AbstractBedBlock;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/attribute/BedRule;Lnet/minecraft/core/BlockPos;)Lcom/mojang/datafixers/util/Either;"
+                    //#else
                     target = "Lnet/minecraft/world/entity/player/Player;startSleepInBed(Lnet/minecraft/core/BlockPos;)Lcom/mojang/datafixers/util/Either;"
+                    //#endif
             )
     )
     private void onUse(BlockState state, Level world, BlockPos pos, Player player,

@@ -142,7 +142,11 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
         NBTDataManager.writeToEntity(entity, nbt);
 
         entity.setInvisible(true);
+        //#if MC >= 260300
+        //$$ entity.setPermanentlyInvulnerable(true);
+        //#else
         entity.setInvulnerable(true);
+        //#endif
         entity.setGlowingTag(true);
         entity.noPhysics = true;
         entity.setYRot(0);

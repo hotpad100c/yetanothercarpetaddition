@@ -25,6 +25,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import mypals.ml.features.treeGrowthStats.TreeGrowthStatistics;
 import mypals.ml.features.treeGrowthStats.TreeGrowthTask;
 import mypals.ml.features.treeGrowthStats.TreeStatsExporter;
+import carpet.utils.Translations;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -70,13 +71,10 @@ public class TreeStatsCommand {
 
     private static int summary(CommandSourceStack source) {
         if (TreeGrowthStatistics.isEmpty()) {
-            source.sendSuccess(() -> Component.literal(
-                    "[YACA] 还没有统计数据。开启 saplingGrowthStatistics 后让树苗长成树即可。"), false);
+            source.sendSuccess(() -> Component.literal("[YACA] " + Translations.tr("command.treeStats.empty")), false);
             return 0;
         }
-        source.sendSuccess(() -> Component.literal(
-                "[YACA] 树苗生长统计：共 " + TreeGrowthStatistics.totalTreeCount() + " 棵树，"
-                        + TreeGrowthStatistics.snapshot().size() + " 个树种"), false);
+        source.sendSuccess(() -> Component.literal("[YACA] " + String.format(Translations.tr("command.treeStats.summary"), TreeGrowthStatistics.totalTreeCount(), TreeGrowthStatistics.snapshot().size())), false);
 
         for (String species : TreeGrowthStatistics.speciesKeys()) {
             TreeGrowthStatistics.SpeciesData data = TreeGrowthStatistics.snapshot().get(species);
@@ -86,26 +84,24 @@ public class TreeStatsCommand {
             long logs = data.totalOf(TreeGrowthStatistics::isLog);
             long leaves = data.totalOf(TreeGrowthStatistics::isLeaves);
             long beehives = data.totalOf(b -> "beehive".equals(TreeGrowthStatistics.categoryOf(b)));
-            String line = String.format("  %s: %d 棵, 原木 %d (%.2f/棵), 树叶 %d, 蜂巢 %d",
-                    species, data.treeCount, logs,
-                    data.treeCount == 0 ? 0.0 : (double) logs / data.treeCount, leaves, beehives);
+            String line = "  " + String.format(Translations.tr("command.treeStats.speciesLine"), species, data.treeCount, logs, String.format("%.2f", data.treeCount == 0 ? 0.0 : (double) logs / data.treeCount), leaves, beehives);
             source.sendSuccess(() -> Component.literal(line), false);
         }
-        source.sendSuccess(() -> Component.literal("  用 /treeStats export 导出网页"), false);
+        source.sendSuccess(() -> Component.literal("  " + Translations.tr("command.treeStats.exportHint")), false);
         return 1;
     }
 
     private static int export(CommandSourceStack source) {
         if (TreeGrowthStatistics.isEmpty()) {
-            source.sendFailure(Component.literal("[YACA] 还没有统计数据，无法导出。"));
+            source.sendFailure(Component.literal("[YACA] " + Translations.tr("command.treeStats.exportEmpty")));
             return 0;
         }
         try {
             Path out = TreeStatsExporter.export();
-            source.sendSuccess(() -> Component.literal("[YACA] 统计网页已生成：" + out), false);
+            source.sendSuccess(() -> Component.literal("[YACA] " + String.format(Translations.tr("command.treeStats.exported"), out)), false);
             return 1;
         } catch (Exception e) {
-            source.sendFailure(Component.literal("[YACA] 导出失败：" + e));
+            source.sendFailure(Component.literal("[YACA] " + String.format(Translations.tr("command.treeStats.exportFailed"), e)));
             return 0;
         }
     }
@@ -116,22 +112,21 @@ public class TreeStatsCommand {
 
     private static int grow(CommandSourceStack source, BlockPos pos, int times) {
         if (TreeGrowthTask.isRunning()) {
-            source.sendFailure(Component.literal("[YACA] 已有催熟任务在运行，先等它结束。"));
+            source.sendFailure(Component.literal("[YACA] " + Translations.tr("command.treeStats.busy")));
             return 0;
         }
         if (!YetAnotherCarpetAdditionRules.saplingGrowthStatistics) {
-            source.sendFailure(Component.literal(
-                    "[YACA] 统计规则没开。先执行 /carpet saplingGrowthStatistics true"));
+            source.sendFailure(Component.literal("[YACA] " + Translations.tr("command.treeStats.ruleOff")));
             return 0;
         }
         ServerLevel level = source.getLevel();
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof SaplingBlock)) {
-            source.sendFailure(Component.literal("[YACA] 该坐标不是树苗：" + pos));
+            source.sendFailure(Component.literal("[YACA] " + String.format(Translations.tr("command.treeStats.notSapling"), pos)));
             return 0;
         }
         TreeGrowthTask.start(level, pos, state, times, source);
-        source.sendSuccess(() -> Component.literal("[YACA] 开始快速催熟 " + times + " 次：" + pos), false);
+        source.sendSuccess(() -> Component.literal("[YACA] " + String.format(Translations.tr("command.treeStats.growStarted"), times, pos)), false);
         return 1;
     }
 
@@ -139,8 +134,7 @@ public class TreeStatsCommand {
         int before = TreeGrowthStatistics.totalTreeCount();
         int species = TreeGrowthStatistics.snapshot().size();
         TreeGrowthStatistics.reset();
-        source.sendSuccess(() -> Component.literal(
-                "[YACA] 已清空树苗生长统计（原有 " + before + " 棵树 / " + species + " 个树种）。"), false);
+        source.sendSuccess(() -> Component.literal("[YACA] " + String.format(Translations.tr("command.treeStats.reset"), before, species)), false);
         return 1;
     }
 }

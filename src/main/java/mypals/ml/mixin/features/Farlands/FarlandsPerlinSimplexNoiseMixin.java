@@ -21,13 +21,23 @@
 package mypals.ml.mixin.features.Farlands;
 
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+//#if MC >= 260300
+//$$ import net.minecraft.world.level.levelgen.synth.GradientNoise;
+//#else
 import net.minecraft.world.level.levelgen.synth.PerlinNoise;
+//#endif
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+// 26.3 rewrote the noise classes: PerlinNoise no longer declares wrap(), the method now lives
+// on its new GradientNoise superclass (still the single place every octave is wrapped in).
+//#if MC >= 260300
+//$$ @Mixin({GradientNoise.class})
+//#else
 @Mixin({PerlinNoise.class})
+//#endif
 public class FarlandsPerlinSimplexNoiseMixin {
     @Inject(
             method = {"wrap"},

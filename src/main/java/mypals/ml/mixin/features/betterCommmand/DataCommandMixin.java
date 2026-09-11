@@ -36,6 +36,9 @@ import net.minecraft.commands.arguments.NbtPathArgument;
 import net.minecraft.nbt.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+//#if MC >= 260300
+//$$ import net.minecraft.server.commands.ArgProvider;
+//#endif
 import net.minecraft.server.commands.data.BlockDataAccessor;
 import net.minecraft.server.commands.data.DataAccessor;
 import net.minecraft.server.commands.data.DataCommands;
@@ -70,7 +73,13 @@ public class DataCommandMixin {
             method = "manipulateData",
             at = @At("HEAD")
     )
-    private static void beforeModify(CommandContext<CommandSourceStack> context, DataCommands.DataProvider objectType, DataCommands.DataManipulator modifier, List<Tag> elements, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException, CommandSyntaxException {
+    private static void beforeModify(CommandContext<CommandSourceStack> context,
+                                     //#if MC >= 260300
+                                     //$$ ArgProvider<DataAccessor> objectType,
+                                     //#else
+                                     DataCommands.DataProvider objectType,
+                                     //#endif
+                                     DataCommands.DataManipulator modifier, List<Tag> elements, CallbackInfoReturnable<Integer> cir) throws CommandSyntaxException, CommandSyntaxException {
         DataAccessor dataObject = objectType.access(context);
         CompoundTag originalNbt = dataObject.getData().copy();
         DataModifyCapture.setOriginalNbt(originalNbt);
