@@ -20,6 +20,9 @@
 
 package mypals.ml.mixin.features.instantFalling;
 
+//#if MC >= 260200
+//$$ import mypals.ml.utils.DummyClass;
+//#endif
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,6 +37,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//#if MC >= 260200
+//$$ // Minecraft 26.2 no longer gives PointedDripstoneBlock its own scheduled tick
+//$$ // (the dripstone logic moved to randomTick), so there is no equivalent injection point
+//$$ // left for the "instantFalling" rule on dripstone. Keep an empty mixin as a placeholder.
+//$$ @Mixin(DummyClass.class)
+//$$ public abstract class PointedDripstoneBlockMixin {
+//$$ }
+//#else
 @Mixin(PointedDripstoneBlock.class)
 public abstract class PointedDripstoneBlockMixin {
 
@@ -61,3 +72,4 @@ public abstract class PointedDripstoneBlockMixin {
 		ci.cancel();
 	}
 }
+//#endif

@@ -44,6 +44,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
+//#if MC >= 260200
+//$$ import java.util.Optional;
+//$$ import net.minecraft.world.scores.TeamColor;
+//#endif
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, BlockEventVisualizing.BlockEventObject> {
     private static final ConcurrentHashMap<BlockPos, Map.Entry<BlockEventObject, Long>> visualizers = new ConcurrentHashMap<>();
@@ -76,7 +83,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
                 nbt.putString("text", textJson.toString());
                 NBTDataManager.writeToEntity(tickMarker, nbt);
             } else {
-                tickMarker = summonText(world, pos.getCenter().add(0, -0.4, 0), String.valueOf(order));
+                tickMarker = summonText(world, Vec3.atCenterOf(pos).add(0, -0.4, 0), String.valueOf(order));
             }
 
             if (typeMarker == null || typeMarker.isRemoved()) {
@@ -94,7 +101,11 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
         }
 
         private Display.TextDisplay summonText(ServerLevel world, Vec3 pos, String order) {
+            //#if MC >= 260200
+            //$$ Display.TextDisplay entity = new Display.TextDisplay(EntityTypes.TEXT_DISPLAY, world);
+            //#else
             Display.TextDisplay entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
+            //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
@@ -123,10 +134,18 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
         }
 
         private Display.BlockDisplay summonMarker(Level world, BlockPos pos) {
+            //#if MC >= 260200
+            //$$ Display.BlockDisplay entity = new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY, world);
+            //#else
             Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, world);
+            //#endif
             float scale = 0.9f;
             CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
+            //#if MC >= 260200
+            //$$ nbt.put("block_state", NbtUtils.writeBlockState(Blocks.STAINED_GLASS.green().defaultBlockState()));
+            //#else
             nbt.put("block_state", NbtUtils.writeBlockState(Blocks.GREEN_STAINED_GLASS.defaultBlockState()));
+            //#endif
             nbt = EntityHelper.scaleEntity(nbt, scale);
             nbt.putInt("glow_color_override", 0xAAFFAA);
             NBTDataManager.writeToEntity(entity, nbt);
@@ -293,7 +312,7 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
             float scale = mapSize((int) (deleteTick - CarpetServer.minecraft_server.overworld().getGameTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
             NBTDataManager.writeToEntity(entry.getKey().typeMarker, nbt);
-            entry.getKey().typeMarker.setPosRaw(pos.getCenter().x() - (scale / 2), pos.getCenter().y() - (scale / 2), pos.getCenter().z() - (scale / 2));
+            entry.getKey().typeMarker.setPosRaw(Vec3.atCenterOf(pos).x() - (scale / 2), Vec3.atCenterOf(pos).y() - (scale / 2), Vec3.atCenterOf(pos).z() - (scale / 2));
 
         });
     }
@@ -311,7 +330,11 @@ public class BlockEventVisualizing extends AbstractVisualizingManager<BlockPos, 
         PlayerTeam team = scoreboard.getPlayerTeam(teamName);
         if (team == null) {
             team = scoreboard.addPlayerTeam(teamName);
+            //#if MC >= 260200
+            //$$ team.setColor(Optional.of(TeamColor.GREEN));
+            //#else
             team.setColor(ChatFormatting.GREEN);
+            //#endif
         }
         String entityName = marker.getStringUUID();
         scoreboard.addPlayerToTeam(entityName, team);

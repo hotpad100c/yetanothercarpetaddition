@@ -75,7 +75,11 @@ public class StructureBlockMixin extends BlockEntity {
 
             forEachChunkInCube(this.worldPosition, radius, chunkPos -> {
 
+                //#if MC >= 260100
+                //$$ ChunkAccess chunk = this.level.getChunk(chunkPos.x(), chunkPos.z());
+                //#else
                 ChunkAccess chunk = this.level.getChunk(chunkPos.x, chunkPos.z);
+                //#endif
                 chunk.getBlockEntitiesPos().forEach(pos -> {
                     BlockEntity be = chunk.getBlockEntity(pos);
                     if (be instanceof StructureBlockEntity sb && sb.getMode() == StructureMode.CORNER && Objects.equals(this.structureName.toString(), sb.getStructureName())) {

@@ -135,6 +135,7 @@ public abstract class MovingPistionBlockMixin extends BaseEntityBlock {
             );
     }
 
+    //#if MC < 260200
     @Override
     public void updateEntityMovementAfterFallOn(BlockGetter world, Entity entity) {
 
@@ -146,6 +147,7 @@ public abstract class MovingPistionBlockMixin extends BaseEntityBlock {
         }
 
     }
+    //#endif
 
     @Override
     public int getDirectSignal(BlockState state, BlockGetter world, BlockPos pos, Direction direction) {

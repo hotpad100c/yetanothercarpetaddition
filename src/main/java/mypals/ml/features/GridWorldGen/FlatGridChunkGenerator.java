@@ -84,8 +84,16 @@ public class FlatGridChunkGenerator extends FlatLevelSource {
             //#endif
             Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk) {
         ChunkPos chunkPos = chunk.getPos();
+        //#if MC >= 260100
+        //$$ boolean isBlack = (chunkPos.x() + chunkPos.z()) % 2 == 0;
+        //#else
         boolean isBlack = (chunkPos.x + chunkPos.z) % 2 == 0;
+        //#endif
+        //#if MC >= 260200
+        //$$ BlockState blockState = isBlack ? Blocks.STAINED_GLASS.black().defaultBlockState() : Blocks.STAINED_GLASS.white().defaultBlockState();
+        //#else
         BlockState blockState = isBlack ? Blocks.BLACK_STAINED_GLASS.defaultBlockState() : Blocks.WHITE_STAINED_GLASS.defaultBlockState();
+        //#endif
 
         BlockPos.MutableBlockPos mutable = new BlockPos.MutableBlockPos();
         Heightmap heightmapOcean = chunk.getOrCreateHeightmapUnprimed(Heightmap.Types.OCEAN_FLOOR_WG);

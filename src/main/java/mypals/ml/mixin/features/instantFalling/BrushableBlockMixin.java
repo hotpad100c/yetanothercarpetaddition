@@ -74,10 +74,10 @@ public class BrushableBlockMixin {
                         try (ProblemReporter.ScopedCollector scopedCollector = new ProblemReporter.ScopedCollector(newBe.problemPath(), LogUtils.getLogger())) {
                             newBe.loadWithComponents(TagValueInput.create(scopedCollector, world.registryAccess(), beData));
                         }
-                        //#elseif MC > 12101
+                        //#elseif MC >= 12005
                         //$$ newBe.loadWithComponents(beData, world.registryAccess());
                         //#else
-                        //$$ newBe.loadWithComponents(beData, world.registryAccess());
+                        //$$ newBe.load(beData);
                         //#endif
                     }
                 }

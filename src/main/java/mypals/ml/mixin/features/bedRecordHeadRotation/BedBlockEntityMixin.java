@@ -22,7 +22,11 @@ package mypals.ml.mixin.features.bedRecordHeadRotation;
 
 import mypals.ml.interfaces.BedBlockEntityExtension;
 import net.minecraft.core.BlockPos;
+//#if MC >= 260200
+//$$ import mypals.ml.utils.DummyClass;
+//#else
 import net.minecraft.world.level.block.entity.BedBlockEntity;
+//#endif
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,6 +45,13 @@ import net.minecraft.world.level.storage.ValueOutput;
 //$$ import net.minecraft.core.HolderLookup;
 //#endif
 
+//#if MC >= 260200
+//$$ // Minecraft 26.2 removed the bed block entity (beds are rendered from block models now),
+//$$ // so there is nothing left to store the sleeper rotation on. Keep an empty mixin as a placeholder.
+//$$ @Mixin(DummyClass.class)
+//$$ public abstract class BedBlockEntityMixin {
+//$$ }
+//#else
 @Mixin(BedBlockEntity.class)
 @Implements(@Interface(iface = BedBlockEntityExtension.class, prefix = "YACA$"))
 public abstract class BedBlockEntityMixin extends BlockEntity {
@@ -140,3 +151,4 @@ public abstract class BedBlockEntityMixin extends BlockEntity {
     //$$ }
     //#endif
 }
+//#endif

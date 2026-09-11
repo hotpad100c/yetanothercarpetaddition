@@ -42,6 +42,9 @@ import net.minecraft.nbt.Tag;
 //#endif
 //#if MC >= 12105
 import org.jetbrains.annotations.NotNull;
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 //#endif
 
 public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPos, ScheduledTickVisualizing.ScheduledTickObject> {
@@ -101,7 +104,7 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
                 //#endif
                 NBTDataManager.writeToEntity(tickMarker, nbt);
             } else {
-                tickMarker = summonText(world, pos.getCenter().add(0, -0.4, 0), trigger, priority, subTickOrder);
+                tickMarker = summonText(world, Vec3.atCenterOf(pos).add(0, -0.4, 0), trigger, priority, subTickOrder);
             }
         }
 
@@ -112,7 +115,11 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
         }
 
         private Display.TextDisplay summonText(ServerLevel world, Vec3 pos, int trigger, int priority, long subTickOrder) {
+            //#if MC >= 260200
+            //$$ Display.TextDisplay entity = new Display.TextDisplay(EntityTypes.TEXT_DISPLAY, world);
+            //#else
             Display.TextDisplay entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
+            //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
@@ -283,6 +290,6 @@ public class ScheduledTickVisualizing extends AbstractVisualizingManager<BlockPo
 
     public void setVisualizer(ServerLevel world, BlockPos pos, long triggerTick, int priority, long subTickOrder, String content, boolean isFluid) {
         Object[] data = new Object[]{triggerTick, priority, subTickOrder, content, isFluid};
-        setVisualizer(world, pos, pos.getCenter(), data);
+        setVisualizer(world, pos, Vec3.atCenterOf(pos), data);
     }
 }

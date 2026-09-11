@@ -31,6 +31,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(Level.class)
 public class TickBlockEntitiesRecordOrderMixin {
@@ -44,7 +45,7 @@ public class TickBlockEntitiesRecordOrderMixin {
             YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.globalOrder++;
             YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.setVisualizer(serverWorld,
                     blockEntityTickInvoker.getPos(),
-                    blockEntityTickInvoker.getPos().getCenter(),
+                    Vec3.atCenterOf(blockEntityTickInvoker.getPos()),
                     YetAnotherCarpetAdditionServer.blockEntityOrderVisualizing.globalOrder);
         }
     }

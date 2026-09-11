@@ -1,10 +1,20 @@
+// Minecraft 26.1 and later are unobfuscated: they need a different loom plugin and no mappings at all.
+// Derived from the version string so that it is known before any plugin is applied; the numbers match
+// the mcVersion of the preprocess nodes declared in the root build.gradle.
+def toMcVersion = { String version ->
+	def parts = version.tokenize('.').collect { it as int }
+	parts[0] * 10000 + (parts.size() > 1 ? parts[1] : 0) * 100 + (parts.size() > 2 ? parts[2] : 0)
+}
+final int mcVersion = toMcVersion(project.minecraft_version as String)
+final boolean unobfuscated = mcVersion >= 260000
+
 apply plugin: 'maven-publish'
 apply plugin: 'com.github.hierynomus.license'
-apply plugin: 'fabric-loom'
+// loom has to be applied before preprocess: preprocess' afterEvaluate hook reads loom's mappings provider,
+// so it must be registered after the one of loom
+apply plugin: unobfuscated ? 'net.fabricmc.fabric-loom' : 'net.fabricmc.fabric-loom-remap'
 apply plugin: 'com.replaymod.preprocess'
 apply plugin: 'me.fallenbreath.yamlang'
-
-int mcVersion = project.mcVersion
 
 repositories {
 	maven {
@@ -20,29 +30,54 @@ repositories {
 
 // https://github.com/FabricMC/fabric-loader/issues/783
 configurations {
-	modRuntimeOnly.exclude group: 'net.fabricmc', module: 'fabric-loader'
+	if (!unobfuscated) {
+		// modRuntimeOnly is not part of runtimeClasspath, so excluding here is safe.
+		// On 26.1+ the remapping configurations are gone and an exclude rule on runtimeOnly
+		// would be inherited by runtimeClasspath and drop the loader itself, so the transitive
+		// loader dependencies are excluded per dependency in the dependencies block below instead.
+		modRuntimeOnly.exclude group: 'net.fabricmc', module: 'fabric-loader'
+	}
 }
 
 dependencies {
+	// 26.1+ dropped the remapping configurations (modImplementation / modApi / modRuntimeOnly ...)
+	// while mods on 26.1+ no longer carry a loader dependency that has to be excluded globally,
+	// so every dependency excludes the transitively pulled fabric-loader explicitly
+	def processDependency = { dep ->
+		// https://github.com/FabricMC/fabric-loader/issues/783
+		if (dep instanceof ModuleDependency && !(dep.group == 'net.fabricmc' && dep.name == 'fabric-loader')) {
+			dep.exclude group: 'net.fabricmc', module: 'fabric-loader'
+		}
+		return dep
+	}
+	def autoImplementation = { Object... args -> processDependency(unobfuscated ? implementation(*args) : modImplementation(*args)) }
+	def autoRuntimeOnly = { Object... args -> processDependency(unobfuscated ? runtimeOnly(*args) : modRuntimeOnly(*args)) }
+	def mixinextrasVersion = unobfuscated ? project.mixinextras_version_unobf : project.mixinextras_version
+	def mixinAuditorVersion = unobfuscated ? project.mixin_auditor_version_unobf : project.mixin_auditor_version
+
 	// loom
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	modImplementation "carpet:fabric-carpet:${project.carpet_version}"
+	if (!unobfuscated) {
+		mappings loom.officialMojangMappings()
+	}
+	autoImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+	autoImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+	autoImplementation "carpet:fabric-carpet:${project.carpet_version}"
 
 	// dependencies
-	include(modImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
-	include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${project.mixinextras_version}")))
+	include(autoImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))
+	include(annotationProcessor(implementation("io.github.llamalad7:mixinextras-fabric:${mixinextrasVersion}")))
 
     // runtime
-    modRuntimeOnly "me.fallenbreath:mixin-auditor:0.1.0"
+    autoRuntimeOnly "me.fallenbreath:mixin-auditor:${mixinAuditorVersion}"
 }
 
 String MIXIN_CONFIG_PATH = 'yetanothercarpetaddition.mixins.json'
 String LANG_DIR = 'assets/yetanothercarpetaddition/lang'
 JavaVersion JAVA_COMPATIBILITY
-if (mcVersion >= 12005) {
+if (mcVersion >= 260000) {
+	JAVA_COMPATIBILITY = JavaVersion.toVersion('25')
+} else if (mcVersion >= 12005) {
 	JAVA_COMPATIBILITY = JavaVersion.VERSION_21
 } else if (mcVersion >= 11800) {
 	JAVA_COMPATIBILITY = JavaVersion.VERSION_17
@@ -51,7 +86,8 @@ if (mcVersion >= 12005) {
 } else {
 	JAVA_COMPATIBILITY = JavaVersion.VERSION_1_8
 }
-JavaVersion MIXIN_COMPATIBILITY_LEVEL = JAVA_COMPATIBILITY
+// e.g. JAVA_21 / JAVA_25, used as the mixin compatibility level
+String MIXIN_COMPATIBILITY_LEVEL = "JAVA_${JAVA_COMPATIBILITY.majorVersion}"
 
 loom {
 	accessWidenerPath = file("YACA.accesswidener")
@@ -136,7 +172,7 @@ processResources {
 	}
 
 	filesMatching(MIXIN_CONFIG_PATH) {
-		filter { s -> s.replace('{{COMPATIBILITY_LEVEL}}', "JAVA_${MIXIN_COMPATIBILITY_LEVEL.ordinal() + 1}") }
+		filter { s -> s.replace('{{COMPATIBILITY_LEVEL}}', MIXIN_COMPATIBILITY_LEVEL) }
 	}
 }
 
@@ -152,6 +188,8 @@ yamlang {
 tasks.withType(JavaCompile).configureEach {
 	options.encoding = "UTF-8"
 	options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+	// javac stops at 100 errors by default, get the full list instead
+	options.compilerArgs << "-Xmaxerrs" << "2000" << "-Xmaxwarns" << "200"
 	if (JAVA_COMPATIBILITY <= JavaVersion.VERSION_1_8) {
 		// suppressed "source/target value 8 is obsolete and will be removed in a future release"
 		options.compilerArgs << '-Xlint:-options'

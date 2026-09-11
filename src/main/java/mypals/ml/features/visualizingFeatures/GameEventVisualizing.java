@@ -45,6 +45,13 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import java.util.HashMap;
+//#if MC >= 260200
+//$$ import java.util.Optional;
+//$$ import net.minecraft.world.scores.TeamColor;
+//#endif
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 //#endif
 
 public class GameEventVisualizing extends AbstractVisualizingManager<Vec3, GameEventVisualizing.GameEventObject> {
@@ -120,7 +127,11 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3, GameE
         }
 
         private Display.TextDisplay summonText(ServerLevel world, Vec3 pos, String trigger, String type) {
+            //#if MC >= 260200
+            //$$ Display.TextDisplay entity = new Display.TextDisplay(EntityTypes.TEXT_DISPLAY, world);
+            //#else
             Display.TextDisplay entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
+            //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);
@@ -173,10 +184,18 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3, GameE
         }
 
         private Display.BlockDisplay summonMarker(Level world, Vec3 pos) {
+            //#if MC >= 260200
+            //$$ Display.BlockDisplay entity = new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY, world);
+            //#else
             Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, world);
+            //#endif
             float scale = 0.3f;
             CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
+            //#if MC >= 260200
+            //$$ nbt.put("block_state", NbtUtils.writeBlockState(Blocks.STAINED_GLASS_PANE.blue().defaultBlockState()));
+            //#else
             nbt.put("block_state", NbtUtils.writeBlockState(Blocks.BLUE_STAINED_GLASS_PANE.defaultBlockState()));
+            //#endif
             nbt = EntityHelper.scaleEntity(nbt, scale);
             nbt.putInt("glow_color_override", 0xAAAAFF);
             
@@ -264,7 +283,11 @@ public class GameEventVisualizing extends AbstractVisualizingManager<Vec3, GameE
         PlayerTeam team = scoreboard.getPlayerTeam(teamName);
         if (team == null) {
             team = scoreboard.addPlayerTeam(teamName);
+            //#if MC >= 260200
+            //$$ team.setColor(Optional.of(TeamColor.AQUA));
+            //#else
             team.setColor(ChatFormatting.AQUA);
+            //#endif
         }
         String entityName = marker.getStringUUID();
         scoreboard.addPlayerToTeam(entityName, team);

@@ -28,7 +28,11 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import net.minecraft.client.Minecraft;
+//#if MC >= 260100
+//$$ import net.minecraft.client.gui.GuiGraphicsExtractor;
+//#else
 import net.minecraft.client.gui.GuiGraphics;
+//#endif
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
@@ -110,7 +114,11 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
                 //#else
                 //$$ PoseStack poseStack
                 //#endif
+                //#if MC >= 260100
+                //$$ , GuiGraphicsExtractor drawContext
+                //#else
                 , GuiGraphics drawContext
+                //#endif
         ) {
 
             //#if MC >= 12106
@@ -157,11 +165,19 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
             this.time = time;
         }
 
+        //#if MC >= 260100
+        //$$ public boolean hovered(int mouseX, int mouseY, int size, GuiGraphicsExtractor drawContext, int color) {
+        //#else
         public boolean hovered(int mouseX, int mouseY, int size, GuiGraphics drawContext, int color) {
+        //#endif
             return (mouseX < (x + size + 1) && mouseY < (y + size + 1) && mouseX > (x - size - 1) && mouseY > (y - size - 1));
         }
 
+        //#if MC >= 260100
+        //$$ public boolean render(int size, GuiGraphicsExtractor drawContext, int color, int mouseX, int mouseY, boolean alreadyShowingTooltip) {
+        //#else
         public boolean render(int size, GuiGraphics drawContext, int color, int mouseX, int mouseY, boolean alreadyShowingTooltip) {
+        //#endif
             drawContext.fill(x + size + 1, y + size + 1, x - size - 1, y - size - 1, new Color(color).darker().getRGB());
             drawContext.fill(x + size, y + size, x - size, y - size, color);
             if (hovered(mouseX, mouseY, size, drawContext, color)) {
@@ -311,8 +327,16 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
     }
 
     @Override
+    //#if MC >= 260100
+    //$$ public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    //#else
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    //#endif
+        //#if MC >= 260100
+        //$$ super.extractRenderState(context, mouseX, mouseY, delta);
+        //#else
         super.render(context, mouseX, mouseY, delta);
+        //#endif
 
         //#if MC >= 12106
         Matrix3x2fStack poseStack = context.pose();
@@ -344,16 +368,32 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
                 context.fill(x1 - 1, y1 - 1, x1 + 1, y1 + 1, color);
             }
 
+            //#if MC >= 260100
+            //$$ context.text(this.font, counter, chartWidth + chartX + 5, chartHeight - 20 - i * 7, color, true);
+            //#else
             context.drawString(this.font, counter, chartWidth + chartX + 5, chartHeight - 20 - i * 7, color, true);
+            //#endif
         }
         if (!timestamps.isEmpty()) {
+            //#if MC >= 260100
+            //$$ context.text(this.font, timestamps.getFirst().substring(11, 16), chartX, chartY + chartHeight + 10, axisColor, true);
+            //#else
             context.drawString(this.font, timestamps.getFirst().substring(11, 16), chartX, chartY + chartHeight + 10, axisColor, true);
+            //#endif
+            //#if MC >= 260100
+            //$$ context.text(this.font, timestamps.getLast().substring(11, 16), chartX + chartWidth, chartY + chartHeight + 10, axisColor, true);
+            //#else
             context.drawString(this.font, timestamps.getLast().substring(11, 16), chartX + chartWidth, chartY + chartHeight + 10, axisColor, true);
+            //#endif
         }
         for (int i = 0; i <= 5; i++) {
             int value = (int) ((double) i / 5 * finalMaxCount);
             int y = chartY + chartHeight - (i * chartHeight / 5);
+            //#if MC >= 260100
+            //$$ context.text(this.font, String.valueOf(value), chartX - 30, y - 5, axisColor, false);
+            //#else
             context.drawString(this.font, String.valueOf(value), chartX - 30, y - 5, axisColor, false);
+            //#endif
         }
         context.fill(chartX, chartY + chartHeight - 1, chartX + chartWidth, chartY + chartHeight, axisColor);
         context.fill(chartX, chartY, chartX + 1, chartY + chartHeight, axisColor);
@@ -363,7 +403,11 @@ public class CounterViewerScreen extends Screen implements ContainerEventHandler
 
         context.fill(chartX, my - 1, chartX + chartWidth, my + 1, 0x0FFFFFFF);
         context.fill(mx - 1, chartY, mx + 1, chartY + chartHeight, 0x0FFFFFFF);
+        //#if MC >= 260100
+        //$$ context.centeredText(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
+        //#else
         context.drawCenteredString(this.font, this.title, this.width / 2, 20, 0xFFFFFFFF);
+        //#endif
 
     }
 

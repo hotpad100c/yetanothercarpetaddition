@@ -55,7 +55,7 @@ public class LogAppender extends AbstractAppender {
                                 event.getLevel() == Level.ERROR ? ChatFormatting.RED :
                                         event.getLevel() == Level.WARN ? ChatFormatting.YELLOW :
                                                 ChatFormatting.GRAY;
-                player.displayClientMessage(
+                player.sendSystemMessage(
                         Component.literal("").append(Component.literal("<L2C>").withStyle(ChatFormatting.ITALIC).withStyle(ChatFormatting.GRAY))
                                 .append(Component.literal(message).withStyle(color))
 
@@ -69,8 +69,7 @@ public class LogAppender extends AbstractAppender {
                                                         .append("Thread: " + event.getThreadName() + "\n")
                                                         .append("Fqcn: " + fqcn + "\n")
                                         ))
-                                ),
-                        false
+                                )
                 );
             }
         }

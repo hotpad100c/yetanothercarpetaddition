@@ -22,7 +22,11 @@ package mypals.ml.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import mypals.ml.network.client.RequestCountersPayload;
+//#if MC >= 260100
+//$$ import net.fabricmc.fabric.api.client.command.v2.ClientCommands;
+//#else
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+//#endif
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.commands.CommandBuildContext;
@@ -34,10 +38,15 @@ import net.minecraft.commands.CommandBuildContext;
 
 public class HopperCounterRequestCommand {
     public static void registerCommand(CommandDispatcher<FabricClientCommandSource> dispatcher, CommandBuildContext registryAccess) {
-        dispatcher.register(ClientCommandManager.literal("counterGUI")
-                .executes(context -> execute(
-                        context.getSource()
-                )));
+        dispatcher.register(
+                //#if MC >= 260100
+                //$$ ClientCommands.literal("counterGUI")
+                //#else
+                ClientCommandManager.literal("counterGUI")
+                //#endif
+                        .executes(context -> execute(
+                                context.getSource()
+                        )));
     }
 
     public static int execute(FabricClientCommandSource source) {

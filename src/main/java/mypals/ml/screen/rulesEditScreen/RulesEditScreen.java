@@ -22,7 +22,11 @@ package mypals.ml.screen.rulesEditScreen;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.Minecraft;
+//#if MC >= 260100
+//$$ import net.minecraft.client.gui.GuiGraphicsExtractor;
+//#else
 import net.minecraft.client.gui.GuiGraphics;
+//#endif
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -217,7 +221,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                         new EditBox(Minecraft.getInstance().font,
                                 15, 10, this.width - (this.width / 3) - 7, 15, CONFIGURE_TEXT) {
                             @Override
+                            //#if MC >= 260100
+                            //$$ public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+                            //#else
                             public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+                            //#endif
                                 if (this.isVisible()) {
                                     context.fill(
                                             //#if MC < 12106
@@ -232,7 +240,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                                             //#endif
                                             this.getX(), this.getY() + this.height - 4,
                                             this.width + 1, this.getY() + this.height - 5, 0xAFFFFFFF);
+                                    //#if MC >= 260100
+                                    //$$ super.extractWidgetRenderState(context, mouseX, mouseY, delta);
+                                    //#else
                                     super.renderWidget(context, mouseX, mouseY, delta);
+                                    //#endif
                                 }
                             }
                         });
@@ -296,7 +308,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                             //else
                             //renderWidget
                             //endif
+                            //#if MC >= 260100
+                            //$$ (GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+                            //#else
                             (GuiGraphics context, int mouseX, int mouseY, float delta) {
+                            //#endif
 
 
                                 int index = 0;
@@ -421,7 +437,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                             }
 
                             @Override
+                            //#if MC >= 260100
+                            //$$ protected void drawBox(GuiGraphicsExtractor context, int x, int y, int width, int height) {
+                            //#else
                             protected void drawBox(GuiGraphics context, int x, int y, int width, int height) {
+                            //#endif
                                 context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(),
                                         0x19000000
                                 );
@@ -461,7 +481,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                     //else
                     //renderWidget
                     //endif
+                    //#if MC >= 260100
+                    //$$ (GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+                    //#else
                     (GuiGraphics context, int mouseX, int mouseY, float delta) {
+                    //#endif
                         int index = 0;
                         double adjustedMouseY = mouseY + this.getScrollY();
 
@@ -471,7 +495,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
 
                             boolean isMouseOver = mouseX >= x && mouseX <= x + boxWidth && adjustedMouseY >= y && adjustedMouseY <= y + boxHeight;
                             context.fillGradient(x, y, x + boxWidth, y + boxHeight, categoryEntry.selected ? 0x2F060606 : 0x50060606, categoryEntry.selected ? 0x50060606 : 0x20060606);
+                            //#if MC >= 260100
+                            //$$ context.text(Minecraft.getInstance().font,
+                            //#else
                             context.drawString(Minecraft.getInstance().font,
+                            //#endif
                                     categoryEntry.name, x + 5, y + 5, 0xFFFFFFFF, true);
 
                             context.fill(x, y+boxHeight-2, x + boxWidth,  y+boxHeight,  isMouseOver ? Color.WHITE.getRGB() : Color.GRAY.getRGB());
@@ -528,7 +556,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
                     }
 
                     @Override
+                    //#if MC >= 260100
+                    //$$ protected void drawBox(GuiGraphicsExtractor context, int x, int y, int width, int height) {
+                    //#else
                     protected void drawBox(GuiGraphics context, int x, int y, int width, int height) {
+                    //#endif
                         context.fill(this.getX(), y, this.getX() + boxWidth + 10, this.getBottom(), 0x0F060606);
                     }
 
@@ -537,8 +569,16 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
 
 
     @Override
+    //#if MC >= 260100
+    //$$ public void extractRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    //#else
     public void render(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    //#endif
+        //#if MC >= 260100
+        //$$ super.extractRenderState(context, mouseX, mouseY, delta);
+        //#else
         super.render(context, mouseX, mouseY, delta);
+        //#endif
         context.blit(
                 //#if MC >= 12106
                 RenderPipelines.GUI_TEXTURED,
@@ -551,9 +591,17 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
     }
 
     @Override
+    //#if MC >= 260100
+    //$$ public void extractBackground(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    //#else
     public void renderBackground(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    //#endif
         //#if MC > 12004
+        //#if MC >= 260100
+        //$$ extractMenuBackgroundTexture(context
+        //#else
         renderMenuBackgroundTexture(context
+        //#endif
         //#else
         //$$ renderDirtBackground(context
         //#endif
@@ -563,7 +611,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
         );
         GameRenderer gameRenderer = Minecraft.getInstance().gameRenderer;
         if (FabricLoader.getInstance().isModLoaded("blur") || FabricLoader.getInstance().isModLoaded("modernui")) {
+            //#if MC >= 260100
+            //$$ super.extractBackground(context, mouseX, mouseY, delta);
+            //#else
             super.renderBackground(context, mouseX, mouseY, delta);
+            //#endif
         } else {
             //#if MC >= 12102
             Identifier BLUR_SHADER = Identifier.withDefaultNamespace("blur");
@@ -590,7 +642,11 @@ public class RulesEditScreen extends Screen implements ContainerEventHandler {
         }
 
 
+        //#if MC >= 260100
+        //$$ context.text(Minecraft.getInstance().font,
+        //#else
         context.drawString(Minecraft.getInstance().font,
+        //#endif
                 currentCategory, this.width - (this.width / 3) + 20, 17, 0xFFFFFFFF, true);
         /*context.fill(this.width - (this.width / 3) + 15, 0, this.width - (this.width / 3) + 20,
                 this.height, 0xAAC0C0C0);

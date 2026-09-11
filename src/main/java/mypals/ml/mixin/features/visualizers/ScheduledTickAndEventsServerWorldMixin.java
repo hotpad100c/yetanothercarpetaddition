@@ -141,7 +141,7 @@ public abstract class ScheduledTickAndEventsServerWorldMixin {
     private void ServerTickAddBlockEventMarker(BlockEventData event, CallbackInfoReturnable<Boolean> cir) {
         if (YetAnotherCarpetAdditionRules.blockEventVisualize) {
             eventCurrentTick.add(event);
-            YetAnotherCarpetAdditionServer.blockEventVisualizing.setVisualizer(this.getLevel(), event.pos(), event.pos().getCenter(), eventCurrentTick.size());
+            YetAnotherCarpetAdditionServer.blockEventVisualizing.setVisualizer(this.getLevel(), event.pos(), Vec3.atCenterOf(event.pos()), eventCurrentTick.size());
         }
     }
 

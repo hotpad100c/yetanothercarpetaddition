@@ -32,6 +32,9 @@ import net.minecraft.world.entity.EntityType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 
 public class EntityHelper {
@@ -85,15 +88,31 @@ public class EntityHelper {
     public static void clearWorldVisualizers(ServerLevel world, String target) {
         if (world != null) {
             List<Display.TextDisplay> entitiesText = new ArrayList<>();
+            //#if MC >= 260100
+            //$$ Predicate<Display.TextDisplay> predicate = marker -> marker.entityTags().contains(target);
+            //#else
             Predicate<Display.TextDisplay> predicate = marker -> marker.getTags().contains(target);
+            //#endif
+            //#if MC >= 260200
+            //$$ world.getEntities(EntityTypes.TEXT_DISPLAY,
+            //#else
             world.getEntities(EntityType.TEXT_DISPLAY,
+            //#endif
                     predicate,
                     entitiesText);
             entitiesText.forEach(Entity::discard);
 
             List<Display.BlockDisplay> entitiesBlock = new ArrayList<>();
+            //#if MC >= 260100
+            //$$ Predicate<Display.BlockDisplay> predicate2 = bd -> bd.entityTags().contains(target);
+            //#else
             Predicate<Display.BlockDisplay> predicate2 = bd -> bd.getTags().contains(target);
+            //#endif
+            //#if MC >= 260200
+            //$$ world.getEntities(EntityTypes.BLOCK_DISPLAY,
+            //#else
             world.getEntities(EntityType.BLOCK_DISPLAY,
+            //#endif
                     predicate2,
                     entitiesBlock);
             entitiesBlock.forEach(Entity::discard);

@@ -23,6 +23,9 @@ package mypals.ml.mixin.client.optionalTicking;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+//#if MC >= 260200
+//$$ import mypals.ml.utils.DummyClass;
+//#endif
 import mypals.ml.YetAnotherCarpetAdditionClient;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 import net.minecraft.client.Camera;
@@ -46,6 +49,14 @@ import java.util.Iterator;
 //$$ import net.minecraft.client.renderer.MultiBufferSource;
 //#endif
 
+//#if MC >= 260200
+//$$ // Minecraft 26.2 rewrote LevelRenderer into the render-state/submit-node architecture:
+//$$ // `ticks`, `destroyingBlocks`, `removeProgress`, `tick(Camera)` and `extractEntity` are gone,
+//$$ // so there is no equivalent injection point left for the render-freeze feature.
+//$$ @Mixin(DummyClass.class)
+//$$ public abstract class WorldRenderFreeze {
+//$$ }
+//#else
 @Mixin(LevelRenderer.class)
 public abstract class WorldRenderFreeze {
     @Shadow
@@ -122,7 +133,7 @@ public abstract class WorldRenderFreeze {
 
             while (iterator.hasNext()) {
                 BlockDestructionProgress blockBreakingInfo = (BlockDestructionProgress) iterator.next();
-                int i = blockBreakingInfo.getUpdatedRenderTick();
+                int i = (int) blockBreakingInfo.getUpdatedRenderTick();
                 if (this.ticks - i > 400) {
                     iterator.remove();
                     this.removeProgress(blockBreakingInfo);
@@ -133,3 +144,4 @@ public abstract class WorldRenderFreeze {
 
     }
 }
+//#endif

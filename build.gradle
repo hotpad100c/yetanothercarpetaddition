@@ -1,11 +1,14 @@
 plugins {
     id 'maven-publish'
     id 'com.github.hierynomus.license' version '0.16.1' apply false
-    id 'fabric-loom' version '1.13-SNAPSHOT' apply false
+    // obfuscated Minecraft (<= 1.21.11)
+    id 'net.fabricmc.fabric-loom-remap' version '1.17-SNAPSHOT' apply false
+    // unobfuscated Minecraft (>= 26.1), see https://docs.fabricmc.net/26.1.2/develop/porting/
+    id 'net.fabricmc.fabric-loom' version '1.17-SNAPSHOT' apply false
 
     // https://github.com/ReplayMod/preprocessor
     // https://github.com/Fallen-Breath/preprocessor
-    id 'com.replaymod.preprocess' version 'd452ef7612'
+    id 'com.replaymod.preprocess' version 'c5abb4fb12'
 
     // https://github.com/Fallen-Breath/yamlang
     id 'me.fallenbreath.yamlang' version '1.5.0' apply false
@@ -23,6 +26,9 @@ preprocess {
     def mc1216 = createNode('1.21.6', 1_21_06, '')
     def mc1219 = createNode('1.21.9', 1_21_09, '')
     def mc12111 = createNode('1.21.11', 1_21_11, '')
+    // 26.1, 26.1.1 and 26.1.2 share the same node (only bugfix releases in between)
+    def mc2601 = createNode('26.1.2', 26_01_02, '')
+    def mc2602 = createNode('26.2', 26_02_00, '')
 
     mc1206.link(mc1204, file('versions/mapping-1.20.6-1.20.4.txt'))
     mc1211.link(mc1206, file('versions/mapping-1.21.1-1.20.6.txt'))
@@ -32,6 +38,8 @@ preprocess {
     mc1215.link(mc1216, file('versions/mapping-1.21.5-1.21.6.txt'))
     mc1216.link(mc1219, file('versions/mapping-1.21.6-1.21.9.txt'))
     mc1219.link(mc12111, file('versions/mapping-1.21.9-1.21.11.txt'))
+    mc12111.link(mc2601, file('versions/mapping-1.21.11-26.1.2.txt'))
+    mc2601.link(mc2602, file('versions/mapping-26.1.2-26.2.txt'))
 }
 
 tasks.register('buildAndGather') {

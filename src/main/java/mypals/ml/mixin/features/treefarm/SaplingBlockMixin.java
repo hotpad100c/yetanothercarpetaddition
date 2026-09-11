@@ -35,6 +35,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public class SaplingBlockMixin {
     @Inject(method = "isBonemealSuccess", at = @At("HEAD"), cancellable = true)
     public void canGrow(Level world, RandomSource random, BlockPos pos, BlockState state, CallbackInfoReturnable<Boolean> cir) {
-        cir.setReturnValue ((double)world.random.nextFloat() < YetAnotherCarpetAdditionRules.bonemealSuccessProbability);
+        cir.setReturnValue ((double)world.getRandom().nextFloat() < YetAnotherCarpetAdditionRules.bonemealSuccessProbability);
     }
 }

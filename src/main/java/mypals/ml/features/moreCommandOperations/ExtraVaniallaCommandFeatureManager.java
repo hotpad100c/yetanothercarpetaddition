@@ -38,6 +38,7 @@ import org.jetbrains.annotations.Nullable;
 
 //#if MC < 12006
 //$$ import net.minecraft.resources.ResourceKey;
+//$$ import net.minecraft.resources.ResourceLocation;
 //#endif
 
 import static mypals.ml.features.moreCommandOperations.WorldEventMapper.WORLD_EVENT_MAP;
@@ -62,7 +63,7 @@ public class ExtraVaniallaCommandFeatureManager {
                 //#elseif MC >= 12006
                 //$$ new ResourceLocation("minecraft", reason)
                 //#else
-                //$$ ResourceKey.create(BuiltInRegistries.GAME_EVENT.key(), new Identifier("minecraft", reason))
+                //$$ ResourceKey.create(BuiltInRegistries.GAME_EVENT.key(), new ResourceLocation("minecraft", reason))
                 //#endif
         )
                 //#if MC > 12101
@@ -97,7 +98,7 @@ public class ExtraVaniallaCommandFeatureManager {
     public static void addRandomTick(CommandSourceStack source, BlockPos pos) {
         ServerLevel serverWorld = source.getLevel();
         serverWorld.getBlockState(pos).randomTick(serverWorld, pos, serverWorld.getRandom());
-        YetAnotherCarpetAdditionServer.randomTickVisualizing.setVisualizer(serverWorld, pos, pos.getCenter(), "-");
+        YetAnotherCarpetAdditionServer.randomTickVisualizing.setVisualizer(serverWorld, pos, Vec3.atCenterOf(pos), "-");
         source.sendSuccess(() -> Component.literal("Simulated a RandomTick event at [" + pos.getX() + "," +
                 pos.getY() + "," + pos.getZ() + "]."), true);
 

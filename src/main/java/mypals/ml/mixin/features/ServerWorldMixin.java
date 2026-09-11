@@ -139,7 +139,11 @@ public abstract class ServerWorldMixin extends Level {
         if ((YetAnotherCarpetAdditionRules.stopTickingEntities || YetAnotherCarpetAdditionServer.selectiveFreezeManager.stopTickingEntities) && !(entity instanceof Player)) {
             ci.cancel();
         }
+        //#if MC >= 260100
+        //$$ if (entity.entityTags().contains("DoNotTick")) {
+        //#else
         if (entity.getTags().contains("DoNotTick")) {
+        //#endif
             ci.cancel();
         }
     }
@@ -147,7 +151,11 @@ public abstract class ServerWorldMixin extends Level {
     @WrapOperation(method = "tickNonPassenger",
             at = @At(target = "Lnet/minecraft/world/entity/Entity;tick()V", value = "INVOKE"))
     private void tick(Entity instance, Operation<Void> original) {
+        //#if MC >= 260100
+        //$$ if (!instance.entityTags().contains("DoNotTick")) {
+        //#else
         if (!instance.getTags().contains("DoNotTick")) {
+        //#endif
             original.call(instance);
         }
     }
@@ -327,7 +335,11 @@ public abstract class ServerWorldMixin extends Level {
         }
     }
     @WrapOperation(
+            //#if MC >= 260100
+            //$$ method = "lambda$tick$0",
+            //#else
             method = "method_31420",
+            //#endif
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/server/level/ServerLevel;guardEntityTick(Ljava/util/function/Consumer;Lnet/minecraft/world/entity/Entity;)V"
@@ -340,7 +352,11 @@ public abstract class ServerWorldMixin extends Level {
     }
 
     @WrapOperation(
+            //#if MC >= 260100
+            //$$ method = "lambda$tick$0",
+            //#else
             method = "method_31420",
+            //#endif
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/entity/Entity;checkDespawn()V"

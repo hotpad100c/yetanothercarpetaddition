@@ -23,7 +23,11 @@ package mypals.ml.screen.rulesEditScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
 import mypals.ml.utils.adapter.RenderSystem;
 import net.minecraft.client.Minecraft;
+//#if MC >= 260100
+//$$ import net.minecraft.client.gui.GuiGraphicsExtractor;
+//#else
 import net.minecraft.client.gui.GuiGraphics;
+//#endif
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -69,14 +73,22 @@ public class RuleWidget {
         this.ruleData = ruleData;
         valueWidget = new EditBox(Minecraft.getInstance().font, x + 30, y + 5, 100, 20, Component.nullToEmpty(ruleData.value)) {
             @Override
+            //#if MC >= 260100
+            //$$ public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+            //#else
             public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+            //#endif
                 if (this.isVisible()) {
                     context.fill(
                             this.getX() + this.width / 2, this.getY() + this.height - 4,
                             this.getX(), this.getY() + this.height - 5,
                             -1072689136
                     );
+                    //#if MC >= 260100
+                    //$$ super.extractWidgetRenderState(context, mouseX, mouseY, delta);
+                    //#else
                     super.renderWidget(context, mouseX, mouseY, delta);
+                    //#endif
                 }
             }
         };
@@ -152,7 +164,11 @@ public class RuleWidget {
         return ruleData.name.split("```").length > 1 ? ruleData.name.split("```")[1] : ruleData.name.split("```")[0];
     }
 
+    //#if MC >= 260100
+    //$$ protected List<Component> renderContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta, boolean isMouseOver, int index, int spacing, int boxHeight, int boxWidth) {
+    //#else
     protected List<Component> renderContents(GuiGraphics context, int mouseX, int mouseY, float delta, boolean isMouseOver, int index, int spacing, int boxHeight, int boxWidth) {
+    //#endif
 
         context.fill(x, y, x + boxWidth, y + boxHeight, 0x50060606);
 
@@ -165,20 +181,44 @@ public class RuleWidget {
         String name = ruleData.name.split("```")[0];
 
         lockRule.setPosition(boxWidth - 15, y + 4);
+        //#if MC >= 260100
+        //$$ lockRule.extractRenderState(context, mouseX, mouseY, delta);
+        //#else
         lockRule.render(context, mouseX, mouseY, delta);
+        //#endif
 
 
         favoriteRule.setPosition(boxWidth - 6, y + 5);
+        //#if MC >= 260100
+        //$$ favoriteRule.extractRenderState(context, mouseX, mouseY, delta);
+        //#else
         favoriteRule.render(context, mouseX, mouseY, delta);
+        //#endif
+        //#if MC >= 260100
+        //$$ context.text(Minecraft.getInstance().font, name + " : ", x + 5, y + 5, 0xFFFFFFFF, true);
+        //#else
         context.drawString(Minecraft.getInstance().font, name + " : ", x + 5, y + 5, 0xFFFFFFFF, true);
+        //#endif
         if (isTrueFalseRule) {
             trueFalseButton.setPosition(boxWidth - 50, y + 2);
+            //#if MC >= 260100
+            //$$ trueFalseButton.extractRenderState(context, mouseX, mouseY, delta);
+            //#else
             trueFalseButton.render(context, mouseX, mouseY, delta);
+            //#endif
         } else {
             valueWidget.setPosition(boxWidth - 50, y + 5);
+            //#if MC >= 260100
+            //$$ valueWidget.extractRenderState(context, mouseX, mouseY, delta);
+            //#else
             valueWidget.render(context, mouseX, mouseY, delta);
+            //#endif
         }
+        //#if MC >= 260100
+        //$$ context.text(Minecraft.getInstance().font, categories.toString(), x + 5, y + boxHeight - 12, 0xFFFFFFFF, true);
+        //#else
         context.drawString(Minecraft.getInstance().font, categories.toString(), x + 5, y + boxHeight - 12, 0xFFFFFFFF, true);
+        //#endif
         //context.drawTexture(LOCK.get(true, true), x + 5, y + 5, 0, 0, 10, 10, 10, 10);
 
         if (isMouseOver && mouseX <= x + boxWidth / 2) {

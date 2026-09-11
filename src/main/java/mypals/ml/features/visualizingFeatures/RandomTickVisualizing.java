@@ -40,6 +40,13 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
+//#if MC >= 260200
+//$$ import java.util.Optional;
+//$$ import net.minecraft.world.scores.TeamColor;
+//#endif
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, Display.BlockDisplay> {
     public static ConcurrentHashMap<BlockPos, Map.Entry<Display.BlockDisplay, Long>> visualizers = new ConcurrentHashMap<>();
@@ -49,14 +56,14 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
     public void setVisualizer(Level world, BlockPos pos) {
         boolean playersNearBy = false;
         for (Player player : CarpetServer.minecraft_server.getPlayerList().players) {
-            if (player.position().distanceTo(pos.getCenter()) < RANGE) {
+            if (player.position().distanceTo(Vec3.atCenterOf(pos)) < RANGE) {
                 playersNearBy = true;
                 break;
             }
         }
 
         if (!playersNearBy) return;
-        this.setVisualizer((ServerLevel) world, pos, pos.getCenter(), null);
+        this.setVisualizer((ServerLevel) world, pos, Vec3.atCenterOf(pos), null);
     }
 
     private static void addMarkerToTeam(ServerLevel world, String teamName, Display.BlockDisplay marker) {
@@ -65,7 +72,11 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
         if (team == null) {
             team = scoreboard.addPlayerTeam(teamName);
 
+            //#if MC >= 260200
+            //$$ team.setColor(Optional.of(TeamColor.RED));
+            //#else
             team.setColor(ChatFormatting.RED);
+            //#endif
         }
         String entityName = marker.getStringUUID();
         scoreboard.addPlayerToTeam(entityName, team);
@@ -90,7 +101,7 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
             float scale = mapSize((int) (time - CarpetServer.minecraft_server.overworld().getGameTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
             NBTDataManager.writeToEntity(entry.getKey(), nbt);
-            entry.getKey().setPosRaw(pos.getCenter().x() - (scale / 2), pos.getCenter().y() - (scale / 2), pos.getCenter().z() - (scale / 2));
+            entry.getKey().setPosRaw(Vec3.atCenterOf(pos).x() - (scale / 2), Vec3.atCenterOf(pos).y() - (scale / 2), Vec3.atCenterOf(pos).z() - (scale / 2));
         });
     }
 
@@ -107,16 +118,24 @@ public class RandomTickVisualizing extends AbstractVisualizingManager<BlockPos, 
         nbt = EntityHelper.scaleEntity(nbt, scale);
         NBTDataManager.writeToEntity(marker, nbt);
         BlockPos blockPos = BlockPos.containing(marker.position());
-        marker.setPosRaw(blockPos.getCenter().x() - (scale / 2), blockPos.getCenter().y() - (scale / 2), blockPos.getCenter().z() - (scale / 2));
+        marker.setPosRaw(Vec3.atCenterOf(blockPos).x() - (scale / 2), Vec3.atCenterOf(blockPos).y() - (scale / 2), Vec3.atCenterOf(blockPos).z() - (scale / 2));
         marker.tickCount = 0;
     }
 
     @Override
     protected Display.BlockDisplay createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
+        //#if MC >= 260200
+        //$$ Display.BlockDisplay entity = new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY, world);
+        //#else
         Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, world);
+        //#endif
         entity.setNoGravity(true);
         CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
+        //#if MC >= 260200
+        //$$ nbt.put("block_state", NbtUtils.writeBlockState(Blocks.STAINED_GLASS.red().defaultBlockState()));
+        //#else
         nbt.put("block_state", NbtUtils.writeBlockState(Blocks.RED_STAINED_GLASS.defaultBlockState()));
+        //#endif
         float scale = 0.9f;
         nbt = EntityHelper.scaleEntity(nbt, scale);
         nbt.putInt("glow_color_override", 0xFFAAAA);

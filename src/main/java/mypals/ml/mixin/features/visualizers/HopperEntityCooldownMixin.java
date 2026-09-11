@@ -32,6 +32,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(HopperBlockEntity.class)
 public class HopperEntityCooldownMixin {
@@ -41,7 +42,7 @@ public class HopperEntityCooldownMixin {
     )
     private static void ServerTickAddMarker(Level world, BlockPos pos, BlockState state, HopperBlockEntity blockEntity, CallbackInfo ci) {
         if (world instanceof ServerLevel serverWorld && YetAnotherCarpetAdditionRules.hopperCooldownVisualize) {
-            YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld, pos, pos.getCenter(), blockEntity.cooldownTime);
+            YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld, pos, Vec3.atCenterOf(pos), blockEntity.cooldownTime);
             BlockEntity blockEntity1 = world.getBlockEntity(pos
                     //#if MC >= 12006
                     .relative(blockEntity.facing)
@@ -51,12 +52,12 @@ public class HopperEntityCooldownMixin {
                 YetAnotherCarpetAdditionServer.hopperCooldownVisualizing.setVisualizer(serverWorld
                         //#if MC >= 12006
                         , pos.relative(blockEntity.facing)
-                        , pos.relative(blockEntity.facing)
+                        , Vec3.atCenterOf(pos.relative(blockEntity.facing))
                         //#else
                         //$$ , pos
-                        //$$ , pos
+                        //$$ , Vec3.atCenterOf(pos)
                         //#endif
-                                .getCenter(), hopperblockentity.cooldownTime);
+                        , hopperblockentity.cooldownTime);
             }
         }
     }

@@ -34,6 +34,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import java.util.HashMap;
 import java.util.Map;
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display.TextDisplay> {
     private static final Map<BlockPos, Display.TextDisplay> visualizers = new HashMap<>();
@@ -76,7 +79,11 @@ public class POIVisualizing extends AbstractVisualizingManager<BlockPos, Display
     @Override
     protected Display.TextDisplay createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
         if (data instanceof PoiRecord poi) {
+            //#if MC >= 260200
+            //$$ Display.TextDisplay entity = new Display.TextDisplay(EntityTypes.TEXT_DISPLAY, world);
+            //#else
             Display.TextDisplay entity = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
+            //#endif
             entity.setInvisible(true);
             entity.setNoGravity(true);
             entity.setInvulnerable(true);

@@ -25,7 +25,11 @@ import com.mojang.blaze3d.opengl.GlStateManager;
 //#else
 //$$import com.mojang.blaze3d.platform.GlStateManager;
 //#endif
+//#if MC >= 260100
+//$$ import net.minecraft.client.gui.GuiGraphicsExtractor;
+//#else
 import net.minecraft.client.gui.GuiGraphics;
+//#endif
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -199,7 +203,11 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
         );
     }
 
+    //#if MC >= 260100
+    //$$ public void extractWidgetRenderState(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta) {
+    //#else
     public void renderWidget(GuiGraphics context, int mouseX, int mouseY, float delta) {
+    //#endif
         if (this.visible) {
             this.drawBox(context);
             context.enableScissor(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1);
@@ -231,7 +239,11 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
         return Mth.clamp((int)((float)(this.height * this.height) / (float)this.getContentsHeightWithPadding()), 32, this.height);
     }
 
+    //#if MC >= 260100
+    //$$ protected void renderOverlay(GuiGraphicsExtractor context) {
+    //#else
     protected void renderOverlay(GuiGraphics context) {
+    //#endif
         if (this.overflows()) {
             this.drawScrollbar(context);
         }
@@ -262,18 +274,32 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
         return this.getContentsHeight() + 4;
     }
 
+    //#if MC >= 260100
+    //$$ protected void drawBox(GuiGraphicsExtractor context) {
+    //#else
     protected void drawBox(GuiGraphics context) {
+    //#endif
         this.drawBox(context, this.getX(), this.getY(), this.getWidth(), this.getHeight());
     }
 
+    //#if MC >= 260100
+    //$$ protected void drawBox(GuiGraphicsExtractor context, int x, int y, int width, int height) {
+    //#else
     protected void drawBox(GuiGraphics context, int x, int y, int width, int height) {
+    //#endif
     }
 
+    //#if MC >= 260100
+    //$$ private void drawScrollbar(GuiGraphicsExtractor context) {
+    //#else
     private void drawScrollbar(GuiGraphics context) {
+    //#endif
         int i = this.getScrollbarThumbHeight();
         int j = this.getX() + this.width;
         int k = Math.max(this.getY(), (int)this.scrollY * (this.height - i) / this.getMaxScrollY() + this.getY());
+        //#if MC < 260100
         GlStateManager._enableBlend();
+        //#endif
         context.blitSprite(
                 //#if MC >= 12106
                 RenderPipelines.GUI_TEXTURED,
@@ -281,7 +307,9 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
                 //$$ RenderType::guiTextured,
                 //#endif
                 SCROLLER_TEXTURE, j, k, 8, i);
+        //#if MC < 260100
         GlStateManager._disableBlend();
+        //#endif
     }
 
     protected boolean isVisible(int top, int bottom) {
@@ -304,5 +332,9 @@ public abstract class ConstantScrollableWidget extends AbstractWidget implements
 
     protected abstract double getDeltaYPerScroll();
 
+    //#if MC >= 260100
+    //$$ protected abstract void renderContents(GuiGraphicsExtractor context, int mouseX, int mouseY, float delta);
+    //#else
     protected abstract void renderContents(GuiGraphics context, int mouseX, int mouseY, float delta);
+    //#endif
 }

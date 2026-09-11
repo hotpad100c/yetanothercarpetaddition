@@ -28,8 +28,20 @@ import org.spongepowered.asm.mixin.injection.Inject;
 
 @Mixin(FoliagePlacer.class)
 public class FoliagePlacerMixin {
-    @Inject(method = "createFoliage(Lnet/minecraft/world/level/LevelSimulatedReader;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;ILnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageAttachment;II)V", at = @At("HEAD"), cancellable = true)
-    private void generate(net.minecraft.world.level.LevelSimulatedReader world, FoliagePlacer.FoliageSetter placer, net.minecraft.util.RandomSource random, net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration config, int trunkHeight, FoliagePlacer.FoliageAttachment treeNode, int foliageHeight, int radius, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
+    @Inject(
+            //#if MC >= 260100
+            //$$ method = "createFoliage(Lnet/minecraft/world/level/WorldGenLevel;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;ILnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageAttachment;II)V",
+            //#else
+            method = "createFoliage(Lnet/minecraft/world/level/LevelSimulatedReader;Lnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageSetter;Lnet/minecraft/util/RandomSource;Lnet/minecraft/world/level/levelgen/feature/configurations/TreeConfiguration;ILnet/minecraft/world/level/levelgen/feature/foliageplacers/FoliagePlacer$FoliageAttachment;II)V",
+            //#endif
+            at = @At("HEAD"), cancellable = true)
+    private void generate(
+            //#if MC >= 260100
+            //$$ net.minecraft.world.level.WorldGenLevel world,
+            //#else
+            net.minecraft.world.level.LevelSimulatedReader world,
+            //#endif
+            FoliagePlacer.FoliageSetter placer, net.minecraft.util.RandomSource random, net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration config, int trunkHeight, FoliagePlacer.FoliageAttachment treeNode, int foliageHeight, int radius, org.spongepowered.asm.mixin.injection.callback.CallbackInfo ci) {
        if(!YetAnotherCarpetAdditionRules.foliageGenerate){
            ci.cancel();
        }

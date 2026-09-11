@@ -33,7 +33,11 @@ import mypals.ml.settings.YACAConfigManager;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+//#if MC >= 260100
+//$$ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+//#else
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+//#endif
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -68,7 +72,12 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
     @SuppressWarnings("resource")
     public void onInitializeClient() {
         YACAConfigManager.initializeConfig();
-        carpetRulesKeyBind = KeyBindingHelper.registerKeyBinding(new KeyMapping(
+        carpetRulesKeyBind =
+                //#if MC >= 260100
+                //$$ KeyMappingHelper.registerKeyMapping(new KeyMapping(
+                //#else
+                KeyBindingHelper.registerKeyBinding(new KeyMapping(
+                //#endif
                 "key.carpetRulesKeyBind",
                 InputConstants.Type.KEYSYM,
                 GLFW.GLFW_KEY_F8,
@@ -168,7 +177,11 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                     favoriteRules.clear();
                     favoriteRules.addAll(YACAConfigManager.readFavoriteRules());
 
+                    //#if MC >= 260100
+                    //$$ client.setScreenAndShow(new RulesEditScreen(Component.nullToEmpty("Carpet Rules")));
+                    //#else
                     client.setScreen(new RulesEditScreen(Component.nullToEmpty("Carpet Rules")));
+                    //#endif
                 }));
         ClientPlayNetworking.registerGlobalReceiver(CountersPacketPayload.ID,
                 //#if MC >= 12006
@@ -178,7 +191,11 @@ public class YetAnotherCarpetAdditionClient implements ClientModInitializer {
                 //$$ (client, player, buf, packetSender) -> client.execute(() -> {
                 //$$   CountersPacketPayload payload = new CountersPacketPayload(buf);
                 //#endif
+                    //#if MC >= 260100
+                    //$$ client.setScreenAndShow(new CounterViewerScreen(payload.currentRecords()));
+                    //#else
                     client.setScreen(new CounterViewerScreen(payload.currentRecords()));
+                    //#endif
                 }));
         ClientCommandRegistrationCallback.EVENT.register(HopperCounterRequestCommand::registerCommand);
 

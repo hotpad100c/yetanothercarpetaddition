@@ -61,8 +61,16 @@ public class FlatChunkGeneratorMixin {
     private static BlockState getChunkBlockState(ChunkAccess chunk, GridWorldGenerator.ChessboardSuperFlatSettings settings) {
         ChunkPos chunkPos = chunk.getPos();
         int size = settings.size;
+        //#if MC >= 260100
+        //$$ int groupX = Math.floorDiv(chunkPos.x(), size);
+        //#else
         int groupX = Math.floorDiv(chunkPos.x, size);
+        //#endif
+        //#if MC >= 260100
+        //$$ int groupZ = Math.floorDiv(chunkPos.z(), size);
+        //#else
         int groupZ = Math.floorDiv(chunkPos.z, size);
+        //#endif
         boolean isBlack = (groupX + groupZ) % 2 == 0;
         return isBlack ? settings.black.defaultBlockState() : settings.white.defaultBlockState();
     }
@@ -119,16 +127,32 @@ public class FlatChunkGeneratorMixin {
         Identifier blockId1 = Identifier.tryParse(parts[0]);
         if (blockId1 == null) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
+                    //#if MC >= 260200
+                    //$$ Blocks.STAINED_GLASS.white(),
+                    //#else
                     Blocks.WHITE_STAINED_GLASS,
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ Blocks.STAINED_GLASS.black(),
+                    //#else
                     Blocks.BLACK_STAINED_GLASS,
+                    //#endif
                     1
             );
         }
         Optional<Block> block1 = BuiltInRegistries.BLOCK.getOptional(blockId1);
         if (block1.isEmpty()) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
+                    //#if MC >= 260200
+                    //$$ Blocks.STAINED_GLASS.white(),
+                    //#else
                     Blocks.WHITE_STAINED_GLASS,
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ Blocks.STAINED_GLASS.black(),
+                    //#else
                     Blocks.BLACK_STAINED_GLASS,
+                    //#endif
                     1
             );
         }
@@ -137,7 +161,11 @@ public class FlatChunkGeneratorMixin {
         if (blockId2 == null) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     block1.get(),
+                    //#if MC >= 260200
+                    //$$ Blocks.STAINED_GLASS.black(),
+                    //#else
                     Blocks.BLACK_STAINED_GLASS,
+                    //#endif
                     1
             );
         }
@@ -145,7 +173,11 @@ public class FlatChunkGeneratorMixin {
         if (block2.isEmpty()) {
             return new GridWorldGenerator.ChessboardSuperFlatSettings(
                     block1.get(),
+                    //#if MC >= 260200
+                    //$$ Blocks.STAINED_GLASS.black(),
+                    //#else
                     Blocks.BLACK_STAINED_GLASS,
+                    //#endif
                     1
             );
         }

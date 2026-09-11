@@ -44,6 +44,13 @@ import java.util.stream.Collectors;
 
 import static mypals.ml.features.visualizingFeatures.EntityHelper.clearWorldVisualizers;
 import static mypals.ml.features.visualizingFeatures.EntityHelper.mapSize;
+//#if MC >= 260200
+//$$ import java.util.Optional;
+//$$ import net.minecraft.world.scores.TeamColor;
+//#endif
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos, BlockUpdateVisualizing.BlockUpdateObject> {
     private static final ConcurrentHashMap<BlockPos, Map.Entry<BlockUpdateObject, Long>> visualizers = new ConcurrentHashMap<>();
@@ -51,16 +58,36 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     private static final int RANGE = 40;
 
     public enum UpdateType {
+        //#if MC >= 260200
+        //$$ NC("NCVisualizer", 0xff4f00, TeamColor.RED, Blocks.STAINED_GLASS.red().defaultBlockState()),
+        //#else
         NC("NCVisualizer", 0xff4f00, ChatFormatting.RED, Blocks.RED_STAINED_GLASS.defaultBlockState()),
+        //#endif
+        //#if MC >= 260200
+        //$$ PP("PPVisualizer", 0x00ffff, TeamColor.AQUA, Blocks.STAINED_GLASS.cyan().defaultBlockState()),
+        //#else
         PP("PPVisualizer", 0x00ffff, ChatFormatting.AQUA, Blocks.CYAN_STAINED_GLASS.defaultBlockState()),
+        //#endif
+        //#if MC >= 260200
+        //$$ CP("CPVisualizer", 0xffffed, TeamColor.YELLOW, Blocks.STAINED_GLASS.yellow().defaultBlockState());
+        //#else
         CP("CPVisualizer", 0xffffed, ChatFormatting.YELLOW, Blocks.YELLOW_STAINED_GLASS.defaultBlockState());
+        //#endif
 
         public final String tagName;
         public final int color;
+        //#if MC >= 260200
+        //$$ public final TeamColor teamColor;
+        //#else
         public final ChatFormatting teamColor;
+        //#endif
         public final BlockState defaultState;
 
-        UpdateType(String tagName, int color, ChatFormatting teamColor, BlockState defaultState) {
+        //#if MC >= 260200
+            //$$ UpdateType(String tagName, int color, TeamColor teamColor, BlockState defaultState) {
+            //#else
+            UpdateType(String tagName, int color, ChatFormatting teamColor, BlockState defaultState) {
+            //#endif
             this.tagName = tagName;
             this.color = color;
             this.teamColor = teamColor;
@@ -80,7 +107,11 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
         }
 
         private Display.BlockDisplay summonMarker(ServerLevel world, BlockPos pos) {
+            //#if MC >= 260200
+            //$$ Display.BlockDisplay entity = new Display.BlockDisplay(EntityTypes.BLOCK_DISPLAY, world);
+            //#else
             Display.BlockDisplay entity = new Display.BlockDisplay(EntityType.BLOCK_DISPLAY, world);
+            //#endif
             float scale = 0.9f;
             CompoundTag nbt = NBTDataManager.readFromEntity(entity, new CompoundTag());
             nbt.put("block_state", NbtUtils.writeBlockState(updateType.defaultState));
@@ -92,7 +123,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
             entity.setGlowingTag(true);
             entity.noPhysics = true;
             entity.setYRot(0);
-            entity.setPosRaw(pos.getCenter().x() - (scale / 2), pos.getCenter().y() - (scale / 2), pos.getCenter().z() - (scale / 2));
+            entity.setPosRaw(Vec3.atCenterOf(pos).x() - (scale / 2), Vec3.atCenterOf(pos).y() - (scale / 2), Vec3.atCenterOf(pos).z() - (scale / 2));
             entity.addTag(tag);
             entity.addTag("blockUpdateVisualize");
             entity.addTag("DoNotTick");
@@ -124,7 +155,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
 
             NBTDataManager.writeToEntity(marker.posMarker, nbt);
             BlockPos pos = BlockPos.containing(marker.posMarker.position());
-            marker.posMarker.setPosRaw(pos.getCenter().x() - (scale / 2), pos.getCenter().y() - (scale / 2), pos.getCenter().z() - (scale / 2));
+            marker.posMarker.setPosRaw(Vec3.atCenterOf(pos).x() - (scale / 2), Vec3.atCenterOf(pos).y() - (scale / 2), Vec3.atCenterOf(pos).z() - (scale / 2));
             visualizers.put(pos, Map.entry(marker, getDeleteTick(SURVIVE_TIME, (ServerLevel) marker.posMarker.level())));
         }
     }
@@ -191,7 +222,7 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
             float scale = mapSize((int) (deleteTick - CarpetServer.minecraft_server.overworld().getGameTime()), SURVIVE_TIME, 0.9f);
             nbt = EntityHelper.scaleEntity(nbt, scale);
             NBTDataManager.writeToEntity(object.posMarker, nbt);
-            object.posMarker.setPosRaw(pos.getCenter().x() - (scale / 2), pos.getCenter().y() - (scale / 2), pos.getCenter().z() - (scale / 2));
+            object.posMarker.setPosRaw(Vec3.atCenterOf(pos).x() - (scale / 2), Vec3.atCenterOf(pos).y() - (scale / 2), Vec3.atCenterOf(pos).z() - (scale / 2));
 
         });
     }
@@ -199,13 +230,13 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
     public void setVisualizer(ServerLevel world, BlockPos pos, UpdateType updateType) {
         boolean playersNearBy = false;
         for (Player player : CarpetServer.minecraft_server.getPlayerList().getPlayers()) {
-            if (player.position().distanceTo(pos.getCenter()) < RANGE) {
+            if (player.position().distanceTo(Vec3.atCenterOf(pos)) < RANGE) {
                 playersNearBy = true;
                 break;
             }
         }
         if (!playersNearBy) return;
-        setVisualizer(world, pos, pos.getCenter(), updateType);
+        setVisualizer(world, pos, Vec3.atCenterOf(pos), updateType);
     }
 
     public void clearVisualizers(CommandSourceStack source, UpdateType updateType) {
@@ -233,9 +264,17 @@ public class BlockUpdateVisualizing extends AbstractVisualizingManager<BlockPos,
             team = scoreboard.addPlayerTeam(teamName);
             UpdateType updateType = getUpdateTypeByTag(teamName);
             if (updateType != null) {
+                //#if MC >= 260200
+                //$$ team.setColor(Optional.of(updateType.teamColor));
+                //#else
                 team.setColor(updateType.teamColor);
+                //#endif
             } else {
+                //#if MC >= 260200
+                //$$ team.setColor(Optional.of(TeamColor.WHITE));
+                //#else
                 team.setColor(ChatFormatting.WHITE);
+                //#endif
             }
         }
         String entityName = marker.getStringUUID();

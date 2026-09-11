@@ -40,8 +40,13 @@ import static mypals.ml.YetAnotherCarpetAdditionServer.VisualizerTags;
 @Mixin(Entity.class)
 public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
 
+    //#if MC >= 260100
+    //$$ @Shadow
+    //$$ public abstract Set<String> entityTags();
+    //#else
     @Shadow
     public abstract Set<String> getTags();
+    //#endif
 
     @Inject(method = "saveAsPassenger", at = @At("HEAD"), cancellable = true)
     public void saveSelfNbt(
@@ -50,7 +55,11 @@ public abstract class DisableVisualizerEntitySave implements ISelf<Entity>{
             //#endif
             CallbackInfoReturnable<Boolean> cir) {
         if (yetanothercarpetaddition$self() instanceof Display) {
+            //#if MC >= 260100
+            //$$ Set<String> tags = this.entityTags();
+            //#else
             Set<String> tags = this.getTags();
+            //#endif
             for (String tag : VisualizerTags) {
                 if (tags.contains(tag)) {
                     cir.setReturnValue(false);

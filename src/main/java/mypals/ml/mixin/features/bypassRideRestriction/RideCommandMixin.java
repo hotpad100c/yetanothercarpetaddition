@@ -32,6 +32,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 @Mixin(net.minecraft.server.commands.RideCommand.class)
 public class RideCommandMixin {
@@ -54,7 +57,11 @@ public class RideCommandMixin {
 
     @ModifyVariable(method = "dismount", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;stopRiding()V", shift = At.Shift.AFTER), index = 2)
     private static Entity playerDismount(Entity entity) {
+        //#if MC >= 260200
+        //$$ if (entity.getType() == EntityTypes.PLAYER) {
+        //#else
         if (entity.getType() == EntityType.PLAYER) {
+        //#endif
             ((ServerPlayer) entity).connection.send(new ClientboundSetPassengersPacket(entity));
         }
         return null;

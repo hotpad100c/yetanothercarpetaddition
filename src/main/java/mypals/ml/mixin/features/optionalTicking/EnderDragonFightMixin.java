@@ -22,13 +22,21 @@ package mypals.ml.mixin.features.optionalTicking;
 
 import mypals.ml.YetAnotherCarpetAdditionServer;
 import mypals.ml.settings.YetAnotherCarpetAdditionRules;
+//#if MC >= 260100
+//$$ import net.minecraft.world.level.dimension.end.EnderDragonFight;
+//#else
 import net.minecraft.world.level.dimension.end.EndDragonFight;
+//#endif
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+//#if MC >= 260100
+//$$ @Mixin(EnderDragonFight.class)
+//#else
 @Mixin(EndDragonFight.class)
+//#endif
 public class EnderDragonFightMixin {
     @Inject(
             method = "tick",

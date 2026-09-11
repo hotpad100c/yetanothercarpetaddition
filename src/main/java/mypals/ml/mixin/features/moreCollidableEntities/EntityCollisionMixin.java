@@ -47,6 +47,9 @@ import net.minecraft.world.entity.vehicle.boat.Boat;
 import net.minecraft.world.entity.vehicle.minecart.Minecart;
 import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 @Mixin({Warden.class, EnderDragonPart.class, Ghast.class, FallingBlockEntity.class,
         Minecart.class, Strider.class, PrimedTnt.class, IronGolem.class,
@@ -60,13 +63,41 @@ public abstract class EntityCollisionMixin extends Entity {
 
 
     private boolean isMinecart() {
+        //#if MC >= 260200
+        //$$ return this.getType() == EntityTypes.MINECART ||
+        //#else
         return this.getType() == EntityType.MINECART ||
+        //#endif
+                //#if MC >= 260200
+                //$$ this.getType() == EntityTypes.CHEST_MINECART ||
+                //#else
                 this.getType() == EntityType.CHEST_MINECART ||
+                //#endif
+                //#if MC >= 260200
+                //$$ this.getType() == EntityTypes.FURNACE_MINECART ||
+                //#else
                 this.getType() == EntityType.FURNACE_MINECART ||
+                //#endif
+                //#if MC >= 260200
+                //$$ this.getType() == EntityTypes.HOPPER_MINECART ||
+                //#else
                 this.getType() == EntityType.HOPPER_MINECART ||
+                //#endif
+                //#if MC >= 260200
+                //$$ this.getType() == EntityTypes.TNT_MINECART ||
+                //#else
                 this.getType() == EntityType.TNT_MINECART ||
+                //#endif
+                //#if MC >= 260200
+                //$$ this.getType() == EntityTypes.COMMAND_BLOCK_MINECART ||
+                //#else
                 this.getType() == EntityType.COMMAND_BLOCK_MINECART ||
+                //#endif
+                //#if MC >= 260200
+                //$$ this.getType() == EntityTypes.SPAWNER_MINECART;
+                //#else
                 this.getType() == EntityType.SPAWNER_MINECART;
+                //#endif
     }
 
     //#if MC < 12103
@@ -77,23 +108,91 @@ public abstract class EntityCollisionMixin extends Entity {
     //$$
     //#else
      private boolean isBoat() {
+             //#if MC >= 260200
+             //$$ return this.getType() == EntityTypes.OAK_BOAT ||
+             //#else
              return this.getType() == EntityType.OAK_BOAT ||
+             //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.ACACIA_BOAT ||
+                    //#else
                     this.getType() == EntityType.ACACIA_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.CHERRY_BOAT ||
+                    //#else
                     this.getType() == EntityType.CHERRY_BOAT ||
+                    //#endif
+                   //#if MC >= 260200
+                   //$$ this.getType() == EntityTypes.JUNGLE_BOAT ||
+                   //#else
                    this.getType() == EntityType.JUNGLE_BOAT ||
+                   //#endif
+                   //#if MC >= 260200
+                   //$$ this.getType() == EntityTypes.SPRUCE_BOAT ||
+                   //#else
                    this.getType() == EntityType.SPRUCE_BOAT ||
+                   //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.BIRCH_BOAT ||
+                    //#else
                     this.getType() == EntityType.BIRCH_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.DARK_OAK_BOAT ||
+                    //#else
                     this.getType() == EntityType.DARK_OAK_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.MANGROVE_BOAT ||
+                    //#else
                     this.getType() == EntityType.MANGROVE_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.PALE_OAK_BOAT ||
+                    //#else
                     this.getType() == EntityType.PALE_OAK_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.OAK_CHEST_BOAT ||
+                    //#else
                     this.getType() == EntityType.OAK_CHEST_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.ACACIA_CHEST_BOAT ||
+                    //#else
                     this.getType() == EntityType.ACACIA_CHEST_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.CHERRY_CHEST_BOAT ||
+                    //#else
                     this.getType() == EntityType.CHERRY_CHEST_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.JUNGLE_CHEST_BOAT ||
+                    //#else
                     this.getType() == EntityType.JUNGLE_CHEST_BOAT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.SPRUCE_CHEST_BOAT ||
+                    //#else
                     this.getType() == EntityType.SPRUCE_CHEST_BOAT ||
+                    //#endif
+                   //#if MC >= 260200
+                   //$$ this.getType() == EntityTypes.DARK_OAK_CHEST_BOAT ||
+                   //#else
                    this.getType() == EntityType.DARK_OAK_CHEST_BOAT ||
+                   //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.BAMBOO_RAFT ||
+                    //#else
                     this.getType() == EntityType.BAMBOO_RAFT ||
+                    //#endif
+                    //#if MC >= 260200
+                    //$$ this.getType() == EntityTypes.BAMBOO_CHEST_RAFT;
+                    //#else
                     this.getType() == EntityType.BAMBOO_CHEST_RAFT;
+                    //#endif
          }
     //#endif
     @Override

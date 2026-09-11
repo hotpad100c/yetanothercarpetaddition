@@ -33,6 +33,9 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 @Mixin(value = Projectile.class, priority = 1)
 public abstract class Carpet$ThrowableProjectileMixinOverride extends Entity {
@@ -56,9 +59,21 @@ public abstract class Carpet$ThrowableProjectileMixinOverride extends Entity {
         super.remove(arg);
         if (LoggerRegistry.__projectiles && YACA$logHelper != null) {
             if (YetAnotherCarpetAdditionRules.commandEnhance.equals("false") &&
+                    //#if MC >= 260200
+                    //$$ !(this.getType() == EntityTypes.ARROW ||
+                    //#else
                     !(this.getType() == EntityType.ARROW ||
+                    //#endif
+                            //#if MC >= 260200
+                            //$$ this.getType() == EntityTypes.TRIDENT ||
+                            //#else
                             this.getType() == EntityType.TRIDENT ||
+                            //#endif
+                            //#if MC >= 260200
+                            //$$ this.getType() == EntityTypes.FISHING_BOBBER)) {
+                            //#else
                             this.getType() == EntityType.FISHING_BOBBER)) {
+                            //#endif
                 ((TrajectoryLogHelperExtension) YACA$logHelper).yetanothercarpetaddition$finish(this, position(), getDeltaMovement());
             }
         }

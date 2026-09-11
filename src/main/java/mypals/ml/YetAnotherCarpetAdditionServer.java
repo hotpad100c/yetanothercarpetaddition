@@ -47,7 +47,11 @@ import mypals.ml.utils.POIManage;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+//#if MC >= 260100
+//$$ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
+//#else
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+//#endif
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.CommandSourceStack;
@@ -170,7 +174,11 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
             RuleSubscribeManager.init(server);
 
         });
+        //#if MC >= 260100
+        //$$ ServerLevelEvents.LOAD.register((server, world) -> {
+        //#else
         ServerWorldEvents.LOAD.register((server, world) -> {
+        //#endif
             serverWorld = world;
             try {
                 initCounterManager();
@@ -178,7 +186,11 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                 e.printStackTrace();
             }
         });
+        //#if MC >= 260100
+        //$$ ServerTickEvents.END_LEVEL_TICK.register((world) -> {
+        //#else
         ServerTickEvents.END_WORLD_TICK.register((world) -> {
+        //#endif
             FakePlayerControlManager.tickBinds(world);
             if (YetAnotherCarpetAdditionRules.POIVisualize) {
                 world.getServer().getPlayerList().players.forEach(
@@ -187,7 +199,7 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
                                             POIVisualizing.RANGE)
                                     .forEach(poi -> {
                                         PoiType type = poi.getPoiType().value();
-                                        Vec3 pos = poi.getPos().getCenter();
+                                        Vec3 pos = Vec3.atCenterOf(poi.getPos());
                                         YetAnotherCarpetAdditionServer.poiVisualizing.setVisualizer(
                                                 player.level(),
                                                 poi.getPos(),
@@ -206,11 +218,31 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
             allVisualizers.forEach(AbstractVisualizingManager::updateVisualizer);
         });
         //#if MC >= 12006
+        //#if MC >= 260100
+        //$$ PayloadTypeRegistry.clientboundPlay().register(OptionalFreezePayload.ID, OptionalFreezePayload.CODEC);
+        //#else
         PayloadTypeRegistry.playS2C().register(OptionalFreezePayload.ID, OptionalFreezePayload.CODEC);
+        //#endif
+        //#if MC >= 260100
+        //$$ PayloadTypeRegistry.serverboundPlay().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
+        //#else
         PayloadTypeRegistry.playC2S().register(RequestRulesPayload.ID, RequestRulesPayload.CODEC);
+        //#endif
+        //#if MC >= 260100
+        //$$ PayloadTypeRegistry.clientboundPlay().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);
+        //#else
         PayloadTypeRegistry.playS2C().register(RulesPacketPayload.ID, RulesPacketPayload.CODEC);
+        //#endif
+        //#if MC >= 260100
+        //$$ PayloadTypeRegistry.serverboundPlay().register(RequestCountersPayload.ID, RequestCountersPayload.CODEC);
+        //#else
         PayloadTypeRegistry.playC2S().register(RequestCountersPayload.ID, RequestCountersPayload.CODEC);
+        //#endif
+        //#if MC >= 260100
+        //$$ PayloadTypeRegistry.clientboundPlay().register(CountersPacketPayload.ID, CountersPacketPayload.CODEC);
+        //#else
         PayloadTypeRegistry.playS2C().register(CountersPacketPayload.ID, CountersPacketPayload.CODEC);
+        //#endif
         //#endif
 
         ServerPlayNetworking.registerGlobalReceiver(RequestRulesPayload.ID,

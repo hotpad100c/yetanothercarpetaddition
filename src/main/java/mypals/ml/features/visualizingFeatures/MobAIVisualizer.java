@@ -37,6 +37,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static mypals.ml.features.visualizingFeatures.MobGoals.getGoalName;
+//#if MC >= 260200
+//$$ import net.minecraft.world.entity.EntityTypes;
+//#endif
 
 public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entry<MobAIVisualizer.MobAIData, Display.TextDisplay>> {
     private static final Map<Entity, Map.Entry<MobAIData, Display.TextDisplay>> visualizers = new HashMap<>();
@@ -64,7 +67,11 @@ public class MobAIVisualizer extends AbstractVisualizingManager<Entity, Map.Entr
     @Override
     protected Map.Entry<MobAIData, Display.TextDisplay> createVisualizerEntity(ServerLevel world, Vec3 pos, Object data) {
         if (data instanceof MobAIData mobAIData) {
+            //#if MC >= 260200
+            //$$ Display.TextDisplay display = new Display.TextDisplay(EntityTypes.TEXT_DISPLAY, world);
+            //#else
             Display.TextDisplay display = new Display.TextDisplay(EntityType.TEXT_DISPLAY, world);
+            //#endif
             display.setNoGravity(true);
             display.setInvulnerable(true);
             display.setPosRaw(pos.x(), pos.y() + 0.1f, pos.z());

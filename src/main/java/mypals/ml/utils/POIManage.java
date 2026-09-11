@@ -36,7 +36,11 @@ import net.minecraft.world.level.ChunkPos;
 public class POIManage {
     @Unique
     public static Stream<PoiRecord> getPOIsWithinRange(ServerPlayer player, ServerLevel world, int range) {
+        //#if MC >= 260100
+        //$$ ChunkPos playerChunkPos = ChunkPos.containing(player.blockPosition());
+        //#else
         ChunkPos playerChunkPos = new ChunkPos(player.blockPosition());
+        //#endif
         int chunkRadius = (int) Math.ceil(range / 16.0);
         return ChunkPos.rangeClosed(playerChunkPos, chunkRadius)
                 .flatMap(chunkPos -> getAllInChunk(chunkPos, world))
