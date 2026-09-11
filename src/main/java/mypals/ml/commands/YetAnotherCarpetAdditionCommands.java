@@ -34,5 +34,6 @@ public class YetAnotherCarpetAdditionCommands {
         WayPointCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
         SubscribeRuleCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
         BindPlayerCommand.register(serverCommandSourceCommandDispatcher, commandRegistryAccess);
+        TreeStatsCommand.registerCommand(serverCommandSourceCommandDispatcher, commandRegistryAccess);
     }
 }

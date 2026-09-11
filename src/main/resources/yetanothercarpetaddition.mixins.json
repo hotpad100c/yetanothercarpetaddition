@@ -98,7 +98,8 @@
     "features.visualizers.TickBlockEntitiesRecordOrderMixin",
     "features.visualizers.TreeGrowthObstacleUpdaterMixin",
     "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
-    "features.visualizers.WorldUpdateComparatorsMixin"
+    "features.visualizers.WorldUpdateComparatorsMixin",
+    "features.treeGrowthStats.TreeFeatureStatMixin"
   ],
   "client": [
     "client.optionalTicking.ClientWorldFreezeMixin",

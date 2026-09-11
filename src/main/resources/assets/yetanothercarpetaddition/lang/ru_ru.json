@@ -335,5 +335,7 @@
   "class_3763_$class_4223": "RaiderEntity$PatrolApproachGoal",
   "class_3763_$class_3764": "RaiderEntity$PickUpBannerAsLeaderGoal",
   "class_3763_$class_4260": "RaiderEntity$CelebrateGoal",
-  "class_3763_$class_4261": "RaiderEntity$AttackHomeGoal"
+  "class_3763_$class_4261": "RaiderEntity$AttackHomeGoal",
+  "carpet.rule.saplingGrowthStatistics.name": "Sapling Growth Statistics",
+  "carpet.rule.saplingGrowthStatistics.desc": "Trees grown from saplings place no blocks; instead every growth is recorded (blocks + position relative to the sapling). Use /treeStats to view and /treeStats export to write a web page."
 }

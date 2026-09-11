@@ -343,5 +343,7 @@
   "class_3763_$class_4223": "袭击者实体$巡逻接近目标",
   "class_3763_$class_3764": "袭击者实体$作为领袖捡起旗帜目标",
   "class_3763_$class_4260": "袭击者实体$庆祝目标",
-  "class_3763_$class_4261": "袭击者实体$攻击家园目标"
+  "class_3763_$class_4261": "袭击者实体$攻击家园目标",
+  "carpet.rule.saplingGrowthStatistics.name": "树苗生长统计",
+  "carpet.rule.saplingGrowthStatistics.desc": "树苗长成的树不再生成方块，改为记录每次生长产出的方块及其相对树苗的位置。用 /treeStats 查看统计，/treeStats export 导出网页。"
 }

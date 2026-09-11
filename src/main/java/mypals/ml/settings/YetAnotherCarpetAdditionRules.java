@@ -303,6 +303,10 @@ public class YetAnotherCarpetAdditionRules {
 //            options = {"-1", "1", "0.01",}
     )
     public static float beeDecoratorProbability = -1;
+    @Rule(
+            categories = {YACA, FEATURE, TREEFARM}
+    )
+    public static boolean saplingGrowthStatistics = false;
 
     @Rule(
             categories = {YACA, FEATURE}
