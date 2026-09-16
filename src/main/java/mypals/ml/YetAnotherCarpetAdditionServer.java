@@ -174,6 +174,8 @@ public class YetAnotherCarpetAdditionServer implements ModInitializer, CarpetExt
             RuleSubscribeManager.init(server);
 
         });
+        ServerTickEvents.END_SERVER_TICK.register(server ->
+                mypals.ml.features.treeGrowthStats.TreeGrowthTask.tick(server));
         //#if MC >= 260100
         //$$ ServerLevelEvents.LOAD.register((server, world) -> {
         //#else

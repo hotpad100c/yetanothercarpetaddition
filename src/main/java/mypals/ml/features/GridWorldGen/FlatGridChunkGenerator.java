@@ -30,6 +30,13 @@ import java.util.concurrent.CompletableFuture;
 //#if MC < 12101
 //$$ import java.util.concurrent.Executor;
 //#endif
+//#if MC >= 260300
+//$$ import java.util.Set;
+//$$ import net.minecraft.core.Holder;
+//$$ import net.minecraft.server.level.WorldGenRegion;
+//$$ import net.minecraft.world.level.biome.Biome;
+//$$ import net.minecraft.world.level.biome.BiomeManager;
+//#endif
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.StructureManager;
@@ -77,12 +84,26 @@ public class FlatGridChunkGenerator extends FlatLevelSource {
         return CODEC;
     }
 
+    //#if MC >= 260300
+    //$$ @Override
+    //$$ public CompletableFuture<ChunkAccess> buildTerrain(
+    //$$         ChunkAccess chunk, Blender blender, RandomState noiseConfig, StructureManager structureAccessor,
+    //$$         BiomeManager biomeManager, WorldGenRegion region, Set<Holder<Biome>> biomes) {
+    //#elseif MC < 12101
+    //$$ @Override
+    //$$ public CompletableFuture<ChunkAccess> fillFromNoise(
+    //$$         Executor executor,
+    //$$         Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk) {
+    //#else
     @Override
     public CompletableFuture<ChunkAccess> fillFromNoise(
-            //#if MC < 12101
-            //$$ Executor executor,
-            //#endif
             Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk) {
+    //#endif
+        fillGrid(chunk);
+        return CompletableFuture.completedFuture(chunk);
+    }
+
+    private void fillGrid(ChunkAccess chunk) {
         ChunkPos chunkPos = chunk.getPos();
         //#if MC >= 260100
         //$$ boolean isBlack = (chunkPos.x() + chunkPos.z()) % 2 == 0;
@@ -111,6 +132,5 @@ public class FlatGridChunkGenerator extends FlatLevelSource {
                 }
             }
         }
-        return CompletableFuture.completedFuture(chunk);
     }
 }

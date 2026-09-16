@@ -64,7 +64,14 @@ dependencies {
 	}
 	autoImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	autoImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	autoImplementation "carpet:fabric-carpet:${project.carpet_version}"
+	// carpet 26.3 is only published on GitHub, so a locally downloaded release jar takes precedence
+	// over the masa maven coordinate (which is still stuck on 26.3-beta-3).
+	def carpetLocalJar = rootProject.file("libs/fabric-carpet-${project.carpet_version}.jar")
+	if (carpetLocalJar.exists()) {
+		autoImplementation(files(carpetLocalJar))
+	} else {
+		autoImplementation "carpet:fabric-carpet:${project.carpet_version}"
+	}
 
 	// dependencies
 	include(autoImplementation("me.fallenbreath:conditional-mixin-fabric:${project.conditionalmixin_version}"))

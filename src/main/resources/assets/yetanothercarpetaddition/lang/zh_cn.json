@@ -400,6 +400,7 @@
   "command.treeStats.bar": "树苗统计 %s/%s",
   "command.treeStats.growFailed": "连续 %s 次都没长成树，已放弃（检查上方空间与下方方块）",
   "command.treeStats.growDone": "完成 %s 次催熟；累计样本 %s 棵；网页：%s",
+  "command.treeStats.growSpeed": "（快照 %.1fs，模拟 %.1fs，%.0f 次/秒，失败尝试 %d 次）",
   "command.treeStats.growAborted": "催熟任务中止：%s（完成 %s/%s）",
   "command.treeStats.notRunning": "当前没有正在运行的催熟任务。",
   "command.treeStats.stopped": "已停止催熟任务。",

@@ -50,6 +50,13 @@ import java.util.concurrent.CompletableFuture;
 //#if MC <= 12006
 //$$ import java.util.concurrent.Executor;
 //#endif
+//#if MC >= 260300
+//$$ import java.util.Set;
+//$$ import net.minecraft.core.Holder;
+//$$ import net.minecraft.server.level.WorldGenRegion;
+//$$ import net.minecraft.world.level.biome.Biome;
+//$$ import net.minecraft.world.level.biome.BiomeManager;
+//#endif
 
 @Mixin(FlatLevelSource.class)
 public class FlatChunkGeneratorMixin {
@@ -75,6 +82,14 @@ public class FlatChunkGeneratorMixin {
         return isBlack ? settings.black.defaultBlockState() : settings.white.defaultBlockState();
     }
 
+    //#if MC >= 260300
+    //$$ @WrapMethod(method = "buildTerrain")
+    //$$ public CompletableFuture<ChunkAccess> populateNoise(
+    //$$         ChunkAccess chunk, Blender blender, RandomState noiseConfig, StructureManager structureAccessor,
+    //$$         BiomeManager biomeManager, WorldGenRegion region, Set<Holder<Biome>> biomes,
+    //$$         Operation<CompletableFuture<ChunkAccess>> original
+    //$$ ) {
+    //#else
     @WrapMethod(method = "fillFromNoise")
     public CompletableFuture<ChunkAccess> populateNoise(
             //#if MC <= 12006
@@ -82,6 +97,7 @@ public class FlatChunkGeneratorMixin {
             //#endif
             Blender blender, RandomState noiseConfig, StructureManager structureAccessor, ChunkAccess chunk, Operation<CompletableFuture<ChunkAccess>> original
     ) {
+    //#endif
         if (!Objects.equals(YetAnotherCarpetAdditionRules.chessboardSuperFlatSettings, "off")) {
 
             GridWorldGenerator.ChessboardSuperFlatSettings settings = parseSettings(YetAnotherCarpetAdditionRules.chessboardSuperFlatSettings);
@@ -112,12 +128,13 @@ public class FlatChunkGeneratorMixin {
 
             return CompletableFuture.completedFuture(chunk);
         } else {
-            return original.call(
-                    //#if MC <= 12006
-                    //$$ executor,
-                    //#endif
-                    blender, noiseConfig, structureAccessor, chunk
-            );
+            //#if MC >= 260300
+            //$$ return original.call(chunk, blender, noiseConfig, structureAccessor, biomeManager, region, biomes);
+            //#elseif MC <= 12006
+            //$$ return original.call(executor, blender, noiseConfig, structureAccessor, chunk);
+            //#else
+            return original.call(blender, noiseConfig, structureAccessor, chunk);
+            //#endif
         }
     }
 

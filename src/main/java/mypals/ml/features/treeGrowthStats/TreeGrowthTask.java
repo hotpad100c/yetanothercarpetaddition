@@ -20,28 +20,35 @@
 
 package mypals.ml.features.treeGrowthStats;
 
-import com.mojang.brigadier.context.CommandContext;
 import carpet.utils.Translations;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerBossEvent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.level.block.SaplingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
-public final class TreeGrowthTask {
+import net.minecraft.commands.CommandSourceStack;
 
-    private static final int PER_TICK = 500;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public final class TreeGrowthTask {
 
     private static final int MAX_CONSECUTIVE_FAILS = 5000;
 
-    private static Task active;
-    private static boolean registered;
+    private static final int REPORT_INTERVAL = 4096;
+
+    private static final int UI_EVERY_TICKS = 10;
+
+    private static volatile Task active;
 
     private TreeGrowthTask() {
     }
@@ -49,40 +56,27 @@ public final class TreeGrowthTask {
     private static final class Task {
         ServerLevel level;
         BlockPos pos;
-        BlockState sapling;
+        BlockState planted;
+        SaplingBlock sapling;
         CommandSourceStack source;
+        WorldSnapshot snapshot;
         int total;
-        int done;
-        int fails;
-        int consecutive;
+        int threads;
+        final AtomicInteger done = new AtomicInteger();
+        final AtomicInteger fails = new AtomicInteger();
+        final AtomicInteger remaining = new AtomicInteger();
+        final List<SampleContext> contexts = new CopyOnWriteArrayList<>();
         ServerBossEvent bar;
+        ExecutorService pool;
+        long snapshotNanos;
+        long startedAt;
+        volatile String error;
+        volatile boolean cancelled;
+        int uiCooldown;
     }
 
     public static boolean isRunning() {
         return active != null;
-    }
-
-    public static void start(ServerLevel level, BlockPos pos, BlockState sapling, int times, CommandSourceStack source) {
-        ensureRegistered();
-        Task t = new Task();
-        t.level = level;
-        t.pos = pos.immutable();
-        t.sapling = sapling.setValue(SaplingBlock.STAGE, 1);
-        t.total = times;
-        t.source = source;
-        t.bar = makeBar(Component.literal(String.format(Translations.tr("command.treeStats.bar"), 0, times)));
-        for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
-            t.bar.addPlayer(player);
-        }
-        active = t;
-    }
-
-    private static void ensureRegistered() {
-        if (registered) {
-            return;
-        }
-        registered = true;
-        ServerTickEvents.END_SERVER_TICK.register(TreeGrowthTask::tick);
     }
 
     private static ServerBossEvent makeBar(Component title) {
@@ -93,35 +87,144 @@ public final class TreeGrowthTask {
         //#endif
     }
 
-    private static void tick(MinecraftServer server) {
+    public static boolean run(ServerLevel level, BlockPos pos, BlockState sapling, int times, CommandSourceStack source) {
+        if (active != null) {
+            return false;
+        }
+        Task t = new Task();
+        t.level = level;
+        t.pos = pos.immutable();
+        t.planted = sapling.setValue(SaplingBlock.STAGE, 1);
+        t.sapling = (SaplingBlock) t.planted.getBlock();
+        t.source = source;
+        t.total = times;
+        long snapshotStart = System.nanoTime();
+        t.snapshot = WorldSnapshot.capture(level, t.pos);
+        t.snapshotNanos = System.nanoTime() - snapshotStart;
+        t.startedAt = System.nanoTime();
+        t.bar = makeBar(Component.literal(String.format(Translations.tr("command.treeStats.bar"), 0, times)));
+        for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
+            t.bar.addPlayer(player);
+        }
+        t.bar.setProgress(0F);
+        t.threads = Math.max(1, Runtime.getRuntime().availableProcessors() - 2);
+        t.remaining.set(t.threads);
+        active = t;
+        setFrozen(level.getServer(), true);
+        t.pool = Executors.newFixedThreadPool(t.threads, r -> {
+            Thread thread = new Thread(r, "YACA-TreeStats");
+            thread.setDaemon(true);
+            return thread;
+        });
+        int per = times / t.threads;
+        int extra = times % t.threads;
+        for (int i = 0; i < t.threads; i++) {
+            int quota = per + (i < extra ? 1 : 0);
+            long seed = t.snapshot.seed + i * 7919L + 13L;
+            t.pool.execute(() -> worker(t, quota, seed));
+        }
+        t.pool.shutdown();
+        return true;
+    }
+
+    private static void setFrozen(MinecraftServer server, boolean frozen) {
+        server.getCommands().performPrefixedCommand(server.createCommandSourceStack(),
+                frozen ? "tick freeze" : "tick unfreeze");
+    }
+
+    private static void worker(Task t, int quota, long seed) {
+        SampleContext ctx = null;
+        try {
+            ctx = SampleContext.acquire(t.snapshot);
+            t.contexts.add(ctx);
+            RandomSource random = RandomSource.create(seed);
+            int success = 0;
+            int consecutive = 0;
+            int sinceReport = 0;
+            while (success < quota && !t.cancelled) {
+                ctx.beginSample(t.pos, random);
+                t.sapling.advanceTree(t.level, t.pos, t.planted, random);
+                if (ctx.endSample()) {
+                    success++;
+                    consecutive = 0;
+                    if (++sinceReport >= REPORT_INTERVAL) {
+                        t.done.addAndGet(sinceReport);
+                        sinceReport = 0;
+                    }
+                } else {
+                    consecutive++;
+                    t.fails.incrementAndGet();
+                    if (consecutive >= MAX_CONSECUTIVE_FAILS) {
+                        t.error = String.format(Translations.tr("command.treeStats.growFailed"), consecutive);
+                        t.cancelled = true;
+                        break;
+                    }
+                }
+            }
+            t.done.addAndGet(sinceReport);
+        } catch (Throwable e) {
+            t.error = String.valueOf(e);
+            t.cancelled = true;
+        } finally {
+            SampleContext.release();
+            if (t.remaining.decrementAndGet() == 0) {
+                finish(t);
+            }
+        }
+    }
+
+    public static void tick(MinecraftServer server) {
         Task t = active;
         if (t == null) {
             return;
         }
-        for (int i = 0; i < PER_TICK && t.done < t.total; i++) {
-            t.level.setBlock(t.pos, t.sapling, 3);
-            TreeGrowthStatistics.resetCommitted();
-            ((SaplingBlock) t.sapling.getBlock()).advanceTree(t.level, t.pos, t.sapling, t.level.getRandom());
-            if (TreeGrowthStatistics.lastCommitted()) {
-                t.done++;
-                t.consecutive = 0;
-            } else {
-                t.fails++;
-                t.consecutive++;
-                if (t.consecutive >= MAX_CONSECUTIVE_FAILS) {
-                    finish(t, "command.treeStats.growFailed", t.consecutive);
-                    return;
-                }
+        if (--t.uiCooldown > 0) {
+            return;
+        }
+        t.uiCooldown = UI_EVERY_TICKS;
+        updateBar(t);
+    }
+
+    private static void updateBar(Task t) {
+        int done = t.done.get();
+        t.bar.setProgress(t.total == 0 ? 1F : Math.min(1F, (float) done / t.total));
+        int fails = t.fails.get();
+        t.bar.setName(Component.literal(fails > 0
+                ? String.format(Translations.tr("command.treeStats.barRetry"), done, t.total, fails)
+                : String.format(Translations.tr("command.treeStats.bar"), done, t.total)));
+    }
+
+    private static void finish(Task t) {
+        t.level.getServer().execute(() -> {
+            active = null;
+            setFrozen(t.level.getServer(), false);
+            t.bar.setProgress(1F);
+            t.bar.removeAllPlayers();
+            for (SampleContext ctx : t.contexts) {
+                ctx.flush();
             }
-        }
-        t.bar.setProgress(t.total == 0 ? 0F : (float) t.done / t.total);
-        String title = t.fails > 0
-                ? String.format(Translations.tr("command.treeStats.barRetry"), t.done, t.total, t.fails)
-                : String.format(Translations.tr("command.treeStats.bar"), t.done, t.total);
-        t.bar.setName(Component.literal(title));
-        if (t.done >= t.total) {
-            finish(t, null);
-        }
+            SampleContext.deactivate();
+            String path;
+            try {
+                path = String.valueOf(TreeStatsExporter.export());
+            } catch (Exception e) {
+                path = String.valueOf(e);
+            }
+            final String message;
+            if (t.error != null) {
+                message = "[YACA] " + String.format(Translations.tr("command.treeStats.growAborted"),
+                        t.error, t.done.get(), t.total);
+            } else {
+                double snapshotSeconds = t.snapshotNanos / 1.0e9;
+                double simSeconds = (System.nanoTime() - t.startedAt) / 1.0e9;
+                double rate = simSeconds > 0 ? t.total / simSeconds : 0;
+                message = "[YACA] " + String.format(Translations.tr("command.treeStats.growDone"),
+                        t.total, TreeGrowthStatistics.totalTreeCount(), path)
+                        + " " + String.format(Translations.tr("command.treeStats.growSpeed"),
+                        snapshotSeconds, simSeconds, rate, t.fails.get());
+            }
+            t.source.sendSuccess(() -> Component.literal(message), false);
+        });
     }
 
     public static boolean stop(CommandSourceStack requester) {
@@ -130,27 +233,8 @@ public final class TreeGrowthTask {
             requester.sendFailure(Component.literal("[YACA] " + Translations.tr("command.treeStats.notRunning")));
             return false;
         }
-        finish(t, "command.treeStats.stopped");
-        requester.sendSuccess(() -> Component.literal("[YACA] " + Translations.tr("command.treeStats.stopped")), false);
+        t.cancelled = true;
+        t.error = Translations.tr("command.treeStats.stopped");
         return true;
-    }
-
-    private static void finish(Task t, String reasonKey, Object... reasonArgs) {
-        active = null;
-        t.bar.removeAllPlayers();
-        String path;
-        try {
-            path = String.valueOf(TreeStatsExporter.export());
-        } catch (Exception e) {
-            path = String.valueOf(e);
-        }
-        final String msg;
-        if (reasonKey == null) {
-            msg = "[YACA] " + String.format(Translations.tr("command.treeStats.growDone"), t.total, TreeGrowthStatistics.totalTreeCount(), path);
-        } else {
-            String reason = String.format(Translations.tr(reasonKey), reasonArgs);
-            msg = "[YACA] " + String.format(Translations.tr("command.treeStats.growAborted"), reason, t.done, t.total);
-        }
-        t.source.sendSuccess(() -> Component.literal(msg), false);
     }
 }

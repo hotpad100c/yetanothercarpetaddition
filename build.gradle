@@ -29,8 +29,10 @@ preprocess {
     // 26.1, 26.1.1 and 26.1.2 share the same node (only bugfix releases in between)
     def mc2601 = createNode('26.1.2', 26_01_02, '')
     def mc2602 = createNode('26.2', 26_02_00, '')
-    // latest snapshot supported by Carpet (26.3-beta-3)
-    def mc2603 = createNode('26.3-snapshot-9', 26_03_00, '')
+    // 26.3 (Wilderness Bound, released 2026-09-15). The '26.3-snapshot-9' node has been retired in
+    // favour of the release; keep the preprocess mcVersion at 26_03_00 so the MC >= 260300
+    // branches stay valid for both.
+    def mc2603 = createNode('26.3', 26_03_00, '')
 
     mc1206.link(mc1204, file('versions/mapping-1.20.6-1.20.4.txt'))
     mc1211.link(mc1206, file('versions/mapping-1.21.1-1.20.6.txt'))
@@ -42,7 +44,7 @@ preprocess {
     mc1219.link(mc12111, file('versions/mapping-1.21.9-1.21.11.txt'))
     mc12111.link(mc2601, file('versions/mapping-1.21.11-26.1.2.txt'))
     mc2601.link(mc2602, file('versions/mapping-26.1.2-26.2.txt'))
-    mc2602.link(mc2603, file('versions/mapping-26.2-26.3-snapshot-9.txt'))
+    mc2602.link(mc2603, file('versions/mapping-26.2-26.3.txt'))
 }
 
 tasks.register('buildAndGather') {

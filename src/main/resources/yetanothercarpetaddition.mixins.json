@@ -99,7 +99,8 @@
     "features.visualizers.TreeGrowthObstacleUpdaterMixin",
     "features.visualizers.WorldTickSchedulerRemoveMarkerMixin",
     "features.visualizers.WorldUpdateComparatorsMixin",
-    "features.treeGrowthStats.TreeFeatureStatMixin"
+    "features.treeGrowthStats.LevelChunkTicksSnapshotMixin",
+    "features.treeGrowthStats.LevelSnapshotMixin"
   ],
   "client": [
     "client.optionalTicking.ClientWorldFreezeMixin",

@@ -20,27 +20,12 @@
 
 package mypals.ml.features.treeGrowthStats;
 
-import mypals.ml.settings.YetAnotherCarpetAdditionRules;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.levelgen.feature.TreeFeature;
-import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
-//#if MC < 260300
-import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
-import net.minecraft.world.level.levelgen.feature.configurations.TreeConfiguration;
-//#endif
 
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -54,143 +39,11 @@ public final class TreeGrowthStatistics {
 
     private static final Map<String, SpeciesData> DATA = new ConcurrentHashMap<>();
 
-    private static final ThreadLocal<Sample> CURRENT = new ThreadLocal<>();
+    private static final Map<Block, String> CATEGORY_CACHE = new ConcurrentHashMap<>();
 
-    private static volatile boolean committed;
+    private static final Map<Block, String> ID_CACHE = new ConcurrentHashMap<>();
 
     private TreeGrowthStatistics() {
-    }
-
-    public static final class Sample {
-        public final String species;
-        public final BlockPos origin;
-        public final Map<Integer, Block> blocks = new HashMap<>();
-
-        Sample(String species, BlockPos origin) {
-            this.species = species;
-            this.origin = origin.immutable();
-        }
-
-        void record(BlockPos pos, BlockState state) {
-            if (state.isAir()) {
-                return;
-            }
-            if ("dirt".equals(categoryOf(state.getBlock()))) {
-                return;
-            }
-            int dx = pos.getX() - origin.getX();
-            int dy = pos.getY() - origin.getY();
-            int dz = pos.getZ() - origin.getZ();
-            if (Math.abs(dx) > 127 || Math.abs(dy) > 127 || Math.abs(dz) > 127) {
-                return;
-            }
-            blocks.putIfAbsent(pack(dx, dy, dz), state.getBlock());
-        }
-    }
-
-    public static boolean lastCommitted() {
-        return committed;
-    }
-
-    public static void resetCommitted() {
-        committed = false;
-    }
-
-    // 26.3 turned TreeFeature into a record holding the former TreeConfiguration and dropped
-    // both FeaturePlaceContext and TreeConfiguration, so the placement arguments are passed in directly.
-    //#if MC >= 260300
-    //$$ public static void begin(TreeFeature feature, WorldGenLevel level, RandomSource random, BlockPos origin) {
-    //#else
-    public static void begin(FeaturePlaceContext<TreeConfiguration> context) {
-    //#endif
-        committed = false;
-        if (!YetAnotherCarpetAdditionRules.saplingGrowthStatistics) {
-            return;
-        }
-        //#if MC < 260300
-        WorldGenLevel level = context.level();
-        //#endif
-        if (!(level instanceof ServerLevel)) {
-            return;
-        }
-        //#if MC >= 260300
-        //$$ BlockStateProvider trunkProvider = feature.trunkProvider();
-        //#else
-        TreeConfiguration config = context.config();
-        RandomSource random = context.random();
-        BlockPos origin = context.origin();
-        BlockStateProvider trunkProvider = config.trunkProvider;
-        //#endif
-        Block log;
-        //#if MC >= 260100
-        //$$ log = trunkProvider.getState(level, random, origin).getBlock();
-        //#else
-        log = trunkProvider.getState(random, origin).getBlock();
-        //#endif
-        CURRENT.set(new Sample(speciesOf(log), origin));
-    }
-
-    public static boolean end() {
-        Sample sample = CURRENT.get();
-        CURRENT.remove();
-        if (sample == null || sample.blocks.isEmpty()) {
-            return false;
-        }
-        SpeciesData data = DATA.computeIfAbsent(sample.species, k -> new SpeciesData());
-        synchronized (data) {
-            data.treeCount++;
-            sample.blocks.forEach((key, block) -> {
-                data.posBlocks.computeIfAbsent(key, k -> new HashMap<>()).merge(block, 1, Integer::sum);
-                data.totals.merge(block, 1L, Long::sum);
-            });
-        }
-        committed = true;
-        return true;
-    }
-
-    public static WorldGenLevel wrapLevel(WorldGenLevel real) {
-        if (real == null || CURRENT.get() == null) {
-            return real;
-        }
-        return (WorldGenLevel) Proxy.newProxyInstance(
-                TreeGrowthStatistics.class.getClassLoader(),
-                new Class<?>[]{WorldGenLevel.class},
-                new RecordingLevel(real));
-    }
-
-    private static final class RecordingLevel implements InvocationHandler {
-        private final WorldGenLevel real;
-
-        RecordingLevel(WorldGenLevel real) {
-            this.real = real;
-        }
-
-        @Override
-        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            String name = method.getName();
-            if ("setBlock".equals(name) && args != null && args.length >= 2
-                    && args[0] instanceof BlockPos && args[1] instanceof BlockState) {
-                Sample sample = CURRENT.get();
-                if (sample != null) {
-                    sample.record((BlockPos) args[0], (BlockState) args[1]);
-                    return Boolean.TRUE;
-                }
-            }
-            if ("equals".equals(name) && args != null && args.length == 1) {
-                return proxy == args[0];
-            }
-            if ("hashCode".equals(name)) {
-                return System.identityHashCode(proxy);
-            }
-            if ("toString".equals(name)) {
-                return "YACA-TreeGrowthStatistics-Level";
-            }
-            try {
-                return method.invoke(real, args);
-            } catch (InvocationTargetException e) {
-                throw e.getCause();
-            }
-        }
     }
 
     public static final class SpeciesData {
@@ -206,6 +59,21 @@ public final class TreeGrowthStatistics {
                 }
             }
             return sum;
+        }
+    }
+
+    public static void merge(String species, int trees, Map<Integer, Map<Block, Integer>> incoming) {
+        if (trees <= 0 || incoming.isEmpty()) {
+            return;
+        }
+        SpeciesData data = DATA.computeIfAbsent(species, k -> new SpeciesData());
+        data.treeCount += trees;
+        for (Map.Entry<Integer, Map<Block, Integer>> e : incoming.entrySet()) {
+            Map<Block, Integer> target = data.posBlocks.computeIfAbsent(e.getKey(), k -> new HashMap<>());
+            for (Map.Entry<Block, Integer> b : e.getValue().entrySet()) {
+                target.merge(b.getKey(), b.getValue(), Integer::sum);
+                data.totals.merge(b.getKey(), (long) b.getValue(), Long::sum);
+            }
         }
     }
 
@@ -248,6 +116,16 @@ public final class TreeGrowthStatistics {
     }
 
     public static String categoryOf(Block block) {
+        String cached = CATEGORY_CACHE.get(block);
+        if (cached != null) {
+            return cached;
+        }
+        String category = computeCategory(block);
+        CATEGORY_CACHE.put(block, category);
+        return category;
+    }
+
+    private static String computeCategory(Block block) {
         BlockState state = block.defaultBlockState();
         if (state.is(BlockTags.LOGS)) {
             return "log";
@@ -276,11 +154,18 @@ public final class TreeGrowthStatistics {
     }
 
     public static String blockId(Block block) {
-        try {
-            return BuiltInRegistries.BLOCK.getKey(block).toString();
-        } catch (Exception e) {
-            return "unknown";
+        String cached = ID_CACHE.get(block);
+        if (cached != null) {
+            return cached;
         }
+        String id;
+        try {
+            id = BuiltInRegistries.BLOCK.getKey(block).toString();
+        } catch (Exception e) {
+            id = "unknown";
+        }
+        ID_CACHE.put(block, id);
+        return id;
     }
 
     public static List<Map.Entry<Block, Long>> sortedTotals(SpeciesData data) {

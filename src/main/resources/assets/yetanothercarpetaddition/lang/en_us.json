@@ -400,6 +400,7 @@
   "command.treeStats.bar": "Sapling stats %s/%s",
   "command.treeStats.growFailed": "%s consecutive attempts did not grow into a tree, giving up (check the space above and the block below)",
   "command.treeStats.growDone": "Finished %s growths; %s trees sampled; page: %s",
+  "command.treeStats.growSpeed": "(snapshot %.1fs, simulation %.1fs, %.0f/s, %d failed attempts)",
   "command.treeStats.growAborted": "Growth task aborted: %s (completed %s/%s)",
   "command.treeStats.notRunning": "No growth task is currently running.",
   "command.treeStats.stopped": "Growth task stopped.",

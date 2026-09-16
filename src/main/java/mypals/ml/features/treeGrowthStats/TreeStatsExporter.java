@@ -326,11 +326,32 @@ const I18N = __I18N__;
 
 const BASE_COLOR = { log:'#c98a4b', leaves:'#5faa3c', beehive:'#e0b040', sapling:'#8bc34a', dirt:'#8d6e52', other:'#7f8ea3' };
 
+const COLOR_CACHE = new Map();
+const RGB_CACHE = new Map();
+
 function colorOf(id, cat) {
-  if (cat && cat !== 'other' && BASE_COLOR[cat]) return BASE_COLOR[cat];
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
-  return 'hsl(' + h + ',36%,63%)';
+  const key = id + '|' + (cat || '');
+  let out = COLOR_CACHE.get(key);
+  if (out !== undefined) return out;
+  if (cat && cat !== 'other' && BASE_COLOR[cat]) {
+    out = BASE_COLOR[cat];
+  } else {
+    let h = 0;
+    for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) % 360;
+    out = 'hsl(' + h + ',36%,63%)';
+  }
+  COLOR_CACHE.set(key, out);
+  return out;
+}
+
+function rgbOf(id, cat) {
+  const key = id + '|' + (cat || '');
+  let out = RGB_CACHE.get(key);
+  if (out === undefined) {
+    out = cssToRgb(colorOf(id, cat));
+    RGB_CACHE.set(key, out);
+  }
+  return out;
 }
 
 function shortName(id, cat) {
@@ -364,7 +385,7 @@ function t(key) {
   return out;
 }
 
-const state = { species:null, hidden:new Set(), highlight:null, yaw:0.7, pitch:0.32, dist:30,
+const state = { species:null, hidden:new Set(), highlight:null, yaw:0.7, pitch:-0.32, dist:30,
                 panX:0, panY:0, z:0, dispLayer:null, onlyLayer:false };
 
 function list() { return (DATA.speciesOrder || []).filter(k => DATA.species[k]); }
@@ -443,7 +464,7 @@ function render() {
     state.z = zList[parseInt(zSlider.value, 10)];
     zLabel.textContent = 'Z = ' + state.z;
     drawProfile();
-    draw3D();
+    requestDraw();
   };
   zSlider.oninput = applyZ;
   zLabel.textContent = 'Z = ' + state.z;
@@ -462,7 +483,7 @@ function render() {
     state.dispLayer = parseInt(lr.value, 10);
     document.getElementById('layerText').textContent =
       (state.onlyLayer ? 'Y = ' : 'Y ≤ ') + state.dispLayer;
-    draw3D();
+    requestDraw();
   };
   lr.oninput = applyLayer;
   document.getElementById('onlyLayer').onchange = e => {
@@ -475,6 +496,7 @@ function render() {
   canvas.addEventListener('mousedown', ev => {
     ev.preventDefault();
     canvas.classList.add('drag');
+    dragging = true;
     let lx = ev.clientX, ly = ev.clientY, moved = 0;
     const right = ev.button === 2;
     const move = e => {
@@ -482,10 +504,11 @@ function render() {
       lx = e.clientX; ly = e.clientY;
       moved += Math.abs(dx) + Math.abs(dy);
       if (right) { state.panX += dx; state.panY += dy; }
-      else { state.yaw += dx * 0.01; state.pitch = Math.max(-1.45, Math.min(1.45, state.pitch + dy * 0.01)); }
-      draw3D();
+      else { state.yaw += dx * 0.01; state.pitch = Math.max(-1.45, Math.min(1.45, state.pitch - dy * 0.01)); }
+      requestDraw();
     };
     const up = e => { canvas.classList.remove('drag');
+      dragging = false;
       window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up);
       if (!right && moved < 4) handleCanvasClick(e); };
     window.addEventListener('mousemove', move);
@@ -495,10 +518,10 @@ function render() {
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
     state.dist = Math.max(6, Math.min(140, state.dist * (e.deltaY > 0 ? 1.1 : 0.9)));
-    draw3D();
+    requestDraw();
   }, { passive:false });
   document.getElementById('resetView').onclick = () => {
-    state.yaw = 0.7; state.pitch = 0.32; state.dist = 30; state.panX = 0; state.panY = 0; draw3D();
+    state.yaw = 0.7; state.pitch = -0.32; state.dist = 30; state.panX = 0; state.panY = 0; requestDraw();
   };
   window.addEventListener('resize', draw3D);
 }
@@ -524,7 +547,7 @@ function renderLegend(sp) {
       } else {
         state.highlight = state.highlight === b.id ? null : b.id;
       }
-      renderLegend(sp); draw3D(); drawProfile();
+      renderLegend(sp); requestDraw(); drawProfile();
     };
     box.appendChild(el);
   }
@@ -536,7 +559,13 @@ function pick(cell) {
   return null;
 }
 
+let profileKey = null;
+
 function drawProfile() {
+  const key = state.species + '|' + state.z + '|' + state.highlight + '|' +
+              state.onlyLayer + '|' + state.dispLayer + '|' + Array.from(state.hidden).sort().join(',');
+  if (profileKey === key) return;
+  profileKey = key;
   const sp = DATA.species[state.species];
   const b = sp.bounds;
   const wrap = document.getElementById('profileWrap');
@@ -568,7 +597,7 @@ function drawProfile() {
       const top = pick(cell);
       if (!top) { html += '<td><div class="cell"></div></td>'; continue; }
       const meta = cell.all.find(o => o.block === top.block) || {};
-      let bg = mixRgb([26, 31, 38], cssToRgb(colorOf(top.block, meta.category)),
+      let bg = mixRgb([26, 31, 38], rgbOf(top.block, meta.category),
                       0.55 + 0.45 * Math.min(1, top.prob));
       const isHl = state.highlight && !state.hidden.has(state.highlight) &&
                    cell.all.some(o => o.block === state.highlight);
@@ -627,11 +656,14 @@ const FACES = [
 
 const EDGES = [[0,1],[2,3],[4,5],[6,7],[0,2],[1,3],[4,6],[5,7],[0,4],[1,5],[2,6],[3,7]];
 
-function rotate(x, y, z) {
-  const cy = Math.cos(state.yaw), sy = Math.sin(state.yaw);
-  const x1 = x * cy - z * sy, z1 = x * sy + z * cy;
-  const cp = Math.cos(state.pitch), sp = Math.sin(state.pitch);
-  return { x:x1, y:y * cp - z1 * sp, z:y * sp + z1 * cp };
+function makeRotation() {
+  return { cy:Math.cos(state.yaw), sy:Math.sin(state.yaw),
+           cp:Math.cos(state.pitch), sp:Math.sin(state.pitch) };
+}
+
+function rotate(x, y, z, r) {
+  const x1 = x * r.cy - z * r.sy, z1 = x * r.sy + z * r.cy;
+  return { x:x1, y:y * r.cp - z1 * r.sp, z:y * r.sp + z1 * r.cp };
 }
 
 function projectCube(x, y, z, env) {
@@ -639,9 +671,8 @@ function projectCube(x, y, z, env) {
   let depth = 0;
   for (let i = 0; i < 8; i++) {
     const px = (x - env.cxm) + (i & 1), py = (y - env.cym) + ((i >> 1) & 1), pz = (z - env.czm) + ((i >> 2) & 1);
-    const r = rotate(px, py, pz);
-    const f = env.fit * 14 / (env.dist + r.z);
-    corners.push({ x:env.cx + r.x * f, y:env.cy - r.y * f, z:r.z });
+    const r = rotate(px, py, pz, env.r);
+    corners.push({ x:env.cx + r.x * env.scale, y:env.cy - r.y * env.scale, z:r.z });
     depth += r.z;
   }
   return { corners:corners, depth:depth / 8 };
@@ -713,17 +744,26 @@ function handleCanvasClick(ev) {
 }
 
 function projectPoint(x, y, z, env) {
-  const r = rotate(x - env.cxm, y - env.cym, z - env.czm);
-  const f = env.fit * 14 / (env.dist + r.z);
-  return { x:env.cx + r.x * f, y:env.cy - r.y * f };
+  const r = rotate(x - env.cxm, y - env.cym, z - env.czm, env.r);
+  return { x:env.cx + r.x * env.scale, y:env.cy - r.y * env.scale };
+}
+
+let dragging = false;
+let rafPending = false;
+
+function requestDraw() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => { rafPending = false; draw3D(); });
 }
 
 function draw3D() {
   const canvas = document.getElementById('view3d');
   if (!canvas) return;
-  const dpr = window.devicePixelRatio || 1;
+  const dpr = Math.min(window.devicePixelRatio || 1, 1.5) * (dragging ? 0.55 : 1);
   const w = canvas.clientWidth, h = canvas.clientHeight;
-  if (canvas.width !== Math.round(w * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+  const pw = Math.max(1, Math.round(w * dpr)), ph = Math.max(1, Math.round(h * dpr));
+  if (canvas.width !== pw) { canvas.width = pw; canvas.height = ph; }
   const g = canvas.getContext('2d');
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
   g.clearRect(0, 0, w, h);
@@ -745,11 +785,14 @@ function draw3D() {
     cxm: (sp.bounds.minX + sp.bounds.maxX) / 2,
     cym: (sp.bounds.minY + sp.bounds.maxY) / 2,
     czm: (sp.bounds.minZ + sp.bounds.maxZ) / 2,
-    fit: Math.min(w, h) / (state.dist * 0.11 + 6),
+    scale: Math.min(w, h) / (state.dist * 0.62),
     cx: w / 2 + state.panX,
     cy: h / 2 + state.panY,
     dist: state.dist
   };
+
+  env.r = makeRotation();
+  const faceHidden = FACES.map(f => rotate(f.n[0], f.n[1], f.n[2], env.r).z > -0.02);
 
   const pts = [];
   for (const cube of cubes) {
@@ -809,35 +852,41 @@ function draw3D() {
   g.fill();
   g.restore();
 
+  const allFaces = [];
   for (const item of pts) {
-    const rgb = cssToRgb(colorOf(item.cube.block, item.cube.cat));
+    const rgb = rgbOf(item.cube.block, item.cube.cat);
     const isHl = state.highlight === item.cube.block;
     const probK = (0.78 + 0.22 * Math.min(1, item.cube.prob)) * (isHl ? 1.12 : 1);
     item.faces = [];
-    for (const face of FACES) {
-      const rn = rotate(face.n[0], face.n[1], face.n[2]);
-      if (rn.z > -0.02) continue;
+    for (let fi = 0; fi < FACES.length; fi++) {
+      if (faceHidden[fi]) continue;
+      const face = FACES[fi];
       const quad = [];
+      let d = 0;
       for (let i = 0; i < 4; i++) {
         const vi = face.v[i][0] | (face.v[i][1] << 1) | (face.v[i][2] << 2);
         quad.push(item.corners[vi]);
+        d += item.corners[vi].z;
       }
       item.faces.push(quad);
-      g.beginPath();
-      for (let i = 0; i < 4; i++) {
-        const p = quad[i];
-        if (i === 0) g.moveTo(p.x, p.y); else g.lineTo(p.x, p.y);
-      }
-      g.closePath();
-      const k = face.s * probK;
-      g.fillStyle = 'rgb(' + Math.round(rgb[0] * k) + ',' + Math.round(rgb[1] * k) + ',' +
-                    Math.round(rgb[2] * k) + ')';
-      g.fill();
-      if (!isHl) {
-        g.strokeStyle = 'rgba(0,0,0,.28)';
-        g.lineWidth = 0.5;
-        g.stroke();
-      }
+      allFaces.push({ q:quad, d:d / 4, k:face.s * probK, rgb:rgb, hl:isHl });
+    }
+  }
+  allFaces.sort((a, b) => b.d - a.d);
+  for (const f of allFaces) {
+    g.beginPath();
+    for (let i = 0; i < 4; i++) {
+      const p = f.q[i];
+      if (i === 0) g.moveTo(p.x, p.y); else g.lineTo(p.x, p.y);
+    }
+    g.closePath();
+    g.fillStyle = 'rgb(' + Math.round(f.rgb[0] * f.k) + ',' + Math.round(f.rgb[1] * f.k) + ',' +
+                  Math.round(f.rgb[2] * f.k) + ')';
+    g.fill();
+    if (!f.hl && !dragging) {
+      g.strokeStyle = 'rgba(0,0,0,.28)';
+      g.lineWidth = 0.5;
+      g.stroke();
     }
   }
 

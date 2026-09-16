@@ -111,10 +111,6 @@ public class TreeStatsCommand {
     }
 
     private static int grow(CommandSourceStack source, BlockPos pos, int times) {
-        if (TreeGrowthTask.isRunning()) {
-            source.sendFailure(Component.literal("[YACA] " + Translations.tr("command.treeStats.busy")));
-            return 0;
-        }
         if (!YetAnotherCarpetAdditionRules.saplingGrowthStatistics) {
             source.sendFailure(Component.literal("[YACA] " + Translations.tr("command.treeStats.ruleOff")));
             return 0;
@@ -125,8 +121,12 @@ public class TreeStatsCommand {
             source.sendFailure(Component.literal("[YACA] " + String.format(Translations.tr("command.treeStats.notSapling"), pos)));
             return 0;
         }
-        TreeGrowthTask.start(level, pos, state, times, source);
+        if (TreeGrowthTask.isRunning()) {
+            source.sendFailure(Component.literal("[YACA] " + Translations.tr("command.treeStats.busy")));
+            return 0;
+        }
         source.sendSuccess(() -> Component.literal("[YACA] " + String.format(Translations.tr("command.treeStats.growStarted"), times, pos)), false);
+        TreeGrowthTask.run(level, pos, state, times, source);
         return 1;
     }
 

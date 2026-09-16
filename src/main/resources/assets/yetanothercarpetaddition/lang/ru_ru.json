@@ -392,6 +392,7 @@
   "command.treeStats.bar": "Статистика саженцев %s/%s",
   "command.treeStats.growFailed": "%s попыток подряд не выросли в дерево, сдаёмся (проверьте место сверху и блок снизу)",
   "command.treeStats.growDone": "Готово %s ростов; выборка %s деревьев; страница: %s",
+  "command.treeStats.growSpeed": "(снимок %.1fс, симуляция %.1fс, %.0f/с, неудачных попыток %d)",
   "command.treeStats.growAborted": "Задача прервана: %s (выполнено %s/%s)",
   "command.treeStats.notRunning": "Сейчас нет запущенной задачи.",
   "command.treeStats.stopped": "Задача остановлена.",
