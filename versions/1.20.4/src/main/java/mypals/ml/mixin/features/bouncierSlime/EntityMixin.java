@@ -36,6 +36,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import mypals.ml.settings.YetAnotherCarpetAdditionRules;
 
 @Mixin(Entity.class)
 public abstract class EntityMixin {
@@ -47,6 +48,7 @@ public abstract class EntityMixin {
 
     @Inject(method = "checkInsideBlocks", at = @At("HEAD"), cancellable = true)
     protected void checkBlockCollision(CallbackInfo ci) {
+        if (!YetAnotherCarpetAdditionRules.bouncierSlime) return;
         checkSurfaceCollision((Entity) (Object) this);
     }
 
